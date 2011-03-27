@@ -91,10 +91,10 @@ public class Main implements EntryPoint, ViewUpdater {
          // disassembly tab
          flowpanel = new FlowPanel();
          ListBox listBox = new ListBox();
+         listBox.addItem("x86");
          listBox.addItem("ARM");
          listBox.addItem("MIPS");
          listBox.addItem("PowerPC");
-         listBox.addItem("x86");
          listBox.setVisibleItemCount(1);
          listBox.addChangeHandler(asmView);
          
@@ -123,7 +123,7 @@ public class Main implements EntryPoint, ViewUpdater {
          
          hp = new HorizontalPanel();       
          //http://icons.mysitemyway.com/wp-content/gallery/matte-blue-and-white-square-icons-business/116958-matte-blue-and-white-square-icon-business-gear2.png
-         Image image = new Image("oda/gwt/standard/images/oda.png");
+         Image image = new Image("images/oda.png");
          hp.add(image);
          hp.setCellHorizontalAlignment(image, HasHorizontalAlignment.ALIGN_CENTER);
          image.setSize("128px", "128px");
