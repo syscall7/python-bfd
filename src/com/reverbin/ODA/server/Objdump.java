@@ -86,26 +86,26 @@ public class Objdump
     	
     	if (platform.toString().equals("PowerPC"))
     	{
-    		prefix = "ppc-elf-";
+    		prefix = "/usr/local/bin/ppc-elf-";
     		machine = "powerpc";
     	}
     	else if (platform.toString().equals("x86"))
     	{
-    		prefix = "";
+    		prefix = "/usr/bin/";
     		machine = "i386";
     	}
     	else if (platform.toString().equals("ARM"))
     	{
-    		prefix = "arm-elf-";
+    		prefix = "/usr/local/bin/arm-elf-";
     		machine = "arm";
     	}
     	else if (platform.toString().equals("MIPS"))
     	{
-    		prefix = "mips-elf-";
+    		prefix = "/usr/local/bin/mips-elf-";
     		machine = "mips";
     	}
     	
-    	return prefix + "objdump -D -b binary -m " + machine + " " + filePath;
+    	return  prefix + "objdump -D -b binary -m " + machine + " " + filePath;
     }
 
     /**
