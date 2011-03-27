@@ -1,0 +1,2 @@
+serviceClass: com.reverbin.ODA.client.HexFormatterService
+path: BD22F73B8DAB4747A08A47D9CCDCDDBF.gwt.rpc
