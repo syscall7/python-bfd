@@ -16,6 +16,8 @@ public class Main implements EntryPoint, ViewUpdater {
     ViewAssembly asmView = new ViewAssembly(this, htmlDisplay);
     ViewHex hexView = new ViewHex(this, hexArea);
     final byte[] DEFAULT_HEX_BYTES = {0x31, (byte) 0xed, 0x5e, (byte)0x89, (byte)0xe1, (byte)0x83, (byte)0xe4, (byte)0xf0, 0x50, 0x54, 0x52, 0x68, 0x10, (byte)0xa0, 0x05, 0x08};
+    FlowPanel asmPanel = new FlowPanel();
+    FlowPanel platformPanel = new FlowPanel();
     
 	private final HexFormatterServiceAsync formatterService = HexFormatterService.Util.getInstance();
 
@@ -90,7 +92,6 @@ public class Main implements EntryPoint, ViewUpdater {
          tabPanel.add(flowpanel, "Hex");
 
          // disassembly tab
-         flowpanel = new FlowPanel();
          ListBox listBox = new ListBox();
          listBox.addItem("x86");
          listBox.addItem("ARM");
@@ -99,8 +100,6 @@ public class Main implements EntryPoint, ViewUpdater {
          listBox.setVisibleItemCount(1);
          listBox.addChangeHandler(asmView);
          
-         FlowPanel platformPanel = new FlowPanel();
-         
          HorizontalPanel hp = new HorizontalPanel();     
          hp.add(new Label("Platform"));
          hp.add(listBox);
@@ -108,10 +107,10 @@ public class Main implements EntryPoint, ViewUpdater {
          platformPanel.add(hp);
          platformPanel.setStyleName("panelBox");
 
-         flowpanel.add(platformPanel);      
-         flowpanel.add(htmlDisplay);
-         flowpanel.setSize("600px", "418px");
-         tabPanel.add(flowpanel, "Assembly");
+         asmPanel.add(platformPanel);      
+         asmPanel.add(htmlDisplay);
+         asmPanel.setSize("600px", "418px");
+         tabPanel.add(asmPanel, "Assembly");
 
          flowpanel = new FlowPanel();
          flowpanel.add(new Label("012345\nabcdef"));
@@ -161,12 +160,15 @@ public class Main implements EntryPoint, ViewUpdater {
          
          rp.add(flowpanel);
         
-         this.updateHex(DEFAULT_HEX_BYTES);
-         
+         this.updateHex(DEFAULT_HEX_BYTES);         
     }
 
-    protected void updateOutputDisplay() {
-        //htmlDisplay.setHTML(assHtml);
+    protected void updateOutputDisplay() 
+    {
+    	final int PADDING = 20;
+    	
+    	// resize the height of the assembly panel to fit the displayed code
+    	asmPanel.setHeight("" + (htmlDisplay.getOffsetHeight() + platformPanel.getOffsetHeight() + PADDING) + "px");
     }
     
     /**
