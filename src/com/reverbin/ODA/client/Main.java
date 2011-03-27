@@ -84,9 +84,9 @@ public class Main implements EntryPoint, ViewUpdater {
          FlowPanel flowpanel = new FlowPanel();
          
          // hex tab
-         hexArea.setSize("519px", "414px");
+         hexArea.setSize("595px", "414px");
          flowpanel.add(hexArea);
-         flowpanel.setSize("524px", "418px");
+         flowpanel.setSize("600px", "418px");
          tabPanel.add(flowpanel, "Hex");
 
          // disassembly tab
