@@ -51,7 +51,7 @@ public class Main implements EntryPoint, ViewUpdater {
     
     public void onModuleLoad() {
 
-         RootLayoutPanel rp = RootLayoutPanel.get();        
+         RootPanel rp = RootPanel.get();        
          VerticalPanel vpanel = new VerticalPanel();
             
          // file
