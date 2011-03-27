@@ -15,6 +15,7 @@ public class Main implements EntryPoint, ViewUpdater {
     TextArea hexArea = new TextArea();
     ViewAssembly asmView = new ViewAssembly(this, htmlDisplay);
     ViewHex hexView = new ViewHex(this, hexArea);
+    final byte[] DEFAULT_HEX_BYTES = {0x31, (byte) 0xed, 0x5e, (byte)0x89, (byte)0xe1, (byte)0x83, (byte)0xe4, (byte)0xf0, 0x50, 0x54, 0x52, 0x68, 0x10, (byte)0xa0, 0x05, 0x08};
     
 	private final HexFormatterServiceAsync formatterService = HexFormatterService.Util.getInstance();
 
@@ -109,12 +110,12 @@ public class Main implements EntryPoint, ViewUpdater {
 
          flowpanel.add(platformPanel);      
          flowpanel.add(htmlDisplay);
-         flowpanel.setSize("524px", "418px");
+         flowpanel.setSize("600px", "418px");
          tabPanel.add(flowpanel, "Assembly");
 
          flowpanel = new FlowPanel();
          flowpanel.add(new Label("012345\nabcdef"));
-         flowpanel.setSize("524px", "418px");
+         flowpanel.setSize("600px", "418px");
          tabPanel.add(flowpanel, "Strings");
 
          tabPanel.selectTab(0);
@@ -160,7 +161,8 @@ public class Main implements EntryPoint, ViewUpdater {
          
          rp.add(flowpanel);
         
-        
+         this.updateHex(DEFAULT_HEX_BYTES);
+         
     }
 
     protected void updateOutputDisplay() {
