@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.reverbin.ODA.shared.FormattedOutput;
 import com.reverbin.ODA.shared.PlatformDescriptor;
 
@@ -98,13 +99,12 @@ public class Main implements EntryPoint, ViewUpdater {
  		 });
          hexHeaderPanel.add(hexSubmit);
          hexHeaderPanel.setStyleName("panelBox");
-         //hexArea.setSize("500px", "" + hexHeaderPanel.getOffsetWidth() + "px");
-         //hexArea.setSize("600px", "" + hexHeaderPanel.getOffsetWidth() + "px");
-         hexArea.setSize("574px", "336px");
+         int clientHeight = Window.getClientHeight();
+         hexArea.setSize("574px", "" + (int) (clientHeight*2/3) + "px");
          hexArea.setStyleName("textarea");
          hexPanel.add(hexHeaderPanel);
          hexPanel.add(hexArea);
-         hexPanel.setSize("600px", "418px");
+         hexPanel.setSize("600px", "" + (int) (clientHeight*2/3) + 82 + "px" );
          tabPanel.add(hexPanel, "Hex");
 
          // disassembly tab
