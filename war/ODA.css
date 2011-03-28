@@ -35,7 +35,7 @@ h1 {
 
 span.offset {color:black;}
 span.raw {color:grey;}
-span.insn {color:navy; font-weight:bold;}
+span.insn {color:#093C83; font-weight:bold;}
 
 .northPanelStyle {
   background-color: #E5F2FF;
@@ -56,4 +56,12 @@ border: 2px;
 border-color: #92C1F0;
 border-style: solid;
 background-color: #D0E4F6
+}
+
+.textarea {
+	margin-top: 7px;
+	padding: 3mm 3mm 3mm 3mm;
+    border: 2px;
+    border-color:#92C1F0;
+    border-style: solid;
 }
