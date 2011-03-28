@@ -29,20 +29,10 @@ public class HexInput extends DialogBox  {
 		
 		Button btnSubmit = new Button("Submit");
 		btnSubmit.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {	
-				char[] hex = txtrHex.getText().replaceAll(" ", "").toCharArray();
-				int length = hex.length / 2;
-			    byte[] raw = new byte[length];
-			    for (int i = 0; i < length; i++) {
-			      int high = Character.digit(hex[i * 2], 16);
-			      int low = Character.digit(hex[i * 2 + 1], 16);
-			      int value = (high << 4) | low;
-			      if (value > 127)
-			        value -= 256;
-			      raw[i] = (byte) value;
-			    }
+			public void onClick(ClickEvent event) 
+			{	
+				viewUpdater.updateHex(HexUtils.parseText(txtrHex.getText()));
 				
-			    viewUpdater.updateHex(raw);		    
 			}
 		});
 		absolutePanel.add(btnSubmit, 10, 151);
