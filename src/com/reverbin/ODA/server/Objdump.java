@@ -72,7 +72,7 @@ public class Objdump
             sb.append(String.format("<span class=\"offset\">%1$#6s </span>" +
             		                "<span class=\"raw\">%2$-16s </span>" +
             		                "<span class=\"insn\">%3$s</span>\n", 
-            		matcher.group(1), matcher.group(2), matcher.group(3)));
+            		matcher.group(1), matcher.group(2).replace(" ", ""), matcher.group(3)));
         }
 
         return "<pre>" + sb.toString() + "</pre>";
