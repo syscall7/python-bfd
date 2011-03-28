@@ -19,4 +19,15 @@
     <servlet-name>HexFormatterService</servlet-name>
     <url-pattern>/oda/HexFormatterService</url-pattern>
   </servlet-mapping>
+
+  <servlet>
+    <servlet-name>uploadServlet</servlet-name>
+    <servlet-class>com.reverbin.ODA.server.FileUploadServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>uploadServlet</servlet-name>
+    <url-pattern>/oda/upload</url-pattern>
+  </servlet-mapping>
+  
 </web-app>
