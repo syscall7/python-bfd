@@ -1,6 +1,8 @@
 package com.reverbin.ODA.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.Command;
@@ -18,6 +20,8 @@ public class Main implements EntryPoint, ViewUpdater {
     final byte[] DEFAULT_HEX_BYTES = {0x31, (byte) 0xed, 0x5e, (byte)0x89, (byte)0xe1, (byte)0x83, (byte)0xe4, (byte)0xf0, 0x50, 0x54, 0x52, 0x68, 0x10, (byte)0xa0, 0x05, 0x08};
     FlowPanel asmPanel = new FlowPanel();
     FlowPanel platformPanel = new FlowPanel();
+    FlowPanel hexHeaderPanel = new FlowPanel();
+    FlowPanel hexPanel = new FlowPanel();
     
 	private final HexFormatterServiceAsync formatterService = HexFormatterService.Util.getInstance();
 
@@ -82,14 +86,26 @@ public class Main implements EntryPoint, ViewUpdater {
          menu.addItem("File", menuBarFile);
          menu.addItem("Edit", menuBarEdit);
          menu.addItem("Help", menuBarHelp);
-             
-         FlowPanel flowpanel = new FlowPanel();
          
          // hex tab
-         hexArea.setSize("595px", "414px");
-         flowpanel.add(hexArea);
-         flowpanel.setSize("600px", "418px");
-         tabPanel.add(flowpanel, "Hex");
+         Button hexSubmit = new Button("Disassemble");
+         hexSubmit.addClickHandler(new ClickHandler() {
+ 			public void onClick(ClickEvent event) 
+ 			{	
+ 				updateHex(HexUtils.parseText(hexArea.getText()));
+ 				
+ 			}
+ 		 });
+         hexHeaderPanel.add(hexSubmit);
+         hexHeaderPanel.setStyleName("panelBox");
+         //hexArea.setSize("500px", "" + hexHeaderPanel.getOffsetWidth() + "px");
+         //hexArea.setSize("600px", "" + hexHeaderPanel.getOffsetWidth() + "px");
+         hexArea.setSize("574px", "336px");
+         hexArea.setStyleName("textarea");
+         hexPanel.add(hexHeaderPanel);
+         hexPanel.add(hexArea);
+         hexPanel.setSize("600px", "418px");
+         tabPanel.add(hexPanel, "Hex");
 
          // disassembly tab
          ListBox listBox = new ListBox();
@@ -112,12 +128,11 @@ public class Main implements EntryPoint, ViewUpdater {
          asmPanel.setSize("600px", "418px");
          tabPanel.add(asmPanel, "Assembly");
 
-         flowpanel = new FlowPanel();
+         FlowPanel flowpanel = new FlowPanel();
          flowpanel.add(new Label("012345\nabcdef"));
          flowpanel.setSize("600px", "418px");
          tabPanel.add(flowpanel, "Strings");
 
-         tabPanel.selectTab(0);
          //panel.setSize("739px", "538px");
          tabPanel.addStyleName("table-center");
          
