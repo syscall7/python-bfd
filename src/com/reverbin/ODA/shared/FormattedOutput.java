@@ -9,9 +9,10 @@ public class FormattedOutput implements Serializable {
 		this.setFormattedAssembly("");
 	}
 	
-	public FormattedOutput(String hex, String assembly) {
+	public FormattedOutput(String hex, String assembly, String s) {
 		this.setFormattedHex(hex);
 		this.setFormattedAssembly(assembly);
+		this.setFormattedStrings(s);
 	}
 	
 	
@@ -32,7 +33,15 @@ public class FormattedOutput implements Serializable {
 		return formattedAssembly;
 	}
 
+	public String getFormattedStrings() {
+		return strings;
+	}
 
+	public void setFormattedStrings(String s) {
+		strings = s;
+	}
+	
 	private String formattedHex;
 	private String formattedAssembly;
+	private String strings;
 }

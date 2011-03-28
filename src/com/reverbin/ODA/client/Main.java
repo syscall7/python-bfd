@@ -13,6 +13,7 @@ import com.reverbin.ODA.shared.PlatformDescriptor;
 public class Main implements EntryPoint, ViewUpdater {
 	TabPanel tabPanel = new TabPanel();
     HTML htmlDisplay = new HTML("", true);
+    HTML stringsDisplay = new HTML("", true);
     String hexHtml = "";
     String assHtml = "";
     TextArea hexArea = new TextArea();
@@ -23,6 +24,7 @@ public class Main implements EntryPoint, ViewUpdater {
     FlowPanel platformPanel = new FlowPanel();
     FlowPanel hexHeaderPanel = new FlowPanel();
     FlowPanel hexPanel = new FlowPanel();
+    FlowPanel stringsPanel = new FlowPanel();
     
 	private final HexFormatterServiceAsync formatterService = HexFormatterService.Util.getInstance();
 
@@ -46,9 +48,8 @@ public class Main implements EntryPoint, ViewUpdater {
 	    	hexInput.hide();
 	    	asmView.setText(result.getFormattedAssembly());
 	    	hexView.setText(result.getFormattedHex());
-	    	tabPanel.selectTab(1);
-	        Main.this.updateOutputDisplay();
-	        
+	    	stringsDisplay.setHTML(result.getFormattedStrings());
+	        Main.this.updateOutputDisplay();        
 	    	
 	    }};
 	    
@@ -104,7 +105,7 @@ public class Main implements EntryPoint, ViewUpdater {
          hexArea.setStyleName("textarea");
          hexPanel.add(hexHeaderPanel);
          hexPanel.add(hexArea);
-         hexPanel.setSize("600px", "" + (int) (clientHeight*2/3) + 82 + "px" );
+         hexPanel.setSize("600px", "" + (int) (clientHeight*2/3 + 82) + "px" );
          tabPanel.add(hexPanel, "Hex");
 
          // disassembly tab
@@ -128,10 +129,10 @@ public class Main implements EntryPoint, ViewUpdater {
          asmPanel.setSize("600px", "418px");
          tabPanel.add(asmPanel, "Assembly");
 
-         FlowPanel flowpanel = new FlowPanel();
-         flowpanel.add(new Label("012345\nabcdef"));
-         flowpanel.setSize("600px", "418px");
-         tabPanel.add(flowpanel, "Strings");
+         // strings tab
+         stringsPanel.add(stringsDisplay);
+         stringsPanel.setSize("600px", "418px");
+         tabPanel.add(stringsPanel, "Strings");
 
          //panel.setSize("739px", "538px");
          tabPanel.addStyleName("table-center");
@@ -170,7 +171,7 @@ public class Main implements EntryPoint, ViewUpdater {
          
          /* using a flow panel here coupled with the "centered" CSS I added
             makes the interface centered */
-         flowpanel = new FlowPanel();
+         FlowPanel flowpanel = new FlowPanel();
          flowpanel.add(vpanel);
          
          rp.add(flowpanel);
@@ -182,9 +183,13 @@ public class Main implements EntryPoint, ViewUpdater {
     {
     	final int PADDING = 20;
     	
+    	tabPanel.selectTab(2);
+    	stringsPanel.setHeight("" + (stringsDisplay.getOffsetHeight()+ PADDING) + "px");
+    	
+    	tabPanel.selectTab(1);
     	// resize the height of the assembly panel to fit the displayed code
     	asmPanel.setHeight("" + (htmlDisplay.getOffsetHeight() + platformPanel.getOffsetHeight() + PADDING) + "px");
-    }
+     }
     
     /**
      * Update disassembly when hex bytes change

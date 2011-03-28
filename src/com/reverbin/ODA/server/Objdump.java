@@ -114,26 +114,10 @@ public class Objdump
      * @param binary
      * @return
      */
-	public static String dis(PlatformDescriptor platform, byte[] binary)
+	public static String dis(PlatformDescriptor platform, String filePath)
 	{
-		String listing = "";
-		
-		try 
-		{
-		    // create temp file
-		    File temp = File.createTempFile("pattern", ".suffix");
-
-		    // write to temp file
-		    FileOutputStream out = new FileOutputStream(temp);
-		    out.write(binary);
-		    out.close();
-		    
-		    listing = exec(buildExecStr(platform, temp.getAbsolutePath()));
-		    
-		}
-		catch (IOException e)
-		{
-		}
+		String listing = "";  
+		listing = exec(buildExecStr(platform, filePath));
 		
 		if (listing.length() == 0)
 		{
