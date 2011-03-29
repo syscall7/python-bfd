@@ -72,9 +72,15 @@ public class Main implements EntryPoint, ViewUpdater {
          menuBarExamples.addItem("strcpy (x86)", new Command() {
         	 public void execute() 
         	 {
-        		 loadExample("strcpy.hex", new PlatformDescriptor("x86"));
+        		 loadExample("strcpy.x86.hex", new PlatformDescriptor("x86"));
         	 }
-        });
+         });
+         menuBarExamples.addItem("strcpy (arm)", new Command() {
+        	 public void execute() 
+        	 {
+        		 loadExample("strcpy.arm.hex", new PlatformDescriptor("ARM"));
+        	 }
+         });
          
          // help
          MenuBar menuBarHelp = new MenuBar(true);
@@ -173,7 +179,7 @@ public class Main implements EntryPoint, ViewUpdater {
          
          rp.add(flowpanel);
         
-         loadExample("strcpy.hex", new PlatformDescriptor("x86"));
+         loadExample("strcpy.x86.hex", new PlatformDescriptor("x86"));
     }
 
     protected void updateOutputDisplay() 
