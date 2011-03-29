@@ -9,6 +9,8 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.reverbin.ODA.shared.FormattedOutput;
 import com.reverbin.ODA.shared.PlatformDescriptor;
+import com.google.gwt.http.client.*;
+import com.google.gwt.core.client.GWT;
 
 public class Main implements EntryPoint, ViewUpdater {
 	TabPanel tabPanel = new TabPanel();
@@ -19,7 +21,6 @@ public class Main implements EntryPoint, ViewUpdater {
     TextArea hexArea = new TextArea();
     ViewAssembly asmView = new ViewAssembly(this, htmlDisplay);
     ViewHex hexView = new ViewHex(this, hexArea);
-    final byte[] DEFAULT_HEX_BYTES = {0x31, (byte) 0xed, 0x5e, (byte)0x89, (byte)0xe1, (byte)0x83, (byte)0xe4, (byte)0xf0, 0x50, 0x54, 0x52, 0x68, 0x10, (byte)0xa0, 0x05, 0x08};
     FlowPanel asmPanel = new FlowPanel();
     FlowPanel platformPanel = new FlowPanel();
     FlowPanel hexHeaderPanel = new FlowPanel();
@@ -38,13 +39,6 @@ public class Main implements EntryPoint, ViewUpdater {
 
 	    @Override
 	    public void onSuccess(FormattedOutput result) {
-	    	/*
-	        hexInput.hide();
-	        tabPanel.selectTab(1);
-	        hexHtml = result.getFormattedHex();
-	        assHtml = result.getFormattedAssembly();
-	        */
-	    	
 	    	hexInput.hide();
 	    	asmView.setText(result.getFormattedAssembly());
 	    	hexView.setText(result.getFormattedHex());
@@ -73,11 +67,14 @@ public class Main implements EntryPoint, ViewUpdater {
          });
          menuBarFile.addItem(menuItemInputHex);
         
-         // edit
-         MenuBar menuBarEdit = new MenuBar(true);
-         menuBarEdit.addItem("Cut", (Command) null);
-         menuBarEdit.addItem("Copy", (Command) null);
-         menuBarEdit.addItem("Paste", (Command) null);
+         // examples
+         MenuBar menuBarExamples = new MenuBar(true);
+         menuBarExamples.addItem("strcpy (x86)", new Command() {
+        	 public void execute() 
+        	 {
+        		 loadExample("strcpy.hex", new PlatformDescriptor("x86"));
+        	 }
+        });
          
          // help
          MenuBar menuBarHelp = new MenuBar(true);
@@ -86,7 +83,7 @@ public class Main implements EntryPoint, ViewUpdater {
          // top-level menu bar
          MenuBar menu = new MenuBar(false);
          menu.addItem("File", menuBarFile);
-         menu.addItem("Edit", menuBarEdit);
+         menu.addItem("Examples", menuBarExamples);
          menu.addItem("Help", menuBarHelp);
          
          // hex tab
@@ -176,7 +173,7 @@ public class Main implements EntryPoint, ViewUpdater {
          
          rp.add(flowpanel);
         
-         this.updateHex(DEFAULT_HEX_BYTES);         
+         loadExample("strcpy.hex", new PlatformDescriptor("x86"));
     }
 
     protected void updateOutputDisplay() 
@@ -190,6 +187,40 @@ public class Main implements EntryPoint, ViewUpdater {
     	// resize the height of the assembly panel to fit the displayed code
     	asmPanel.setHeight("" + (htmlDisplay.getOffsetHeight() + platformPanel.getOffsetHeight() + PADDING) + "px");
      }
+    
+    /**
+     * Load example binaries
+     * 
+     * @param example
+     * @param platform
+     */
+    private void loadExample(String example, final PlatformDescriptor platform)
+    {
+    	/* Because the RequestBuilder class doesn't handle GET results that are content-type
+    	 * application/octet-stream, I ended up storing the examples in ASCII hex, which then
+    	 * gets converted into binary via HexUtils.  Not ideal, but it works.
+    	 */
+        RequestBuilder req = new RequestBuilder(RequestBuilder.GET, "examples/" + example);
+        try
+        {
+	         req.sendRequest("", new RequestCallback() {
+	        	  @Override
+	        	  public void onResponseReceived(Request req, Response resp) {
+	        		  updateHexAndPlatform(HexUtils.parseText(resp.getText()), platform);
+	        	  }
+	
+	        	  @Override
+	        	  public void onError(Request res, Throwable throwable) {
+	        		  String s = res.toString();
+	        	    // handle errors
+	        	  }
+	        	});
+        }
+        catch (Exception e)
+        {
+       	 
+        } 
+    }
     
     /**
      * Update disassembly when hex bytes change
@@ -207,5 +238,12 @@ public class Main implements EntryPoint, ViewUpdater {
 	{
 		asmView.setPlatform(platform);
 	    formatterService.formatHex(platform, hexView.getRawBytes(), hexCallback);	
+	}
+	
+	public void updateHexAndPlatform(byte[] hexBytes, PlatformDescriptor platform)
+	{
+		hexView.setRawBytes(hexBytes);
+		asmView.setPlatform(platform);
+	    formatterService.formatHex(platform, hexBytes, hexCallback);	
 	}
 }
