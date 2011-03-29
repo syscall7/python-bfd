@@ -14,6 +14,7 @@ public class Strings {
                      efficiency reasons
         */
         String output = "";
+        boolean noStringsFound = true;
         try
         {
             String line;
@@ -37,6 +38,7 @@ public class Strings {
             	output += String.format("<span class=\"offset\">%1$#6s </span>" +
 		                "<span class=\"insn\">%2$-16s </span>\n",
 		                matcher.group(1), matcher.group(2));
+            	noStringsFound = false;
             }
             input.close();
         }
@@ -44,6 +46,8 @@ public class Strings {
         {
             err.printStackTrace();
         }
+        if (noStringsFound)
+        	output = "<span class=\"insn\">No strings found</span>";
         return output;
     }
     
