@@ -4,7 +4,7 @@ public class HexUtils {
 
 	public static byte[] parseText(String hexText)
 	{
-		char[] hex = hexText.replaceAll(" ", "").toCharArray();
+		char[] hex = hexText.replaceAll("\\s", "").toCharArray();
 		int length = hex.length / 2;
 	    byte[] raw = new byte[length];
 	    for (int i = 0; i < length; i++) 
