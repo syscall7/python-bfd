@@ -112,19 +112,45 @@ public class Main implements EntryPoint, ViewUpdater {
          tabPanel.add(hexPanel, "Hex");
 
          // disassembly tab
-         ListBox listBox = new ListBox();
-         listBox.addItem("x86");
-         listBox.addItem("ARM");
-         listBox.addItem("MIPS");
-         listBox.addItem("PowerPC");
-         listBox.setVisibleItemCount(1);
-         listBox.addChangeHandler(asmView);
+         VerticalPanel asmHeaderVp = new VerticalPanel();
+         asmHeaderVp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
          
-         HorizontalPanel hp = new HorizontalPanel();     
+         ListBox listBoxPlatform = new ListBox();
+         listBoxPlatform.addItem("x86");
+         listBoxPlatform.addItem("ARM");
+         listBoxPlatform.addItem("MIPS");
+         listBoxPlatform.addItem("PowerPC");
+         listBoxPlatform.setVisibleItemCount(1);
+         listBoxPlatform.addChangeHandler(asmView);
+         
+         ListBox listBoxEndian = new ListBox();
+         listBoxEndian.addItem("BIG");
+         listBoxEndian.addItem("LIL");
+         listBoxEndian.setVisibleItemCount(1);
+         
+         HorizontalPanel hp = new HorizontalPanel();   
+         hp.setSpacing(3);
+         hp.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+         hp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
          hp.add(new Label("Platform"));
-         hp.add(listBox);
-         hp.setSpacing(5);
-         platformPanel.add(hp);
+         hp.add(listBoxPlatform);
+         hp.add(new Label("     "));
+         hp.add(new Label("Endian"));
+         hp.add(listBoxEndian);
+         asmHeaderVp.add(hp);
+         
+         hp = new HorizontalPanel();
+         hp.setSpacing(3);
+         hp.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+         hp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+         hp.add(new Label("Base Address"));
+         TextBox textBoxBase = new TextBox();
+         textBoxBase.setVisibleLength(8);
+         hp.add(textBoxBase);
+         
+         asmHeaderVp.add(hp);
+         
+         platformPanel.add(asmHeaderVp);
          platformPanel.setStyleName("panelBox");
 
          asmPanel.add(platformPanel);      
