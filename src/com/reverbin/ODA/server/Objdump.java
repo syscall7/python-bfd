@@ -3,6 +3,7 @@ package com.reverbin.ODA.server;
 import java.io.*;
 import java.util.regex.*;
 import com.reverbin.ODA.shared.PlatformDescriptor;
+import org.apache.commons.io.*;
 
 public class Objdump
 {	
@@ -18,14 +19,7 @@ public class Objdump
         {
             String line;
             Process p = Runtime.getRuntime().exec(cmdline);
-            BufferedReader input = new BufferedReader(
-                new InputStreamReader(p.getInputStream()));
-
-            while ((line = input.readLine()) != null)
-            {
-                output += line + "\n";
-            }
-            input.close();
+            output = IOUtils.toString(p.getInputStream(), "UTF-8");
         }
         catch (Exception err)
         {
@@ -61,13 +55,7 @@ public class Objdump
 
         // for each match (each line, really)
         while (matcher.find())
-        {
-        	/*
-            System.out.printf("Found %d matches", matcher.groupCount());
-            for (int i = 0; i <= matcher.groupCount(); i++)
-                System.out.println("'" + matcher.group(i) + "'");
-            */
-        	
+        {       	
         	/* offset (right justified), raw bytes (left just), instruction */
             sb.append(String.format("<span class=\"offset\">%1$#6s </span>" +
             		                "<span class=\"raw\">%2$-16s </span>" +
