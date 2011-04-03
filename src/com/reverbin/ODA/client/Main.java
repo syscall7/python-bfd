@@ -10,7 +10,6 @@ import com.google.gwt.user.client.Window;
 import com.reverbin.ODA.shared.FormattedOutput;
 import com.reverbin.ODA.shared.PlatformDescriptor;
 import com.google.gwt.http.client.*;
-import com.google.gwt.core.client.GWT;
 
 public class Main implements EntryPoint, ViewUpdater {
 	TabPanel tabPanel = new TabPanel();
@@ -48,6 +47,7 @@ public class Main implements EntryPoint, ViewUpdater {
 	    }};
 	    
 	    HexInput hexInput = new HexInput(this);
+	    UploadFile uploadFile = new UploadFile();
     
     public void onModuleLoad() {
 
@@ -56,7 +56,13 @@ public class Main implements EntryPoint, ViewUpdater {
             
          // file
          MenuBar menuBarFile = new MenuBar(true);
-         menuBarFile.addItem("Upload File", (Command) null);        
+         menuBarFile.addItem("Upload File", new Command() {
+             public void execute() {
+            	 uploadFile.center();
+            	 uploadFile.show();
+             }
+         });
+         
          MenuItem menuItemInputHex = new MenuItem("Input Hex", false, new Command() {
              public void execute() {
                  hexInput.setText("");
