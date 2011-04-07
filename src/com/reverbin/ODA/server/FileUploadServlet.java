@@ -52,14 +52,22 @@ public class FileUploadServlet extends HttpServlet {
                         fileName = FilenameUtils.getName(fileName);
                     }
 
-                    File uploadedFile = new File(UPLOAD_DIRECTORY, fileName);
-                    if (uploadedFile.createNewFile()) {
-                        item.write(uploadedFile);
-                        resp.setStatus(HttpServletResponse.SC_CREATED);
-                        resp.getWriter().print("The file was created successfully.");
-                        resp.flushBuffer();
-                    } else
-                        throw new IOException("The file already exists in repository.");
+                    byte[] hex = item.get();
+                    final String HEXES = "0123456789ABCDEF";
+            		StringBuilder builder = new StringBuilder(2 * hex.length);
+
+            		for ( final byte b : hex ) {
+            	    	builder.append(HEXES.charAt((b & 0xF0) >> 4))
+            	         .append(HEXES.charAt((b & 0x0F)))
+            	         .append(" ");
+            	    }
+            		
+            		// prevent client browser from adding <pre> tags to the response
+            		resp.setContentType("text/html");
+                    resp.setStatus(HttpServletResponse.SC_CREATED);
+                    resp.getWriter().print(builder.toString());
+                    resp.flushBuffer();
+                    
                 }
             } catch (Exception e) {
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,

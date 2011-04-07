@@ -10,8 +10,10 @@ import com.google.gwt.user.client.Window;
 import com.reverbin.ODA.shared.FormattedOutput;
 import com.reverbin.ODA.shared.PlatformDescriptor;
 import com.google.gwt.http.client.*;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 
-public class Main implements EntryPoint, ViewUpdater {
+public class Main implements EntryPoint, ViewUpdater, SubmitCompleteHandler {
 	TabPanel tabPanel = new TabPanel();
     HTML htmlDisplay = new HTML("", true);
     HTML stringsDisplay = new HTML("", true);
@@ -47,7 +49,19 @@ public class Main implements EntryPoint, ViewUpdater {
 	    }};
 	    
 	    HexInput hexInput = new HexInput(this);
-	    UploadFile uploadFile = new UploadFile();
+	    UploadFile uploadFile = new UploadFile(this);
+	    
+    /**
+     * Fired when a form has been submitted successfully.
+     *
+     * @param event the event
+     */
+	public void onSubmitComplete(SubmitCompleteEvent event)
+    {
+    	hexView.setText(event.getResults());
+    	tabPanel.selectTab(0);
+    	uploadFile.hide();
+    }
     
     public void onModuleLoad() {
 

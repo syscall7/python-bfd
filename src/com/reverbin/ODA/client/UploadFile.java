@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -18,7 +19,7 @@ public class UploadFile extends DialogBox {
 	private static final String UPLOAD_ACTION_URL = GWT.getModuleBaseURL() + "upload";
 	private final Button buttonSubmit = new Button("Submit");
 	
-	public UploadFile() {
+	public UploadFile(SubmitCompleteHandler submitCompleteHandler) {
 		setHTML("Upload File");
 		
         // Create a FormPanel and point it at a service.
@@ -42,7 +43,7 @@ public class UploadFile extends DialogBox {
 		// Add a click handler to the submit button
 		buttonSubmit.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				UploadFile.this.buttonSubmit.setEnabled(false);
+				//UploadFile.this.buttonSubmit.setEnabled(false);
 				uploadForm.submit();
 			}
 		});
@@ -58,15 +59,7 @@ public class UploadFile extends DialogBox {
 			}
 		});
 
-	    uploadForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
-			@Override
-			public void onSubmitComplete(SubmitCompleteEvent event) {
-				// Check results here
-				
-				UploadFile.this.hide();
-				
-			}
-		});
+	    uploadForm.addSubmitCompleteHandler(submitCompleteHandler);
 
 		this.add(uploadForm);
 	}
