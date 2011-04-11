@@ -1,6 +1,8 @@
 package com.reverbin.ODA.client;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import com.reverbin.ODA.shared.DisassemblyOutput;
 import com.reverbin.ODA.shared.PlatformDescriptor;
 import com.google.gwt.event.dom.client.*;
 
@@ -10,69 +12,45 @@ import com.google.gwt.event.dom.client.*;
  * @author anthony
  *
  */
-public class ViewAssembly implements ChangeHandler {
+public class ViewAssembly extends HTML implements ModelBinaryListener, ModelPlatformListener {
 	
-	HTML display;
-	PlatformDescriptor platform = new PlatformDescriptor("x86");
-	ViewUpdater viewUpdater;
+	private ModelBinary modelBinary;
+	private ModelPlatform modelPlatform;
 	
-	/**
-	 * Constructor
-	 * 
-	 * @param vu
-	 * @param d
-	 */
-	public ViewAssembly(ViewUpdater vu, HTML d)
+	private final DisassemblyServiceAsync disService = DisassemblyService.Util.getInstance();
+
+	AsyncCallback<DisassemblyOutput> callback = new AsyncCallback<DisassemblyOutput>(){
+
+	    @Override
+	    public void onFailure(Throwable caught) {
+	        //hexInput.hide();
+	        //htmlDisplay.setHTML("Failed to get hex");
+	    }
+
+	    @Override
+	    public void onSuccess(DisassemblyOutput result) {
+	    	setHTML(result.getFormattedAssembly());  
+	    }};
+	    
+	
+	public ViewAssembly(ModelBinary mb, ModelPlatform mp)
 	{
-		this.display = d;
-		this.viewUpdater = vu;
+		modelBinary = mb;
+		modelPlatform = mp;
+		
+		modelBinary.addBinaryListner(this);
+		modelPlatform.addPlatformListner(this);
 	}
 	
-	/**
-	 * Handle platform selection
-	 */
-	public void onChange(ChangeEvent event) 
+	public void onBinaryChange(ModelBinary mb)
 	{
-		ListBox box = (ListBox)event.getSource();
-		String p = box.getItemText(box.getSelectedIndex());
-		this.setPlatform(new PlatformDescriptor(p));
-		this.viewUpdater.updatePlatform(this.getPlatform());
-    }
-	
-	/**
-	 * Set the formatted assembly
-	 * 
-	 * @param assembly
-	 */
-	public void setText(String assembly)
+		setHTML("");
+	}
+
+	public void onPlatformChange(ModelPlatform mp)
 	{
-		this.display.setHTML(assembly);
+		disService.disassemble(modelBinary.getBytes(), modelPlatform.getPlatform(), callback);
 	}
 	
-	/**
-	 * Get the formatted assembly
-	 * @return
-	 */
-	public String getText()
-	{
-		return this.display.getText();
-	}
 	
-	/**
-	 * Set the platform for which to disassemble
-	 * @param p
-	 */
-	public void setPlatform(PlatformDescriptor p)
-	{
-		this.platform = p;
-	}
-	
-	/**
-	 * Get the platform for which to disassemble
-	 * @return
-	 */
-	public PlatformDescriptor getPlatform()
-	{
-		return this.platform;
-	}
 }

@@ -1,24 +1,11 @@
 package com.reverbin.ODA.shared;
 
-import java.io.Serializable;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 @SuppressWarnings("serial")
-public class PlatformDescriptor  implements Serializable {
+public class PlatformDescriptor  implements IsSerializable {
 
-	private String platformStr;
-	
-	public PlatformDescriptor()
-	{
-		platformStr = "not set";
-	}
-	
-	public PlatformDescriptor(String p)
-	{
-		this.platformStr = p;
-	}
-	
-	public String toString()
-	{
-		return this.platformStr;
-	}
+	public PlatformId platformId;
+	public int baseAddress;
+	public Endian endian;
 }

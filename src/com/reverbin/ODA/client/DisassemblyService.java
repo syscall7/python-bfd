@@ -5,21 +5,21 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.reverbin.ODA.shared.*;
 
+@RemoteServiceRelativePath("DisassemblyService")
+public interface DisassemblyService extends RemoteService {
 
-@RemoteServiceRelativePath("HexFormatterService")
-public interface HexFormatterService extends RemoteService {
 	/**
 	 * Utility class for simplifying access to the instance of async service.
 	 */
 	public static class Util {
-		private static HexFormatterServiceAsync instance;
-		public static HexFormatterServiceAsync getInstance(){
+		private static DisassemblyServiceAsync instance;
+		public static DisassemblyServiceAsync getInstance(){
 			if (instance == null) {
-				instance = GWT.create(HexFormatterService.class);
+				instance = GWT.create(DisassemblyService.class);
 			}
 			return instance;
 		}
 	}
 	
-	FormattedOutput formatHex(PlatformDescriptor platform, byte[] hex) throws IllegalArgumentException;
+	DisassemblyOutput disassemble(byte[] binary, PlatformDescriptor platformDesc) throws IllegalArgumentException;
 }

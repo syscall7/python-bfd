@@ -2,11 +2,11 @@ package com.reverbin.ODA.client;
 
 public class HexUtils {
 
-	public static byte[] parseText(String hexText)
+	public static byte[] textToBytes(String text)
 	{
-		char[] hex = hexText.replaceAll("\\s", "").toCharArray();
+		char[] hex = text.replaceAll("\\s", "").toCharArray();
 		int length = hex.length / 2;
-	    byte[] raw = new byte[length];
+	    byte[] bytes = new byte[length];
 	    for (int i = 0; i < length; i++) 
 	    {
 	      int high = Character.digit(hex[i * 2], 16);
@@ -14,9 +14,23 @@ public class HexUtils {
 	      int value = (high << 4) | low;
 	      if (value > 127)
 	        value -= 256;
-	      raw[i] = (byte) value;
+	      bytes[i] = (byte) value;
 	    }
 	    
-	    return raw;
+	    return bytes;
+	}
+	
+	public static String bytesToText(byte[] bytes)
+	{
+		final String HEXES = "0123456789ABCDEF";
+		final StringBuilder builder = new StringBuilder(2 * bytes.length);
+
+		for ( final byte b : bytes ) {
+	    	builder.append(HEXES.charAt((b & 0xF0) >> 4))
+	         .append(HEXES.charAt((b & 0x0F)))
+	         .append(" ");
+	    }
+		
+		return builder.toString();
 	}
 }

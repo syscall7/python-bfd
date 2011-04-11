@@ -7,49 +7,25 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
-import com.reverbin.ODA.shared.FormattedOutput;
+import com.reverbin.ODA.shared.Endian;
 import com.reverbin.ODA.shared.PlatformDescriptor;
+import com.reverbin.ODA.shared.PlatformId;
 import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 
 public class Main implements EntryPoint, ViewUpdater, SubmitCompleteHandler {
 	TabPanel tabPanel = new TabPanel();
-    HTML htmlDisplay = new HTML("", true);
     HTML stringsDisplay = new HTML("", true);
-    String hexHtml = "";
-    String assHtml = "";
-    TextArea hexArea = new TextArea();
-    ViewAssembly asmView = new ViewAssembly(this, htmlDisplay);
-    ViewHex hexView = new ViewHex(this, hexArea);
     FlowPanel asmPanel = new FlowPanel();
     FlowPanel platformPanel = new FlowPanel();
-    FlowPanel hexHeaderPanel = new FlowPanel();
-    FlowPanel hexPanel = new FlowPanel();
     FlowPanel stringsPanel = new FlowPanel();
-    
-	private final HexFormatterServiceAsync formatterService = HexFormatterService.Util.getInstance();
-
-	AsyncCallback<FormattedOutput> hexCallback = new AsyncCallback<FormattedOutput>(){
-
-	    @Override
-	    public void onFailure(Throwable caught) {
-	        //hexInput.hide();
-	        //htmlDisplay.setHTML("Failed to get hex");
-	    }
-
-	    @Override
-	    public void onSuccess(FormattedOutput result) {
-	    	hexInput.hide();
-	    	asmView.setText(result.getFormattedAssembly());
-	    	hexView.setText(result.getFormattedHex());
-	    	stringsDisplay.setHTML(result.getFormattedStrings());
-	        Main.this.updateOutputDisplay();        
-	    	
-	    }};
-	    
-	    HexInput hexInput = new HexInput(this);
-	    UploadFile uploadFile = new UploadFile(this);
+    ModelBinary modelBinary = new ModelBinary();
+    ModelPlatform modelPlatform = new ModelPlatform();
+    ViewHex viewHex = new ViewHex(modelBinary);
+    ViewAssembly viewAsm = new ViewAssembly(modelBinary, modelPlatform);
+    HexInput hexInput = new HexInput(modelBinary);
+    UploadFile uploadFile = new UploadFile(this);
 	    
     /**
      * Fired when a form has been submitted successfully.
@@ -58,7 +34,6 @@ public class Main implements EntryPoint, ViewUpdater, SubmitCompleteHandler {
      */
 	public void onSubmitComplete(SubmitCompleteEvent event)
     {
-    	hexView.setText(event.getResults());
     	tabPanel.selectTab(0);
     	uploadFile.hide();
     }
@@ -92,13 +67,21 @@ public class Main implements EntryPoint, ViewUpdater, SubmitCompleteHandler {
          menuBarExamples.addItem("strcpy (x86)", new Command() {
         	 public void execute() 
         	 {
-        		 loadExample("strcpy.x86.hex", new PlatformDescriptor("x86"));
+                 PlatformDescriptor platform = new PlatformDescriptor();
+                 platform.baseAddress = 0;
+                 platform.endian = Endian.LITTLE;
+                 platform.platformId = PlatformId.X86;
+        		 loadExample("strcpy.x86.hex", platform);
         	 }
          });
          menuBarExamples.addItem("strcpy (arm)", new Command() {
         	 public void execute() 
         	 {
-        		 loadExample("strcpy.arm.hex", new PlatformDescriptor("ARM"));
+                 PlatformDescriptor platform = new PlatformDescriptor();
+                 platform.baseAddress = 0;
+                 platform.endian = Endian.LITTLE;
+                 platform.platformId = PlatformId.ARM;
+        		 loadExample("strcpy.arm.hex", platform);
         	 }
          });
          
@@ -112,69 +95,10 @@ public class Main implements EntryPoint, ViewUpdater, SubmitCompleteHandler {
          menu.addItem("Examples", menuBarExamples);
          menu.addItem("Help", menuBarHelp);
          
-         // hex tab
-         Button hexSubmit = new Button("Disassemble");
-         hexSubmit.addClickHandler(new ClickHandler() {
- 			public void onClick(ClickEvent event) 
- 			{	
- 				updateHex(HexUtils.parseText(hexArea.getText()));
- 				
- 			}
- 		 });
-         hexHeaderPanel.add(hexSubmit);
-         hexHeaderPanel.setStyleName("panelBox");
-         int clientHeight = Window.getClientHeight();
-         hexArea.setSize("574px", "" + (int) (clientHeight*2/3) + "px");
-         hexArea.setStyleName("textarea");
-         hexPanel.add(hexHeaderPanel);
-         hexPanel.add(hexArea);
-         hexPanel.setSize("600px", "" + (int) (clientHeight*2/3 + 82) + "px" );
-         tabPanel.add(hexPanel, "Hex");
+         tabPanel.add(viewHex, "Hex");
 
-         // disassembly tab
-         VerticalPanel asmHeaderVp = new VerticalPanel();
-         asmHeaderVp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-         
-         ListBox listBoxPlatform = new ListBox();
-         listBoxPlatform.addItem("x86");
-         listBoxPlatform.addItem("ARM");
-         listBoxPlatform.addItem("MIPS");
-         listBoxPlatform.addItem("PowerPC");
-         listBoxPlatform.setVisibleItemCount(1);
-         listBoxPlatform.addChangeHandler(asmView);
-         
-         ListBox listBoxEndian = new ListBox();
-         listBoxEndian.addItem("BIG");
-         listBoxEndian.addItem("LIL");
-         listBoxEndian.setVisibleItemCount(1);
-         
-         HorizontalPanel hp = new HorizontalPanel();   
-         hp.setSpacing(3);
-         hp.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-         hp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-         hp.add(new Label("Platform"));
-         hp.add(listBoxPlatform);
-         hp.add(new Label("     "));
-         hp.add(new Label("Endian"));
-         hp.add(listBoxEndian);
-         asmHeaderVp.add(hp);
-         
-         hp = new HorizontalPanel();
-         hp.setSpacing(3);
-         hp.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-         hp.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-         hp.add(new Label("Base Address"));
-         TextBox textBoxBase = new TextBox();
-         textBoxBase.setVisibleLength(8);
-         hp.add(textBoxBase);
-         
-         asmHeaderVp.add(hp);
-         
-         platformPanel.add(asmHeaderVp);
-         platformPanel.setStyleName("panelBox");
-
-         asmPanel.add(platformPanel);      
-         asmPanel.add(htmlDisplay);
+         asmPanel.add(new ViewPlatformSelection(modelPlatform));      
+         asmPanel.add(viewAsm);
          asmPanel.setSize("600px", "418px");
          tabPanel.add(asmPanel, "Assembly");
 
@@ -186,7 +110,7 @@ public class Main implements EntryPoint, ViewUpdater, SubmitCompleteHandler {
          //panel.setSize("739px", "538px");
          tabPanel.addStyleName("table-center");
          
-         hp = new HorizontalPanel();       
+         HorizontalPanel hp = new HorizontalPanel();       
          //http://icons.mysitemyway.com/wp-content/gallery/matte-blue-and-white-square-icons-business/116958-matte-blue-and-white-square-icon-business-gear2.png
          Image image = new Image("images/oda.png");
          hp.add(image);
@@ -200,32 +124,19 @@ public class Main implements EntryPoint, ViewUpdater, SubmitCompleteHandler {
          vpanel.setSpacing(5);
          vpanel.addStyleName("centered");
          
-         /* Uncomment to add NORTH and WEST panels */
-         /*
-         FlowPanel northPanel = new FlowPanel();
-         northPanel.add(new HTML("<center><H1>DockLayoutPanel North</H1></center>"));
-         northPanel.setStyleName("northPanelStyle");
-         
-         FlowPanel westPanel = new FlowPanel();
-         westPanel.add(new HTML("<H3>DockLayoutPanel West</H3>"));
-         westPanel.setStyleName("westPanelStyle");
-         
-         DockLayoutPanel p = new DockLayoutPanel(Unit.EM);   
-         p.addNorth(northPanel, 6);
-         p.addWest(westPanel, 20);
-         p.add(vpanel);
-         
-         rp.add(p);
-         */
-         
          /* using a flow panel here coupled with the "centered" CSS I added
             makes the interface centered */
          FlowPanel flowpanel = new FlowPanel();
          flowpanel.add(vpanel);
          
          rp.add(flowpanel);
-        
-         loadExample("strcpy.x86.hex", new PlatformDescriptor("x86"));
+         
+         PlatformDescriptor platform = new PlatformDescriptor();
+         platform.baseAddress = 0;
+         platform.endian = Endian.LITTLE;
+         platform.platformId = PlatformId.X86;
+         
+         loadExample("strcpy.x86.hex", platform);
     }
 
     protected void updateOutputDisplay() 
@@ -237,7 +148,7 @@ public class Main implements EntryPoint, ViewUpdater, SubmitCompleteHandler {
     	
     	tabPanel.selectTab(1);
     	// resize the height of the assembly panel to fit the displayed code
-    	asmPanel.setHeight("" + (htmlDisplay.getOffsetHeight() + platformPanel.getOffsetHeight() + PADDING) + "px");
+    	asmPanel.setHeight("" + (viewAsm.getOffsetHeight() + platformPanel.getOffsetHeight() + PADDING) + "px");
      }
     
     /**
@@ -258,7 +169,9 @@ public class Main implements EntryPoint, ViewUpdater, SubmitCompleteHandler {
 	         req.sendRequest("", new RequestCallback() {
 	        	  @Override
 	        	  public void onResponseReceived(Request req, Response resp) {
-	        		  updateHexAndPlatform(HexUtils.parseText(resp.getText()), platform);
+	        		  modelBinary.setBytes(HexUtils.textToBytes(resp.getText()));
+	        		  modelPlatform.setPlatform(platform);
+	        		  tabPanel.selectTab(1);
 	        	  }
 	
 	        	  @Override
@@ -279,8 +192,8 @@ public class Main implements EntryPoint, ViewUpdater, SubmitCompleteHandler {
      */
 	public void updateHex(byte[] hexBytes)
 	{
-		hexView.setRawBytes(hexBytes);
-	    formatterService.formatHex(asmView.getPlatform(), hexBytes, hexCallback);	
+		//hexView.setRawBytes(hexBytes);
+	    //formatterService.formatHex(asmView.getPlatform(), hexBytes, hexCallback);	
 	}
 	
 	/**
@@ -288,14 +201,14 @@ public class Main implements EntryPoint, ViewUpdater, SubmitCompleteHandler {
 	 */
 	public void updatePlatform(PlatformDescriptor platform)
 	{
-		asmView.setPlatform(platform);
-	    formatterService.formatHex(platform, hexView.getRawBytes(), hexCallback);	
+		//asmView.setPlatform(platform);
+	    //formatterService.formatHex(platform, hexView.getRawBytes(), hexCallback);	
 	}
 	
 	public void updateHexAndPlatform(byte[] hexBytes, PlatformDescriptor platform)
 	{
-		hexView.setRawBytes(hexBytes);
-		asmView.setPlatform(platform);
-	    formatterService.formatHex(platform, hexBytes, hexCallback);	
+		//hexView.setRawBytes(hexBytes);
+		//asmView.setPlatform(platform);
+	    //formatterService.formatHex(platform, hexBytes, hexCallback);	
 	}
 }

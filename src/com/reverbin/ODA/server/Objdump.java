@@ -2,7 +2,11 @@ package com.reverbin.ODA.server;
 
 import java.io.*;
 import java.util.regex.*;
+
+import com.reverbin.ODA.shared.Endian;
 import com.reverbin.ODA.shared.PlatformDescriptor;
+import com.reverbin.ODA.shared.PlatformId;
+
 import org.apache.commons.io.*;
 
 public class Objdump
@@ -34,7 +38,7 @@ public class Objdump
     private static String dis2html(String dis)
     {
     	// ignore leading text
-    	Pattern pattern = Pattern.compile("^\\s+?0:.*", Pattern.DOTALL | Pattern.MULTILINE);
+    	Pattern pattern = Pattern.compile("^\\s*[0-9a-fA-F]+:.*", Pattern.DOTALL | Pattern.MULTILINE);
         Matcher matcher = pattern.matcher(dis);
         matcher.find();
         dis = matcher.group();
@@ -72,28 +76,40 @@ public class Objdump
     	String prefix = "";
     	String machine = "";
     	
-    	if (platform.toString().equals("PowerPC"))
+    	switch (platform.platformId)
     	{
-    		prefix = "/usr/local/bin/ppc-elf-";
-    		machine = "powerpc";
-    	}
-    	else if (platform.toString().equals("x86"))
-    	{
-    		prefix = "/usr/bin/";
-    		machine = "i386";
-    	}
-    	else if (platform.toString().equals("ARM"))
-    	{
-    		prefix = "/usr/local/bin/arm-elf-";
-    		machine = "arm";
-    	}
-    	else if (platform.toString().equals("MIPS"))
-    	{
-    		prefix = "/usr/local/bin/mips-elf-";
-    		machine = "mips";
+	    	case PPC: {
+	    		prefix = "/usr/local/bin/ppc-elf-";
+	    		machine = "powerpc";
+	    		break;
+	    	}
+	    	case X86: {
+	    		prefix = "/usr/bin/";
+	    		machine = "i386";
+	    		break;
+	    	}
+	    	case ARM: {
+	    		prefix = "/usr/local/bin/arm-elf-";
+	    		machine = "arm";
+	    		break;
+	    	}
+	    	case MIPS: {
+	    		prefix = "/usr/local/bin/mips-elf-";
+	    		machine = "mips";
+	    		break;
+	    	}
     	}
     	
-    	return  prefix + "objdump -D -b binary -m " + machine + " " + filePath;
+    	String endian = "";
+    	
+    	switch (platform.endian)
+    	{
+    		case BIG:	endian = " -EB";		break;
+    		case LITTLE:	endian = " -EL";	break;
+    		case DEFAULT:	endian = "";	break;
+    	}
+    	
+    	return  prefix + "objdump -D -b binary -m " + machine + " --adjust-vma=" + platform.baseAddress + endian + " " + filePath;
     }
 
     /**

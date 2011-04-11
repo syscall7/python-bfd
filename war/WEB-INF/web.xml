@@ -12,14 +12,13 @@
     <welcome-file>ODA.html</welcome-file>
   </welcome-file-list>
   <servlet>
-    <servlet-name>HexFormatterService</servlet-name>
-    <servlet-class>com.reverbin.ODA.server.HexFormatterServiceImpl</servlet-class>
+    <servlet-name>DisassemblyService</servlet-name>
+    <servlet-class>com.reverbin.ODA.server.DisassemblyServiceImpl</servlet-class>
   </servlet>
-  <servlet-mapping>
-    <servlet-name>HexFormatterService</servlet-name>
-    <url-pattern>/oda/HexFormatterService</url-pattern>
+    <servlet-mapping>
+    <servlet-name>DisassemblyService</servlet-name>
+    <url-pattern>/oda/DisassemblyService</url-pattern>
   </servlet-mapping>
-
   <servlet>
     <servlet-name>uploadServlet</servlet-name>
     <servlet-class>com.reverbin.ODA.server.FileUploadServlet</servlet-class>
