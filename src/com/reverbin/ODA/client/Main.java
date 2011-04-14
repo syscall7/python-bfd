@@ -14,19 +14,20 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 
-public class Main implements EntryPoint, ViewUpdater, SubmitCompleteHandler {
+public class Main implements EntryPoint, SubmitCompleteHandler {
 	TabPanel tabPanel = new TabPanel();
     HTML stringsDisplay = new HTML("", true);
     FlowPanel asmPanel = new FlowPanel();
     FlowPanel platformPanel = new FlowPanel();
     FlowPanel stringsPanel = new FlowPanel();
+    BusyAnimation busyAnimation;
     ModelBinary modelBinary = new ModelBinary();
     ModelPlatform modelPlatform = new ModelPlatform();
-    ViewHex viewHex = new ViewHex(modelBinary);
-    ViewAssembly viewAsm = new ViewAssembly(modelBinary, modelPlatform);
+    ViewHex viewHex;
+    ViewAssembly viewAsm;
     HexInput hexInput = new HexInput(modelBinary);
     UploadFile uploadFile = new UploadFile(this);
-	    
+	
     /**
      * Fired when a form has been submitted successfully.
      *
@@ -95,8 +96,19 @@ public class Main implements EntryPoint, ViewUpdater, SubmitCompleteHandler {
          menu.addItem("Examples", menuBarExamples);
          menu.addItem("Help", menuBarHelp);
          
+         //http://icons.mysitemyway.com/wp-content/gallery/matte-blue-and-white-square-icons-business/116958-matte-blue-and-white-square-icon-business-gear2.png
+         Image image = new Image("images/oda.png");
+         Image image1 = new Image("images/oda1.png");
+         Image image2 = new Image("images/oda2.png");
+         Image image3 = new Image("images/oda3.png");
+         Image image4 = new Image("images/oda4.png");
+         Image[] images = new Image[] {image, image1, image2, image3, image4};
+         busyAnimation = new BusyAnimation(images);
+         
+         viewHex = new ViewHex(modelBinary);
          tabPanel.add(viewHex, "Hex");
 
+         viewAsm = new ViewAssembly(modelBinary, modelPlatform, busyAnimation);
          asmPanel.add(new ViewPlatformSelection(modelPlatform));      
          asmPanel.add(viewAsm);
          asmPanel.setSize("600px", "418px");
@@ -110,12 +122,21 @@ public class Main implements EntryPoint, ViewUpdater, SubmitCompleteHandler {
          //panel.setSize("739px", "538px");
          tabPanel.addStyleName("table-center");
          
+         AbsolutePanel absPanel = new AbsolutePanel();
+         absPanel.setSize("128px", "128px");
          HorizontalPanel hp = new HorizontalPanel();       
-         //http://icons.mysitemyway.com/wp-content/gallery/matte-blue-and-white-square-icons-business/116958-matte-blue-and-white-square-icon-business-gear2.png
-         Image image = new Image("images/oda.png");
-         hp.add(image);
+         absPanel.add(image, 0, 0);
+         absPanel.add(image1, 0, 0);
+         absPanel.add(image2, 0, 0);
+         absPanel.add(image3, 0, 0);
+         absPanel.add(image4, 0, 0);
+         hp.add(absPanel);
          hp.setCellHorizontalAlignment(image, HasHorizontalAlignment.ALIGN_CENTER);
          image.setSize("128px", "128px");
+         image1.setSize("128px", "128px");
+         image2.setSize("128px", "128px");
+         image3.setSize("128px", "128px");
+         image4.setSize("128px", "128px");
          hp.add(new HTML("<H1>ODA Online Disassembler</H1>"));
 
          vpanel.add(hp);
@@ -172,6 +193,7 @@ public class Main implements EntryPoint, ViewUpdater, SubmitCompleteHandler {
 	        		  modelBinary.setBytes(HexUtils.textToBytes(resp.getText()));
 	        		  modelPlatform.setPlatform(platform);
 	        		  tabPanel.selectTab(1);
+	        		  busyAnimation.run(5000);
 	        	  }
 	
 	        	  @Override

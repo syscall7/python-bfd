@@ -16,6 +16,7 @@ public class ViewAssembly extends HTML implements ModelBinaryListener, ModelPlat
 	
 	private ModelBinary modelBinary;
 	private ModelPlatform modelPlatform;
+	BusyAnimation busyAnimation;
 	
 	private final DisassemblyServiceAsync disService = DisassemblyService.Util.getInstance();
 
@@ -29,14 +30,18 @@ public class ViewAssembly extends HTML implements ModelBinaryListener, ModelPlat
 
 	    @Override
 	    public void onSuccess(DisassemblyOutput result) {
-	    	setHTML(result.getFormattedAssembly());  
+	    	int PADDING = 150;
+	    	setHTML(result.getFormattedAssembly());
+	    	getParent().setHeight("" + (getOffsetHeight() + PADDING) + "px");
+	    	busyAnimation.cancel();
 	    }};
 	    
 	
-	public ViewAssembly(ModelBinary mb, ModelPlatform mp)
+	public ViewAssembly(ModelBinary mb, ModelPlatform mp, BusyAnimation ba)
 	{
 		modelBinary = mb;
 		modelPlatform = mp;
+		busyAnimation = ba;
 		
 		modelBinary.addBinaryListner(this);
 		modelPlatform.addPlatformListner(this);
@@ -49,6 +54,7 @@ public class ViewAssembly extends HTML implements ModelBinaryListener, ModelPlat
 
 	public void onPlatformChange(ModelPlatform mp)
 	{
+		busyAnimation.run(Integer.MAX_VALUE);
 		disService.disassemble(modelBinary.getBytes(), modelPlatform.getPlatform(), callback);
 	}
 	
