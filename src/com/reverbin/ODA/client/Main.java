@@ -20,7 +20,7 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
     FlowPanel asmPanel = new FlowPanel();
     FlowPanel platformPanel = new FlowPanel();
     FlowPanel stringsPanel = new FlowPanel();
-    BusyAnimation busyAnimation;
+    StatusIndicator statusIndicator;
     ModelBinary modelBinary = new ModelBinary();
     ModelPlatform modelPlatform = new ModelPlatform();
     ViewHex viewHex;
@@ -98,17 +98,12 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          
          //http://icons.mysitemyway.com/wp-content/gallery/matte-blue-and-white-square-icons-business/116958-matte-blue-and-white-square-icon-business-gear2.png
          Image image = new Image("images/oda.png");
-         Image image1 = new Image("images/oda1.png");
-         Image image2 = new Image("images/oda2.png");
-         Image image3 = new Image("images/oda3.png");
-         Image image4 = new Image("images/oda4.png");
-         Image[] images = new Image[] {image, image1, image2, image3, image4};
-         busyAnimation = new BusyAnimation(images);
+         Image busyImage = new Image("images/oda.gif");
          
          viewHex = new ViewHex(modelBinary);
          tabPanel.add(viewHex, "Hex");
-
-         viewAsm = new ViewAssembly(modelBinary, modelPlatform, busyAnimation);
+         statusIndicator = new StatusIndicator(busyImage);
+         viewAsm = new ViewAssembly(modelBinary, modelPlatform, statusIndicator);
          asmPanel.add(new ViewPlatformSelection(modelPlatform));      
          asmPanel.add(viewAsm);
          asmPanel.setSize("600px", "418px");
@@ -126,17 +121,12 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          absPanel.setSize("128px", "128px");
          HorizontalPanel hp = new HorizontalPanel();       
          absPanel.add(image, 0, 0);
-         absPanel.add(image1, 0, 0);
-         absPanel.add(image2, 0, 0);
-         absPanel.add(image3, 0, 0);
-         absPanel.add(image4, 0, 0);
+         absPanel.add(busyImage, 0, 0);
          hp.add(absPanel);
          hp.setCellHorizontalAlignment(image, HasHorizontalAlignment.ALIGN_CENTER);
          image.setSize("128px", "128px");
-         image1.setSize("128px", "128px");
-         image2.setSize("128px", "128px");
-         image3.setSize("128px", "128px");
-         image4.setSize("128px", "128px");
+         busyImage.setSize("128px", "128px");
+
          hp.add(new HTML("<H1>ODA Online Disassembler</H1>"));
 
          vpanel.add(hp);
@@ -158,6 +148,7 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          platform.platformId = PlatformId.X86;
          
          loadExample("strcpy.x86.hex", platform);
+         statusIndicator.setBusy(true);
     }
 
     protected void updateOutputDisplay() 
@@ -193,7 +184,6 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
 	        		  modelBinary.setBytes(HexUtils.textToBytes(resp.getText()));
 	        		  modelPlatform.setPlatform(platform);
 	        		  tabPanel.selectTab(1);
-	        		  busyAnimation.run(5000);
 	        	  }
 	
 	        	  @Override
