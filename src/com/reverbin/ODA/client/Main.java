@@ -14,6 +14,14 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 
+/* Things to do
+ * 
+ * TODO: Add close button to upload file form
+ * TODO: Implement strings processing
+ * TODO: Limit binary size
+ * TODO: Add help dialog
+ */
+
 public class Main implements EntryPoint, SubmitCompleteHandler {
 	TabPanel tabPanel = new TabPanel();
     HTML stringsDisplay = new HTML("", true);
@@ -35,6 +43,7 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
      */
 	public void onSubmitComplete(SubmitCompleteEvent event)
     {
+		modelBinary.setBytes(HexUtils.textToBytes(event.getResults()));
     	tabPanel.selectTab(0);
     	uploadFile.hide();
     }

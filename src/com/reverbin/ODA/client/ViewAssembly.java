@@ -49,12 +49,13 @@ public class ViewAssembly extends HTML implements ModelBinaryListener, ModelPlat
 	
 	public void onBinaryChange(ModelBinary mb)
 	{
-		setHTML("");
+		setHTML("<br><center><i>Hit the Disassemble button to view the disassembly of the hex tab.</i></center>");
 	}
 
 	public void onPlatformChange(ModelPlatform mp)
 	{
 		statusIndicator.setBusy(true);
+		setHTML("<H1>Loading</H1>");
 		disService.disassemble(modelBinary.getBytes(), modelPlatform.getPlatform(), callback);
 	}
 	
