@@ -9,4 +9,5 @@ import com.reverbin.ODA.shared.*;
 public interface DisassemblyServiceAsync {
 	void disassemble(byte[] binary, PlatformDescriptor platformDesc, AsyncCallback<DisassemblyOutput> callback) 
 		throws IllegalArgumentException;
+	void strings(byte[] binary, AsyncCallback<String> callback) throws IllegalArgumentException;
 }

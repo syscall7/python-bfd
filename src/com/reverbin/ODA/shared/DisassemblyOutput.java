@@ -13,7 +13,6 @@ public class DisassemblyOutput implements Serializable {
 	public DisassemblyOutput(String hex, String assembly, String s) {
 		this.setFormattedHex(hex);
 		this.setFormattedAssembly(assembly);
-		this.setFormattedStrings(s);
 	}
 		
 		
@@ -34,15 +33,6 @@ public class DisassemblyOutput implements Serializable {
 		return formattedAssembly;
 	}
 
-	public String getFormattedStrings() {
-		return strings;
-	}
-
-	public void setFormattedStrings(String s) {
-		strings = s;
-	}
-	
 	private String formattedHex;
 	private String formattedAssembly;
-	private String strings;
 }

@@ -24,15 +24,14 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 
 public class Main implements EntryPoint, SubmitCompleteHandler {
 	TabPanel tabPanel = new TabPanel();
-    HTML stringsDisplay = new HTML("", true);
     FlowPanel asmPanel = new FlowPanel();
     FlowPanel platformPanel = new FlowPanel();
-    FlowPanel stringsPanel = new FlowPanel();
     StatusIndicator statusIndicator;
     ModelBinary modelBinary = new ModelBinary();
     ModelPlatform modelPlatform = new ModelPlatform();
     ViewHex viewHex;
     ViewAssembly viewAsm;
+    ViewStrings viewStrings;
     HexInput hexInput = new HexInput(modelBinary);
     UploadFile uploadFile = new UploadFile(this);
 	
@@ -119,9 +118,10 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          tabPanel.add(asmPanel, "Assembly");
 
          // strings tab
-         stringsPanel.add(stringsDisplay);
-         stringsPanel.setSize("600px", "418px");
-         tabPanel.add(stringsPanel, "Strings");
+         viewStrings = new ViewStrings(modelBinary, statusIndicator);
+         viewStrings.setSize("600px", "418px");
+         tabPanel.add(viewStrings, "Strings");
+         tabPanel.addSelectionHandler(viewStrings);
 
          //panel.setSize("739px", "538px");
          tabPanel.addStyleName("table-center");
@@ -159,18 +159,6 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          loadExample("strcpy.x86.hex", platform);
          statusIndicator.setBusy(true);
     }
-
-    protected void updateOutputDisplay() 
-    {
-    	final int PADDING = 20;
-    	
-    	tabPanel.selectTab(2);
-    	stringsPanel.setHeight("" + (stringsDisplay.getOffsetHeight()+ PADDING) + "px");
-    	
-    	tabPanel.selectTab(1);
-    	// resize the height of the assembly panel to fit the displayed code
-    	asmPanel.setHeight("" + (viewAsm.getOffsetHeight() + platformPanel.getOffsetHeight() + PADDING) + "px");
-     }
     
     /**
      * Load example binaries

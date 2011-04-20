@@ -34,8 +34,34 @@ public class DisassemblyServiceImpl extends RemoteServiceServlet implements Disa
 	    
 		
 	    String asm = Objdump.dis(platformDesc, temp.getAbsolutePath());
-	    String strings = Strings.strings(temp.getAbsolutePath());
+	    String strings = "";
 	    
 		return new DisassemblyOutput("", asm, strings);
+	}
+
+	@Override
+	public String strings(byte[] binary) throws IllegalArgumentException {
+		
+	    // create temp file
+	    File temp = null;
+    
+		try 
+		{
+		    // create temp file
+		    temp = File.createTempFile("pattern", ".suffix");
+
+		    // write to temp file
+		    FileOutputStream out = new FileOutputStream(temp);
+		    out.write(binary);
+		    out.close();
+	    
+		}
+		catch (IOException e)
+		{
+		}
+	    
+	    String strings = Strings.strings(temp.getAbsolutePath());
+	    
+		return strings;
 	}
 }
