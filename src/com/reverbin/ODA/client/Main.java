@@ -34,6 +34,7 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
     ViewStrings viewStrings;
     HexInput hexInput = new HexInput(modelBinary);
     UploadFile uploadFile = new UploadFile(this);
+    DialogHelp dialogHelp = new DialogHelp();
 	
     /**
      * Fired when a form has been submitted successfully.
@@ -96,7 +97,12 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          
          // help
          MenuBar menuBarHelp = new MenuBar(true);
-         menuBarHelp.addItem("About", (Command) null);
+         menuBarHelp.addItem("About", new Command() {
+             public void execute() {
+            	 dialogHelp.center();
+            	 dialogHelp.show();
+             }
+         });
          
          // top-level menu bar
          MenuBar menu = new MenuBar(false);
