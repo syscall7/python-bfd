@@ -19,7 +19,6 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
  * TODO: Add close button to upload file form
  * TODO: Implement strings processing
  * TODO: Limit binary size
- * TODO: Add help dialog
  */
 
 public class Main implements EntryPoint, SubmitCompleteHandler {
@@ -70,7 +69,7 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
                  hexInput.show();
              }
          });
-         menuBarFile.addItem(menuItemInputHex);
+         //menuBarFile.addItem(menuItemInputHex);
         
          // examples
          MenuBar menuBarExamples = new MenuBar(true);

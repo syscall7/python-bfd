@@ -10,6 +10,13 @@ h1 {
   text-align: center;
 }
 
+h1_lite {
+  font-size: 4em;
+  font-weight: bold;
+  color: #777777;
+  text-align: center;
+}
+
 .sendButton {
   display: block;
   font-size: 16pt;
@@ -48,6 +55,13 @@ span.insn {color:#093C83; font-weight:bold;}
 .centered {
     margin: auto;
 - Hide quoted text -
+}
+
+.borderedPanel {
+padding: 0mm 4mm 4mm 4mm;
+border: 2px;
+border-color: grey;
+border-style: none;
 }
 
 .panelBox {
