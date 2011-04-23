@@ -19,6 +19,8 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
  * TODO: Add close button to upload file form
  * TODO: Implement strings processing
  * TODO: Limit binary size
+ * TODO: Add PayPal donate button
+ * TODO: Display status of binary on Assembly tab (file type, size, arch, etc.)
  */
 
 public class Main implements EntryPoint, SubmitCompleteHandler {
@@ -133,15 +135,22 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          
          AbsolutePanel absPanel = new AbsolutePanel();
          absPanel.setSize("128px", "128px");
-         HorizontalPanel hp = new HorizontalPanel();       
+         HorizontalPanel hp = new HorizontalPanel();     
+         hp.setWidth("100%");
+         busyImage.setSize("128px", "128px");
+         image.setSize("128px", "128px");
          absPanel.add(image, 0, 0);
          absPanel.add(busyImage, 0, 0);
          hp.add(absPanel);
-         hp.setCellHorizontalAlignment(image, HasHorizontalAlignment.ALIGN_CENTER);
-         image.setSize("128px", "128px");
-         busyImage.setSize("128px", "128px");
+         hp.setCellHorizontalAlignment(absPanel, HasHorizontalAlignment.ALIGN_RIGHT);
+         hp.setCellWidth(absPanel, "25%");
 
-         hp.add(new HTML("<H1>ODA Online Disassembler</H1>"));
+         Image logo = new Image("images/oda_logo.png");
+         logo.setHeight("100px");
+         hp.add(logo);
+         hp.setCellHorizontalAlignment(logo, HasHorizontalAlignment.ALIGN_LEFT);
+         hp.setCellVerticalAlignment(logo, HasVerticalAlignment.ALIGN_MIDDLE);
+
 
          vpanel.add(hp);
          vpanel.add(menu);
