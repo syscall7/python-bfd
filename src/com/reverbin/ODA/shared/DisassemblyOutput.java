@@ -6,24 +6,12 @@ import java.io.Serializable;
 public class DisassemblyOutput implements Serializable {
 	
 	public DisassemblyOutput() {
-		this.setFormattedHex("");
 		this.setFormattedAssembly("");
 	}
 	
-	public DisassemblyOutput(String hex, String assembly, String s) {
-		this.setFormattedHex(hex);
+	public DisassemblyOutput(String assembly) {
 		this.setFormattedAssembly(assembly);
 	}
-		
-		
-	public void setFormattedHex(String formattedHex) {
-		this.formattedHex = formattedHex;
-	}
-
-	public String getFormattedHex() {
-		return formattedHex;
-	}
-
 
 	public void setFormattedAssembly(String formattedAssembly) {
 		this.formattedAssembly = formattedAssembly;
@@ -32,7 +20,24 @@ public class DisassemblyOutput implements Serializable {
 	public String getFormattedAssembly() {
 		return formattedAssembly;
 	}
+	
+	public void setTotalLines(int l) {
+		totalLines = l;
+	}
+	
+	public int getTotalLines() {
+		return totalLines;
+	}
+	
+	public void setCurrentLines(int l) {
+		currentLines = l;
+	}
+	
+	public int getCurrentLines() {
+		return currentLines;
+	}
 
-	private String formattedHex;
+	private int totalLines;
+	private int currentLines;
 	private String formattedAssembly;
 }

@@ -21,6 +21,6 @@ public interface DisassemblyService extends RemoteService {
 		}
 	}
 	
-	DisassemblyOutput disassemble(byte[] binary, PlatformDescriptor platformDesc) throws IllegalArgumentException;
+	DisassemblyOutput disassemble(byte[] binary, PlatformDescriptor platformDesc, int offset, int length) throws IllegalArgumentException;
 	String strings(byte[] binary) throws IllegalArgumentException;
 }

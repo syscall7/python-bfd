@@ -45,7 +45,7 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
 	public void onSubmitComplete(SubmitCompleteEvent event)
     {
 		modelBinary.setBytes(HexUtils.textToBytes(event.getResults()));
-    	tabPanel.selectTab(0);
+    	//tabPanel.selectTab(0);
     	uploadFile.hide();
     }
     
@@ -119,7 +119,6 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          tabPanel.add(viewHex, "Hex");
          statusIndicator = new StatusIndicator(busyImage);
          viewAsm = new ViewAssembly(modelBinary, modelPlatform, statusIndicator);
-         asmPanel.add(new ViewPlatformSelection(modelPlatform));      
          asmPanel.add(viewAsm);
          asmPanel.setSize("600px", "418px");
          tabPanel.add(asmPanel, "Assembly");
@@ -150,6 +149,12 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          hp.add(logo);
          hp.setCellHorizontalAlignment(logo, HasHorizontalAlignment.ALIGN_LEFT);
          hp.setCellVerticalAlignment(logo, HasVerticalAlignment.ALIGN_MIDDLE);
+         
+         Image donate = new Image("images/paypal-donate.png");
+         hp.add(donate);
+         hp.setCellHorizontalAlignment(donate, HasHorizontalAlignment.ALIGN_RIGHT);
+         hp.setCellVerticalAlignment(donate, HasVerticalAlignment.ALIGN_MIDDLE);
+         
 
 
          vpanel.add(hp);

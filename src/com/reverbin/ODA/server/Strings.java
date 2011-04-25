@@ -35,9 +35,9 @@ public class Strings {
             {
             	Matcher matcher = pattern.matcher(line);
             	matcher.find();
-            	output += String.format("<span class=\"offset\">%1$#6s </span>" +
-		                "<span class=\"insn\">%2$-16s </span>\n",
-		                matcher.group(1), matcher.group(2));
+            	output += String.format("<offset>%1$#6s </offset>" +
+		                "<insn>%2$-16s\n</insn>",
+		                matcher.group(1), matcher.group(2).replace("<", "&lt").replace(">", "&gt"));
             	noStringsFound = false;
             }
             input.close();
@@ -47,7 +47,7 @@ public class Strings {
             err.printStackTrace();
         }
         if (noStringsFound)
-        	output = "<span class=\"insn\">No strings found</span>";
+        	output = "<insn>No strings found</insn>";
         return output;
     }
     

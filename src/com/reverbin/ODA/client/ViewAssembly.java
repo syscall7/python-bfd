@@ -12,11 +12,17 @@ import com.google.gwt.event.dom.client.*;
  * @author anthony
  *
  */
-public class ViewAssembly extends HTML implements ModelBinaryListener, ModelPlatformListener {
+public class ViewAssembly extends VerticalPanel implements ModelBinaryListener, ModelPlatformListener, ClickHandler {
 	
 	private ModelBinary modelBinary;
 	private ModelPlatform modelPlatform;
 	StatusIndicator statusIndicator;
+	private final int CHUNK_LEN = 1000;
+	private final HTML html = new HTML();
+	Button moreButton = new Button("Show More");
+	private int currentOffset;
+	private ViewPlatformSelection viewPlatform;
+	private boolean inProgress = false;
 	
 	private final DisassemblyServiceAsync disService = DisassemblyService.Util.getInstance();
 
@@ -30,10 +36,31 @@ public class ViewAssembly extends HTML implements ModelBinaryListener, ModelPlat
 
 	    @Override
 	    public void onSuccess(DisassemblyOutput result) {
-	    	int PADDING = 150;
-	    	setHTML(result.getFormattedAssembly());
-	    	getParent().setHeight("" + (getOffsetHeight() + PADDING) + "px");
+	    	int PADDING = 0;
+	    	
+	    	if (currentOffset == 0) {
+	    		html.setHTML(result.getFormattedAssembly());
+	    	} else {
+	    		html.setHTML(html.getHTML() + result.getFormattedAssembly());
+	    	}
+	    	
 	    	statusIndicator.setBusy(false);
+	    	
+	    	if ((result.getCurrentLines() + currentOffset) < result.getTotalLines()) {
+	    		//moreButton.setVisible(true);
+	    		add(moreButton);
+	    		setCellHorizontalAlignment(moreButton, HasHorizontalAlignment.ALIGN_CENTER);
+	    	}
+	    	else {
+	    		//moreButton.setVisible(false);
+	    		remove(moreButton);
+	    	}
+	    	
+	    	getParent().setHeight((getOffsetHeight()+PADDING)+"px");
+	    	
+	    	currentOffset += result.getCurrentLines();
+	    	
+	    	inProgress = false;
 	    }};
 	    
 	
@@ -42,21 +69,49 @@ public class ViewAssembly extends HTML implements ModelBinaryListener, ModelPlat
 		modelBinary = mb;
 		modelPlatform = mp;
 		statusIndicator = si;
+		currentOffset = 0;
 		
 		modelBinary.addBinaryListner(this);
 		modelPlatform.addPlatformListner(this);
+		viewPlatform = new ViewPlatformSelection(modelPlatform);
+		
+        this.add(viewPlatform);      
+		this.add(html);
+		this.add(moreButton);
+		this.setCellHorizontalAlignment(moreButton, HasHorizontalAlignment.ALIGN_CENTER);
+		this.setSpacing(10);
+		this.setWidth("100%");
+		moreButton.addClickHandler(this);
+	}
+	
+	private void update()
+	{
+		if (!inProgress)
+		{
+			currentOffset = 0;
+			remove(moreButton);
+			statusIndicator.setBusy(true);
+			html.setHTML("<H1>Loading</H1>");
+			
+			inProgress = true;
+			disService.disassemble(modelBinary.getBytes(), modelPlatform.getPlatform(), currentOffset, CHUNK_LEN, callback);
+		}
 	}
 	
 	public void onBinaryChange(ModelBinary mb)
 	{
-		setHTML("<br><center><i>Hit the Disassemble button to view the disassembly of the hex tab.</i></center>");
+		update();
 	}
 
 	public void onPlatformChange(ModelPlatform mp)
 	{
-		statusIndicator.setBusy(true);
-		setHTML("<H1>Loading</H1>");
-		disService.disassemble(modelBinary.getBytes(), modelPlatform.getPlatform(), callback);
+		update();
+	}
+
+	@Override
+	public void onClick(ClickEvent event) {
+		inProgress = true;
+		disService.disassemble(modelBinary.getBytes(), modelPlatform.getPlatform(), currentOffset, CHUNK_LEN, callback);
 	}
 	
 	

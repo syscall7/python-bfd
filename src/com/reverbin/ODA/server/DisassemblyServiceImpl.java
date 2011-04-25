@@ -12,7 +12,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 public class DisassemblyServiceImpl extends RemoteServiceServlet implements DisassemblyService {
 
 	@Override
-	public 	DisassemblyOutput disassemble(byte[] binary, PlatformDescriptor platformDesc) throws IllegalArgumentException {
+	public 	DisassemblyOutput disassemble(byte[] binary, PlatformDescriptor platformDesc, int offset, int length) throws IllegalArgumentException {
 		
 	    // create temp file
 	    File temp = null;
@@ -32,11 +32,8 @@ public class DisassemblyServiceImpl extends RemoteServiceServlet implements Disa
 		{
 		}
 	    
-		
-	    String asm = Objdump.dis(platformDesc, temp.getAbsolutePath());
-	    String strings = "";
 	    
-		return new DisassemblyOutput("", asm, strings);
+		return Objdump.dis(platformDesc, temp.getAbsolutePath(), offset, length);
 	}
 
 	@Override

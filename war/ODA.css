@@ -40,9 +40,13 @@ h1_lite {
   margin: 15px 6px 6px;
 }
 
-span.offset {color:black;}
-span.raw {color:grey;}
-span.insn {color:#093C83; font-weight:bold;}
+offset {font-family: monospace; color:black; text-align: right; white-space: pre; font-size: medium}
+raw {font-family: monospace; color:grey; white-space: pre; font-size: medium}
+insn {font-family: monospace; color:#093C83; font-weight:bold; white-space: pre; font-size: medium   }
+
+td.offset {font-family: monospace; color:black; text-align: right; white-space: pre}
+td.raw {font-family: monospace; color:grey; white-space: pre}
+td.insn {font-family: monospace; color:#093C83; font-weight:bold; white-space: pre}
 
 .northPanelStyle {
   background-color: #E5F2FF;
