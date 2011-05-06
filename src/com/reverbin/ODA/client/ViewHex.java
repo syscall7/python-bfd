@@ -23,6 +23,9 @@ public class ViewHex extends FlowPanel implements ModelBinaryListener, ClickHand
 	Button hexEditButton = new Button("Edit");
 	Button hexUploadButton = new Button("Upload File");
 	UploadFile uploadFile = new UploadFile(this);
+	private final int DISPLAY_CHUNK_SIZE = 2000;
+	private byte[] currentBytes = new byte[]{};
+	private byte[] displayBytes = new byte[DISPLAY_CHUNK_SIZE];
 	
 	/**
 	 * Constructor
@@ -56,7 +59,10 @@ public class ViewHex extends FlowPanel implements ModelBinaryListener, ClickHand
 
 	@Override
 	public void onBinaryChange(ModelBinary mb) {
-		textArea.setText(HexUtils.bytesToText(modelBinary.getBytes()));
+		currentBytes = modelBinary.getBytes();
+		displayBytes = new byte[Math.min(DISPLAY_CHUNK_SIZE, currentBytes.length)];
+		System.arraycopy(currentBytes, 0, displayBytes, 0, displayBytes.length);
+		textArea.setText(HexUtils.bytesToText(displayBytes));
 	}
 
 	@Override
@@ -66,6 +72,7 @@ public class ViewHex extends FlowPanel implements ModelBinaryListener, ClickHand
 			if (textArea.isReadOnly()) {
 				textArea.setReadOnly(false);
 				hexEditButton.setText("Save");
+				textArea.setText(HexUtils.bytesToText(currentBytes));
 				textArea.setFocus(true);
 				textArea.setCursorPos(0);
 			}
