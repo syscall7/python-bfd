@@ -112,6 +112,7 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          menu.addItem("Help", menuBarHelp);
          
          //http://icons.mysitemyway.com/wp-content/gallery/matte-blue-and-white-square-icons-business/116958-matte-blue-and-white-square-icon-business-gear2.png
+         // plain gear: http://dsmy2muqb7t4m.cloudfront.net/tuts/169_Settings_Icon/step8a.jpg
          Image image = new Image("images/oda.png");
          Image busyImage = new Image("images/oda.gif");
          
@@ -122,6 +123,7 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          asmPanel.add(viewAsm);
          asmPanel.setSize("600px", "418px");
          tabPanel.add(asmPanel, "Assembly");
+         tabPanel.addSelectionHandler(viewAsm);
 
          // strings tab
          viewStrings = new ViewStrings(modelBinary, statusIndicator);
@@ -142,18 +144,19 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          absPanel.add(busyImage, 0, 0);
          hp.add(absPanel);
          hp.setCellHorizontalAlignment(absPanel, HasHorizontalAlignment.ALIGN_RIGHT);
-         hp.setCellWidth(absPanel, "25%");
+         //hp.setCellWidth(absPanel, "25%");
 
-         Image logo = new Image("images/oda_logo.png");
-         logo.setHeight("100px");
+         Image logo = new Image("images/oda_logo4.png");
          hp.add(logo);
-         hp.setCellHorizontalAlignment(logo, HasHorizontalAlignment.ALIGN_LEFT);
+         hp.setCellHorizontalAlignment(logo, HasHorizontalAlignment.ALIGN_CENTER);
          hp.setCellVerticalAlignment(logo, HasVerticalAlignment.ALIGN_MIDDLE);
          
-         Image donate = new Image("images/paypal-donate.png");
-         hp.add(donate);
-         hp.setCellHorizontalAlignment(donate, HasHorizontalAlignment.ALIGN_RIGHT);
-         hp.setCellVerticalAlignment(donate, HasVerticalAlignment.ALIGN_MIDDLE);
+         Image donate = new Image("images/paypal-donate-button.gif");
+         //hp.add(donate);
+         PayPalPanel ppp = new PayPalPanel();
+         hp.add(ppp);
+         hp.setCellHorizontalAlignment(ppp, HasHorizontalAlignment.ALIGN_LEFT);
+         hp.setCellVerticalAlignment(ppp, HasVerticalAlignment.ALIGN_MIDDLE);
          
 
 
