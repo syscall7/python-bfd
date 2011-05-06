@@ -12,6 +12,8 @@ public class Platform  {
 		add(new Platform(PlatformId.MIPS, "mips", new Endian[] {Endian.LITTLE, Endian.BIG}));
 		add(new Platform(PlatformId.PPC, "ppc", new Endian[] {Endian.LITTLE, Endian.BIG}));
 		add(new Platform(PlatformId.X86, "x86", new Endian[] {Endian.LITTLE}));
+		//add(new Platform(PlatformId.TMS320C6X, "TI TMS320C6X", new Endian[] {Endian.LITTLE}));
+		//add(new Platform(PlatformId.TMS320C80, "TI TMS320C80", new Endian[] {Endian.LITTLE}));
 	}};
 	
 	/**

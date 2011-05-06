@@ -156,6 +156,16 @@ public class Objdump
 	    		machine = "mips";
 	    		break;
 	    	}
+	    	case TMS320C6X: {
+	    		prefix = "/usr/local/bin/tic6x-elf-";
+	    		machine = "tic6x";
+	    		break;
+	    	}
+	    	case TMS320C80: {
+	    		prefix = "/usr/local/bin/tic80-elf-";
+	    		machine = "tic6x";
+	    		break;
+	    	}
     	}
     	
     	String endian = "";
