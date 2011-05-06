@@ -15,18 +15,18 @@ import com.reverbin.ODA.client.*;
 import com.reverbin.ODA.shared.*;
 
 public class ViewPlatformSelection extends FlowPanel 
-		implements ChangeHandler, ModelPlatformListener, ClickHandler {
+		implements ChangeHandler, ModelPlatformBinListener, ClickHandler {
 
-	ModelPlatform modelPlatform;
+	ModelPlatformBin modelPlatformBin;
 	ListBox listBoxPlatform = new ListBox();
 	ListBox listBoxEndian = new ListBox();
     TextBox baseAdressText = new TextBox();
     Button disButton = new Button("Disassemble");	
 	
-	public ViewPlatformSelection(ModelPlatform mp)
+	public ViewPlatformSelection(ModelPlatformBin mpb)
 	{
-		modelPlatform = mp;
-		mp.addPlatformListner(this);
+		modelPlatformBin = mpb;
+		mpb.addListener(this);
 	}
 	
 	protected void onLoad()
@@ -116,9 +116,11 @@ public class ViewPlatformSelection extends FlowPanel
 		}
 	}
 	
-	public void onPlatformChange(ModelPlatform mp)
+	public void onChange(ModelPlatformBin mpb, int eventFlags)
 	{
-		updateView(modelPlatform.getPlatform());
+		if (0 != (eventFlags & mpb.MODEL_EVENT_PLATFORM_CHANGED)) {
+			updateView(mpb.getPlatform());
+		}
 	}
 
 	@Override
@@ -129,6 +131,6 @@ public class ViewPlatformSelection extends FlowPanel
 		platformDesc.endian = Endian.getEndian(
 				listBoxEndian.getItemText(listBoxEndian.getSelectedIndex()));
 		platformDesc.baseAddress = Integer.parseInt(baseAdressText.getText().replaceFirst("0x", ""), 16);
-		modelPlatform.setPlatform(platformDesc);	
+		modelPlatformBin.setPlatform(platformDesc);	
 	}
 }

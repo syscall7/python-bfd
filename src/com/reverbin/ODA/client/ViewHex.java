@@ -16,9 +16,9 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
  * @author anthony
  *
  */
-public class ViewHex extends FlowPanel implements ModelBinaryListener, ClickHandler, SubmitCompleteHandler {
+public class ViewHex extends FlowPanel implements ModelPlatformBinListener, ClickHandler, SubmitCompleteHandler {
 
-	private ModelBinary modelBinary;
+	private ModelPlatformBin modelPlatformBin;
 	private TextArea textArea = new TextArea();
 	Button hexEditButton = new Button("Edit");
 	Button hexUploadButton = new Button("Upload File");
@@ -31,9 +31,9 @@ public class ViewHex extends FlowPanel implements ModelBinaryListener, ClickHand
 	 * Constructor
 	 * @param asmView
 	 */
-	public ViewHex(ModelBinary mb) {
-		modelBinary = mb;
-		mb.addBinaryListner(this);
+	public ViewHex(ModelPlatformBin mb) {
+		modelPlatformBin = mb;
+		mb.addListener(this);
 		textArea.setReadOnly(true);
 	}
 	
@@ -58,11 +58,13 @@ public class ViewHex extends FlowPanel implements ModelBinaryListener, ClickHand
 	}
 
 	@Override
-	public void onBinaryChange(ModelBinary mb) {
-		currentBytes = modelBinary.getBytes();
-		displayBytes = new byte[Math.min(DISPLAY_CHUNK_SIZE, currentBytes.length)];
-		System.arraycopy(currentBytes, 0, displayBytes, 0, displayBytes.length);
-		textArea.setText(HexUtils.bytesToText(displayBytes));
+	public void onChange(ModelPlatformBin mpb, int eventFlags) {
+		if (0 != (eventFlags & mpb.MODEL_EVENT_BIN_CHANGED)) {
+			currentBytes = mpb.getBytes();
+			displayBytes = new byte[Math.min(DISPLAY_CHUNK_SIZE, currentBytes.length)];
+			System.arraycopy(currentBytes, 0, displayBytes, 0, displayBytes.length);
+			textArea.setText(HexUtils.bytesToText(displayBytes));
+		}
 	}
 
 	@Override
@@ -77,7 +79,7 @@ public class ViewHex extends FlowPanel implements ModelBinaryListener, ClickHand
 				textArea.setCursorPos(0);
 			}
 			else {
-				modelBinary.setBytes(HexUtils.textToBytes(textArea.getText()));
+				modelPlatformBin.setBytes(HexUtils.textToBytes(textArea.getText()));
 				textArea.setReadOnly(true);
 				hexEditButton.setText("Edit");
 			}
@@ -90,7 +92,7 @@ public class ViewHex extends FlowPanel implements ModelBinaryListener, ClickHand
 
 	@Override
 	public void onSubmitComplete(SubmitCompleteEvent event) {
-		modelBinary.setBytes(HexUtils.textToBytes(event.getResults()));
+		modelPlatformBin.setBytes(HexUtils.textToBytes(event.getResults()));
 		uploadFile.hide();
 	}
 }

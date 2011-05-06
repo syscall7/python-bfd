@@ -28,12 +28,11 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
     FlowPanel asmPanel = new FlowPanel();
     FlowPanel platformPanel = new FlowPanel();
     StatusIndicator statusIndicator;
-    ModelBinary modelBinary = new ModelBinary();
-    ModelPlatform modelPlatform = new ModelPlatform();
+    ModelPlatformBin modelPlatformBin = new ModelPlatformBin();
     ViewHex viewHex;
     ViewAssembly viewAsm;
     ViewStrings viewStrings;
-    HexInput hexInput = new HexInput(modelBinary);
+    HexInput hexInput = new HexInput(modelPlatformBin);
     UploadFile uploadFile = new UploadFile(this);
     DialogHelp dialogHelp = new DialogHelp();
 	
@@ -44,9 +43,9 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
      */
 	public void onSubmitComplete(SubmitCompleteEvent event)
     {
-		modelBinary.setBytes(HexUtils.textToBytes(event.getResults()));
-    	//tabPanel.selectTab(0);
     	uploadFile.hide();
+		modelPlatformBin.setBytes(HexUtils.textToBytes(event.getResults()));
+    	//tabPanel.selectTab(0);
     }
     
     public void onModuleLoad() {
@@ -116,17 +115,17 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          Image image = new Image("images/oda.png");
          Image busyImage = new Image("images/oda.gif");
          
-         viewHex = new ViewHex(modelBinary);
+         viewHex = new ViewHex(modelPlatformBin);
          tabPanel.add(viewHex, "Hex");
          statusIndicator = new StatusIndicator(busyImage);
-         viewAsm = new ViewAssembly(modelBinary, modelPlatform, statusIndicator);
+         viewAsm = new ViewAssembly(modelPlatformBin, statusIndicator);
          asmPanel.add(viewAsm);
          asmPanel.setSize("600px", "418px");
          tabPanel.add(asmPanel, "Assembly");
          tabPanel.addSelectionHandler(viewAsm);
 
          // strings tab
-         viewStrings = new ViewStrings(modelBinary, statusIndicator);
+         viewStrings = new ViewStrings(modelPlatformBin, statusIndicator);
          viewStrings.setSize("600px", "418px");
          tabPanel.add(viewStrings, "Strings");
          tabPanel.addSelectionHandler(viewStrings);
@@ -200,8 +199,7 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
 	         req.sendRequest("", new RequestCallback() {
 	        	  @Override
 	        	  public void onResponseReceived(Request req, Response resp) {
-	        		  modelBinary.setBytes(HexUtils.textToBytes(resp.getText()));
-	        		  modelPlatform.setPlatform(platform);
+	        		  modelPlatformBin.setPlatformBin(platform, HexUtils.textToBytes(resp.getText()));
 	        		  tabPanel.selectTab(1);
 	        	  }
 	

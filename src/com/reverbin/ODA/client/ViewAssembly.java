@@ -13,17 +13,15 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
  * @author anthony
  *
  */
-public class ViewAssembly extends VerticalPanel implements ModelBinaryListener, ModelPlatformListener, ClickHandler, SelectionHandler<Integer> {
+public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListener, ClickHandler, SelectionHandler<Integer> {
 	
-	private ModelBinary modelBinary;
-	private ModelPlatform modelPlatform;
+	private ModelPlatformBin modelPlatformBin;
 	StatusIndicator statusIndicator;
 	private final int CHUNK_LEN = 1000;
 	private final HTML html = new HTML();
 	Button moreButton = new Button("Show More");
 	private int currentOffset;
 	private ViewPlatformSelection viewPlatform;
-	private boolean inProgress = false;
 	
 	private final DisassemblyServiceAsync disService = DisassemblyService.Util.getInstance();
 
@@ -59,8 +57,7 @@ public class ViewAssembly extends VerticalPanel implements ModelBinaryListener, 
 	    	resize();
 	    	
 	    	currentOffset += result.getCurrentLines();
-	    	
-	    	inProgress = false;
+
 	    }};
 	  
 	private void resize()
@@ -69,16 +66,14 @@ public class ViewAssembly extends VerticalPanel implements ModelBinaryListener, 
 		getParent().setHeight((getOffsetHeight()+PADDING)+"px");
 	}
 	
-	public ViewAssembly(ModelBinary mb, ModelPlatform mp, StatusIndicator si)
+	public ViewAssembly(ModelPlatformBin mpb, StatusIndicator si)
 	{
-		modelBinary = mb;
-		modelPlatform = mp;
+		modelPlatformBin = mpb;
 		statusIndicator = si;
 		currentOffset = 0;
 		
-		modelBinary.addBinaryListner(this);
-		modelPlatform.addPlatformListner(this);
-		viewPlatform = new ViewPlatformSelection(modelPlatform);
+		modelPlatformBin.addListener(this);
+		viewPlatform = new ViewPlatformSelection(modelPlatformBin);
 		
         this.add(viewPlatform);      
 		this.add(html);
@@ -91,32 +86,22 @@ public class ViewAssembly extends VerticalPanel implements ModelBinaryListener, 
 	
 	private void update()
 	{
-		if (!inProgress)
-		{
 			currentOffset = 0;
 			remove(moreButton);
 			statusIndicator.setBusy(true);
 			html.setHTML("<H1>Loading</H1>");
 			
-			inProgress = true;
-			disService.disassemble(modelBinary.getBytes(), modelPlatform.getPlatform(), currentOffset, CHUNK_LEN, callback);
-		}
+			disService.disassemble(modelPlatformBin.getBytes(), modelPlatformBin.getPlatform(), currentOffset, CHUNK_LEN, callback);
 	}
 	
-	public void onBinaryChange(ModelBinary mb)
-	{
-		update();
-	}
-
-	public void onPlatformChange(ModelPlatform mp)
+	public void onChange(ModelPlatformBin mpb, int eventFlags)
 	{
 		update();
 	}
 
 	@Override
 	public void onClick(ClickEvent event) {
-		inProgress = true;
-		disService.disassemble(modelBinary.getBytes(), modelPlatform.getPlatform(), currentOffset, CHUNK_LEN, callback);
+		disService.disassemble(modelPlatformBin.getBytes(), modelPlatformBin.getPlatform(), currentOffset, CHUNK_LEN, callback);
 	}
 	
 	@Override

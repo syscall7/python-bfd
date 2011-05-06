@@ -6,9 +6,9 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 
-public class ViewStrings extends FlowPanel implements ModelBinaryListener, SelectionHandler<Integer> {
+public class ViewStrings extends FlowPanel implements ModelPlatformBinListener, SelectionHandler<Integer> {
 	
-	private ModelBinary modelBinary;
+	private ModelPlatformBin modelPlatformBin;
 	StatusIndicator statusIndicator;
 	HTML html = new HTML();
 	
@@ -36,19 +36,21 @@ public class ViewStrings extends FlowPanel implements ModelBinaryListener, Selec
     	setHeight("" + (html.getOffsetHeight() + PADDING) + "px");
 	}
 	
-	public ViewStrings(ModelBinary mb, StatusIndicator si)
+	public ViewStrings(ModelPlatformBin mpb, StatusIndicator si)
 	{
-		modelBinary = mb;
+		modelPlatformBin = mpb;
 		statusIndicator = si;
 		
-		modelBinary.addBinaryListner(this);
+		modelPlatformBin.addListener(this);
 		add(html);
 	}
 	
-	public void onBinaryChange(ModelBinary mb)
+	public void onChange(ModelPlatformBin mpb, int eventFlags)
 	{
-		html.setHTML("<H1><center>Loading Strings</center></H1>");
-		disService.strings(modelBinary.getBytes(), callback);
+		if (0 != (eventFlags & mpb.MODEL_EVENT_BIN_CHANGED)) {
+			html.setHTML("<H1><center>Loading Strings</center></H1>");
+			disService.strings(modelPlatformBin.getBytes(), callback);
+		}
 	}
 	@Override
 	public void onSelection(SelectionEvent<Integer> event) {

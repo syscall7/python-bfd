@@ -3,8 +3,6 @@ package com.reverbin.ODA.shared;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.reverbin.ODA.client.ModelBinaryListener;
-
 public class Platform  {
 	
 	private static List<Platform> supportedPlatforms = new ArrayList<Platform>(){{

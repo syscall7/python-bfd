@@ -10,7 +10,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 
 public class HexInput extends DialogBox  {
 		
-	public HexInput(final ModelBinary modelBinary) {
+	public HexInput(final ModelPlatformBin modelPlatformBin) {
 	//public HexInput(final ViewHex hexView) {
 		super(true);
 		setHTML("Hex Input");
@@ -31,7 +31,7 @@ public class HexInput extends DialogBox  {
 		btnSubmit.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) 
 			{	
-				modelBinary.setBytes(HexUtils.textToBytes(txtrHex.getText()));
+				modelPlatformBin.setBytes(HexUtils.textToBytes(txtrHex.getText()));
 				hide();
 				
 			}
