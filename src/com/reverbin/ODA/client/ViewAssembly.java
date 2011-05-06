@@ -3,8 +3,9 @@ package com.reverbin.ODA.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.reverbin.ODA.shared.DisassemblyOutput;
-import com.reverbin.ODA.shared.PlatformDescriptor;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 
 /**
  * Container for assembly view
@@ -12,7 +13,7 @@ import com.google.gwt.event.dom.client.*;
  * @author anthony
  *
  */
-public class ViewAssembly extends VerticalPanel implements ModelBinaryListener, ModelPlatformListener, ClickHandler {
+public class ViewAssembly extends VerticalPanel implements ModelBinaryListener, ModelPlatformListener, ClickHandler, SelectionHandler<Integer> {
 	
 	private ModelBinary modelBinary;
 	private ModelPlatform modelPlatform;
@@ -36,7 +37,6 @@ public class ViewAssembly extends VerticalPanel implements ModelBinaryListener, 
 
 	    @Override
 	    public void onSuccess(DisassemblyOutput result) {
-	    	int PADDING = 0;
 	    	
 	    	if (currentOffset == 0) {
 	    		html.setHTML(result.getFormattedAssembly());
@@ -56,13 +56,18 @@ public class ViewAssembly extends VerticalPanel implements ModelBinaryListener, 
 	    		remove(moreButton);
 	    	}
 	    	
-	    	getParent().setHeight((getOffsetHeight()+PADDING)+"px");
+	    	resize();
 	    	
 	    	currentOffset += result.getCurrentLines();
 	    	
 	    	inProgress = false;
 	    }};
-	    
+	  
+	private void resize()
+	{
+    	int PADDING = 0;
+		getParent().setHeight((getOffsetHeight()+PADDING)+"px");
+	}
 	
 	public ViewAssembly(ModelBinary mb, ModelPlatform mp, StatusIndicator si)
 	{
@@ -114,5 +119,11 @@ public class ViewAssembly extends VerticalPanel implements ModelBinaryListener, 
 		disService.disassemble(modelBinary.getBytes(), modelPlatform.getPlatform(), currentOffset, CHUNK_LEN, callback);
 	}
 	
+	@Override
+	public void onSelection(SelectionEvent<Integer> event) {
+		//TODO: get rid of hard-coded value here
+		if (event.getSelectedItem() == 1)
+			resize();		
+	}
 	
 }
