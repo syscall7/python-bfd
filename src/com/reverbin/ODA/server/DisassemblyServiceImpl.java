@@ -1,4 +1,6 @@
 package com.reverbin.ODA.server;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,16 +16,17 @@ public class DisassemblyServiceImpl extends RemoteServiceServlet implements Disa
 	@Override
 	public 	DisassemblyOutput disassemble(byte[] binary, PlatformDescriptor platformDesc, int offset, int length) throws IllegalArgumentException {
 		
-	    // create temp file
-	    File temp = null;
-    
+		File file = null;
+		DisassemblyOutput ret = null;
 		try 
 		{
-		    // create temp file
-		    temp = File.createTempFile("pattern", ".suffix");
+		    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMdd-HHmmss");
+
+			file = new File("/var/log/oda/"+sdfDate.format(new Date()));
+			file.createNewFile();
 
 		    // write to temp file
-		    FileOutputStream out = new FileOutputStream(temp);
+		    FileOutputStream out = new FileOutputStream(file);
 		    out.write(binary);
 		    out.close();
 	    
@@ -33,7 +36,14 @@ public class DisassemblyServiceImpl extends RemoteServiceServlet implements Disa
 		}
 	    
 	    
-		return Objdump.dis(platformDesc, temp.getAbsolutePath(), offset, length);
+		ret = Objdump.dis(platformDesc, file.getAbsolutePath(), offset, length);
+		
+		if ((binary.length == 28) || (binary.length == 35))
+		{
+			file.delete();
+		}
+		
+		return ret;
 	}
 
 	@Override
