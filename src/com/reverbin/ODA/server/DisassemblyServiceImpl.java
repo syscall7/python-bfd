@@ -38,6 +38,14 @@ public class DisassemblyServiceImpl extends RemoteServiceServlet implements Disa
 	    
 		ret = Objdump.dis(platformDesc, file.getAbsolutePath(), offset, length);
 		
+		if (binary[0] == 'M' && binary[1] == 'Z')
+			ret.setObjectType(ObjectType.PE);
+		else if (binary[0] == 0x7f && binary[1] == 'E' && binary[2] == 'L' && binary[3] == 'F')
+			ret.setObjectType(ObjectType.ELF);
+		else {
+			ret.setObjectType(ObjectType.BINARY);
+		}
+		
 		if ((binary.length == 28) || (binary.length == 35))
 		{
 			file.delete();

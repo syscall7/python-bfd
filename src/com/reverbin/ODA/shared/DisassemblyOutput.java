@@ -36,8 +36,17 @@ public class DisassemblyOutput implements Serializable {
 	public int getCurrentLines() {
 		return currentLines;
 	}
+	
+	public void setObjectType(ObjectType ot) {
+		objectType = ot;
+	}
+	
+	public ObjectType getObjectType() {
+		return objectType;
+	}
 
 	private int totalLines;
 	private int currentLines;
 	private String formattedAssembly;
+	private ObjectType objectType; 
 }

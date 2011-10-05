@@ -3,6 +3,7 @@ package com.reverbin.ODA.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.reverbin.ODA.shared.DisassemblyOutput;
+import com.reverbin.ODA.shared.ObjectType;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
@@ -22,6 +23,7 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	Button moreButton = new Button("Show More");
 	private int currentOffset;
 	private ViewPlatformSelection viewPlatform;
+	DialogObjectSupport dialogObjectSupport = new DialogObjectSupport();
 	
 	private final DisassemblyServiceAsync disService = DisassemblyService.Util.getInstance();
 
@@ -57,6 +59,12 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	    	resize();
 	    	
 	    	currentOffset += result.getCurrentLines();
+	    	
+	    	if (result.getObjectType() != ObjectType.BINARY)
+	    	{
+	    		dialogObjectSupport.center();
+	    		dialogObjectSupport.show();
+	    	}
 
 	    }};
 	  

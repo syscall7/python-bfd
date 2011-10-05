@@ -10,5 +10,8 @@ public interface Resources extends ClientBundle {
 	
 	@Source("Help.html")
 	TextResource help();
+	
+	@Source("ObjectSupport.html")
+	TextResource objectSupport();
 
 }
