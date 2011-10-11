@@ -14,4 +14,7 @@ public interface Resources extends ClientBundle {
 	@Source("ObjectSupport.html")
 	TextResource objectSupport();
 
+	@Source("LegalAgreement.html")
+	TextResource legalAgreement();
+
 }
