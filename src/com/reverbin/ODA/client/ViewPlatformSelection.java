@@ -10,8 +10,6 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.event.dom.client.*;
-import com.google.gwt.i18n.client.NumberFormat;
-import com.reverbin.ODA.client.*;
 import com.reverbin.ODA.shared.*;
 
 public class ViewPlatformSelection extends FlowPanel 

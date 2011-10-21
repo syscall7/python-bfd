@@ -1,12 +1,8 @@
 package com.reverbin.ODA.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.reverbin.ODA.shared.Endian;
 import com.reverbin.ODA.shared.PlatformDescriptor;
 import com.reverbin.ODA.shared.PlatformId;
