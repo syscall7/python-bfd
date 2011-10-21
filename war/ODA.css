@@ -62,10 +62,10 @@ td.insn {font-family: monospace; color:#093C83; font-weight:bold; white-space: p
 }
 
 .borderedPanel {
-padding: 0mm 4mm 4mm 4mm;
+padding: 3mm 3mm 3mm 3mm;
 border: 2px;
-border-color: grey;
-border-style: none;
+border-color: #92C1F0;
+border-style: solid;
 }
 
 .panelBox {
@@ -83,3 +83,14 @@ background-color: #D0E4F6
     border-color:#92C1F0;
     border-style: solid;
 }
+
+.contact {
+    text-decoration:none; 
+    font-weight:bold; 
+    font-size:large;
+}
+
+.gwt-Anchor:link {color:#1c5092;}
+.gwt-Anchor:visited {color:#1c5092;}
+.gwt-Anchor:hover {color:#1c5092;}
+.gwt-Anchor:active {color:#1c5092;}

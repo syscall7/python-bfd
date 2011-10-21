@@ -21,30 +21,30 @@ import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 
 public class Main implements EntryPoint, SubmitCompleteHandler {
 	TabPanel tabPanel = new TabPanel();
-    FlowPanel asmPanel = new FlowPanel();
-    FlowPanel platformPanel = new FlowPanel();
-    StatusIndicator statusIndicator;
-    ModelPlatformBin modelPlatformBin = new ModelPlatformBin();
-    ViewHex viewHex;
-    ViewAssembly viewAsm;
-    ViewStrings viewStrings;
-    HexInput hexInput = new HexInput(modelPlatformBin);
-    UploadFile uploadFile = new UploadFile(this);
-    DialogHelp dialogHelp = new DialogHelp();
-	
-    /**
-     * Fired when a form has been submitted successfully.
-     *
-     * @param event the event
-     */
-	public void onSubmitComplete(SubmitCompleteEvent event)
-    {
-    	uploadFile.hide();
+	FlowPanel asmPanel = new FlowPanel();
+	FlowPanel platformPanel = new FlowPanel();
+	StatusIndicator statusIndicator;
+	ModelPlatformBin modelPlatformBin = new ModelPlatformBin();
+	ViewHex viewHex;
+	ViewAssembly viewAsm;
+	ViewStrings viewStrings;
+	HexInput hexInput = new HexInput(modelPlatformBin);
+	UploadFile uploadFile = new UploadFile(this);
+	DialogHelp dialogHelp = new DialogHelp();
+
+	/**
+	 * Fired when a form has been submitted successfully.
+	 * 
+	 * @param event
+	 *            the event
+	 */
+	public void onSubmitComplete(SubmitCompleteEvent event) {
+		uploadFile.hide();
 		modelPlatformBin.setBytes(HexUtils.textToBytes(event.getResults()));
-    	//tabPanel.selectTab(0);
-    }
-    
-    public void onModuleLoad() {
+		// tabPanel.selectTab(0);
+	}
+
+	public void onModuleLoad() {
 
          RootPanel rp = RootPanel.get();        
          VerticalPanel vpanel = new VerticalPanel();
@@ -57,17 +57,7 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
             	 uploadFile.show();
              }
          });
-         
-         MenuItem menuItemInputHex = new MenuItem("Input Hex", false, new Command() {
-             public void execute() {
-                 hexInput.setText("");
-                 hexInput.setHTML("Hex Input");
-                 hexInput.center();
-                 hexInput.show();
-             }
-         });
-         //menuBarFile.addItem(menuItemInputHex);
-        
+                
          // examples
          MenuBar menuBarExamples = new MenuBar(true);
          menuBarExamples.addItem("strcpy (x86)", new Command() {
@@ -146,12 +136,18 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          hp.setCellHorizontalAlignment(logo, HasHorizontalAlignment.ALIGN_CENTER);
          hp.setCellVerticalAlignment(logo, HasVerticalAlignment.ALIGN_MIDDLE);
          
-         Image donate = new Image("images/paypal-donate-button.gif");
-         //hp.add(donate);
          PayPalPanel ppp = new PayPalPanel();
-         hp.add(ppp);
-         hp.setCellHorizontalAlignment(ppp, HasHorizontalAlignment.ALIGN_LEFT);
-         hp.setCellVerticalAlignment(ppp, HasVerticalAlignment.ALIGN_MIDDLE);
+         Anchor contact = new Anchor("Contact Us!"); 
+         contact.addStyleName("contact");
+         VerticalPanel vpPaypalContact = new VerticalPanel();
+         vpPaypalContact.add(ppp);
+         vpPaypalContact.add(contact);
+         vpPaypalContact.setCellHeight(contact, "32px");
+         vpPaypalContact.setCellHorizontalAlignment(contact, HasHorizontalAlignment.ALIGN_CENTER);
+         vpPaypalContact.setCellVerticalAlignment(contact, HasVerticalAlignment.ALIGN_BOTTOM);
+         hp.add(vpPaypalContact);
+         hp.setCellHorizontalAlignment(vpPaypalContact, HasHorizontalAlignment.ALIGN_LEFT);
+         hp.setCellVerticalAlignment(vpPaypalContact, HasVerticalAlignment.ALIGN_MIDDLE);
          
 
 
@@ -176,64 +172,62 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          loadExample("strcpy.x86.hex", platform);
          statusIndicator.setBusy(true);
     }
-    
-    /**
-     * Load example binaries
-     * 
-     * @param example
-     * @param platform
-     */
-    private void loadExample(String example, final PlatformDescriptor platform)
-    {
-    	/* Because the RequestBuilder class doesn't handle GET results that are content-type
-    	 * application/octet-stream, I ended up storing the examples in ASCII hex, which then
-    	 * gets converted into binary via HexUtils.  Not ideal, but it works.
-    	 */
-        RequestBuilder req = new RequestBuilder(RequestBuilder.GET, "examples/" + example);
-        try
-        {
-	         req.sendRequest("", new RequestCallback() {
-	        	  @Override
-	        	  public void onResponseReceived(Request req, Response resp) {
-	        		  modelPlatformBin.setPlatformBin(platform, HexUtils.textToBytes(resp.getText()));
-	        		  tabPanel.selectTab(1);
-	        	  }
-	
-	        	  @Override
-	        	  public void onError(Request res, Throwable throwable) {
-	        		  String s = res.toString();
-	        	    // handle errors
-	        	  }
-	        	});
-        }
-        catch (Exception e)
-        {
-       	 
-        } 
-    }
-    
-    /**
-     * Update disassembly when hex bytes change
-     */
-	public void updateHex(byte[] hexBytes)
-	{
-		//hexView.setRawBytes(hexBytes);
-	    //formatterService.formatHex(asmView.getPlatform(), hexBytes, hexCallback);	
+
+	/**
+	 * Load example binaries
+	 * 
+	 * @param example
+	 * @param platform
+	 */
+	private void loadExample(String example, final PlatformDescriptor platform) {
+		/*
+		 * Because the RequestBuilder class doesn't handle GET results that are
+		 * content-type application/octet-stream, I ended up storing the
+		 * examples in ASCII hex, which then gets converted into binary via
+		 * HexUtils. Not ideal, but it works.
+		 */
+		RequestBuilder req = new RequestBuilder(RequestBuilder.GET, "examples/"
+				+ example);
+		try {
+			req.sendRequest("", new RequestCallback() {
+				@Override
+				public void onResponseReceived(Request req, Response resp) {
+					modelPlatformBin.setPlatformBin(platform,
+							HexUtils.textToBytes(resp.getText()));
+					tabPanel.selectTab(1);
+				}
+
+				@Override
+				public void onError(Request res, Throwable throwable) {
+				}
+			});
+		} catch (Exception e) {
+
+		}
 	}
-	
+
+	/**
+	 * Update disassembly when hex bytes change
+	 */
+	public void updateHex(byte[] hexBytes) {
+		// hexView.setRawBytes(hexBytes);
+		// formatterService.formatHex(asmView.getPlatform(), hexBytes,
+		// hexCallback);
+	}
+
 	/**
 	 * Update disassembly when platform changes
 	 */
-	public void updatePlatform(PlatformDescriptor platform)
-	{
-		//asmView.setPlatform(platform);
-	    //formatterService.formatHex(platform, hexView.getRawBytes(), hexCallback);	
+	public void updatePlatform(PlatformDescriptor platform) {
+		// asmView.setPlatform(platform);
+		// formatterService.formatHex(platform, hexView.getRawBytes(),
+		// hexCallback);
 	}
-	
-	public void updateHexAndPlatform(byte[] hexBytes, PlatformDescriptor platform)
-	{
-		//hexView.setRawBytes(hexBytes);
-		//asmView.setPlatform(platform);
-	    //formatterService.formatHex(platform, hexBytes, hexCallback);	
+
+	public void updateHexAndPlatform(byte[] hexBytes,
+			PlatformDescriptor platform) {
+		// hexView.setRawBytes(hexBytes);
+		// asmView.setPlatform(platform);
+		// formatterService.formatHex(platform, hexBytes, hexCallback);
 	}
 }

@@ -1,8 +1,11 @@
 package com.reverbin.ODA.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FileUpload;
@@ -45,7 +48,7 @@ public class UploadFile extends DialogBox {
 		uploadForm.setWidget(panel);
 		
 		// Create a FileUpload widget.
-		FileUpload fileUpload = new FileUpload();
+		final FileUpload fileUpload = new FileUpload();
 		fileUpload.setName("uploadFormElement");
 
 		// Submit button is disabled when the box first appears
@@ -74,7 +77,7 @@ public class UploadFile extends DialogBox {
 		HorizontalPanel agreementPanel = new HorizontalPanel();
 		agreementPanel.add(legalCheckbox);
 		legalesePanel.add(agreementPanel);
-
+	    
 		// Add the upload widgets
 		HorizontalPanel topRow = new HorizontalPanel();
 		topRow.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
@@ -110,6 +113,20 @@ public class UploadFile extends DialogBox {
 				hide();
 			}
 		});
+		
+	    // Add an event handler to the form.
+	    uploadForm.addSubmitHandler(new FormPanel.SubmitHandler() {
+	      public void onSubmit(SubmitEvent event) {
+	        // This event is fired just before the form is submitted. We can take
+	        // this opportunity to perform validation.
+	    	
+	        if (fileUpload.getFilename().length() == 0) {
+	          Window.alert("Please select a file to upload.");
+	          event.cancel();
+	        }
+	      }
+	    });
+
 		
 		// Add submit and cancel buttons
 		HorizontalPanel hp = new HorizontalPanel();
