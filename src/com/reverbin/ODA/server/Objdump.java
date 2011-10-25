@@ -8,10 +8,12 @@ import com.reverbin.ODA.shared.Endian;
 import com.reverbin.ODA.shared.PlatformDescriptor;
 import com.reverbin.ODA.shared.PlatformId;
 
+import com.reverbin.ODA.server.HostUtils;
+
 import org.apache.commons.io.*;
 
 public class Objdump
-{	
+{		
     /**
      * Execute the given command line and return the captured stdout
      */
@@ -132,37 +134,47 @@ public class Objdump
     {
     	//"objdump -D -b binary -m " + platform + " " + );
     	String prefix = "";
-    	String machine = "";
+    	String machine = "";    	
+		String usrBinDir = HostUtils.getUsrBinDir();
+		String usrLocalDir = HostUtils.getUsrLocalBinDir();    		
+    	
     	
     	switch (platform.platformId)
     	{
 	    	case PPC: {
-	    		prefix = "/usr/local/bin/ppc-elf-";
+	    		prefix = usrLocalDir + "ppc-elf-";
 	    		machine = "powerpc";
 	    		break;
 	    	}
 	    	case X86: {
-	    		prefix = "/usr/bin/";
+	    		if ( HostUtils.isWindows() )
+	    		{
+		    		prefix = usrLocalDir + "i686-elf-";	    			
+	    		}
+	    		else
+	    		{
+		    		prefix = usrBinDir;	    			
+	    		}
 	    		machine = "i386";
 	    		break;
 	    	}
 	    	case ARM: {
-	    		prefix = "/usr/local/bin/arm-elf-";
+	    		prefix = usrLocalDir + "arm-elf-";
 	    		machine = "arm";
 	    		break;
 	    	}
 	    	case MIPS: {
-	    		prefix = "/usr/local/bin/mips-elf-";
+	    		prefix = usrLocalDir + "mips-elf-";
 	    		machine = "mips";
 	    		break;
 	    	}
 	    	case TMS320C6X: {
-	    		prefix = "/usr/local/bin/tic6x-elf-";
+	    		prefix = usrLocalDir + "tic6x-elf-";
 	    		machine = "tic6x";
 	    		break;
 	    	}
 	    	case TMS320C80: {
-	    		prefix = "/usr/local/bin/tic80-elf-";
+	    		prefix = usrLocalDir + "tic80-elf-";
 	    		machine = "tic6x";
 	    		break;
 	    	}
@@ -191,8 +203,14 @@ public class Objdump
 		DisassemblyOutput output = new DisassemblyOutput("");
 		String listing = "";  
 		listing = exec(buildExecStr(platform, filePath));
-		
-		
+//		listing = "strcpy.arm.hex:     file format binary \n" 
+//				+ "Disassembly of section .data: \n" 
+//				+ "\n"
+//				+ "\n"
+//				+ "00000000 <.data>:\n"
+//				+ "0:	30313230 	eorscc	r3, r1, r0, lsr r2\n"
+//				+ "4:	20343065 	eorscs	r3, r4, r5, rrx\n";
+
 		if (listing.length() == 0)
 		{
 			return output;

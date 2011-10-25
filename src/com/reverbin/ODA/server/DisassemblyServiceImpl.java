@@ -22,7 +22,7 @@ public class DisassemblyServiceImpl extends RemoteServiceServlet implements Disa
 		{
 		    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMdd-HHmmss");
 
-			file = new File("/var/log/oda/"+sdfDate.format(new Date()));
+			file = new File(HostUtils.getUploadLogDir()+sdfDate.format(new Date()));
 			file.createNewFile();
 
 		    // write to temp file
