@@ -76,7 +76,7 @@ public class Platform  {
 	public static Platform getPlatform(String name)
 	{
 		for (Platform p : supportedPlatforms) {
-			if (p.name == name) {
+			if (p.name.equals(name)) {
 				return p;
 			}
 		}
