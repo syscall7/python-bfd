@@ -28,19 +28,7 @@ public class HostUtils
 		}
 	}
 	
-	public static String getUsrBinDir()
-	{
-		if ( isWindows() )
-		{
-			return "C:/cross-tools/binutils-builds/bin/";
-		}
-		else
-		{
-			return "/usr/bin/";
-		}		
-	}
-
-	public static String getUsrLocalBinDir()
+	public static String getBinutilsDir()
 	{
 		if ( isWindows() )
 		{

@@ -135,46 +135,38 @@ public class Objdump
     	//"objdump -D -b binary -m " + platform + " " + );
     	String prefix = "";
     	String machine = "";    	
-		String usrBinDir = HostUtils.getUsrBinDir();
-		String usrLocalDir = HostUtils.getUsrLocalBinDir();    		
+		String binutilsDir = HostUtils.getBinutilsDir();    		
     	
     	
     	switch (platform.platformId)
     	{
 	    	case PPC: {
-	    		prefix = usrLocalDir + "ppc-elf-";
+	    		prefix = "ppc-elf-";
 	    		machine = "powerpc";
 	    		break;
 	    	}
 	    	case X86: {
-	    		if ( HostUtils.isWindows() )
-	    		{
-		    		prefix = usrLocalDir + "i686-elf-";	    			
-	    		}
-	    		else
-	    		{
-		    		prefix = usrBinDir;	    			
-	    		}
+	    		prefix = "i686-elf-";	    			
 	    		machine = "i386";
 	    		break;
 	    	}
 	    	case ARM: {
-	    		prefix = usrLocalDir + "arm-elf-";
+	    		prefix = "arm-elf-";
 	    		machine = "arm";
 	    		break;
 	    	}
 	    	case MIPS: {
-	    		prefix = usrLocalDir + "mips-elf-";
+	    		prefix = "mips-elf-";
 	    		machine = "mips";
 	    		break;
 	    	}
 	    	case TMS320C6X: {
-	    		prefix = usrLocalDir + "tic6x-elf-";
+	    		prefix = "tic6x-elf-";
 	    		machine = "tic6x";
 	    		break;
 	    	}
 	    	case TMS320C80: {
-	    		prefix = usrLocalDir + "tic80-elf-";
+	    		prefix = "tic80-elf-";
 	    		machine = "tic6x";
 	    		break;
 	    	}
@@ -189,7 +181,7 @@ public class Objdump
     		case DEFAULT:	endian = "";	break;
     	}
     	
-    	return  prefix + "objdump -D -b binary -m " + machine + " --adjust-vma=" + platform.baseAddress + endian + " " + filePath;
+    	return  binutilsDir + prefix + "objdump -D -b binary -m " + machine + " --adjust-vma=" + platform.baseAddress + endian + " " + filePath;
     }
 
     /**
