@@ -137,7 +137,8 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          hp.setCellVerticalAlignment(logo, HasVerticalAlignment.ALIGN_MIDDLE);
          
          PayPalPanel ppp = new PayPalPanel();
-         Anchor contact = new Anchor("Contact Us!"); 
+         Anchor contact = new Anchor("Contact Us!");
+         contact.setHref("mailto:admin@onlinedisassembler.com");
          contact.addStyleName("contact");
          VerticalPanel vpPaypalContact = new VerticalPanel();
          vpPaypalContact.add(ppp);
