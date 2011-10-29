@@ -8,4 +8,5 @@ public class PlatformDescriptor  implements IsSerializable {
 	public PlatformId platformId;
 	public int baseAddress;
 	public Endian endian;
+	public PlatformOption option;
 }

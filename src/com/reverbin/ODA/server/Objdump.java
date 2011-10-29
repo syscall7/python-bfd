@@ -58,7 +58,7 @@ public class Objdump
                     // offset and colon followed by white space
                     "([0-9a-f]*):\\s+" +    
                     // raw binary bytes "xxxxxxxx" or "xx xx xx .."
-                    "([0-9a-f]{8}|(?:[0-9a-f]{2} )+)" +
+                    "([0-9a-f]{8}|(?:[0-9a-f]{2} )+|(?:[0-9a-f]{4} )+)" +
                     // instruction
                     "(.*)$",
                     Pattern.MULTILINE);
@@ -181,7 +181,18 @@ public class Objdump
     		case DEFAULT:	endian = "";	break;
     	}
     	
-    	return  binutilsDir + prefix + "objdump -D -b binary -m " + machine + " --adjust-vma=" + platform.baseAddress + endian + " " + filePath;
+    	String option = "";
+    	if ( platform.option != null )
+    	{
+	    	switch (platform.option)
+	    	{
+	    		case THUMB:	option = " -M force-thumb"; break;
+	    		case NONE:	option = " "; break;
+	    		case DEFAULT:	option = " "; break;
+	    	}
+    	}
+    	
+    	return  binutilsDir + prefix + "objdump -D -b binary -m " + machine + " --adjust-vma=" + platform.baseAddress + endian + " " + option + " " + filePath;
     }
 
     /**

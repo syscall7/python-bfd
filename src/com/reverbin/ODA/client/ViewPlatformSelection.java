@@ -18,6 +18,8 @@ public class ViewPlatformSelection extends FlowPanel
 	ModelPlatformBin modelPlatformBin;
 	ListBox listBoxPlatform = new ListBox();
 	ListBox listBoxEndian = new ListBox();
+	ListBox listBoxOption = new ListBox();
+	Label labelListBoxOption = new Label("Option");
     TextBox baseAdressText = new TextBox();
     Button disButton = new Button("Disassemble");	
 	
@@ -42,6 +44,10 @@ public class ViewPlatformSelection extends FlowPanel
         
         listBoxEndian.setVisibleItemCount(1);
         
+        listBoxOption.setVisibleItemCount(1);
+        listBoxOption.setVisible(false);
+        labelListBoxOption.setVisible(false);
+        
         HorizontalPanel firstRow = new HorizontalPanel();   
         firstRow.setSpacing(3);
         firstRow.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
@@ -51,6 +57,9 @@ public class ViewPlatformSelection extends FlowPanel
         firstRow.add(new Label("     "));
         firstRow.add(new Label("Endian"));
         firstRow.add(listBoxEndian);
+        firstRow.add(new Label("     "));
+        firstRow.add(labelListBoxOption);
+        firstRow.add(listBoxOption);
 
         
         HorizontalPanel secondRow = new HorizontalPanel();
@@ -84,7 +93,7 @@ public class ViewPlatformSelection extends FlowPanel
 	{
 		Platform p = Platform.getPlatform(platformDesc.platformId);
 		for (int i = 0; i < listBoxPlatform.getItemCount(); i++) {
-			if (p.getName() == listBoxPlatform.getItemText(i)) {
+			if (p.getName().equals(listBoxPlatform.getItemText(i))) {
 				listBoxPlatform.setSelectedIndex(i);
 			}
 		}
@@ -95,6 +104,25 @@ public class ViewPlatformSelection extends FlowPanel
 			if (e == platformDesc.endian) {
 				listBoxEndian.setSelectedIndex(listBoxEndian.getItemCount() - 1);
 			}				
+		}
+		
+		// Only make the Option ListBox visible for those platforms with options
+		listBoxOption.clear();
+		if ( p.getOptions().size() != 0 )
+		{
+			listBoxOption.setVisible(true);
+			labelListBoxOption.setVisible(true);
+			for (PlatformOption opt : p.getOptions()) {
+				listBoxOption.addItem(opt.toString());
+				if (opt == platformDesc.option) {
+					listBoxOption.setSelectedIndex(listBoxOption.getItemCount() - 1);
+				}				
+			}	
+		}
+		else			
+		{
+			listBoxOption.setVisible(false);
+			labelListBoxOption.setVisible(false);
 		}
 	    
 		baseAdressText.setText("0x" + Integer.toHexString(platformDesc.baseAddress));
@@ -112,6 +140,28 @@ public class ViewPlatformSelection extends FlowPanel
 			if (Endian.DEFAULT == e)
 				listBoxEndian.setSelectedIndex(listBoxEndian.getItemCount());
 		}
+		
+		// Only make the Option ListBox visible for those platforms with options
+		listBoxOption.clear();
+		if ( p.getOptions().size() != 0 )
+		{
+			listBoxOption.setVisible(true);
+			labelListBoxOption.setVisible(true);
+			for (PlatformOption opt : p.getOptions()) {
+				listBoxOption.addItem(opt.toString());
+				
+				// Default to "NONE"
+				if (PlatformOption.DEFAULT == opt) {
+					listBoxOption.setSelectedIndex(listBoxOption.getItemCount());
+				}				
+			}	
+		}
+		else
+		{
+			listBoxOption.setVisible(false);
+			labelListBoxOption.setVisible(false);
+		}
+	
 	}
 	
 	public void onChange(ModelPlatformBin mpb, int eventFlags)
@@ -128,6 +178,8 @@ public class ViewPlatformSelection extends FlowPanel
 			listBoxPlatform.getItemText(listBoxPlatform.getSelectedIndex())).getId();
 		platformDesc.endian = Endian.getEndian(
 				listBoxEndian.getItemText(listBoxEndian.getSelectedIndex()));
+		platformDesc.option = PlatformOption.getPlatformOption(
+				listBoxOption.getItemText(listBoxOption.getSelectedIndex()));
 		platformDesc.baseAddress = Integer.parseInt(baseAdressText.getText().replaceFirst("0x", ""), 16);
 		modelPlatformBin.setPlatform(platformDesc);	
 	}

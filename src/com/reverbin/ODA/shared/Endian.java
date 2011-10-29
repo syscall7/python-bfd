@@ -18,9 +18,9 @@ public enum Endian {
 	
 	public static Endian getEndian(String s)
 	{
-		if (s == "BIG")
+		if (s.equals("BIG"))
 			return BIG;
-		else if (s == "LITTLE")
+		else if (s.equals("LITTLE"))
 			return LITTLE;
 		else
 			return DEFAULT;
