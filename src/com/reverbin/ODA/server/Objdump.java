@@ -89,6 +89,12 @@ public class Objdump
         	
         	if (count < length)
         	{
+        		String instr = matcher.group(3).trim();
+        		
+        		// Escape special characters
+        		instr = instr.replaceAll("<", "&lt;");
+        		instr = instr.replaceAll(">", "&gt;");
+        		        		
         		/*
 	        	offsets.append(String.format("%1$#6s\n", matcher.group(1)));
 	        	raw.append(String.format("%1$-16s\n", matcher.group(2).replace(" ", "")));
@@ -99,7 +105,7 @@ public class Objdump
 	            sb.append(String.format("<offset>%1$#6s </offset>" +
 	            		                "<raw>%2$-16s </raw>" +
 	            		                "<insn>%3$s\n</insn>", 
-	            		matcher.group(1), matcher.group(2).replace(" ", ""), matcher.group(3).trim()));
+	            		matcher.group(1), matcher.group(2).replace(" ", ""),instr ));
 	        	
 	        	count++;
 	        	
@@ -192,7 +198,7 @@ public class Objdump
 	    	}
     	}
     	
-    	return  binutilsDir + prefix + "objdump -D -b binary -m " + machine + " --adjust-vma=" + platform.baseAddress + endian + " " + option + " " + filePath;
+    	return  binutilsDir + prefix + "objdump -D -b binary -w -z -m " + machine + " --adjust-vma=" + platform.baseAddress + endian + " " + option + " " + filePath;
     }
 
     /**
