@@ -178,8 +178,11 @@ public class ViewPlatformSelection extends FlowPanel
 			listBoxPlatform.getItemText(listBoxPlatform.getSelectedIndex())).getId();
 		platformDesc.endian = Endian.getEndian(
 				listBoxEndian.getItemText(listBoxEndian.getSelectedIndex()));
-		platformDesc.option = PlatformOption.getPlatformOption(
+		if ( listBoxOption.getSelectedIndex() > -1)
+		{
+			platformDesc.option = PlatformOption.getPlatformOption(
 				listBoxOption.getItemText(listBoxOption.getSelectedIndex()));
+		}
 		platformDesc.baseAddress = Integer.parseInt(baseAdressText.getText().replaceFirst("0x", ""), 16);
 		modelPlatformBin.setPlatform(platformDesc);	
 	}
