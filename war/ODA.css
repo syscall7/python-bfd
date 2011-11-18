@@ -7,7 +7,7 @@ h1 {
   font-weight: bold;
   color: #777777;
   margin: 40px 0px 70px;
-  text-align: center;
+  /**text-align: center;**/
 }
 
 h1_lite {

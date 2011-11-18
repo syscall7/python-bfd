@@ -28,6 +28,7 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
 	ViewHex viewHex;
 	ViewAssembly viewAsm;
 	ViewStrings viewStrings;
+	ViewSections viewSections;
 	HexInput hexInput = new HexInput(modelPlatformBin);
 	UploadFile uploadFile = new UploadFile(this);
 	DialogHelp dialogHelp = new DialogHelp();
@@ -116,6 +117,12 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          tabPanel.add(viewStrings, "Strings");
          tabPanel.addSelectionHandler(viewStrings);
 
+         // sections tab
+         viewSections = new ViewSections(modelPlatformBin, statusIndicator);
+         viewSections.setSize("600px", "418px");
+         tabPanel.add(viewSections, "Sections");
+         tabPanel.addSelectionHandler(viewSections);
+                  
          //panel.setSize("739px", "538px");
          tabPanel.addStyleName("table-center");
          

@@ -1,16 +1,22 @@
 package com.reverbin.ODA.shared;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
 
 @SuppressWarnings("serial")
 public class DisassemblyOutput implements Serializable {
 	
 	public DisassemblyOutput() {
 		this.setFormattedAssembly("");
+		this.instructionMap = new HashMap<Integer, Instruction>();
+		this.stringList = new HashSet<String>();
 	}
 	
 	public DisassemblyOutput(String assembly) {
 		this.setFormattedAssembly(assembly);
+		this.instructionMap = new HashMap<Integer, Instruction>();
+		this.stringList = new HashSet<String>();
 	}
 
 	public void setFormattedAssembly(String formattedAssembly) {
@@ -45,8 +51,33 @@ public class DisassemblyOutput implements Serializable {
 		return objectType;
 	}
 
+	public Instruction getInstruction(int addr) {
+		return instructionMap.get(addr);
+	}
+	
+	public HashMap<Integer, Instruction> getInstructions() {
+		return this.instructionMap;
+	}
+	
+	public void addInstruction(int addr, Instruction instr){
+		instructionMap.put(addr,instr);
+	}
+	
+	public void addString(String string){
+		stringList.add(string);
+	}
+	
+	public HashSet<String> getStrings()
+	{
+		return stringList;
+	}
+	
 	private int totalLines;
 	private int currentLines;
 	private String formattedAssembly;
 	private ObjectType objectType; 
+    private HashSet<String> stringList;
+	private HashMap<Integer, Instruction> instructionMap;
+
+ 
 }
