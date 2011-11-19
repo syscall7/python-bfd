@@ -110,7 +110,14 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	    		// Format a single instruction
 	    		offsetBuf.append("<offset>" + curInstr.addressFmt +  "\n</offset>");
 	    		rawBytesBuf.append("<raw>" + hexdata +  "\n</raw>");
-	    		opcodeBuf.append("<insn>" + opcode +  "\n</insn>");	    		
+	    		if ( curInstr.isError )
+	    		{	    			
+	    			opcodeBuf.append("<errinsn>" + opcode +  "\n</errinsn>");
+	    		}
+	    		else
+	    		{
+	    			opcodeBuf.append("<insn>" + opcode +  "\n</insn>");
+	    		}
 	    	}
 
 	    	// Populate panels with disassembly while accounting

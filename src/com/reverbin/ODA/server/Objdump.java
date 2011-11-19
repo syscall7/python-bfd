@@ -54,7 +54,13 @@ public class Objdump
         int line = 0;
         int count = 0;
         int totalCount = 0;
-        DisassemblyOutput output = new DisassemblyOutput("");
+        DisassemblyOutput output = new DisassemblyOutput();
+        
+        // Create pattern to identify and save errors in the disassembly
+        //	ARM = <errortype>
+        //	x86 - (bad)
+        Pattern errorInstPattern = Pattern.compile("(<.+>|" + Pattern.quote("(bad)") + ")");
+        Matcher errorInstMatcher;
         
         // now parse each line to get the offset, raw bytes and instruction
         pattern = Pattern.compile(
@@ -68,21 +74,8 @@ public class Objdump
                     "(.*)$",
                     Pattern.MULTILINE);
         matcher = pattern.matcher(dis);
-        
-        StringBuffer sb = new StringBuffer(dis.length());
-        
-        /*
-        StringBuffer offsets = new StringBuffer(dis.length());
-        StringBuffer raw = new StringBuffer(dis.length());
-        StringBuffer insns = new StringBuffer(dis.length());
-
-        offsets.append("<td class=\"offset\">");
-        raw.append("<td class=\"raw\">");
-        insns.append("<td class=\"insn\">");
-        */
-        
+                
         // for each match (each line, really)
-        //while (matcher.find() && (count++ < MAX_LINES))
         while (matcher.find())
         {       	
         		
@@ -98,10 +91,19 @@ public class Objdump
         		Instruction instruction = new Instruction();
         		
         		// Save Instruction Data
+        		//	TODO: Save registers separately
         		instruction.address = Integer.parseInt(matcher.group(1), 16);
         		instruction.hexdata = matcher.group(2);
         		instruction.opcode = instr;
         		instruction.addressFmt = String.format("0x%08x", instruction.address);
+        		
+        		// Look for errors in the opcode
+        		errorInstMatcher = errorInstPattern.matcher(instr);
+        		if ( errorInstMatcher.find() )
+        		{
+        			instruction.isError = true;
+        			instruction.errorType = errorInstMatcher.group(1);
+        		}
         		
         		// Format hex data the same for all processors
         		//	(objdump doesn't do it)
@@ -109,52 +111,16 @@ public class Objdump
         		
         		// Store the meta data
         		output.addInstruction(instruction.address, instruction);
-        		
-        		// Escape special characters
-        		instr = instr.replaceAll("<", "&lt;");
-        		instr = instr.replaceAll(">", "&gt;");
-        		        		
-        		/*
-	        	offsets.append(String.format("%1$#6s\n", matcher.group(1)));
-	        	raw.append(String.format("%1$-16s\n", matcher.group(2).replace(" ", "")));
-	        	insns.append(String.format("%1$s\n", matcher.group(3).trim()));
-	        	*/
-        		
-	        	/* offset (right justified), raw bytes (left just), instruction */
-	            sb.append(String.format("<offset>%1$#6s </offset>" +
-	            		                "<raw>%2$-16s </raw>" +
-	            		                "<insn>%3$s\n</insn>", 
-	            		matcher.group(1), matcher.group(2).replace(" ", ""),instr ));
-	        	
-	            
-	            
+        			            
 	        	count++;
-	        	
-        	}	
-        	
-
-        	
-        	/*
-        	sb.append(String.format("%1$#6s %2$-16s %3$s\n", 
-	                matcher.group(1), matcher.group(2).replace(" ", ""), matcher.group(3)));
-        	*/
-        	
-
+        	}	        	
         }
 
-        /*
-        offsets.append("</td>");
-        raw.append("</td>");
-        insns.append("</td>");
-        */
         output.setTotalLines(totalCount);
         output.setCurrentLines(count);
-        //output.setFormattedAssembly("<table><tr>" + offsets.toString() +  raw.toString() + insns.toString() + "</tr></table>");
-        output.setFormattedAssembly(sb.toString());
         		
         return output;
         
-        //return "<pre>" + sb.toString() + "</pre>";
     }
 
     private static String getPrefix(PlatformDescriptor platform)
@@ -277,17 +243,9 @@ public class Objdump
      */
 	public static DisassemblyOutput dis(PlatformDescriptor platform, String filePath, int offset, int length)
 	{
-		DisassemblyOutput output = new DisassemblyOutput("");
+		DisassemblyOutput output = new DisassemblyOutput();
 		String listing = "";  
 		listing = exec(buildDisExecStr(platform, filePath));
-//		listing = "strcpy.arm.hex:     file format binary \n" 
-//				+ "Disassembly of section .data: \n" 
-//				+ "\n"
-//				+ "\n"
-//				+ "00000000 <.data>:\n"
-//				+ "0:	30313230 	eorscc	r3, r1, r0, lsr r2\n"
-//				+ "4:	20343065 	eorscs	r3, r4, r5, rrx\n";
-
 		if (listing.length() == 0)
 		{
 			return output;

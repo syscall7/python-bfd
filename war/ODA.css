@@ -43,6 +43,8 @@ h1_lite {
 offset {font-family: monospace; color:black; text-align: right; white-space: pre; font-size: medium}
 raw {font-family: monospace; color:grey; white-space: pre; font-size: medium}
 insn {font-family: monospace; color:#093C83; font-weight:bold; white-space: pre; font-size: medium   }
+errinsn {font-family: monospace; color:red; font-weight:bold; white-space: pre; font-size: medium   }
+
 
 td.offset {font-family: monospace; color:black; text-align: right; white-space: pre}
 td.raw {font-family: monospace; color:grey; white-space: pre}

@@ -10,7 +10,8 @@ public class Instruction implements Serializable{
 
 	}
 	
-	
+	public boolean isError;
+	public String errorType;
 	public String opcode;
 	public String registers;
 	public String hexdata;
