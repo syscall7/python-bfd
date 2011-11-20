@@ -94,7 +94,7 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	private void resize()
 	{
     	int remainingSpace = Window.getClientHeight() - scrollPanel.getAbsoluteTop();
-    	int margin = 25;
+    	int margin = 50;
     	if ( remainingSpace < MIN_DIS_DISPLAY_SIZE )
     	{
         	scrollPanel.setHeight( MIN_DIS_DISPLAY_SIZE - margin + "px");    		
