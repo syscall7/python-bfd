@@ -60,7 +60,8 @@ public class UploadFile extends DialogBox {
 		HTML body = new HTML();
 		body.setHTML(legalText);
 		body.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		scrollPanel.add(body);	
+		scrollPanel.add(body);
+		scrollPanel.setHeight("100px");
 		
 		// Legalese Panel is a composite panel containing a
 		//	labels, other panels and a checkbox
