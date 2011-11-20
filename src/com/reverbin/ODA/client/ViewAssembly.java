@@ -22,7 +22,6 @@ import java.util.HashMap;
  */
 public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListener, ClickHandler, SelectionHandler<Integer> {
 	
-	private final int HEX_BYTE_DISPLAY_LEN = 8; 
 	private ModelPlatformBin modelPlatformBin;
 	StatusIndicator statusIndicator;
 	private final int CHUNK_LEN = 1000;
@@ -51,7 +50,17 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	    @Override
 	    public void onSuccess(DisassemblyOutput result) {
 	    	
-	    	convertDisToHtml(result);
+	    	// Populate panels with disassembly while accounting
+	    	//	for existing disassembly
+	    	if (currentOffset == 0) {
+	    		opcodehtml.setHTML(result.getOpcodeHtml());
+	    		rawbyteshtml.setHTML(result.getRawBytesHtml());
+	    		offsethtml.setHTML(result.getOffsetHtml());
+	    	} else {
+	    		opcodehtml.setHTML(opcodehtml.getHTML() + result.getOpcodeHtml());	    		
+	    		rawbyteshtml.setHTML(rawbyteshtml.getHTML() + result.getRawBytesHtml());	    		
+	    		offsethtml.setHTML(offsethtml.getHTML() + result.getOffsetHtml());	    			    	
+	    	}	    	
 	    	
 	    	statusIndicator.setBusy(false);
 	    	
@@ -79,58 +88,48 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	    
 	    public void convertDisToHtml(DisassemblyOutput output)
 	    {
-	    	// Sort the Instructions by address
-	    	ArrayList<Integer> sortedKeys=new ArrayList<Integer>(output.getInstructions().keySet());
-	    	Collections.sort(sortedKeys);
+//	    	// Sort the Instructions by address
+//	    	ArrayList<Integer> sortedKeys=new ArrayList<Integer>(output.getInstructions().keySet());
+//	    	Collections.sort(sortedKeys);
+//
+//	    	// Create a formatted listing of instructions 
+//	    	//	TODO: Determine initial buffer size better
+//	    	StringBuffer offsetBuf = new StringBuffer(sortedKeys.size()*20);	    	
+//	    	StringBuffer rawBytesBuf = new StringBuffer(sortedKeys.size()*20);	    	
+//	    	StringBuffer opcodeBuf = new StringBuffer(sortedKeys.size()*30);	    	
+//
+//	    	HashMap<Integer,Instruction> instrMap = output.getInstructions();
+//	    	
+//	    	// Parse the disassembly address by address
+//	    	for (int address : sortedKeys) {
+//	    		Instruction curInstr = instrMap.get(address);
+//	    		String opcode = curInstr.opcode;
+//	    		String hexdata = curInstr.hexdata;
+//	    		
+//	    		// Escape special characters in the opcode
+//	    		opcode = opcode.replaceAll("<", "&lt;");
+//	    		opcode = opcode.replaceAll(">", "&gt;");
+//	    		        		
+//        		// Only display first four bytes of hexdata 
+//        		// 	Add a "+" for lines with greater than 4 hex bytes
+//	    		if ( hexdata.length() > HEX_BYTE_DISPLAY_LEN ) {
+//	    			hexdata = hexdata.substring(0,HEX_BYTE_DISPLAY_LEN) + "+";
+//	    		}
+//	    		
+//	    		// Format a single instruction
+//	    		offsetBuf.append("<offset>" + curInstr.addressFmt +  "\n</offset>");
+//	    		rawBytesBuf.append("<raw>" + hexdata +  "\n</raw>");
+//	    		if ( curInstr.isError )
+//	    		{	    			
+//	    			opcodeBuf.append("<errinsn>" + opcode +  "\n</errinsn>");
+//	    		}
+//	    		else
+//	    		{
+//	    			opcodeBuf.append("<insn>" + opcode +  "\n</insn>");
+//	    		}
+//	    	}
 
-	    	// Create a formatted listing of instructions 
-	    	//	TODO: Determine initial buffer size better
-	    	StringBuffer offsetBuf = new StringBuffer(sortedKeys.size()*20);	    	
-	    	StringBuffer rawBytesBuf = new StringBuffer(sortedKeys.size()*20);	    	
-	    	StringBuffer opcodeBuf = new StringBuffer(sortedKeys.size()*30);	    	
 
-	    	HashMap<Integer,Instruction> instrMap = output.getInstructions();
-	    	
-	    	// Parse the disassembly address by address
-	    	for (int address : sortedKeys) {
-	    		Instruction curInstr = instrMap.get(address);
-	    		String opcode = curInstr.opcode;
-	    		String hexdata = curInstr.hexdata;
-	    		
-	    		// Escape special characters in the opcode
-	    		opcode = opcode.replaceAll("<", "&lt;");
-	    		opcode = opcode.replaceAll(">", "&gt;");
-	    		        		
-        		// Only display first four bytes of hexdata 
-        		// 	Add a "+" for lines with greater than 4 hex bytes
-	    		if ( hexdata.length() > HEX_BYTE_DISPLAY_LEN ) {
-	    			hexdata = hexdata.substring(0,HEX_BYTE_DISPLAY_LEN) + "+";
-	    		}
-	    		
-	    		// Format a single instruction
-	    		offsetBuf.append("<offset>" + curInstr.addressFmt +  "\n</offset>");
-	    		rawBytesBuf.append("<raw>" + hexdata +  "\n</raw>");
-	    		if ( curInstr.isError )
-	    		{	    			
-	    			opcodeBuf.append("<errinsn>" + opcode +  "\n</errinsn>");
-	    		}
-	    		else
-	    		{
-	    			opcodeBuf.append("<insn>" + opcode +  "\n</insn>");
-	    		}
-	    	}
-
-	    	// Populate panels with disassembly while accounting
-	    	//	for existing disassembly
-	    	if (currentOffset == 0) {
-	    		opcodehtml.setHTML(opcodeBuf.toString());
-	    		rawbyteshtml.setHTML(rawBytesBuf.toString());
-	    		offsethtml.setHTML(offsetBuf.toString());
-	    	} else {
-	    		opcodehtml.setHTML(opcodehtml.getHTML() + opcodeBuf.toString());	    		
-	    		rawbyteshtml.setHTML(rawbyteshtml.getHTML() + rawBytesBuf.toString());	    		
-	    		offsethtml.setHTML(offsethtml.getHTML() + offsetBuf.toString());	    			    	
-	    	}
 	    }
 	  
 	private void resize()

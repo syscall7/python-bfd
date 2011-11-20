@@ -40,88 +40,6 @@ public class Objdump
         return output;
     }
 
-    /**
-     * Convert the disassembly listing to pretty HTML
-     */
-    private static DisassemblyOutput dis2html(String dis, int offset, int length)
-    {
-    	// ignore leading text
-    	Pattern pattern = Pattern.compile("^\\s*[0-9a-fA-F]+:.*", Pattern.DOTALL | Pattern.MULTILINE);
-        Matcher matcher = pattern.matcher(dis);
-        matcher.find();
-        dis = matcher.group();
-        final int MAX_LINES = 2000;
-        int line = 0;
-        int count = 0;
-        int totalCount = 0;
-        DisassemblyOutput output = new DisassemblyOutput();
-        
-        // Create pattern to identify and save errors in the disassembly
-        //	ARM = <errortype>
-        //	x86 - (bad)
-        Pattern errorInstPattern = Pattern.compile("(<.+>|" + Pattern.quote("(bad)") + ")");
-        Matcher errorInstMatcher;
-        
-        // now parse each line to get the offset, raw bytes and instruction
-        pattern = Pattern.compile(
-                    // beginning of the line plus white space
-                    "^\\s*" +               
-                    // offset and colon followed by white space
-                    "([0-9a-f]*):\\s+" +    
-                    // raw binary bytes "xxxxxxxx" or "xx xx xx .."
-                    "([0-9a-f]{8}|(?:[0-9a-f]{2} )+|(?:[0-9a-f]{4} )+)" +
-                    // instruction
-                    "(.*)$",
-                    Pattern.MULTILINE);
-        matcher = pattern.matcher(dis);
-                
-        // for each match (each line, really)
-        while (matcher.find())
-        {       	
-        		
-        	totalCount++;
-        	
-        	if (line++ < offset) {
-        		continue;
-        	}
-        	
-        	if (count < length)
-        	{
-        		String instr = matcher.group(3).trim();
-        		Instruction instruction = new Instruction();
-        		
-        		// Save Instruction Data
-        		//	TODO: Save registers separately
-        		instruction.address = Integer.parseInt(matcher.group(1), 16);
-        		instruction.hexdata = matcher.group(2);
-        		instruction.opcode = instr;
-        		instruction.addressFmt = String.format("0x%08x", instruction.address);
-        		
-        		// Look for errors in the opcode
-        		errorInstMatcher = errorInstPattern.matcher(instr);
-        		if ( errorInstMatcher.find() )
-        		{
-        			instruction.isError = true;
-        			instruction.errorType = errorInstMatcher.group(1);
-        		}
-        		
-        		// Format hex data the same for all processors
-        		//	(objdump doesn't do it)
-        		instruction.hexdata = instruction.hexdata.replace(" ", ""); 
-        		
-        		// Store the meta data
-        		output.addInstruction(instruction.address, instruction);
-        			            
-	        	count++;
-        	}	        	
-        }
-
-        output.setTotalLines(totalCount);
-        output.setCurrentLines(count);
-        		
-        return output;
-        
-    }
 
     private static String getPrefix(PlatformDescriptor platform)
     {    	
@@ -241,17 +159,11 @@ public class Objdump
      * @param binary
      * @return
      */
-	public static DisassemblyOutput dis(PlatformDescriptor platform, String filePath, int offset, int length)
+	public static String dis(PlatformDescriptor platform, String filePath)
 	{
-		DisassemblyOutput output = new DisassemblyOutput();
 		String listing = "";  
-		listing = exec(buildDisExecStr(platform, filePath));
-		if (listing.length() == 0)
-		{
-			return output;
-		}
-		
-		return dis2html(listing, offset, length);
+		listing = exec(buildDisExecStr(platform, filePath));		
+		return listing;
 	}
 	
 	public static String getSections(String filePath,PlatformDescriptor platform)

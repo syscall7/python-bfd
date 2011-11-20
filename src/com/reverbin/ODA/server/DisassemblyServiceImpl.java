@@ -18,6 +18,9 @@ public class DisassemblyServiceImpl extends RemoteServiceServlet implements Disa
 		
 		File file = null;
 		DisassemblyOutput ret = null;
+		DisassemblyAnalyzer analyzer = new DisassemblyAnalyzer();
+		String objDumpListing;
+		
 		try 
 		{
 		    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyyMMdd-HHmmss");
@@ -33,10 +36,11 @@ public class DisassemblyServiceImpl extends RemoteServiceServlet implements Disa
 		}
 		catch (IOException e)
 		{
-		}
-	    
-	    
-		ret = Objdump.dis(platformDesc, file.getAbsolutePath(), offset, length);
+		}	
+		
+		objDumpListing = Objdump.dis(platformDesc, file.getAbsolutePath());
+		analyzer.parseObjdumpListing(objDumpListing, offset, length);
+		ret = analyzer.getDisassemblyOutput();
 		
 		if (binary[0] == 'M' && binary[1] == 'Z')
 			ret.setObjectType(ObjectType.PE);
