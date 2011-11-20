@@ -1,6 +1,8 @@
 package com.reverbin.ODA.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.Command;
 import com.reverbin.ODA.shared.Endian;
@@ -9,6 +11,7 @@ import com.reverbin.ODA.shared.PlatformId;
 import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
+import com.google.gwt.user.client.Window;
 
 /* Things to do
  * 
@@ -32,7 +35,7 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
 	HexInput hexInput = new HexInput(modelPlatformBin);
 	UploadFile uploadFile = new UploadFile(this);
 	DialogHelp dialogHelp = new DialogHelp();
-
+	final FlowPanel flowpanel = new FlowPanel();
 	/**
 	 * Fired when a form has been submitted successfully.
 	 * 
@@ -107,19 +110,22 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          statusIndicator = new StatusIndicator(busyImage);
          viewAsm = new ViewAssembly(modelPlatformBin, statusIndicator);
          asmPanel.add(viewAsm);
-         asmPanel.setSize("600px", "418px");
+         asmPanel.setWidth("600px");
+         //asmPanel.setHeight("600px");
          tabPanel.add(asmPanel, "Assembly");
          tabPanel.addSelectionHandler(viewAsm);
 
          // strings tab
          viewStrings = new ViewStrings(modelPlatformBin, statusIndicator);
-         viewStrings.setSize("600px", "418px");
+         viewStrings.setWidth("600px");
+         //viewStrings.setHeight("418px");
          tabPanel.add(viewStrings, "Strings");
          tabPanel.addSelectionHandler(viewStrings);
 
          // sections tab
          viewSections = new ViewSections(modelPlatformBin, statusIndicator);
-         viewSections.setSize("600px", "418px");
+         viewSections.setWidth("600px");
+         viewSections.setHeight("418px");
          tabPanel.add(viewSections, "Sections");
          tabPanel.addSelectionHandler(viewSections);
                   
@@ -166,9 +172,16 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          vpanel.addStyleName("centered");
          
          /* using a flow panel here coupled with the "centered" CSS I added
-            makes the interface centered */
-         FlowPanel flowpanel = new FlowPanel();
+            makes the interface centered */         
          flowpanel.add(vpanel);
+
+         flowpanel.setHeight(Window.getClientHeight() + "px");
+         Window.addResizeHandler(new ResizeHandler() {
+        	 public void onResize(ResizeEvent event) {
+        		 int height = event.getHeight();
+        		 flowpanel.setHeight(height + "px");
+        	 }
+         });
          
          rp.add(flowpanel);
          
@@ -180,6 +193,7 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          loadExample("strcpy.x86.hex", platform);
          statusIndicator.setBusy(true);
     }
+
 
 	/**
 	 * Load example binaries

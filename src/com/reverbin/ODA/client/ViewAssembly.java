@@ -1,11 +1,14 @@
 package com.reverbin.ODA.client;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.reverbin.ODA.shared.DisassemblyOutput;
 import com.reverbin.ODA.shared.Instruction;
 import com.reverbin.ODA.shared.ObjectType;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 
@@ -25,6 +28,7 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	private ModelPlatformBin modelPlatformBin;
 	StatusIndicator statusIndicator;
 	private final int CHUNK_LEN = 1000;
+	private final int MIN_DIS_DISPLAY_SIZE = 150;
 	private final VerticalPanel arrowpanel = new VerticalPanel();
 	private final HTML opcodehtml = new HTML();
 	private final HTML offsethtml = new HTML();
@@ -86,56 +90,19 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 
 	    }};
 	    
-	    public void convertDisToHtml(DisassemblyOutput output)
-	    {
-//	    	// Sort the Instructions by address
-//	    	ArrayList<Integer> sortedKeys=new ArrayList<Integer>(output.getInstructions().keySet());
-//	    	Collections.sort(sortedKeys);
-//
-//	    	// Create a formatted listing of instructions 
-//	    	//	TODO: Determine initial buffer size better
-//	    	StringBuffer offsetBuf = new StringBuffer(sortedKeys.size()*20);	    	
-//	    	StringBuffer rawBytesBuf = new StringBuffer(sortedKeys.size()*20);	    	
-//	    	StringBuffer opcodeBuf = new StringBuffer(sortedKeys.size()*30);	    	
-//
-//	    	HashMap<Integer,Instruction> instrMap = output.getInstructions();
-//	    	
-//	    	// Parse the disassembly address by address
-//	    	for (int address : sortedKeys) {
-//	    		Instruction curInstr = instrMap.get(address);
-//	    		String opcode = curInstr.opcode;
-//	    		String hexdata = curInstr.hexdata;
-//	    		
-//	    		// Escape special characters in the opcode
-//	    		opcode = opcode.replaceAll("<", "&lt;");
-//	    		opcode = opcode.replaceAll(">", "&gt;");
-//	    		        		
-//        		// Only display first four bytes of hexdata 
-//        		// 	Add a "+" for lines with greater than 4 hex bytes
-//	    		if ( hexdata.length() > HEX_BYTE_DISPLAY_LEN ) {
-//	    			hexdata = hexdata.substring(0,HEX_BYTE_DISPLAY_LEN) + "+";
-//	    		}
-//	    		
-//	    		// Format a single instruction
-//	    		offsetBuf.append("<offset>" + curInstr.addressFmt +  "\n</offset>");
-//	    		rawBytesBuf.append("<raw>" + hexdata +  "\n</raw>");
-//	    		if ( curInstr.isError )
-//	    		{	    			
-//	    			opcodeBuf.append("<errinsn>" + opcode +  "\n</errinsn>");
-//	    		}
-//	    		else
-//	    		{
-//	    			opcodeBuf.append("<insn>" + opcode +  "\n</insn>");
-//	    		}
-//	    	}
-
-
-	    }
 	  
 	private void resize()
 	{
-    	int PADDING = 0;
-		getParent().setHeight((getOffsetHeight()+PADDING)+"px");
+    	int remainingSpace = Window.getClientHeight() - scrollPanel.getAbsoluteTop();
+    	int margin = 25;
+    	if ( remainingSpace < MIN_DIS_DISPLAY_SIZE )
+    	{
+        	scrollPanel.setHeight( MIN_DIS_DISPLAY_SIZE - margin + "px");    		
+    	}
+    	else
+    	{
+    		scrollPanel.setHeight( remainingSpace - margin + "px");
+    	}
 	}
 	
 	public ViewAssembly(ModelPlatformBin mpb, StatusIndicator si)
@@ -156,8 +123,9 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 		scrollContainer.add(moreButton);
 		scrollPanel.add(scrollContainer);
         //scrollPanel.setWidth("100%");
-        scrollPanel.setHeight("418px");
-        //scrollPanel.setAlwaysShowScrollBars(true);
+        //scrollPanel.setHeight("418px");
+		//scrollPanel.setHeight("100%");
+		//scrollPanel.setAlwaysShowScrollBars(true);
 		this.add(viewPlatform);
 		
 		// The disassembly view is divided up into
@@ -178,6 +146,14 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 		this.setSpacing(10);
 		//this.setWidth("100%");
 		moreButton.addClickHandler(this);
+		resize();
+		
+		Window.addResizeHandler(new ResizeHandler() {
+       	 public void onResize(ResizeEvent event) {
+       		 resize();
+       	 }
+        });
+		
 	}
 	
 	private void update()
