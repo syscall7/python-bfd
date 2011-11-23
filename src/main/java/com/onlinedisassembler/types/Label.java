@@ -16,6 +16,7 @@ public class Label {
 	
 	String labelName; 
 	Long offset;
+	boolean isPublic;
 	
 	@ManyToOne
 	DisassembledFile file; 
