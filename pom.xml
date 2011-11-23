@@ -29,6 +29,11 @@
     	<artifactId>spring-webmvc</artifactId>
     	<version>3.0.6.RELEASE</version>
     </dependency>
+    <dependency>
+    	<groupId>org.hibernate</groupId>
+    	<artifactId>hibernate-core</artifactId>
+    	<version>3.6.8.Final</version>
+    </dependency>
   </dependencies>
   <build>
     <finalName>web</finalName>
