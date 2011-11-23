@@ -12,8 +12,8 @@ public class WebServer {
 	public static void main(String[] args) throws Exception {
 		Server server = new Server(8082);
 		WebAppContext context = new WebAppContext();
-		context.setDescriptor("WEB-INF/web.xml");
-		context.setResourceBase("src/main/webapp");
+		context.setResourceBase("src/main/webapp");		
+		context.setDescriptor("WEB-INF/web.xml");		
 		context.setContextPath("/");
 		context.setParentLoaderPriority(true); 
 		
