@@ -1,5 +1,18 @@
 package com.onlinedisassembler.types;
 
-public class Label {
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
+import org.hibernate.annotations.GenericGenerator;
+
+@Entity
+@Table(name="label")
+public class Label {
+	@Id
+	@GenericGenerator(name = "uuid", strategy = "uuid2")
+	String id;
+	
+	String labelName; 
+	Long offset; 
 }
