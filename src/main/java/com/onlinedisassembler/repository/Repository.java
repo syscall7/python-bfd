@@ -16,4 +16,8 @@ public class Repository<T,Tid> {
 		}
 		return session; 
 	}
+	
+	public T save(T toSave) {
+		return toSave; 
+	}
 }
