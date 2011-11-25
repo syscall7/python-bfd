@@ -1,6 +1,7 @@
 package com.reverbin.ODA.shared;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -64,10 +65,21 @@ public class DisassemblyOutput implements Serializable {
 		rawBytesHtml = html;
 	}
 	
+	public void setAddrToLineMap(HashMap<Integer, Integer> map)
+	{
+		addrToLineMap = map;
+	}
+	
+	public HashMap<Integer, Integer> getAddrToLineMap()
+	{
+		return addrToLineMap;
+	}
+	
 	private String opcodeHtml;
 	private String offsetHtml;
 	private String rawBytesHtml;
 	private int totalLines;
 	private int currentLines;
-	private ObjectType objectType;  
+	private ObjectType objectType;
+	private HashMap<Integer, Integer> addrToLineMap;
 }
