@@ -39,7 +39,7 @@ public class DisassemblyServiceImpl extends RemoteServiceServlet implements Disa
 		}	
 		
 		objDumpListing = Objdump.dis(platformDesc, file.getAbsolutePath());
-		analyzer.parseObjdumpListing(objDumpListing, offset, length);
+		analyzer.parseObjdumpListing(objDumpListing, offset, length, platformDesc);
 		ret = analyzer.getDisassemblyOutput();
 		
 		if (binary[0] == 'M' && binary[1] == 'Z')

@@ -7,8 +7,9 @@ import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.reverbin.ODA.shared.Instruction;
 import com.reverbin.ODA.shared.DisassemblyOutput;
+import com.reverbin.ODA.shared.PlatformDescriptor;
+import com.reverbin.ODA.shared.PlatformId;
 
 public class DisassemblyAnalyzer {
 
@@ -17,6 +18,7 @@ public class DisassemblyAnalyzer {
 	public DisassemblyAnalyzer() {
 		this.instructionMap = new HashMap<Integer, Instruction>();
 		this.stringList = new HashSet<String>();
+		this.labels = new HashMap<Integer, String>();
 	}
 	
 	public HashMap<Integer, Instruction> getInstructions() {
@@ -46,7 +48,29 @@ public class DisassemblyAnalyzer {
         return output;
 	}
 	
-	public void parseObjdumpListing(String listing, int offset, int length)
+	public ArchAnalyzer archAnalyzerFactory( PlatformDescriptor platDesc )
+	{
+		if ( platDesc.platformId.equals(PlatformId.X86) )
+		{
+			return new x86Analyzer();
+		}
+		else if ( platDesc.platformId.equals(PlatformId.ARM) )
+		{
+			return new ArmAnalyzer();
+		}
+		else if ( platDesc.platformId.equals(PlatformId.MIPS) )
+		{
+			return new MipsAnalyzer();
+		}
+		else if ( platDesc.platformId.equals(PlatformId.PPC) )
+		{
+			return new PpcAnalyzer();
+		}
+		
+		return null;
+	}
+	
+	public void parseObjdumpListing(String listing, int offset, int length, PlatformDescriptor platDesc)
 	{
     	// ignore leading text
     	Pattern pattern = Pattern.compile("^\\s*[0-9a-fA-F]+:.*", Pattern.DOTALL | Pattern.MULTILINE);
@@ -58,6 +82,9 @@ public class DisassemblyAnalyzer {
         currentInstructionCount = 0;
         totalInstructionCount = 0;		
 		
+        // Get an Instruction Analyzer
+        ArchAnalyzer archAnalyzer = archAnalyzerFactory(platDesc);
+        
         // Create pattern to identify and save errors in the disassembly
         //	ARM = <errortype>
         //	x86 - (bad)
@@ -90,14 +117,15 @@ public class DisassemblyAnalyzer {
         	if (currentInstructionCount < length)
         	{
         		String instr = matcher.group(3).trim();
-        		Instruction instruction = new Instruction();
+        		int address = Integer.parseInt(matcher.group(1), 16);
         		
-        		// Save Instruction Data
-        		//	TODO: Save registers separately
-        		instruction.address = Integer.parseInt(matcher.group(1), 16);
+        		// Analyze the Instruction
+        		Instruction instruction = archAnalyzer.analyzeInstruction(instr, address);
+        		if ( instruction == null )
+        		{
+        			continue;
+        		}
         		instruction.hexdata = matcher.group(2);
-        		instruction.opcode = instr;
-        		instruction.addressFmt = String.format("0x%08x", instruction.address);
         		
         		// Look for errors in the opcode
         		errorInstMatcher = errorInstPattern.matcher(instr);
@@ -111,16 +139,46 @@ public class DisassemblyAnalyzer {
         		//	(objdump doesn't do it)
         		instruction.hexdata = instruction.hexdata.replace(" ", ""); 
         		
+        		// Check if we need to create a label
+        		if ( instruction.isTargetAddrValid )
+        		{
+        			// Check if a label exists for the target address
+        			if ( !labels.containsKey(instruction.targetAddr) )
+        			{
+        				if ( instruction.instrType == InstructionType.BRANCH )
+        				{
+        					// Create a new label and add it to the labels map
+        					String newLabel = "loc_" + Integer.toHexString(instruction.targetAddr);
+        					labels.put(instruction.targetAddr, newLabel);
+        				}
+        				else if ( instruction.instrType == InstructionType.CALL )
+        				{
+        					String newLabel = "func_" + Integer.toHexString(instruction.targetAddr);
+        					labels.put(instruction.targetAddr, newLabel);
+        				}
+        			}
+        			else
+        			{
+        				// Functions override branches
+        				if ( instruction.instrType == InstructionType.CALL )
+        				{
+        					String newLabel = "func_" + Integer.toHexString(instruction.targetAddr);
+        					labels.put(instruction.targetAddr, newLabel);
+        				}        				
+        			}
+        		}
+        		
         		// Store the meta data
         		instructionMap.put(instruction.address, instruction);
         			            
 	        	currentInstructionCount++;
         	}	        	
         }
-        
+
         convertToHtml();
 
 	}
+	
 	
 	private void convertToHtml()
 	{
@@ -137,13 +195,29 @@ public class DisassemblyAnalyzer {
     	// Parse the disassembly address by address
     	for (int address : sortedKeys) {
     		Instruction curInstr = instructionMap.get(address);
-    		String opcode = curInstr.opcode;
+    		
     		String hexdata = curInstr.hexdata;
     		
-    		// Escape special characters in the opcode
-    		opcode = opcode.replaceAll("<", "&lt;");
-    		opcode = opcode.replaceAll(">", "&gt;");
-    		        		
+    		// Check if this line needs a label
+    		if ( labels.containsKey(address))
+    		{
+    			// Extra info for functions
+    			if ( labels.get(address).startsWith("func") )
+    			{
+    				// Insert an extra line for functions
+    				offsetHtml.append("<offset>" + String.format("0x%08x", address) +  "\n</offset>");
+    				rawBytesHtml.append("<raw>\n</raw>");
+    				opcodeHtml.append("<insn>; ------------ F U N C T I O N -------------\n</insn>");
+    						
+    			}
+    			
+        		offsetHtml.append("<offset>" + String.format("0x%08x", address) +  "\n</offset>");
+        		rawBytesHtml.append("<raw>\n</raw>");
+        		
+        		// Insert anchor for jumping to references.  Use ID for finding location of anchor in GWT
+        		opcodeHtml.append("<insn>" + String.format("<a name=\"disoff_%d\" id=%d></a>", address, address) + labels.get(address) +  ":\n</insn>");
+    		}
+    		    		        		
     		// Only display first four bytes of hexdata 
     		// 	Add a "+" for lines with greater than 4 hex bytes
     		if ( hexdata.length() > HEX_BYTE_DISPLAY_LEN ) {
@@ -151,16 +225,51 @@ public class DisassemblyAnalyzer {
     		}
     		
     		// Format a single instruction
-    		offsetHtml.append("<offset>" + curInstr.addressFmt +  "\n</offset>");
+    		String instrText;
+    		offsetHtml.append("<offset>" + String.format("0x%08x", address) +  "\n</offset>");
     		rawBytesHtml.append("<raw>" + hexdata +  "\n</raw>");
+    		
+			// Check if the instruction gets special handling
+    		// Escape special characters in the opcode
+    		String rawInstrText;
+    		rawInstrText = curInstr.rawInstrStr.replaceAll("<", "&lt;");
+    		rawInstrText = rawInstrText.replaceAll(">", "&gt;");
+
+			if ( curInstr.instrType == InstructionType.BRANCH ||
+				 curInstr.instrType == InstructionType.CALL	)
+			{
+				// Make sure the branch target actually exists
+				if ( instructionMap.containsKey(curInstr.targetAddr) )
+				{
+					instrText = String.format("%-7s<a href=\"#disoff_%d\">%s</a>", curInstr.opcode, curInstr.targetAddr, labels.get(curInstr.targetAddr));					
+				}
+				else
+				{
+					// Branch target doesn't exist
+					labels.remove(curInstr.targetAddr);
+					instrText = String.format("%-7s <errinsn>0x%x</errinsn>", curInstr.opcode, curInstr.targetAddr);
+				}
+				
+			}
+			else
+			{
+				instrText = rawInstrText;
+			}
+
+    		
+    		// Check for errors
     		if ( curInstr.isError )
-    		{	    			
-    			opcodeHtml.append("<errinsn>" + opcode +  "\n</errinsn>");
+    		{
+    			instrText = String.format("<errinsn>     %s\n</errinsn>", instrText);
     		}
     		else
     		{
-    			opcodeHtml.append("<insn>" + opcode +  "\n</insn>");
+    			instrText = String.format("<insn>     %s\n</insn>", instrText);    			
     		}
+    		
+    		
+    		// Append instruction
+    		opcodeHtml.append(instrText);
     	}
 
 	}
@@ -169,6 +278,7 @@ public class DisassemblyAnalyzer {
 	private int currentInstructionCount;
     private HashSet<String> stringList;
 	private HashMap<Integer, Instruction> instructionMap;
+	private HashMap<Integer, String> labels;
 	private StringBuffer offsetHtml;
 	private StringBuffer rawBytesHtml;
 	private StringBuffer opcodeHtml;

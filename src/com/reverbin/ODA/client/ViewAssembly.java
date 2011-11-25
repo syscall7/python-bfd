@@ -3,8 +3,8 @@ package com.reverbin.ODA.client;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import com.reverbin.ODA.server.Instruction;
 import com.reverbin.ODA.shared.DisassemblyOutput;
-import com.reverbin.ODA.shared.Instruction;
 import com.reverbin.ODA.shared.ObjectType;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ResizeEvent;
@@ -28,7 +28,6 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	private ModelPlatformBin modelPlatformBin;
 	StatusIndicator statusIndicator;
 	private final int CHUNK_LEN = 1000;
-	private final int MIN_DIS_DISPLAY_SIZE = 150;
 	private final VerticalPanel arrowpanel = new VerticalPanel();
 	private final HTML opcodehtml = new HTML();
 	private final HTML offsethtml = new HTML();
@@ -40,6 +39,7 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	ScrollPanel scrollPanel;
 	private ViewPlatformSelection viewPlatform;
 	DialogObjectSupport dialogObjectSupport = new DialogObjectSupport();
+	public HashMap<Integer, Integer> addrToLineMap;
 	
 	private final DisassemblyServiceAsync disService = DisassemblyService.Util.getInstance();
 
@@ -87,6 +87,9 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	    		dialogObjectSupport.center();
 	    		dialogObjectSupport.show();
 	    	}
+	    	
+	    	// Save the Address Map
+	    	addrToLineMap = result.getAddrToLineMap();
 
 	    }};
 	    
@@ -94,14 +97,13 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	private void resize()
 	{
     	int remainingSpace = Window.getClientHeight() - scrollPanel.getAbsoluteTop();
-    	int margin = 50;
-    	if ( remainingSpace < MIN_DIS_DISPLAY_SIZE )
+    	if ( remainingSpace < Main.MIN_DIS_DISPLAY_SIZE )
     	{
-        	scrollPanel.setHeight( MIN_DIS_DISPLAY_SIZE - margin + "px");    		
+        	scrollPanel.setHeight( Main.MIN_DIS_DISPLAY_SIZE - Main.MIN_DIS_DISPLAY_MARGIN + "px");    		
     	}
     	else
     	{
-    		scrollPanel.setHeight( remainingSpace - margin + "px");
+    		scrollPanel.setHeight( remainingSpace - Main.MIN_DIS_DISPLAY_MARGIN + "px");
     	}
 	}
 	
@@ -117,15 +119,9 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 		scrollPanel = new ScrollPanel();
 		scrollContainer = new VerticalPanel();
 		
-		//disassemblyPanel.setWidth("100%");
-		//scrollContainer.setWidth("100%");
 		scrollContainer.add(disassemblyPanel);
 		scrollContainer.add(moreButton);
 		scrollPanel.add(scrollContainer);
-        //scrollPanel.setWidth("100%");
-        //scrollPanel.setHeight("418px");
-		//scrollPanel.setHeight("100%");
-		//scrollPanel.setAlwaysShowScrollBars(true);
 		this.add(viewPlatform);
 		
 		// The disassembly view is divided up into

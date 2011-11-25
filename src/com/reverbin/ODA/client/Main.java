@@ -1,10 +1,15 @@
 package com.reverbin.ODA.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.user.client.History;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DOM;
 import com.reverbin.ODA.shared.Endian;
 import com.reverbin.ODA.shared.PlatformDescriptor;
 import com.reverbin.ODA.shared.PlatformId;
@@ -22,7 +27,7 @@ import com.google.gwt.user.client.Window;
  * TODO: Display status of binary on Assembly tab (file type, size, arch, etc.)
  */
 
-public class Main implements EntryPoint, SubmitCompleteHandler {
+public class Main implements EntryPoint, SubmitCompleteHandler,  ValueChangeHandler<String> {
 	TabPanel tabPanel = new TabPanel();
 	FlowPanel asmPanel = new FlowPanel();
 	FlowPanel platformPanel = new FlowPanel();
@@ -36,6 +41,9 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
 	UploadFile uploadFile = new UploadFile(this);
 	DialogHelp dialogHelp = new DialogHelp();
 	final FlowPanel flowpanel = new FlowPanel();
+	final static int MIN_DIS_DISPLAY_SIZE = 150;
+	final static int MIN_DIS_DISPLAY_MARGIN = 50;
+
 	/**
 	 * Fired when a form has been submitted successfully.
 	 * 
@@ -192,6 +200,22 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
          
          loadExample("strcpy.x86.hex", platform);
          statusIndicator.setBusy(true);
+         
+		// If the application starts with no history token, redirect to a new
+		// 'baz' state.
+		String initToken = History.getToken();
+		if (initToken.length() == 0) {
+		  History.newItem("disoff_0");
+		}
+		
+		 // Add history listener
+		 History.addValueChangeHandler(this);
+		
+		 // Now that we've setup our listener, fire the initial history state.
+		 History.fireCurrentHistoryState();
+         
+         
+         
     }
 
 
@@ -252,4 +276,28 @@ public class Main implements EntryPoint, SubmitCompleteHandler {
 		// asmView.setPlatform(platform);
 		// formatterService.formatHex(platform, hexBytes, hexCallback);
 	}
+	
+	@Override
+	public void onValueChange(ValueChangeEvent<String> event) {
+		// Handle History Events including back button of the browser
+		String eventString = event.getValue();
+		
+		// Events are coded with the name of the widget followed by a unique id 
+		if (eventString.substring(0,7).equals("disoff_") ) {
+			// Disassembly View event
+			//	Here we're emulating following links to anchors in the disassembly
+			//	such as branch instructions. Anchors use the hex address as their
+			//	unique id
+			Element element = DOM.getElementById(eventString.substring(7));
+			if ( element != null ) {
+				// Get the offset in pixels of the anchor to be traveled to
+				int scrollPosition = element.getOffsetTop();
+				
+				// Set the view asm's scroll position so that the anchor is
+				//	in view.
+				viewAsm.scrollPanel.setVerticalScrollPosition(scrollPosition);
+			}
+		}
+	}
+
 }
