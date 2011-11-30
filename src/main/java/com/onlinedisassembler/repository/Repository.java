@@ -18,6 +18,10 @@ public class Repository<T,Tid> {
 	}
 	
 	public T save(T toSave) {
+		getSession().beginTransaction();
+		getSession().save(toSave); 
+		getSession().flush(); 
+		getSession().getTransaction().commit(); 
 		return toSave; 
 	}
 }

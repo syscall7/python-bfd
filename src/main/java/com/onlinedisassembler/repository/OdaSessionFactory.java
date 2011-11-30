@@ -3,6 +3,8 @@ package com.onlinedisassembler.repository;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
+import com.onlinedisassembler.types.DisassembledFile;
+
 public class OdaSessionFactory {
 
     private static final SessionFactory sessionFactory = buildSessionFactory();
@@ -10,7 +12,10 @@ public class OdaSessionFactory {
     private static SessionFactory buildSessionFactory() {
         try {
             // Create the SessionFactory from hibernate.cfg.xml
-            return new Configuration().configure().buildSessionFactory();
+            return new Configuration()
+             	.configure()
+             	.addAnnotatedClass(DisassembledFile.class)
+             	.buildSessionFactory();
         }
         catch (Throwable ex) {
             // Make sure you log the exception, as it might be swallowed
