@@ -4,6 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.onlinedisassembler.repository.DisassembledFileRepository;
 import com.onlinedisassembler.repository.Repository;
 import com.onlinedisassembler.types.DisassembledFile;
 
@@ -17,8 +18,8 @@ public class HomeController {
 		
 		DisassembledFile file = new DisassembledFile();
 		file.setUser("davis"); 
-		file = new Repository<DisassembledFile, String>(DisassembledFile.class).save(file); 
-		file = new Repository<DisassembledFile, String>(DisassembledFile.class).get(file.getId()); 
+		file = new DisassembledFileRepository().save(file); 
+		file = new DisassembledFileRepository().get(file.getId()); 
 		return mav; 
 	}
 }
