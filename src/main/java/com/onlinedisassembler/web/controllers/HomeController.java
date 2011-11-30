@@ -17,7 +17,8 @@ public class HomeController {
 		
 		DisassembledFile file = new DisassembledFile();
 		file.setUser("davis"); 
-		new Repository<DisassembledFile, String>(DisassembledFile.class).save(file); 
+		file = new Repository<DisassembledFile, String>(DisassembledFile.class).save(file); 
+		file = new Repository<DisassembledFile, String>(DisassembledFile.class).get(file.getId()); 
 		return mav; 
 	}
 }
