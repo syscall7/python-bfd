@@ -14,9 +14,7 @@ import org.hibernate.annotations.GenericGenerator;
 @Entity
 @Table(name="disassembled_file")
 public class DisassembledFile {
-	
-	@Id
-	@GenericGenerator(name = "uuid", strategy = "uuid2")
+		
 	String id;
 	String fileType; // binary, elf, PE, Hex, etc.
 	
@@ -38,7 +36,118 @@ public class DisassembledFile {
 	String signature; // MD5 maybe?  If multiple users are disassembling the same file
 						// we could detect it and leverage existing data
 	
-	@OneToMany
-	Set<Label> labels; 
+	@Id
+	@GenericGenerator(name = "uuid", strategy = "uuid2")
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getFileType() {
+		return fileType;
+	}
+
+	public void setFileType(String fileType) {
+		this.fileType = fileType;
+	}
+
+	public Date getDateUploaded() {
+		return dateUploaded;
+	}
+
+	public void setDateUploaded(Date dateUploaded) {
+		this.dateUploaded = dateUploaded;
+	}
+
+	public String getFilePath() {
+		return filePath;
+	}
+
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getUserGroup() {
+		return userGroup;
+	}
+
+	public void setUserGroup(String userGroup) {
+		this.userGroup = userGroup;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	public String getArchitecture() {
+		return architecture;
+	}
+
+	public void setArchitecture(String architecture) {
+		this.architecture = architecture;
+	}
+
+	public String getProcessor() {
+		return processor;
+	}
+
+	public void setProcessor(String processor) {
+		this.processor = processor;
+	}
+
+	public String getCompiler() {
+		return compiler;
+	}
+
+	public void setCompiler(String compiler) {
+		this.compiler = compiler;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public Long getLoadOffset() {
+		return loadOffset;
+	}
+
+	public void setLoadOffset(Long loadOffset) {
+		this.loadOffset = loadOffset;
+	}
+
+	public Long getLength() {
+		return length;
+	}
+
+	public void setLength(Long length) {
+		this.length = length;
+	}
+
+	public String getSignature() {
+		return signature;
+	}
+
+	public void setSignature(String signature) {
+		this.signature = signature;
+	}
 	
 }
