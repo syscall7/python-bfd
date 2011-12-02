@@ -46,6 +46,7 @@ public class x86Analyzer extends ArchAnalyzer {
 		this.branchInstructions.add("jpo");
 		this.branchInstructions.add("jcxz");
 		this.branchInstructions.add("jecxz");
+		this.branchInstructions.add("jmp");
 		
 		this.callInstructions = new HashSet<String>();
 

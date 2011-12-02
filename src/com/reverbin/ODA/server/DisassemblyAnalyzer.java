@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.math.BigInteger;
 
 import com.reverbin.ODA.shared.DisassemblyOutput;
 import com.reverbin.ODA.shared.PlatformDescriptor;
@@ -19,6 +21,7 @@ public class DisassemblyAnalyzer {
 		this.instructionMap = new HashMap<Integer, Instruction>();
 		this.stringList = new HashSet<String>();
 		this.labels = new HashMap<Integer, String>();
+		this.branches = new ArrayList<Branch>();
 	}
 	
 	public HashMap<Integer, Instruction> getInstructions() {
@@ -44,7 +47,7 @@ public class DisassemblyAnalyzer {
         output.setOffsetHtml(offsetHtml.toString());
         output.setOpcodeHtml(opcodeHtml.toString());
         output.setRawBytesHtml(rawBytesHtml.toString());
-        
+        output.setBranchTargetHtml(branchLineHtml.toString());
         return output;
 	}
 	
@@ -150,6 +153,7 @@ public class DisassemblyAnalyzer {
         					// Create a new label and add it to the labels map
         					String newLabel = "loc_" + Integer.toHexString(instruction.targetAddr);
         					labels.put(instruction.targetAddr, newLabel);
+        					branches.add(new Branch(instruction));
         				}
         				else if ( instruction.instrType == InstructionType.CALL )
         				{
@@ -179,18 +183,20 @@ public class DisassemblyAnalyzer {
 
 	}
 	
-	
 	private void convertToHtml()
 	{
     	// Sort the Instructions by address
     	ArrayList<Integer> sortedKeys=new ArrayList<Integer>(instructionMap.keySet());
     	Collections.sort(sortedKeys);
-
+    	
+    	BranchLineHtmlFormatter blf = new BranchLineHtmlFormatter(this.branches);
+    	
     	// Create a formatted listing of instructions 
     	//	TODO: Determine initial buffer size better
     	offsetHtml = new StringBuffer(sortedKeys.size()*20);	    	
     	rawBytesHtml = new StringBuffer(sortedKeys.size()*20);	    	
-    	opcodeHtml = new StringBuffer(sortedKeys.size()*30);	    	
+    	opcodeHtml = new StringBuffer(sortedKeys.size()*30);
+    	branchLineHtml = new StringBuffer(sortedKeys.size()*30);
     	
     	// Parse the disassembly address by address
     	for (int address : sortedKeys) {
@@ -209,6 +215,11 @@ public class DisassemblyAnalyzer {
     				rawBytesHtml.append("<raw>\n</raw>");
     				opcodeHtml.append("<insn>; ------------ F U N C T I O N -------------\n</insn>");
     						
+    			}
+    			else
+    			{
+    	    		// Append branch line data for this address
+    	    		blf.pushLabel();
     			}
     			
         		offsetHtml.append("<offset>" + String.format("0x%08x", address) +  "\n</offset>");
@@ -241,7 +252,8 @@ public class DisassemblyAnalyzer {
 				// Make sure the branch target actually exists
 				if ( instructionMap.containsKey(curInstr.targetAddr) )
 				{
-					instrText = String.format("%-7s<a href=\"#disoff_%d\">%s</a>", curInstr.opcode, curInstr.targetAddr, labels.get(curInstr.targetAddr));					
+					instrText = String.format("%-7s<a href=\"#disoff_%d\">%s</a>", curInstr.opcode, curInstr.targetAddr, labels.get(curInstr.targetAddr));	
+					
 				}
 				else
 				{
@@ -270,16 +282,24 @@ public class DisassemblyAnalyzer {
     		
     		// Append instruction
     		opcodeHtml.append(instrText);
+    		
+    		// Append branch line data for this address
+    		blf.pushAddr(address);
     	}
+    	
+    	branchLineHtml.append(blf.finalizeHtml());
 
 	}
 
+	
 	private int totalInstructionCount;
 	private int currentInstructionCount;
     private HashSet<String> stringList;
 	private HashMap<Integer, Instruction> instructionMap;
 	private HashMap<Integer, String> labels;
+	private ArrayList<Branch> branches;
 	private StringBuffer offsetHtml;
 	private StringBuffer rawBytesHtml;
 	private StringBuffer opcodeHtml;
+	private StringBuffer branchLineHtml;
 }

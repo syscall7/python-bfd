@@ -37,6 +37,7 @@ public class Main implements EntryPoint, SubmitCompleteHandler,  ValueChangeHand
 	ViewAssembly viewAsm;
 	ViewStrings viewStrings;
 	ViewSections viewSections;
+	ViewSymbols viewSymbols;
 	HexInput hexInput = new HexInput(modelPlatformBin);
 	UploadFile uploadFile = new UploadFile(this);
 	DialogHelp dialogHelp = new DialogHelp();
@@ -136,6 +137,13 @@ public class Main implements EntryPoint, SubmitCompleteHandler,  ValueChangeHand
          viewSections.setHeight("418px");
          tabPanel.add(viewSections, "Sections");
          tabPanel.addSelectionHandler(viewSections);
+         
+         // symbols tab
+         viewSymbols = new ViewSymbols(modelPlatformBin, statusIndicator);
+         viewSymbols.setWidth("600px");
+         viewSymbols.setHeight("418px");
+         tabPanel.add(viewSymbols, "Symbols");
+         tabPanel.addSelectionHandler(viewSymbols);
                   
          //panel.setSize("739px", "538px");
          tabPanel.addStyleName("table-center");

@@ -28,7 +28,7 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	private ModelPlatformBin modelPlatformBin;
 	StatusIndicator statusIndicator;
 	private final int CHUNK_LEN = 1000;
-	private final VerticalPanel arrowpanel = new VerticalPanel();
+	private final HTML branchTargetLines = new HTML();
 	private final HTML opcodehtml = new HTML();
 	private final HTML offsethtml = new HTML();
 	private final HTML rawbyteshtml = new HTML();
@@ -60,10 +60,12 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	    		opcodehtml.setHTML(result.getOpcodeHtml());
 	    		rawbyteshtml.setHTML(result.getRawBytesHtml());
 	    		offsethtml.setHTML(result.getOffsetHtml());
+	    		branchTargetLines.setHTML(result.getBranchTargetHtml());
 	    	} else {
 	    		opcodehtml.setHTML(opcodehtml.getHTML() + result.getOpcodeHtml());	    		
 	    		rawbyteshtml.setHTML(rawbyteshtml.getHTML() + result.getRawBytesHtml());	    		
-	    		offsethtml.setHTML(offsethtml.getHTML() + result.getOffsetHtml());	    			    	
+	    		offsethtml.setHTML(offsethtml.getHTML() + result.getOffsetHtml());	   
+	    		branchTargetLines.setHTML(branchTargetLines.getHTML() + result.getBranchTargetHtml());
 	    	}	    	
 	    	
 	    	statusIndicator.setBusy(false);
@@ -124,15 +126,16 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 		scrollPanel.add(scrollContainer);
 		this.add(viewPlatform);
 		
+		
 		// The disassembly view is divided up into
 		//	separate panels for the offset, raw bytes
 		//	and the opcode. A panel for adding arrows in
 		//	the future is also included
-		arrowpanel.setWidth("25px");
+		//branchTargetLines.setWidth("25px");
         offsethtml.setWidth("95px");
         rawbyteshtml.setWidth("80px");
         opcodehtml.setWidth("390px");
-        disassemblyPanel.add(arrowpanel);
+        disassemblyPanel.add(branchTargetLines);
         disassemblyPanel.add(offsethtml);
         disassemblyPanel.add(rawbyteshtml);
         disassemblyPanel.add(opcodehtml);
