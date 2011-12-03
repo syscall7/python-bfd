@@ -1,0 +1,6 @@
+import "layout.stg"
+
+@layout.title() ::= "ODA - Online Disassembler"
+@layout.content() ::= "$model.username$ LOYTASDA"
+
+index(model) ::= "$layout(model)$"

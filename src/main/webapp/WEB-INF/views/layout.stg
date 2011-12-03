@@ -1,0 +1,79 @@
+layout(model) ::= <<
+
+<!doctype html>
+<!-- The DOCTYPE declaration above will set the    -->
+<!-- browser's rendering engine into               -->
+<!-- "Standards Mode". Replacing this declaration  -->
+<!-- with a "Quirks Mode" doctype may lead to some -->
+<!-- differences in layout.                        -->
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<head>
+	<title>$@title()$</title>
+	
+	<link rel="stylesheet" type="text/css" media="all" href="/resources/css/reset.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="/resources/css/text.css" />
+	<link rel="stylesheet" type="text/css" media="all" href="/resources/css/960.css" />
+
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-25987200-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+    </script>
+    
+    <style type="text/css">
+    	.contact {    
+			font-size: large;
+		    font-weight: bold;
+		    text-decoration: none;
+		    padding-left:16px;
+		    line-height:44px;
+    	}
+    </style>
+    
+	</head>
+	<body>
+	<div class="container_12">
+		<div class="grid_2 prefix_2" >
+			<img src="/resources/images/oda.png" class="gwt-Image" style="width: 128px; height: 128px;"/>
+			<img src="/resources/images/oda.gif" class="gwt-Image" style="width: 128px; height: 128px; display: none;"/>
+		</div>
+		<div class="grid_4">
+			<img src="/resources/images/oda_logo4.png" class="gwt-Image">
+		</div>
+		<div class="grid_4">
+			<div style="padding-top:32px;">
+			<form method="post" action="https://www.paypal.com/cgi-bin/webscr">
+			<input type="hidden" value="_s-xclick" name="cmd">
+			<input type="hidden" value="GJNASFRU457WN" name="hosted_button_id">
+			<input type="image" border="0" alt="PayPal - The safer, easier way to pay online!" name="submit" src="/resources/images/paypal-donate-button.gif">
+			<img height="1" width="1" border="0" src="https://www.paypalobjects.com/WEBSCR-640-20110401-1/en_US/i/scr/pixel.gif" alt="">
+			</form>		
+			</div>
+			<a class="gwt-Anchor contact" href="mailto:admin@onlinedisassembler.com">Contact Us!</a>
+		</div>
+		<div  class="clear"></div>
+		
+		<div class="grid_12">
+			$@content()$
+		</div>	
+	</div>
+	</body>
+	
+
+</html>
+
+>>
+
+title() ::= "Welcome to ODA"
+content() ::= ""
