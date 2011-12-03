@@ -11,7 +11,7 @@ public class WebServer {
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		System.setProperty("org.eclipse.jetty.util.log.DEBUG", "true");
+		System.setProperty("org.eclipse.jetty.LEVEL=DEBUG", "true");
 		Server server = new Server(8082);
 		WebAppContext context = new WebAppContext();
 		context.setResourceBase("src/main/webapp");		
