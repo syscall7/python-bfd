@@ -15,9 +15,10 @@ public class HomeController {
 	public ModelAndView index() { 
 		ModelAndView mav = new ModelAndView(); 		
 		mav.setViewName("index");
-		
+
 		DisassembledFile file = new DisassembledFile();
 		file.setUser("davis"); 
+	
 		file = new DisassembledFileRepository().save(file); 
 		file = new DisassembledFileRepository().get(file.getId()); 
 		return mav; 
