@@ -5,8 +5,11 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.History;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.rpc.IsSerializable;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
@@ -27,7 +30,7 @@ import com.google.gwt.user.client.Window;
  * TODO: Display status of binary on Assembly tab (file type, size, arch, etc.)
  */
 
-public class Main implements EntryPoint, SubmitCompleteHandler,  ValueChangeHandler<String> {
+public class Main implements EntryPoint, SelectionHandler<Integer>, SubmitCompleteHandler,  ValueChangeHandler<String> {
 	TabPanel tabPanel = new TabPanel();
 	FlowPanel asmPanel = new FlowPanel();
 	FlowPanel platformPanel = new FlowPanel();
@@ -42,9 +45,15 @@ public class Main implements EntryPoint, SubmitCompleteHandler,  ValueChangeHand
 	UploadFile uploadFile = new UploadFile(this);
 	DialogHelp dialogHelp = new DialogHelp();
 	final FlowPanel flowpanel = new FlowPanel();
+	int selectedTab = 0;
 	final static int MIN_DIS_DISPLAY_SIZE = 150;
 	final static int MIN_DIS_DISPLAY_MARGIN = 50;
-
+	final static int TAB_INDEX_HEXVIEW = 0;
+	final static int TAB_INDEX_DISASSEMBLY = 1;
+	final static int TAB_INDEX_STRINGS = 2;
+	final static int TAB_INDEX_SECTIONS = 3;
+	final static int TAB_INDEX_SYMBOLS = 4;
+	
 	/**
 	 * Fired when a form has been submitted successfully.
 	 * 
@@ -117,24 +126,21 @@ public class Main implements EntryPoint, SubmitCompleteHandler,  ValueChangeHand
          viewHex = new ViewHex(modelPlatformBin);
          tabPanel.add(viewHex, "Hex");
          statusIndicator = new StatusIndicator(busyImage);
-         viewAsm = new ViewAssembly(modelPlatformBin, statusIndicator);
+         viewAsm = new ViewAssembly(modelPlatformBin, statusIndicator, this);
          asmPanel.add(viewAsm);
          asmPanel.setWidth("600px");
-         //asmPanel.setHeight("600px");
          tabPanel.add(asmPanel, "Assembly");
          tabPanel.addSelectionHandler(viewAsm);
 
          // strings tab
          viewStrings = new ViewStrings(modelPlatformBin, statusIndicator);
          viewStrings.setWidth("600px");
-         //viewStrings.setHeight("418px");
          tabPanel.add(viewStrings, "Strings");
          tabPanel.addSelectionHandler(viewStrings);
 
          // sections tab
          viewSections = new ViewSections(modelPlatformBin, statusIndicator);
          viewSections.setWidth("600px");
-         viewSections.setHeight("418px");
          tabPanel.add(viewSections, "Sections");
          tabPanel.addSelectionHandler(viewSections);
          
@@ -147,6 +153,7 @@ public class Main implements EntryPoint, SubmitCompleteHandler,  ValueChangeHand
                   
          //panel.setSize("739px", "538px");
          tabPanel.addStyleName("table-center");
+         tabPanel.addSelectionHandler(this);
          
          AbsolutePanel absPanel = new AbsolutePanel();
          absPanel.setSize("128px", "128px");
@@ -179,8 +186,6 @@ public class Main implements EntryPoint, SubmitCompleteHandler,  ValueChangeHand
          hp.setCellHorizontalAlignment(vpPaypalContact, HasHorizontalAlignment.ALIGN_LEFT);
          hp.setCellVerticalAlignment(vpPaypalContact, HasVerticalAlignment.ALIGN_MIDDLE);
          
-
-
          vpanel.add(hp);
          vpanel.add(menu);
          vpanel.add(tabPanel);
@@ -209,21 +214,19 @@ public class Main implements EntryPoint, SubmitCompleteHandler,  ValueChangeHand
          loadExample("strcpy.x86.hex", platform);
          statusIndicator.setBusy(true);
          
-		// If the application starts with no history token, redirect to a new
-		// 'baz' state.
-		String initToken = History.getToken();
-		if (initToken.length() == 0) {
-		  History.newItem("disoff_0");
-		}
+         // If the application starts with no history token, redirect to a new
+         // 'disoff_0' state.
+         String initToken = History.getToken();
+         if (initToken.length() == 0) {
+        	 History.newItem("disoff_0");
+         }
 		
 		 // Add history listener
 		 History.addValueChangeHandler(this);
 		
 		 // Now that we've setup our listener, fire the initial history state.
 		 History.fireCurrentHistoryState();
-         
-         
-         
+                  
     }
 
 
@@ -285,19 +288,44 @@ public class Main implements EntryPoint, SubmitCompleteHandler,  ValueChangeHand
 		// formatterService.formatHex(platform, hexBytes, hexCallback);
 	}
 	
+	// Need this because getOffsetHeight doesn't return an accurate
+	//	value until after the DOM has been updated. This will size
+	//	the tab once it has been selected.
+	@Override
+	public void onSelection(SelectionEvent<Integer> event) {
+		// Track the currently selected tab
+		if ( selectedTab != event.getSelectedItem() )
+		{
+			History.newItem("tab_" + event.getSelectedItem() );
+			selectedTab = event.getSelectedItem();
+		}
+	}
+	
 	@Override
 	public void onValueChange(ValueChangeEvent<String> event) {
 		// Handle History Events including back button of the browser
 		String eventString = event.getValue();
 		
-		// Events are coded with the name of the widget followed by a unique id 
-		if (eventString.substring(0,7).equals("disoff_") ) {
+		// Events are coded with the name of the widget followed by a unique id
+		if (eventString.startsWith("disoff_") ) {
 			// Disassembly View event
 			//	Here we're emulating following links to anchors in the disassembly
 			//	such as branch instructions. Anchors use the hex address as their
 			//	unique id
 			Element element = DOM.getElementById(eventString.substring(7));
 			if ( element != null ) {
+				
+				// Select the Disassembly Tab
+				if ( selectedTab != TAB_INDEX_DISASSEMBLY )
+				{
+					// Set selectedTab here so that we don't capture
+					//	a tab event on top of a disoff event
+					selectedTab = TAB_INDEX_DISASSEMBLY;
+					
+					// Display the Disassembly Tab
+					tabPanel.selectTab(TAB_INDEX_DISASSEMBLY,true);
+				}
+				
 				// Get the offset in pixels of the anchor to be traveled to
 				int scrollPosition = element.getOffsetTop();
 				
@@ -305,6 +333,12 @@ public class Main implements EntryPoint, SubmitCompleteHandler,  ValueChangeHand
 				//	in view.
 				viewAsm.scrollPanel.setVerticalScrollPosition(scrollPosition);
 			}
+		}
+
+		if (eventString.startsWith("tab_") )
+		{
+			// Trigger an update of the window
+			tabPanel.selectTab(Integer.parseInt(eventString.substring(4)),true);
 		}
 	}
 

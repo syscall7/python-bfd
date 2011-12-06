@@ -27,7 +27,7 @@ public class ViewSymbols extends FlowPanel implements ModelPlatformBinListener, 
 
 	    	html.setHTML(result);
 	    	update();
-	    	statusIndicator.setBusy(false);
+	    	//statusIndicator.setBusy(false);
 	    }};
 	
 	private void update()

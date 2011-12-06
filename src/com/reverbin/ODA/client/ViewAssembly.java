@@ -1,5 +1,6 @@
 package com.reverbin.ODA.client;
 
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -23,7 +24,7 @@ import java.util.HashMap;
  * @author anthony
  *
  */
-public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListener, ClickHandler, SelectionHandler<Integer> {
+public class ViewAssembly extends VerticalPanel implements  ModelPlatformBinListener, ClickHandler, SelectionHandler<Integer> {
 	
 	private ModelPlatformBin modelPlatformBin;
 	StatusIndicator statusIndicator;
@@ -40,6 +41,7 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	private ViewPlatformSelection viewPlatform;
 	DialogObjectSupport dialogObjectSupport = new DialogObjectSupport();
 	public HashMap<Integer, Integer> addrToLineMap;
+	private Main topLevel;
 	
 	private final DisassemblyServiceAsync disService = DisassemblyService.Util.getInstance();
 
@@ -67,9 +69,7 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	    		offsethtml.setHTML(offsethtml.getHTML() + result.getOffsetHtml());	   
 	    		branchTargetLines.setHTML(branchTargetLines.getHTML() + result.getBranchTargetHtml());
 	    	}	    	
-	    	
-	    	statusIndicator.setBusy(false);
-	    	
+	    		    	
 	    	if ((result.getCurrentLines() + currentOffset) < result.getTotalLines()) {
 	    		//moreButton.setVisible(true);
 	    		scrollContainer.add(moreButton);
@@ -92,6 +92,14 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	    	
 	    	// Save the Address Map
 	    	addrToLineMap = result.getAddrToLineMap();
+	
+	    	// Update the Section Tab too
+	    	topLevel.viewSections.updateHtml(result);
+	    	
+	    	// Update the String tab
+	    	topLevel.viewStrings.updateHtml(result);
+	    	
+	    	statusIndicator.setBusy(false);
 
 	    }};
 	    
@@ -109,8 +117,9 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
     	}
 	}
 	
-	public ViewAssembly(ModelPlatformBin mpb, StatusIndicator si)
+	public ViewAssembly(ModelPlatformBin mpb, StatusIndicator si, Main topWidget)
 	{
+		topLevel = topWidget;
 		modelPlatformBin = mpb;
 		statusIndicator = si;
 		currentOffset = 0;
@@ -155,7 +164,7 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 		
 	}
 	
-	private void update()
+	private void loadCode()
 	{
 			currentOffset = 0;
 			scrollContainer.remove(moreButton);
@@ -171,9 +180,9 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	
 	public void onChange(ModelPlatformBin mpb, int eventFlags)
 	{
-		update();
+		loadCode();
 	}
-
+	
 	@Override
 	public void onClick(ClickEvent event) {
 		disService.disassemble(modelPlatformBin.getBytes(), modelPlatformBin.getPlatform(), currentOffset, CHUNK_LEN, callback);
@@ -182,8 +191,8 @@ public class ViewAssembly extends VerticalPanel implements ModelPlatformBinListe
 	@Override
 	public void onSelection(SelectionEvent<Integer> event) {
 		//TODO: get rid of hard-coded value here
-		if (event.getSelectedItem() == 1)
+		if (event.getSelectedItem() == Main.TAB_INDEX_DISASSEMBLY) {
 			resize();		
-	}
-	
+		}
+	}	
 }

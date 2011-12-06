@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import com.reverbin.ODA.shared.DisassemblyOutput;
 import com.reverbin.ODA.shared.Endian;
+import com.reverbin.ODA.shared.ObjectType;
 import com.reverbin.ODA.shared.PlatformDescriptor;
 import com.reverbin.ODA.shared.PlatformId;
 
@@ -109,7 +110,7 @@ public class Objdump
 		return machine;
 	}    	
     
-    private static String buildDisExecStr(PlatformDescriptor platform, String filePath)
+    private static String buildDisExecStr(PlatformDescriptor platform, String filePath, ObjectType objType)
     {
 
     	//"objdump -D -b binary -m " + platform + " " + );
@@ -136,7 +137,27 @@ public class Objdump
 	    	}
     	}
     	
-    	return  binutilsDir + prefix + "objdump -D -b binary -w -z -m " + machine + " --adjust-vma=" + platform.baseAddress + endian + " " + option + " " + filePath;
+    	String targetTypeStr = "";
+    	switch ( objType )
+    	{
+    		case ELF:
+//    			if ( platform.endian == Endian.BIG )
+//    			{
+//    				targetTypeStr = " -b elf32-big ";
+//    			}
+//    			else
+//    			{
+//    				targetTypeStr = " -b elf32-little ";
+//    			}
+//    			break;
+    			
+    		case PE: 
+    		case BINARY:
+    			targetTypeStr = " -b binary ";
+    			
+    	}
+    	
+    	return  binutilsDir + prefix + "objdump -D" + targetTypeStr + "-w -z -m " + machine + " --adjust-vma=" + platform.baseAddress + endian + " " + option + " " + filePath;
     }
 
     
@@ -147,7 +168,7 @@ public class Objdump
 		String binutilsDir = HostUtils.getBinutilsDir();    		
     	
   	
-    	return  binutilsDir + prefix + "objdump -h " + filePath;
+    	return  binutilsDir + prefix + "objdump -w -h " + filePath;
     }
     
     
@@ -157,10 +178,10 @@ public class Objdump
      * @param binary
      * @return
      */
-	public static String dis(PlatformDescriptor platform, String filePath)
+	public static String dis(PlatformDescriptor platform, String filePath, ObjectType objType)
 	{
 		String listing = "";  
-		listing = exec(buildDisExecStr(platform, filePath));		
+		listing = exec(buildDisExecStr(platform, filePath, objType));		
 		return listing;
 	}
 	
@@ -169,13 +190,15 @@ public class Objdump
 		String listing = "";  
 		listing = exec(buildSectionExecStr(platform, filePath));
 		
-    	// ignore leading text
-    	Pattern pattern = Pattern.compile("^\\s*[0-9a-fA-F]+:.*", Pattern.DOTALL | Pattern.MULTILINE);
-        Matcher matcher = pattern.matcher(listing);
-        matcher.find();
-        listing = matcher.group();
 
-		return "<pre>" + listing + "</pre>";
+    	// ignore leading text
+//    	Pattern pattern = Pattern.compile("^\\s*[0-9a-fA-F]+:.*", Pattern.DOTALL | Pattern.MULTILINE);
+//        Matcher matcher = pattern.matcher(listing);
+//        matcher.find();
+//        listing = matcher.group();
+
+		return listing;
+		//return "<pre>&#9472;&#9472;\n&#9492;&#9492;&#9472;</pre>";
 	}
 	
 }

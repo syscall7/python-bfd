@@ -21,6 +21,7 @@ public class DisassemblyAnalyzer {
 		this.instructionMap = new HashMap<Integer, Instruction>();
 		this.stringList = new HashSet<String>();
 		this.labels = new HashMap<Integer, String>();
+		this.sections = new HashMap<Integer, CodeSection>();
 		this.branches = new ArrayList<Branch>();
 	}
 	
@@ -71,6 +72,117 @@ public class DisassemblyAnalyzer {
 		}
 		
 		return null;
+	}
+
+	public String parseSectionData(String listing)
+	{
+		// ignore leading text
+    	Pattern pattern = Pattern.compile("^\\s*[0-9]+\\s.*", Pattern.DOTALL | Pattern.MULTILINE);
+        Matcher matcher = pattern.matcher(listing);
+        matcher.find();
+        listing = matcher.group();
+     
+        // now parse each line to get section data
+        pattern = Pattern.compile(
+                    // beginning of the line plus white space
+                    "^\\s*" +               
+                    // section index followed by white space
+                    "([0-9]*)\\s+" +  
+                    // Section name + white space
+                    "([\\w\\.]+)\\s+" +
+                    // Section size + white space
+                    "([0-9a-f]+)\\s+" +
+                    // VMA + white space
+                    "([0-9a-f]+)\\s+" +
+                    // LMA + white space
+                    "([0-9a-f]+)\\s+" +
+                    // File Offset + white space
+                    "([0-9a-f]+)\\s+" +
+                    // Alignment + white space
+                    "2\\*\\*(\\d+)\\s+" +
+                    // Flags
+                    "(.*)$",
+                    Pattern.MULTILINE);
+        matcher = pattern.matcher(listing);
+                
+        // for each match (each line, really)
+        while (matcher.find())
+        {
+        	CodeSection section = new CodeSection();
+        	
+        	section.index = Integer.parseInt(matcher.group(1), 16);
+        	section.name = matcher.group(2);
+        	section.size = Integer.parseInt(matcher.group(3), 16);
+        	section.vma = Integer.parseInt(matcher.group(4), 16);
+        	section.lma = Integer.parseInt(matcher.group(5), 16);
+        	section.alignment = (int) Math.pow(2, Integer.parseInt(matcher.group(7))); 
+        	section.flags = matcher.group(8);
+        	
+    		this.sections.put(section.index, section);
+
+        }
+                
+        // Convert to HTML
+    	ArrayList<Integer> sortedKeys=new ArrayList<Integer>(sections.keySet());
+    	Collections.sort(sortedKeys);
+
+    	// Create a formatted listing of instructions 
+    	//	TODO: Determine initial buffer size better	    	
+    	sectionHtml = new StringBuffer(sortedKeys.size()*20);	    	
+    	
+    	// Section Data should be displayed as a table
+    	sectionHtml.append("<table id=\"sections\">");
+    	
+    	// Create the Table Header
+    	sectionHtml.append("<tr>");
+    	sectionHtml.append("<th>Index</th>");
+    	sectionHtml.append("<th>Name</th>");
+    	sectionHtml.append("<th>Size</th>");
+    	sectionHtml.append("<th>Address</th>");
+    	sectionHtml.append("<th>Align</th>");
+    	sectionHtml.append("<th>Flags</th>");
+    	sectionHtml.append("</tr>");
+    	    	
+    	// Parse the disassembly address by address
+    	boolean alt = false;
+    	for (int index : sortedKeys) {
+    		CodeSection curSection = sections.get(index);
+    		
+    		// Handle alternating colors
+    		if ( alt )
+    		{
+    			sectionHtml.append("<tr class=\"alt\">");	
+    		}
+    		else
+    		{
+    			sectionHtml.append("<tr>");	    			
+    		}
+    	
+    		// Add Section Data
+    		sectionHtml.append("<td>" + curSection.index  + "</td>");
+    		
+    		// Make a hyperlink for Loadable addresses
+			if ( curSection.flags.contains("LOAD") )
+			{
+				sectionHtml.append(String.format("<td><a href=\"#disoff_%d\">%s</a></td>", curSection.vma, curSection.name));
+			}
+			else
+			{
+	    		sectionHtml.append("<td>" + curSection.name + "</td>");				
+			}
+			
+    		sectionHtml.append("<td>" + String.format("0x%08x", curSection.size) + "\n</td>");
+    		sectionHtml.append("<td>" + String.format("0x%08x", curSection.vma) + "\n</td>");
+    		sectionHtml.append("<td>" + curSection.alignment  + "</td>");
+    		sectionHtml.append("<td>" + curSection.flags + "</td>");
+    
+    		sectionHtml.append("</tr>");
+    		alt = !alt;
+    	}
+        
+    	sectionHtml.append("</table>");
+    	    	
+		return sectionHtml.toString();
 	}
 	
 	public void parseObjdumpListing(String listing, int offset, int length, PlatformDescriptor platDesc)
@@ -228,6 +340,11 @@ public class DisassemblyAnalyzer {
         		// Insert anchor for jumping to references.  Use ID for finding location of anchor in GWT
         		opcodeHtml.append("<insn>" + String.format("<a name=\"disoff_%d\" id=%d></a>", address, address) + labels.get(address) +  ":\n</insn>");
     		}
+    		else
+    		{
+    			// Every address gets a link
+    			opcodeHtml.append(String.format("<a name=\"disoff_%d\" id=%d></a>", address, address));
+    		}
     		    		        		
     		// Only display first four bytes of hexdata 
     		// 	Add a "+" for lines with greater than 4 hex bytes
@@ -297,6 +414,8 @@ public class DisassemblyAnalyzer {
     private HashSet<String> stringList;
 	private HashMap<Integer, Instruction> instructionMap;
 	private HashMap<Integer, String> labels;
+	private HashMap<Integer, CodeSection> sections;
+	private StringBuffer sectionHtml;
 	private ArrayList<Branch> branches;
 	private StringBuffer offsetHtml;
 	private StringBuffer rawBytesHtml;

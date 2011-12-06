@@ -20,6 +20,8 @@ public class DisassemblyServiceImpl extends RemoteServiceServlet implements Disa
 		DisassemblyOutput ret = null;
 		DisassemblyAnalyzer analyzer = new DisassemblyAnalyzer();
 		String objDumpListing;
+		String sectionListing;
+		ObjectType objType;
 		
 		try 
 		{
@@ -37,52 +39,68 @@ public class DisassemblyServiceImpl extends RemoteServiceServlet implements Disa
 		catch (IOException e)
 		{
 		}	
+
+		if (binary[0] == 'M' && binary[1] == 'Z')
+			objType = ObjectType.PE;
+		else if (binary[0] == 0x7f && binary[1] == 'E' && binary[2] == 'L' && binary[3] == 'F')
+			objType = ObjectType.ELF;
+		else {
+			objType = ObjectType.BINARY;
+		}
 		
-		objDumpListing = Objdump.dis(platformDesc, file.getAbsolutePath());
+		objDumpListing = Objdump.dis(platformDesc, file.getAbsolutePath(), objType);
 		analyzer.parseObjdumpListing(objDumpListing, offset, length, platformDesc);
 		ret = analyzer.getDisassemblyOutput();
 		
-		if (binary[0] == 'M' && binary[1] == 'Z')
-			ret.setObjectType(ObjectType.PE);
-		else if (binary[0] == 0x7f && binary[1] == 'E' && binary[2] == 'L' && binary[3] == 'F')
-			ret.setObjectType(ObjectType.ELF);
-		else {
-			ret.setObjectType(ObjectType.BINARY);
-		}
+		ret.setObjectType(objType);
 		
 		if ((binary.length == 28) || (binary.length == 35))
 		{
 			file.delete();
 		}
 		
+		// Get Section Data for Elf files
+		if ( objType == ObjectType.ELF )
+		{
+			sectionListing = Objdump.getSections(file.getAbsolutePath(), platformDesc);
+			ret.setSectionHtml(analyzer.parseSectionData(sectionListing));
+		}
+		else
+		{
+			ret.setSectionHtml("<insn>No sections found</insn>");
+		}
+		
+		// Get String Data
+		String strings = Strings.strings(file.getAbsolutePath());
+		ret.setStringHtml(strings);
+		
 		return ret;
 	}
 
-	@Override
-	public String strings(byte[] binary) throws IllegalArgumentException {
-		
-	    // create temp file
-	    File temp = null;
-    
-		try 
-		{
-		    // create temp file
-		    temp = File.createTempFile("pattern", ".suffix");
-
-		    // write to temp file
-		    FileOutputStream out = new FileOutputStream(temp);
-		    out.write(binary);
-		    out.close();
-	    
-		}
-		catch (IOException e)
-		{
-		}
-	    
-	    String strings = Strings.strings(temp.getAbsolutePath());
-	    
-		return strings;
-	}
+//	public String getStrings() throws IllegalArgumentException {
+//		
+//	    // create temp file
+//	    File temp = null;
+//    
+//		try 
+//		{
+//		    // create temp file
+//		    temp = File.createTempFile("pattern", ".suffix");
+//
+//		    // write to temp file
+//		    FileOutputStream out = new FileOutputStream(temp);
+//		    out.write(binary);
+//		    out.close();
+//	    
+//		}
+//		catch (IOException e)
+//		{
+//		}
+//	    
+//	    String strings = Strings.strings(temp.getAbsolutePath());
+//	    
+//		return strings;
+//	}
 	
 	
 }

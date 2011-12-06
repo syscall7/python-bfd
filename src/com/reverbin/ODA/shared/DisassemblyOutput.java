@@ -64,7 +64,17 @@ public class DisassemblyOutput implements Serializable {
 	{
 		rawBytesHtml = html;
 	}
-	
+
+	public String getSectionHtml()
+	{
+		return sectionHtml;
+	}	
+
+	public void setSectionHtml(String html)
+	{
+		sectionHtml = html;
+	}
+
 	public void setAddrToLineMap(HashMap<Integer, Integer> map)
 	{
 		addrToLineMap = map;
@@ -85,9 +95,21 @@ public class DisassemblyOutput implements Serializable {
 		return branchTargetHtml;
 	}
 	
+	public void setStringHtml(String html)
+	{
+		stringHtml = html;
+	}
+	
+	public String getStringHtml()
+	{
+		return stringHtml;
+	}
+	
 	private String opcodeHtml;
 	private String offsetHtml;
 	private String rawBytesHtml;
+	private String sectionHtml;
+	private String stringHtml;
 	private int totalLines;
 	private int currentLines;
 	private ObjectType objectType;

@@ -53,6 +53,6 @@ public class Strings {
     
 	public static String strings(String filePath)
 	{
-		return "<pre>" + exec("strings -t x " + filePath) + "</pre>";
+		return exec("strings -t x " + filePath);
 	}
 }

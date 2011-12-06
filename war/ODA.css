@@ -96,3 +96,39 @@ background-color: #D0E4F6
 .gwt-Anchor:visited {color:#1c5092;}
 .gwt-Anchor:hover {color:#1c5092;}
 .gwt-Anchor:active {color:#1c5092;}
+
+#sections
+{
+/*font-family:"Arial;  Trebuchet MS", Arial, Helvetica, sans-serif;*/
+width:95%;
+border-collapse:collapse;
+}
+
+#sections td, #sections th 
+{
+font-family: Arial;
+font-size:1em;
+border:1px solid #ffffff; /*#BDBEDF;*/
+padding:3px 7px 2px 7px;
+}
+
+#sections th 
+{
+font-family: Arial;
+font-size:1.0em;
+text-align:left;
+padding-top:5px;
+padding-bottom:4px;
+background-color:#92C1F0;
+color:#000000;
+}
+
+#sections tr.alt td 
+{
+font-family: Arial;
+color:#000000;
+background-color:#E5F2FF;
+}
+
+
+
