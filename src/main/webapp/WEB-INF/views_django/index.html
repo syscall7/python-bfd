@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block title %}ODA - Online Disassembler{% endblock %}
+{% block javascript %}
+ <script type="text/javascript">
+ function doFormSubmit() {
+	 $('#file_upload').uploadifyUpload();
+ }
+ 
+ $(function() {
+     $('#file_upload').uploadify({
+     	// Required Settings
+		//langFile : '/jquery.uploadify-v3.0.0/uploadifyLang_en.js',
+		swf : '/resources/scripts/lib/uploadify/uploadify.swf',
+		checkExisting : '/rest/disassembledfile/checkExisting',
+		uploader : '/rest/disassembledfile/upload', 
+		debug : true, 
+		auto : false,
+		buttonImage : '',
+		multi : false
+
+
+     });
+ });
+</script>
+{% endblock %}
+{% block content %}
+
+	<p>{{ username }} LOYTASDA asdas</p>	
+	<div id="file_upload"></div>
+	<center><button type="button" name="btSubmit" id="btSubmit" onclick="doFormSubmit()">Upload and Submit</button></center>
+{% endblock %}

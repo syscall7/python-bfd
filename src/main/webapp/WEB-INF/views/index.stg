@@ -1,6 +1,28 @@
 import "layout.stg"
 
 @layout.title() ::= "ODA - Online Disassembler"
-@layout.content() ::= "$model.username$ LOYTASDA"
+
+@layout.javascript() ::= <<
+
+ <script type="text/javascript">
+            $(function() {
+                $('#file_upload').uploadify({
+                    'uploader' : 'swf/uploadify.swf',
+                    'script' : 'rest/file/upload',
+                    'fileDataName' : 'file',
+                    'cancelImg' : 'img/cancel.png',
+                    'multi' : true
+                });
+            });
+        </script>
+        
+>>
+
+@layout.content() ::= <<
+	<p>$model.username$ LOYTASDA asdas</p>
+	
+	<div id="file_upload"></div>
+	
+>>
 
 index(model) ::= "$layout(model)$"

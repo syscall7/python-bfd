@@ -1,5 +1,3 @@
-layout(model) ::= <<
-
 <!doctype html>
 <!-- The DOCTYPE declaration above will set the    -->
 <!-- browser's rendering engine into               -->
@@ -11,7 +9,7 @@ layout(model) ::= <<
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 	<head>
-	<title>{% @title() %}</title>
+	<title>{% block title %}{% endblock %}</title>
 	
 	<link rel="stylesheet" type="text/css" media="all" href="/resources/css/reset.css" />
 	<link rel="stylesheet" type="text/css" media="all" href="/resources/css/text.css" />
@@ -23,7 +21,7 @@ layout(model) ::= <<
 	<script type="text/javascript" src="/resources/scripts/lib/jquery-1.7.1.min.js"></script>
 	<script type="text/javascript" src="/resources/scripts/lib/uploadify/jquery.uploadify.js"></script>
 	
-	{% @javascript() %}
+	{% block javascript %}{% endblock %}
 
     <script type="text/javascript">
 
@@ -73,17 +71,10 @@ layout(model) ::= <<
 		<div  class="clear"></div>
 		
 		<div class="grid_12">
-			{% @content() %}
+			 {% block content %}{% endblock %}
 		</div>	
 	</div>
 	</body>
 	
 
 </html>
-
->>
-
-title() ::= "Welcome to ODA"
-javascript() ::= ""
-content() ::= ""
-

@@ -39,6 +39,14 @@
 			<artifactId>stringtemplate</artifactId>
 			<version>4.0.2</version>
 		</dependency>
+		<dependency>
+			<groupId>net.asfun.jangod</groupId>
+			<artifactId>jangod-spring</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/jangod-template.jar</systemPath>
+		</dependency>
+
 
 
 		<dependency>
@@ -71,6 +79,22 @@
 			<version>10.0.1</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-server</artifactId>
+			<version>1.11</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-servlet</artifactId>
+			<version>1.11</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey.contribs</groupId>
+			<artifactId>jersey-multipart</artifactId>
+			<version>1.11</version>
+		</dependency>
+
 		<!-- Embedded Jetty -->
 		<dependency>
 			<groupId>org.eclipse.jetty.aggregate</groupId>
@@ -84,6 +108,8 @@
 			<version>9.1.02.B04.p0</version>
 			<scope>test</scope>
 		</dependency>
+
+
 
 
 	</dependencies>
