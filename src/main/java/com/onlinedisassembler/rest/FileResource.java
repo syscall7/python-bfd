@@ -73,7 +73,6 @@ public class FileResource {
 			dFile.setDateUploaded(new Date());
 			dFile.setRemoteAddr(request.getRemoteAddr());
 			dFile.setOriginalFilename(fileInfo.getFileName());
-
 			new Repository<DisassembledFile, String>(DisassembledFile.class)
 					.save(dFile);
 

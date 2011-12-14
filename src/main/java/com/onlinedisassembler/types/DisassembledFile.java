@@ -21,6 +21,8 @@ public class DisassembledFile {
 	
 	Date dateUploaded;
 	String filePath; 	
+	String originalFilename; 
+
 	String user;
 	String userGroup;
 	String version; // ability to track multiple versions of disassembled files
@@ -33,6 +35,8 @@ public class DisassembledFile {
 	
 	Long loadOffset; // Maybe just a portion of the file is loaded for disassembly
 	Long length; // size of the disassembled portion of the file
+	
+	String remoteAddr; 
 	
 	String signature; // MD5 maybe?  If multiple users are disassembling the same file
 						// we could detect it and leverage existing data
@@ -150,6 +154,22 @@ public class DisassembledFile {
 
 	public void setSignature(String signature) {
 		this.signature = signature;
+	}
+	
+	public String getRemoteAddr() {
+		return remoteAddr;
+	}
+
+	public void setRemoteAddr(String remoteAddr) {
+		this.remoteAddr = remoteAddr;
+	}
+	
+	public String getOriginalFilename() {
+		return originalFilename;
+	}
+
+	public void setOriginalFilename(String originalFilename) {
+		this.originalFilename = originalFilename;
 	}
 	
 }
