@@ -6,14 +6,12 @@
            http://www.springframework.org/schema/security/spring-security-3.0.3.xsd">
 
 	<http auto-config="true">
-		<intercept-url pattern="/login*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-		<form-login login-page="/oda/login" default-target-url="/"
-			always-use-default-target="true" />
-	</http>
+        <intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <logout logout-url="/logout"/>
+    </http>
 
 
-	<authentication-manager>
+	<authentication-manager alias="authenticationManager">
 		<authentication-provider ref='myAuthenticationProvider' />
 	</authentication-manager>
 
