@@ -20,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.google.gson.Gson;
 import com.onlinedisassembler.repository.Repository;
 import com.onlinedisassembler.server.DisassemblyAnalyzer;
 import com.onlinedisassembler.server.Objdump;
@@ -46,7 +47,7 @@ public class FileResource {
 	@POST
 	@Path("/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String upload(@Context HttpServletRequest request,
 			@FormDataParam("Filedata") InputStream file,
 			@FormDataParam("Filedata") FormDataContentDisposition fileInfo) {
@@ -96,7 +97,8 @@ public class FileResource {
 			analyzer.parseObjdumpListing(objDumpListing, 0, 1000, platformDesc);
 			DisassemblyOutput ret = analyzer.getDisassemblyOutput();
 
-			return objDumpListing;
+			String returnJson = new Gson().toJson(ret); 
+			return returnJson;
 
 		} catch (IOException e) {
 			throw new RuntimeException(e);
