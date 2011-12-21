@@ -70,8 +70,20 @@ public abstract class ArchAnalyzer {
 		if ( branchInstructions.contains(instruction.opcode) ||
 			 callInstructions.contains(instruction.opcode) )
 		{
-			instruction.isTargetAddrValid = true;
-			instruction.targetAddr = Long.decode(instruction.registers).intValue();    
+			// Try and parse the target address
+			try 
+			{
+				instruction.targetAddr = Long.decode(instruction.registers).intValue();    
+				instruction.isTargetAddrValid = true;
+			}
+			catch (NumberFormatException e)
+			{
+				// Not a number.  This could be due to register indirection
+				//	which contains register text in addition to an offset
+				//	(an indirect jump which we couldn't the target address anyway)
+				// Ultimately we'll want a separate category for indirectBranchinstructions
+			}
+
 		}
 		
 		return;
