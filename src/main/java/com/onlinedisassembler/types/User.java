@@ -3,26 +3,32 @@ package com.onlinedisassembler.types;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.annotation.concurrent.Immutable;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.userdetails.UserDetails;
 
-@Table(name="user_details")
-public class User implements UserDetails{
-	
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+
+@Table(name = "user_details")
+public class User implements UserDetails {
+
 	String id;
-	String username; 
+	String username;
 	String password;
-	
-	public User(String username, String password) { 
-		this.username = username; 
-		this.password = password; 
+
+	public User(String username, String password) {
+		this.username = username;
+		this.password = password;
 	}
-	
+
 	@Id
 	@GeneratedValue(generator = "uuid")
 	@GenericGenerator(name = "uuid", strategy = "uuid2")
@@ -53,7 +59,9 @@ public class User implements UserDetails{
 	@Override
 	public Collection<GrantedAuthority> getAuthorities() {
 		// TODO Auto-generated method stub
-		return new ArrayList<GrantedAuthority>();
+
+		return ImmutableList.of(
+				(GrantedAuthority) new GrantedAuthorityImpl("ROLE_USER"));
 	}
 
 	@Override
