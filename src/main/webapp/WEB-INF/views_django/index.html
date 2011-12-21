@@ -17,7 +17,11 @@
 		auto : false,
 		buttonImage : '',
 		multi : false,
-		fileTypeExts : '*'
+		fileTypeExts : '*',
+		progressData    : 'all',
+		onUploadSuccess : function(file,data,response) {
+			$('#listing').html('<pre>' + data + '</pre>');			
+		}
 
 
      });
@@ -29,4 +33,5 @@
 		
 	<div id="file_upload"></div>
 	<center><button type="button" name="btSubmit" id="btSubmit" onclick="doFormSubmit()">Upload and Submit</button></center>
+	<div id="listing"></div>
 {% endblock %}
