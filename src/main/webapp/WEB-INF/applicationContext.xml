@@ -6,29 +6,20 @@
            http://www.springframework.org/schema/security/spring-security-3.0.3.xsd">
 
 	<http auto-config="true">
-        <intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
-        <logout logout-url="/logout"/>
-    </http>
+		<intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<logout logout-url="/logout" />
+	</http>
 
-
-	 <authentication-manager alias="authenticationManager">
-		<!--<authentication-provider ref='myAuthenticationProvider' />-->
-		<authentication-provider user-service-ref="customUserDetailsService" />
+	<authentication-manager alias="authenticationManager">		
+		<authentication-provider user-service-ref="customUserDetailsService">
+			<password-encoder hash="sha">
+				<salt-source user-property="username" />
+			</password-encoder>
+		</authentication-provider>
 	</authentication-manager>
-	<!-- 
-	<beans:bean id="myAuthenticationProvider"
-		class="com.onlinedisassembler.web.OdaAuthenticationProvider">
-	</beans:bean> 
-	-->
 	
-	<beans:bean id="customUserDetailsService" class="com.onlinedisassembler.web.OdaUserDetailsService">    
+	<beans:bean id="customUserDetailsService"
+		class="com.onlinedisassembler.web.OdaUserDetailsService">
 	</beans:bean>
-	
-
-
-	<!-- <authentication-manager> <authentication-provider> <user-service> <user 
-		name="jimi" password="jimispassword" authorities="ROLE_USER, ROLE_ADMIN" 
-		/> <user name="bob" password="bobspassword" authorities="ROLE_USER" /> </user-service> 
-		</authentication-provider> </authentication-manager> -->
 
 </beans:beans>
