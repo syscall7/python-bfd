@@ -40,16 +40,6 @@ public class DisassembledFile {
 	
 	String signature; // MD5 maybe?  If multiple users are disassembling the same file
 						// we could detect it and leverage existing data
-	
-	Set<Function> functions; 
-	
-	public Set<Function> getFunctions() {
-		return functions;
-	}
-
-	public void setFunctions(Set<Function> functions) {
-		this.functions = functions;
-	}
 
 	@Id
 	@GeneratedValue(generator = "uuid")
