@@ -18,14 +18,18 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import com.onlinedisassembler.repository.Repository;
 import com.onlinedisassembler.server.DisassemblyAnalyzer;
 import com.onlinedisassembler.server.Objdump;
+import com.onlinedisassembler.shared.DisassemblyOutput;
 import com.onlinedisassembler.shared.Endian;
 import com.onlinedisassembler.shared.ObjectType;
 import com.onlinedisassembler.shared.PlatformDescriptor;
 import com.onlinedisassembler.shared.PlatformId;
 import com.onlinedisassembler.types.DisassembledFile;
+import com.onlinedisassembler.types.User;
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
@@ -73,8 +77,13 @@ public class FileResource {
 			dFile.setDateUploaded(new Date());
 			dFile.setRemoteAddr(request.getRemoteAddr());
 			dFile.setOriginalFilename(fileInfo.getFileName());
+
+			/*User user = (User) SecurityContextHolder.getContext()
+					.getAuthentication().getPrincipal();
+			dFile.setUser(user);
+
 			new Repository<DisassembledFile, String>(DisassembledFile.class)
-					.save(dFile);
+					.save(dFile);*/
 
 			PlatformDescriptor platformDesc = new PlatformDescriptor();
 			platformDesc.baseAddress = 0;
@@ -84,13 +93,13 @@ public class FileResource {
 			String objDumpListing = Objdump.dis(platformDesc,
 					tmpFile.getAbsolutePath(), objType);
 			DisassemblyAnalyzer analyzer = new DisassemblyAnalyzer();
-			analyzer.parseObjdumpListing(objDumpListing, 0, request.getContentLength(),
-					platformDesc);
-			String ret = analyzer.getDisassemblyOutput().getStringHtml();
-			return ret; 
+			analyzer.parseObjdumpListing(objDumpListing, 0, 1000, platformDesc);
+			DisassemblyOutput ret = analyzer.getDisassemblyOutput();
+
+			return objDumpListing;
 
 		} catch (IOException e) {
 			throw new RuntimeException(e);
-		}		
+		}
 	}
 }
