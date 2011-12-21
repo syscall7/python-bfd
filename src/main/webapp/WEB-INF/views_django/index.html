@@ -20,8 +20,10 @@
 		fileTypeExts : '*',
 		progressData    : 'all',
 		onUploadSuccess : function(file,data,response) {
-			$('#listing').html('<pre>' + data + '</pre>');			
-		}
+			var ret = jQuery.parseJSON( data ); 
+			$('#listing').html(ret.opcodeHtml);			
+		}		
+     
 
 
      });
