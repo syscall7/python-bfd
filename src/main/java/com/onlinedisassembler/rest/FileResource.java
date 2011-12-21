@@ -47,7 +47,7 @@ public class FileResource {
 	@POST
 	@Path("/upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
 	public String upload(@Context HttpServletRequest request,
 			@FormDataParam("Filedata") InputStream file,
 			@FormDataParam("Filedata") FormDataContentDisposition fileInfo) {
