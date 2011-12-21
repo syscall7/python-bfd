@@ -23,7 +23,7 @@ public class DisassembledFile {
 	String filePath; 	
 	String originalFilename; 
 
-	String user;
+	User user;
 	String userGroup;
 	String version; // ability to track multiple versions of disassembled files
 
@@ -41,6 +41,16 @@ public class DisassembledFile {
 	String signature; // MD5 maybe?  If multiple users are disassembling the same file
 						// we could detect it and leverage existing data
 	
+	Set<Function> functions; 
+	
+	public Set<Function> getFunctions() {
+		return functions;
+	}
+
+	public void setFunctions(Set<Function> functions) {
+		this.functions = functions;
+	}
+
 	@Id
 	@GeneratedValue(generator = "uuid")
 	@GenericGenerator(name = "uuid", strategy = "uuid2")
@@ -76,11 +86,11 @@ public class DisassembledFile {
 		this.filePath = filePath;
 	}
 
-	public String getUser() {
+	public User getUser() {
 		return user;
 	}
 
-	public void setUser(String user) {
+	public void setUser(User user) {
 		this.user = user;
 	}
 

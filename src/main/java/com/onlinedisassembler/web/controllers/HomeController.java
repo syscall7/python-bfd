@@ -14,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.onlinedisassembler.repository.DisassembledFileRepository;
 import com.onlinedisassembler.repository.Repository;
 import com.onlinedisassembler.types.DisassembledFile;
+import com.onlinedisassembler.types.User;
 
 @Controller
 public class HomeController {
@@ -24,15 +25,12 @@ public class HomeController {
 		Authentication auth = SecurityContextHolder.getContext()
 				.getAuthentication();
 		mav.addObject("loggedIn", !(auth instanceof AnonymousAuthenticationToken));
-		mav.addObject("username", auth.getPrincipal()); 
+		if (!(auth instanceof AnonymousAuthenticationToken)) {
+			User principal = (User)auth.getPrincipal(); 
+			mav.addObject("username", principal.getUsername() );
+		}
 		mav.setViewName("index");
 
-		DisassembledFile file = new DisassembledFile();
-
-		file.setUser("davis");
-
-		file = new DisassembledFileRepository().save(file);
-		file = new DisassembledFileRepository().get(file.getId());
 		return mav;
 	}
 }

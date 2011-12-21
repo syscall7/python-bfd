@@ -11,13 +11,19 @@
     </http>
 
 
-	<authentication-manager alias="authenticationManager">
-		<authentication-provider ref='myAuthenticationProvider' />
+	 <authentication-manager alias="authenticationManager">
+		<!--<authentication-provider ref='myAuthenticationProvider' />-->
+		<authentication-provider user-service-ref="customUserDetailsService" />
 	</authentication-manager>
-
+	<!-- 
 	<beans:bean id="myAuthenticationProvider"
 		class="com.onlinedisassembler.web.OdaAuthenticationProvider">
+	</beans:bean> 
+	-->
+	
+	<beans:bean id="customUserDetailsService" class="com.onlinedisassembler.web.OdaUserDetailsService">    
 	</beans:bean>
+	
 
 
 	<!-- <authentication-manager> <authentication-provider> <user-service> <user 

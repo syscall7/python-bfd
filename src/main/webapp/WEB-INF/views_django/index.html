@@ -13,7 +13,7 @@
 		swf : '/resources/scripts/lib/uploadify/uploadify.swf',
 		checkExisting : '/rest/disassembledfile/checkExisting',
 		uploader : '/rest/disassembledfile/upload', 
-		debug : true, 
+		//debug : true, 
 		auto : false,
 		buttonImage : '',
 		multi : false,
@@ -24,13 +24,8 @@
  });
 </script>
 {% endblock %}
-{% block content %}
 
-	<form action="login">
-		<input type="text" name="username"></input> 
-		<input type="password" name="password"></input> 
-		<input type="submit" value="login"></input>
-	</form>
+{% block content %}
 		
 	<div id="file_upload"></div>
 	<center><button type="button" name="btSubmit" id="btSubmit" onclick="doFormSubmit()">Upload and Submit</button></center>
