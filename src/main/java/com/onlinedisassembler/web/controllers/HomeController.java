@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.onlinedisassembler.repository.DisassembledFileRepository;
@@ -24,10 +25,14 @@ public class HomeController {
 		ModelAndView mav = new ModelAndView();
 		Authentication auth = SecurityContextHolder.getContext()
 				.getAuthentication();
-		mav.addObject("loggedIn", !(auth instanceof AnonymousAuthenticationToken));
+		mav.addObject("sessionId",
+				RequestContextHolder
+						.currentRequestAttributes().getSessionId());
+		mav.addObject("loggedIn",
+				!(auth instanceof AnonymousAuthenticationToken));
 		if (!(auth instanceof AnonymousAuthenticationToken)) {
-			User principal = (User)auth.getPrincipal(); 
-			mav.addObject("username", principal.getUsername() );
+			User principal = (User) auth.getPrincipal();
+			mav.addObject("username", principal.getUsername());
 		}
 		mav.setViewName("index");
 

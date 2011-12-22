@@ -18,6 +18,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.google.gson.Gson;
@@ -79,12 +81,15 @@ public class FileResource {
 			dFile.setRemoteAddr(request.getRemoteAddr());
 			dFile.setOriginalFilename(fileInfo.getFileName());
 
-			/*User user = (User) SecurityContextHolder.getContext()
-					.getAuthentication().getPrincipal();
-			dFile.setUser(user);
-
+			Authentication auth = SecurityContextHolder.getContext()
+					.getAuthentication();
+			if (!(auth instanceof AnonymousAuthenticationToken)) { 
+				User user = (User)auth.getPrincipal();
+				dFile.setUser(user);
+			}
+								
 			new Repository<DisassembledFile, String>(DisassembledFile.class)
-					.save(dFile);*/
+					.save(dFile);
 
 			PlatformDescriptor platformDesc = new PlatformDescriptor();
 			platformDesc.baseAddress = 0;
