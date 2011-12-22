@@ -12,13 +12,13 @@
 		//langFile : '/jquery.uploadify-v3.0.0/uploadifyLang_en.js',
 		swf : '/resources/scripts/lib/uploadify/uploadify.swf',
 		checkExisting : '/rest/disassembledfile/checkExisting',
-		uploader : '/rest/disassembledfile/upload', 
+		uploader : '/rest/disassembledfile/upload;jsessionid={{sessionId}}894', 
 		//debug : true, 
 		auto : false,
 		buttonImage : '',
 		multi : false,
 		fileTypeExts : '*',
-		progressData    : 'all',
+		progressData    : 'all',		
 		onUploadSuccess : function(file,data,response) {
 			var ret = jQuery.parseJSON( data ); 
 			$('#listing').html(ret.opcodeHtml);			
