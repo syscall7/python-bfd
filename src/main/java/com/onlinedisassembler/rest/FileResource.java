@@ -101,6 +101,10 @@ public class FileResource {
 			DisassemblyAnalyzer analyzer = new DisassemblyAnalyzer();
 			analyzer.parseObjdumpListing(objDumpListing, 0, 1000, platformDesc);
 			DisassemblyOutput ret = analyzer.getDisassemblyOutput();
+			
+			// Get String Data
+			String strings = com.onlinedisassembler.server.Strings.strings(tmpFile.getAbsolutePath());
+			ret.setStringHtml(strings);
 
 			String returnJson = new Gson().toJson(ret); 
 			return returnJson;

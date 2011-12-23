@@ -6,8 +6,8 @@
 	 $('#file_upload').uploadifyUpload();
  }
  
- $(function() {
-     $('#file_upload').uploadify({
+ $(document).ready(function() { 
+  $('#file_upload').uploadify({
      	// Required Settings
 		//langFile : '/jquery.uploadify-v3.0.0/uploadifyLang_en.js',
 		swf : '/resources/scripts/lib/uploadify/uploadify.swf',
@@ -24,19 +24,54 @@
 			$('#listing').html(ret.opcodeHtml);
 			$('#rawBytes').html(ret.rawBytesHtml);
 			$('#offset').html(ret.offsetHtml);
+			$('#branchLines').html(ret.branchTargetHtml);
+			
+			$('#strings').html(ret.stringHtml);
 		}		  
      });
- });
+  
+	//setup ul.tabs to work as tabs for each div directly under div.panes
+	$("ul.tabs").tabs("div.panes > div");
+ }); 
+ 
 </script>
+
+<style>/* tab pane styling */
+.pane {
+	display:none;		
+	padding:15px 10px;
+	border:1px solid #999;
+	border-top:0;
+	height:400px;
+	font-size:14px;
+	background-color:#fff;
+}
+</style>
 {% endblock %}
 
 {% block content %}
 		
 	<div id="file_upload"></div>
 	<center><button type="button" name="btSubmit" id="btSubmit" onclick="doFormSubmit()">Upload and Submit</button></center>
-	<div style="height:400px; overflow:scroll;">
-		<div id="offset" style="width:120px; float:left;"></div>
-		<div id="rawBytes" style="width:80px; float:left;"></div>
-		<div id="listing" style="width:600px; padding-left:200px;"></div>
+		
+<!-- the tabs -->
+<ul class="tabs">
+	<li><a href="#">Assembly</a></li>
+	<li><a href="#">Strings</a></li>
+	<li><a href="#">Tab 3</a></li>
+</ul>
+
+<!-- tab "panes" -->
+<div class="panes">
+	<div class="pane">	
+		<div style="height:400px; overflow:scroll;">
+			<div id="branchLines" style="width:100px; float:left;"></div>
+			<div id="offset" style="width:120px; float:left;"></div>
+			<div id="rawBytes" style="width:80px; float:left;"></div>
+			<div id="listing" style="width:600px; padding-left:300px;"></div>
+		</div>
 	</div>
+	<div class="pane"><div id="strings" style="height:400px; overflow:scroll;"></div></div>
+	<div class="pane">Third tab content</div>
+</div>			
 {% endblock %}
