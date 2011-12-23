@@ -21,11 +21,10 @@
 		progressData    : 'all',		
 		onUploadSuccess : function(file,data,response) {
 			var ret = jQuery.parseJSON( data ); 
-			$('#listing').html(ret.opcodeHtml);			
-		}		
-     
-
-
+			$('#listing').html(ret.opcodeHtml);
+			$('#rawBytes').html(ret.rawBytesHtml);
+			$('#offset').html(ret.offsetHtml);
+		}		  
      });
  });
 </script>
@@ -35,5 +34,9 @@
 		
 	<div id="file_upload"></div>
 	<center><button type="button" name="btSubmit" id="btSubmit" onclick="doFormSubmit()">Upload and Submit</button></center>
-	<div id="listing"></div>
+	<div style="height:400px; overflow:scroll;">
+		<div id="offset" style="width:120px; float:left;"></div>
+		<div id="rawBytes" style="width:80px; float:left;"></div>
+		<div id="listing" style="width:600px; padding-left:200px;"></div>
+	</div>
 {% endblock %}
