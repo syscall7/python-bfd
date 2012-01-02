@@ -79,6 +79,10 @@ public abstract class ArchAnalyzer {
 			{
 				instruction.isTargetAddrValid = false;
 			}
+			catch (Exception e)
+			{
+				instruction.isTargetAddrValid = false;
+			}
 		}
 		
 		return;

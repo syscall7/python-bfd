@@ -290,7 +290,11 @@ public class DisassemblyAnalyzer {
 	        	currentInstructionCount++;
         	}	        	
         }
-
+        
+        // set branches whose target addresses are not mapped to invalid
+        for (Branch b : this.branches)
+        	if ( !instructionMap.containsKey(b.targetAddr))
+        			b.isTargetAddrValid = false;
         convertToHtml();
 
 	}
@@ -301,6 +305,7 @@ public class DisassemblyAnalyzer {
     	ArrayList<Integer> sortedKeys=new ArrayList<Integer>(instructionMap.keySet());
     	Collections.sort(sortedKeys);
     	
+    	// weed out invalid
     	BranchLineHtmlFormatter blf = new BranchLineHtmlFormatter(this.branches);
     	
     	// Create a formatted listing of instructions 
@@ -338,7 +343,7 @@ public class DisassemblyAnalyzer {
         		rawBytesHtml.append("<raw>\n</raw>");
         		
         		// Insert anchor for jumping to references.  Use ID for finding location of anchor in GWT
-        		opcodeHtml.append("<insn>" + String.format("<a name=\"disoff_%d\" id=%d></a>", address, address) + labels.get(address) +  ":\n</insn>");
+        		opcodeHtml.append(String.format("<a name=\"disoff_%d\" id=%d><insn>%s:\n</insn></a>", address, address, labels.get(address)));
     		}
     		else
     		{
@@ -367,21 +372,16 @@ public class DisassemblyAnalyzer {
 				 curInstr.instrType == InstructionType.CALL	)
 			{
 				// If the branch target address is invalid
-				if (!curInstr.isTargetAddrValid)
+				if (!curInstr.isTargetAddrValid || (!instructionMap.containsKey(curInstr.targetAddr)))
 				{
 					instrText = String.format("%-7s <errinsn>%s</errinsn>", curInstr.opcode, curInstr.registers);
-				}
-				else if ( instructionMap.containsKey(curInstr.targetAddr) )
-				{
-					instrText = String.format("%-7s<a href=\"#disoff_%d\">%s</a>", curInstr.opcode, curInstr.targetAddr, labels.get(curInstr.targetAddr));	
+					if (labels.containsKey(curInstr.targetAddr))
+						labels.remove(curInstr.targetAddr);
 				}
 				else
 				{
-					// Branch target doesn't exist
-					labels.remove(curInstr.targetAddr);
-					instrText = String.format("%-7s <errinsn>0x%x</errinsn>", curInstr.opcode, curInstr.targetAddr);
-				}
-				
+					instrText = String.format("%-7s<a href=\"#disoff_%d\">%s</a>", curInstr.opcode, curInstr.targetAddr, labels.get(curInstr.targetAddr));	
+				}				
 			}
 			else
 			{

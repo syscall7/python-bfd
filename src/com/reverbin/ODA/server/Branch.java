@@ -13,6 +13,7 @@ public class Branch implements Comparable {
 	public final int stopAddr;
 	public final int span;
 	public final boolean branchDown;
+	public boolean isTargetAddrValid;
 	private Object tag;
 	
 	public Branch(Instruction instr)
@@ -24,17 +25,18 @@ public class Branch implements Comparable {
 		stopAddr = branchDown ? targetAddr : srcAddr;
 		span = stopAddr - startAddr;
 		tag = null;
+		isTargetAddrValid = instr.isTargetAddrValid;
 	}
 	
 	public boolean overlaps(Branch b)
 	{
 		boolean ret = false;
 		
-		if ((b.startAddr <= startAddr) && (b.stopAddr >= startAddr))
+		if ((b.stopAddr >= startAddr) && (b.stopAddr <= stopAddr))
 		{
 			ret = true;
 		}
-		else if ((startAddr <= b.startAddr) && (stopAddr >= b.startAddr))
+		else if ((stopAddr >= b.startAddr) && (stopAddr <= b.stopAddr))
 		{
 			ret = true;
 		}
