@@ -71,7 +71,14 @@ public abstract class ArchAnalyzer {
 			 callInstructions.contains(instruction.opcode) )
 		{
 			instruction.isTargetAddrValid = true;
-			instruction.targetAddr = Long.decode(instruction.registers).intValue();    
+			try
+			{
+				instruction.targetAddr = Long.decode(instruction.registers).intValue();
+			}
+			catch (NumberFormatException e)
+			{
+				instruction.isTargetAddrValid = false;
+			}
 		}
 		
 		return;

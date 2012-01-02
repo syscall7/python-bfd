@@ -366,11 +366,14 @@ public class DisassemblyAnalyzer {
 			if ( curInstr.instrType == InstructionType.BRANCH ||
 				 curInstr.instrType == InstructionType.CALL	)
 			{
-				// Make sure the branch target actually exists
-				if ( instructionMap.containsKey(curInstr.targetAddr) )
+				// If the branch target address is invalid
+				if (!curInstr.isTargetAddrValid)
+				{
+					instrText = String.format("%-7s <errinsn>%s</errinsn>", curInstr.opcode, curInstr.registers);
+				}
+				else if ( instructionMap.containsKey(curInstr.targetAddr) )
 				{
 					instrText = String.format("%-7s<a href=\"#disoff_%d\">%s</a>", curInstr.opcode, curInstr.targetAddr, labels.get(curInstr.targetAddr));	
-					
 				}
 				else
 				{
