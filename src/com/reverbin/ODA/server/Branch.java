@@ -30,11 +30,11 @@ public class Branch implements Comparable {
 	{
 		boolean ret = false;
 		
-		if ((b.startAddr >= startAddr) && (b.startAddr <= stopAddr))
+		if ((b.startAddr <= startAddr) && (b.stopAddr >= startAddr))
 		{
 			ret = true;
 		}
-		else if ((b.stopAddr >= startAddr) && (b.stopAddr <= stopAddr))
+		else if ((startAddr <= b.startAddr) && (stopAddr >= b.startAddr))
 		{
 			ret = true;
 		}
