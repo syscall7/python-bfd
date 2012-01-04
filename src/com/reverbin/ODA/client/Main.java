@@ -139,7 +139,7 @@ public class Main implements EntryPoint, SelectionHandler<Integer>, SubmitComple
          tabPanel.addSelectionHandler(viewStrings);
 
          // sections tab
-         viewSections = new ViewSections(modelPlatformBin, statusIndicator);
+         viewSections = new ViewSections(modelPlatformBin, statusIndicator, tabPanel);
          viewSections.setWidth("600px");
          tabPanel.add(viewSections, "Sections");
          tabPanel.addSelectionHandler(viewSections);

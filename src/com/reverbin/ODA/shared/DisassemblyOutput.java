@@ -2,6 +2,7 @@ package com.reverbin.ODA.shared;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -105,6 +106,17 @@ public class DisassemblyOutput implements Serializable {
 		return stringHtml;
 	}
 	
+	public HashMap<Integer, CodeSection> getSections()
+	{
+		return sections;
+	}
+	
+	public void setSections(HashMap<Integer, CodeSection> s)
+	{
+		sections = s;
+	}
+	
+	private HashMap<Integer, CodeSection> sections;
 	private String opcodeHtml;
 	private String offsetHtml;
 	private String rawBytesHtml;

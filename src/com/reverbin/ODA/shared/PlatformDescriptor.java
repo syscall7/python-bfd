@@ -9,4 +9,5 @@ public class PlatformDescriptor  implements IsSerializable {
 	public int baseAddress;
 	public Endian endian;
 	public PlatformOption option;
+	public String section = "";
 }

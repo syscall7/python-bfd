@@ -64,6 +64,7 @@ public class DisassemblyServiceImpl extends RemoteServiceServlet implements Disa
 		{
 			sectionListing = Objdump.getSections(file.getAbsolutePath(), platformDesc);
 			ret.setSectionHtml(analyzer.parseSectionData(sectionListing));
+			ret.setSections(analyzer.getSections());
 		}
 		else
 		{

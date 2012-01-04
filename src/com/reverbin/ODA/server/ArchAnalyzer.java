@@ -73,7 +73,8 @@ public abstract class ArchAnalyzer {
 			instruction.isTargetAddrValid = true;
 			try
 			{
-				instruction.targetAddr = Long.decode(instruction.registers).intValue();
+				String addr = "0x" + instruction.registers.split("\\s")[0];
+				instruction.targetAddr = Long.decode(addr).intValue();
 			}
 			catch (NumberFormatException e)
 			{

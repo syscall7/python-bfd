@@ -131,4 +131,16 @@ background-color:#E5F2FF;
 }
 
 
+.FlexTable-OddRow {
+
+}
+
+.FlexTable-EvenRow {
+    background-color:#D0E4F6;
+}
+
+.FlexTable-Header {
+  background-color:#92C1F0;	
+  font-weight: bold;
+}
 

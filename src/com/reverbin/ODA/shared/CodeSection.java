@@ -1,7 +1,9 @@
-package com.reverbin.ODA.server;
+package com.reverbin.ODA.shared;
+
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 
-public class CodeSection {
+public class CodeSection implements IsSerializable {
 	
 	public CodeSection() {
 		name = null;

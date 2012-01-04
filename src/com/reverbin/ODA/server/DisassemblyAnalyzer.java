@@ -1,6 +1,7 @@
 package com.reverbin.ODA.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.math.BigInteger;
 
+import com.reverbin.ODA.shared.CodeSection;
 import com.reverbin.ODA.shared.DisassemblyOutput;
 import com.reverbin.ODA.shared.PlatformDescriptor;
 import com.reverbin.ODA.shared.PlatformId;
@@ -74,6 +76,11 @@ public class DisassemblyAnalyzer {
 		return null;
 	}
 
+	public HashMap<Integer, CodeSection> getSections()
+	{
+		return this.sections;
+	}
+	
 	public String parseSectionData(String listing)
 	{
 		// ignore leading text
@@ -203,7 +210,12 @@ public class DisassemblyAnalyzer {
         // Create pattern to identify and save errors in the disassembly
         //	ARM = <errortype>
         //	x86 - (bad)
-        Pattern errorInstPattern = Pattern.compile("(<.+>|" + Pattern.quote("(bad)") + ")");
+        Pattern errorInstPattern;
+        if (platDesc.platformId == PlatformId.ARM)
+        	errorInstPattern = Pattern.compile("(<.+>)");
+        else
+        	errorInstPattern = Pattern.compile("(" + Pattern.quote("(bad)") + ")");
+        
         Matcher errorInstMatcher;
         
         // now parse each line to get the offset, raw bytes and instruction
