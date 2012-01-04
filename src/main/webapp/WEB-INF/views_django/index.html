@@ -27,6 +27,7 @@
 			$('#branchLines').html(ret.branchTargetHtml);
 			
 			$('#strings').html(ret.stringHtml);
+			$('#sections').html(ret.sectionHtml);
 		}		  
      });
   
@@ -58,7 +59,7 @@
 <ul class="tabs">
 	<li><a href="#">Assembly</a></li>
 	<li><a href="#">Strings</a></li>
-	<li><a href="#">Tab 3</a></li>
+	<li><a href="#">Sections</a></li>
 </ul>
 
 <!-- tab "panes" -->
@@ -72,6 +73,6 @@
 		</div>
 	</div>
 	<div class="pane"><div id="strings" style="height:400px; overflow:scroll;"></div></div>
-	<div class="pane">Third tab content</div>
+	<div class="pane"><div id="sections" style="height:400px; overflow:scroll;"></div> </div>
 </div>			
 {% endblock %}
