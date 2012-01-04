@@ -12,7 +12,7 @@ public class Repository<T, Tid> {
 		this.entityClass = entityClass;
 	}
 
-	private synchronized Session getSession() {
+	public synchronized Session getSession() {
 		if (session == null) {
 			session = OdaSessionFactory.getSessionFactory().getCurrentSession();
 		}

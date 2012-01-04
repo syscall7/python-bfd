@@ -4,6 +4,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 import com.onlinedisassembler.types.DisassembledFile;
+import com.onlinedisassembler.types.User;
 
 public class OdaSessionFactory {
 
@@ -15,6 +16,7 @@ public class OdaSessionFactory {
             return new Configuration()
              	.configure()
              	.addAnnotatedClass(DisassembledFile.class)
+             	.addAnnotatedClass(User.class)
              	.buildSessionFactory();
         }
         catch (Throwable ex) {
