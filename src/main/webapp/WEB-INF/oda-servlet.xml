@@ -19,6 +19,16 @@
 	<bean id="annotationUrlMapping"
 		class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
 		<property name="order" value="0" />
+		<property name="interceptors">
+			<list>
+				<ref bean="hibernateSessionManagement"/>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="hibernateSessionManagement"
+		class="com.onlinedisassembler.web.HibernateSessionInterceptor">
+		
 	</bean>
 
 	<bean id="controllerClassNameHandlerMapping"
@@ -31,17 +41,15 @@
 
 
 
-	<mvc:resources mapping="/resources/**" location="/WEB-INF/resources/"/> 
+	<mvc:resources mapping="/resources/**" location="/WEB-INF/resources/" />
 
 	<!-- All views are JSPs loaded from /WEB-INF/jsp -->
 	<bean id="viewResolver"
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-		<!-- <property name="viewClass"
-			value="org.springframework.web.servlet.view.JstlView" /> -->
-			<property name="viewClass" value="com.onlinedisassembler.web.DjangoView"/>
+		<!-- <property name="viewClass" value="org.springframework.web.servlet.view.JstlView" 
+			/> -->
+		<property name="viewClass" value="com.onlinedisassembler.web.DjangoView" />
 		<property name="prefix" value="/WEB-INF/views_django/" />
 		<property name="suffix" value=".html" />
 	</bean>
-
-
 </beans>
