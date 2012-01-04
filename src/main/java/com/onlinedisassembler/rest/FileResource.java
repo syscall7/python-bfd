@@ -105,6 +105,17 @@ public class FileResource {
 			// Get String Data
 			String strings = com.onlinedisassembler.server.Strings.strings(tmpFile.getAbsolutePath());
 			ret.setStringHtml(strings);
+			
+			// Get Section Data for Elf files
+			if ( objType == ObjectType.ELF )
+			{
+				String sectionListing = Objdump.getSections(tmpFile.getAbsolutePath(), platformDesc);
+				ret.setSectionHtml(analyzer.parseSectionData(sectionListing));
+			}
+			else
+			{
+				ret.setSectionHtml("<insn>No sections found</insn>");
+			}
 
 			String returnJson = new Gson().toJson(ret); 
 			return returnJson;
