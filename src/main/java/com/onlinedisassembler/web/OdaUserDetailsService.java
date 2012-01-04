@@ -9,15 +9,20 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import com.onlinedisassembler.repository.UserRepository;
 import com.onlinedisassembler.types.User;
 
 public class OdaUserDetailsService implements UserDetailsService {
 
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException, DataAccessException {
-		; 
-		return new User(username, new ShaPasswordEncoder().encodePassword("password", username)); 
-		//throw new UsernameNotFoundException(username); 
+		try { 
+			return new UserRepository().getUser(username);			
+		} catch (Exception e) { 
+			throw new UsernameNotFoundException(username); 
+		}
+		//return new User(username, new ShaPasswordEncoder().encodePassword("password", username)); 
+		//
 	}
 
 }
