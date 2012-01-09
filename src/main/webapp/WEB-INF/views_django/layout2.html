@@ -14,6 +14,9 @@
     <script type="text/javascript" src="/resources/scripts/lib/jquery-1.7.1.min.js"></script>
 	<script type="text/javascript" src="/resources/scripts/lib/bootstrap-tabs.js"></script>
 	<script type="text/javascript" src="/resources/scripts/lib/bootstrap-dropdown.js"></script>
+	<script type="text/javascript" src="/resources/scripts/lib/bootstrap-twipsy.js"></script>
+	<script type="text/javascript" src="/resources/scripts/lib/bootstrap-popover.js"></script>
+	<script type="text/javascript" src="/resources/scripts/lib/bootstrap-modal.js"></script>
 
     <!-- Le styles -->
     <link href="/resources/css/bootstrap.css" rel="stylesheet">
@@ -22,6 +25,22 @@
       body {
         padding-top: 60px;
       }
+      
+      .tabbed-scroll {
+      	height:400px; 
+      	overflow:scroll; 
+      }
+      
+      .topbar-wrapper {
+    height: 40px;   
+    position: relative;
+}
+
+.topbar-wrapper .topbar {
+    margin: 0 -20px;
+    position: absolute;
+    z-index:1;
+}
     </style>
 
     <!-- Le fav and touch icons -->
@@ -40,6 +59,21 @@
  
  $(document).ready(function() { 
  
+	 
+	 $('#login-form').popover({
+		 html: true,
+		 placement: 'below',
+		 delayOut: '5000',
+		 content: function() { 
+			 return '<p>Do you already have an account on one of these sites? Click the logo to log in with it here:</p>'
+					 +'<a href="openid?provider=google"><img src="/resources/images/openid_google.png"/></a> '
+					 + '<a href="openid?provider=yahoo"><img src="/resources/images/openid_yahoo.png"/></a>'; } 
+	 }); 
+	 $('#login-form').popover('show');
+	 setTimeout(function() {$('#login-form').popover('hide');},6000 ); 
+	 $('.tabs').tabs()
+	 $('#assembly-tab-item').trigger('click')
+	 
   $('#file_upload').uploadify({
      	// Required Settings
 		//langFile : '/jquery.uploadify-v3.0.0/uploadifyLang_en.js',
@@ -59,8 +93,8 @@
 			$('#offset').html(ret.offsetHtml);
 			$('#branchLines').html(ret.branchTargetHtml);
 			
-			$('#strings').html(ret.stringHtml);
-			$('#sections').html(ret.sectionHtml);
+			$('#strings-content').html(ret.stringHtml);
+			$('#sections-content').html(ret.sectionHtml);
 		}		  
      });    
  }); 
@@ -79,11 +113,19 @@
             <li class="active"><a href="#">Home</a></li>
             <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
+			<li class="dropdown" data-dropdown="dropdown">
+              <a href="#" class="dropdown-toggle">Examples</a>
+              <ul class="dropdown-menu">
+                <li><a href="#fat">strcpy (x86)</a></li>
+                <li><a href="#mdo">strcpy (arm)</a></li>
+
+              </ul>
+            </li>            
           </ul>
           {% if loggedIn %} 
           <p class="pull-right">Logged in as <a href="#">{{ username }}</a></p>
 {% else %} 
- 		<form action="login" class="pull-right">	
+ 		<form id="login-form" action="login" class="pull-right">	
             <input class="input-small" type="text" 
             	name="username" placeholder="Username">
 
@@ -93,143 +135,18 @@
             <a class="btn small success" href="/signup">Sign Up</a>
           </form>
           {% endif %} 
-        </div>
+        </div>        
       </div>
+      
     </div>
 
     <div class="container">
     
-      <div class="content">
-        <!-- Main hero unit for a primary marketing message or call to action -->
-        <div class="page-header row">
-          <img src="/resources/images/oda.png" class="span2" style="width: 128px; height: 128px;"/>
-          <h1 class="span6">The Online Disassembler</h1>       
-        </div>
-        
+		{% block content %}{% endblock %}
 
-<div id="file_upload"></div>
-	<center><button type="button" name="btSubmit" id="btSubmit" onclick="doFormSubmit()">Upload and Submit</button></center>
-	
-<h3>Demo</h3>
-          <ul class="tabs" data-tabs="tabs">
-            <li class="active"><a href="#hex">Hex</a></li>
-            <li><a href="#assembly">Assembly</a></li>
-
-            <li><a href="#strings">Strings</a></li>
-            <li><a href="#sections">Sections</a></li>
-            <!--  <li class="dropdown" data-dropdown="dropdown">
-              <a href="#" class="dropdown-toggle">Dropdown</a>
-              <ul class="dropdown-menu">
-                <li><a href="#fat">@fat</a></li>
-                <li><a href="#mdo">@mdo</a></li>
-
-              </ul>
-            </li>-->
-          </ul>
-          <div id="my-tab-content" class="tab-content">
-            <div class="active tab-pane" id="hex">
-              <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p>
-            </div>
-            <div class="tab-pane" id="assembly">
-            	<form class="well">
-            		<div class="row">
-            		<label for="normalSelect">Platform</label>
-            		<div class="input span2">
-		              <select id="normalSelect" name="normalSelect" class="span2">
-		                <option>x86</option>
-		                <option>mips</option>
-		                <option>arm</option>
-		                <option>ppc</option>		                
-		              </select>
-		            </div>
-		            <label for="normalSelect2">Endian</label>
-            		<div class="input span2">
-		              <select id="normalSelect2" name="normalSelect2" class="span2">
-		                <option>LITTLE</option>
-		                <option>DEFAULT</option>
-		              </select>
-		            </div>
-		            <label for="offset">Offset</label>
-		            <input id="" class="span2" type="text" placeholder="0x0" name="offset">
-		            <input class="btn primary pull-right" type="submit" value="Disassemble">
-<!-- 		            <div class=""						 -->
-		            </div>
-            	</form>
-				<div style="height:400px; overflow:scroll;">
-					<div id="branchLines" style="width:100px; float:left;"></div>
-					<div id="offset" style="width:120px; float:left;"></div>
-					<div id="rawBytes" style="width:80px; float:left;"></div>
-					<div id="listing" style="width:600px; padding-left:300px;"></div>
-				</div>            
-            </div>
-            <div class="tab-pane" id="strings">
-              <p>Banksy do proident, brooklyn photo booth delectus sunt artisan sed organic exercitation eiusmod four loko. Quis tattooed iphone esse aliqua. Master cleanse vero fixie mcsweeney's. Ethical portland aute, irony food truck pitchfork lomo eu anim. Aesthetic blog DIY, ethical beard leggings tofu consequat whatever cardigan nostrud. Helvetica you probably haven't heard of them carles, marfa veniam occaecat lomo before they sold out in shoreditch scenester sustainable thundercats. Consectetur tofu craft beer, mollit brunch fap echo park pitchfork mustache dolor.</p>
-            </div>
-            <div class="tab-pane" id="sections">
-              <p>Sunt qui biodiesel mollit officia, fanny pack put a bird on it thundercats seitan squid ad wolf bicycle rights blog. Et aute readymade farm-to-table carles 8-bit, nesciunt nulla etsy adipisicing organic ea. Master cleanse mollit high life, next level Austin nesciunt american apparel twee mustache adipisicing reprehenderit hoodie portland irony. Aliqua tofu quinoa +1 commodo eiusmod. High life williamsburg cupidatat twee homo leggings. Four loko vinyl DIY consectetur nisi, marfa retro keffiyeh vegan. Fanny pack viral retro consectetur gentrify fap.</p>
-
-            </div>
-            <div class="tab-pane" id="fat">
-              <p>Etsy mixtape wayfarers, ethical wes anderson tofu before they sold out mcsweeney's organic lomo retro fanny pack lo-fi farm-to-table readymade. Messenger bag gentrify pitchfork tattooed craft beer, iphone skateboard locavore carles etsy salvia banksy hoodie helvetica. DIY synth PBR banksy irony. Leggings gentrify squid 8-bit cred pitchfork. Williamsburg banh mi whatever gluten-free, carles pitchfork biodiesel fixie etsy retro mlkshk vice blog. Scenester cred you probably haven't heard of them, vinyl craft beer blog stumptown. Pitchfork sustainable tofu synth chambray yr.</p>
-            </div>
-            <div class="tab-pane" id="mdo">
-              <p>Trust fund seitan letterpress, keytar raw denim keffiyeh etsy art party before they sold out master cleanse gluten-free squid scenester freegan cosby sweater. Fanny pack portland seitan DIY, art party locavore wolf cliche high life echo park Austin. Cred vinyl keffiyeh DIY salvia PBR, banh mi before they sold out farm-to-table VHS viral locavore cosby sweater. Lomo wolf viral, mustache readymade thundercats keffiyeh craft beer marfa ethical. Wolf salvia freegan, sartorial keffiyeh echo park vegan.</p>
-            </div>
-          </div>
-<script>
-$(function () {
-$('.tabs').tabs()
-})
-</script>
-
-        
-        <!-- Example row of columns -->
-        <div class="row">
-          <div class="span6">
-            <h2>Heading</h2>
-            <p>Etiam porta sem malesuada magna mollis euismod. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.</p>
-            <p><a class="btn" href="#">View details &raquo;</a></p>
-
-          </div>
-          <div class="span5">
-            <h2>Heading</h2>
-             <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-            <p><a class="btn" href="#">View details &raquo;</a></p>
-         </div>
-          <div class="span5">
-
-            <h2>Heading</h2>
-            <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-            <p><a class="btn" href="#">View details &raquo;</a></p>
-          </div>
-        </div>
-        <hr>
-        <!-- Example row of columns -->
-
-        <div class="row">
-          <div class="span6">
-            <h2>Heading</h2>
-            <p>Etiam porta sem malesuada magna mollis euismod. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.</p>
-            <p><a class="btn" href="#">View details &raquo;</a></p>
-          </div>
-          <div class="span5">
-
-            <h2>Heading</h2>
-             <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-            <p><a class="btn" href="#">View details &raquo;</a></p>
-         </div>
-          <div class="span5">
-            <h2>Heading</h2>
-            <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-
-            <p><a class="btn" href="#">View details &raquo;</a></p>
-          </div>
-        </div>
         <footer>
           <p>&copy; Company 2012</p>
         </footer>
-      </div>
-
     </div>
 
   </body>
