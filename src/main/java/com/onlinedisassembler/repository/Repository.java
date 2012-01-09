@@ -32,6 +32,18 @@ public class Repository<T, Tid> {
 		return (List<T>)getSession().createCriteria(entityClass)
 				.add(Restrictions.eq(fieldName, fieldValue)).list();
 	}
+	
+	public T load(String fieldName, String fieldValue) { 
+		List<T> list = (List<T>)getSession().createCriteria(entityClass)
+		.add(Restrictions.eq(fieldName, fieldValue)).list();
+		
+		if (list.size()==0)
+			return null; 
+		if (list.size()>1) { 
+			throw new RuntimeException("Multiple Return Values");
+		}
+		return list.get(0); 
+	}
 
 	public T save(T toSave) {
 		getSession().save(toSave);
