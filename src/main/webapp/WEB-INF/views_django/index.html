@@ -1,85 +1,155 @@
 {% extends "layout.html" %}
-{% block title %}ODA - Online Disassembler{% endblock %}
-{% block javascript %}
- <script type="text/javascript">
- function doFormSubmit() {
-	 $('#file_upload').uploadifyUpload();
- }
- 
- $(document).ready(function() { 
-  $('#file_upload').uploadify({
-     	// Required Settings
-		//langFile : '/jquery.uploadify-v3.0.0/uploadifyLang_en.js',
-		swf : '/resources/scripts/lib/uploadify/uploadify.swf',
-		checkExisting : '/rest/disassembledfile/checkExisting',
-		uploader : '/rest/disassembledfile/upload;jsessionid={{sessionId}}', 
-		//debug : true, 
-		auto : false,
-		buttonImage : '',
-		multi : false,
-		fileTypeExts : '*',
-		progressData    : 'all',		
-		onUploadSuccess : function(file,data,response) {
-			var ret = jQuery.parseJSON( data ); 
-			$('#listing').html(ret.opcodeHtml);
-			$('#rawBytes').html(ret.rawBytesHtml);
-			$('#offset').html(ret.offsetHtml);
-			$('#branchLines').html(ret.branchTargetHtml);
-			
-			$('#strings').html(ret.stringHtml);
-			$('#sections').html(ret.sectionHtml);
-		}		  
-     });
-  
-	//setup ul.tabs to work as tabs for each div directly under div.panes
-	$("ul.tabs").tabs("div.panes > div");
- }); 
- 
-</script>
-
-<style>/* tab pane styling */
-.pane {
-	display:none;		
-	padding:15px 10px;
-	border:1px solid #999;
-	border-top:0;
-	height:400px;
-	font-size:14px;
-	background-color:#fff;
-}
-</style>
-{% endblock %}
 
 {% block content %}
-		
-	<div id="file_upload"></div>
+
+      <div class="content">
+        <!-- Main hero unit for a primary marketing message or call to action -->
+        <div class="page-header row">
+          <img src="/resources/images/oda.png" class="span2" style="width: 128px; height: 128px;"/>
+          <h1 class="span6">The Online Disassembler</h1>       
+        </div>
+        
+<!--  
+<div id="file_upload"></div>
 	<center><button type="button" name="btSubmit" id="btSubmit" onclick="doFormSubmit()">Upload and Submit</button></center>
-		
-<!-- the tabs -->
-<ul class="tabs">
-	<li><a href="#">Assembly</a></li>
-	<li><a href="#">Strings</a></li>
-	<li><a href="#">Sections</a></li>
-</ul>
+	-->
+	
+	<script type="text/javascript">
+	 
+	 	$(document).ready(function() {
+	 		$('#file-upload-btn').click(function() { 
+	 			$('#modal-from-dom').modal('show');
+	 		}); 
+	 	}); 
+	</script>
+	<!-- <div class="topbar-wrapper">
+            <div data-dropdown="dropdown" class="topbar" id="topbar-example">
+              <div class="topbar-inner">
+                <div class="container">    
+             	  <ul class="nav">
+                    <li class="menu">
+                      <a class="menu" href="#">File</a>
+                      <ul class="menu-dropdown">
+                        <li><a href="#" id="file-upload-btn">Upload</a></li>                       
+                        <li class="divider"></li>
+                        <li><a href="#">Another link</a></li>
+                      </ul>
+                    </li>
+                    <li class="menu">
+                      <a class="menu" href="#">Dropdown 2</a>
+                      <ul class="menu-dropdown">
+                        <li><a href="#">Secondary link</a></li>
+                        <li><a href="#">Something else here</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#">Another link</a></li>
+                      </ul>
+                    </li>
+                  </ul>
+                  <ul>
+                    <li><a href="#">Link</a></li>
+                    <li><a href="#">Link</a></li>
+                  </ul>
+                  <form action="">
+                    <input type="text" placeholder="Search">
+                  </form>
+                  
+                </div>
+              </div>
+            </div>
+          </div> -->
+	
+          <ul class="tabs" data-tabs="tabs">
+            <li class="active"><a href="#hex">Hex</a></li>
+            <li><a href="#assembly" id="assembly-tab-item">Assembly</a></li>
 
-<!-- tab "panes" -->
-<div class="panes">
-	<div class="pane">	
-		<div style="height:400px; overflow:scroll;">
-			<div id="branchLines" style="width:100px; float:left;"></div>
-			<div id="offset" style="width:120px; float:left;"></div>
-			<div id="rawBytes" style="width:80px; float:left;"></div>
-			<div id="listing" style="width:600px; padding-left:300px;"></div>
-		</div>
-	</div>
-	<div class="pane"><div id="strings" style="height:400px; overflow:scroll;"></div></div>
-	<div class="pane"><div id="sections" style="height:400px; overflow:scroll;"></div> </div>
-</div>	
+            <li><a href="#strings">Strings</a></li>
+            <li><a href="#sections">Sections</a></li>
+            <!--  <li class="dropdown" data-dropdown="dropdown">
+              <a href="#" class="dropdown-toggle">Dropdown</a>
+              <ul class="dropdown-menu">
+                <li><a href="#fat">@fat</a></li>
+                <li><a href="#mdo">@mdo</a></li>
 
-<form action="createUser" method="POST">
-	Username: <input type="text" name="username"></input><br/>
-	Email: <input type="text" name="email"></input><br/>
-	Password: <input type="password" name="password"></input><br/>
-	<input type="submit" value="Create User"></input>
-</form>		
-{% endblock %}
+              </ul>
+            </li>-->
+          </ul>
+          <div id="my-tab-content" class="tab-content">
+            <div class="active tab-pane" id="hex">
+            	<div class="tabbed-scroll">
+              		<p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p>
+              	</div>
+            </div>
+            <div class="tab-pane" id="assembly">
+            	<form class="well">
+            		<div class="row">
+            		<div class="input span3">
+            		 		<button data-controls-modal="modal-from-dom" data-backdrop="true" data-keyboard="true" class="btn danger">Upload File</button> 
+            		</div>
+                      		<label for="normalSelect">Platform</label>
+            		<div class="input span2">
+		              <select id="normalSelect" name="normalSelect" class="span2">
+		                <option>x86</option>
+		                <option>mips</option>
+		                <option>arm</option>
+		                <option>ppc</option>		                
+		              </select>
+		            </div>
+		            <label for="normalSelect2">Endian</label>
+            		<div class="input span2">
+		              <select id="normalSelect2" name="normalSelect2" class="span2">
+		                <option>LITTLE</option>
+		                <option>DEFAULT</option>
+		              </select>
+		            </div>
+		            <label for="offset">Offset</label>
+		            <input id="" class="span2" type="text" placeholder="0x0" name="offset">
+		            <input class="btn primary pull-right" type="submit" value="Disassemble">
+<!-- 		            <div class=""						 -->
+		            </div>
+            	</form>
+				<div class="tabbed-scroll">
+					<div id="branchLines" style="width:100px; float:left;"></div>
+					<div id="offset" style="width:120px; float:left;"></div>
+					<div id="rawBytes" style="width:80px; float:left;"></div>
+					<div id="listing" style="width:600px; padding-left:300px;"></div>
+				</div>            
+            </div>
+            <div class="tab-pane" id="strings">
+            	<div class="tabbed-scroll" id="strings-content">
+              		<p>Banksy do proident, brooklyn photo booth delectus sunt artisan sed organic exercitation eiusmod four loko. Quis tattooed iphone esse aliqua. Master cleanse vero fixie mcsweeney's. Ethical portland aute, irony food truck pitchfork lomo eu anim. Aesthetic blog DIY, ethical beard leggings tofu consequat whatever cardigan nostrud. Helvetica you probably haven't heard of them carles, marfa veniam occaecat lomo before they sold out in shoreditch scenester sustainable thundercats. Consectetur tofu craft beer, mollit brunch fap echo park pitchfork mustache dolor.</p>
+              	</div>
+            </div>
+            <div class="tab-pane" id="sections">
+            	<div class="tabbed-scroll" id="#sections-content">
+              		<p>Sunt qui biodiesel mollit officia, fanny pack put a bird on it thundercats seitan squid ad wolf bicycle rights blog. Et aute readymade farm-to-table carles 8-bit, nesciunt nulla etsy adipisicing organic ea. Master cleanse mollit high life, next level Austin nesciunt american apparel twee mustache adipisicing reprehenderit hoodie portland irony. Aliqua tofu quinoa +1 commodo eiusmod. High life williamsburg cupidatat twee homo leggings. Four loko vinyl DIY consectetur nisi, marfa retro keffiyeh vegan. Fanny pack viral retro consectetur gentrify fap.</p>
+				</div>
+            </div>           
+          </div>
+
+      
+      </div>  
+      
+      
+      <div id="modal-from-dom" class="modal hide fade">
+            <div class="modal-header">
+              <a href="#" class="close">&times;</a>
+              <h3>File Upload</h3>
+            </div>
+            <div class="modal-body">
+            	<div>
+            		<img src="/resources/images/upload.png"/>
+            		<form style="width:450px; float: right;">
+            			<input id="fileInput" class="input-file" type="file" name="fileInput" style="width:375px;">
+            		</form>
+            	</div>
+            	{% include 'terms.html' %}
+            </div>
+            <div class="modal-footer">
+              <a href="#" class="btn primary">Submit</a>
+              <a href="#" class="btn secondary">Cancel</a>
+            </div>
+          </div>
+      
+        {% endblock %}
+        
+
