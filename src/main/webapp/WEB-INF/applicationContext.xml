@@ -5,7 +5,7 @@
            http://www.springframework.org/schema/security
            http://www.springframework.org/schema/security/spring-security-3.0.3.xsd">
 
-	<http auto-config="true">
+	<http auto-config="true" disable-url-rewriting="true">
 		<intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<logout logout-url="/logout" />
 	</http>
