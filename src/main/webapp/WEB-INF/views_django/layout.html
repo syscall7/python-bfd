@@ -56,53 +56,7 @@
     
     <link rel="stylesheet" type="text/css" media="all" href="/resources/css/uploadify.css" />
     <script type="text/javascript" src="/resources/scripts/lib/uploadify/jquery.uploadify.js"></script>
-     <script type="text/javascript">
-     function doFormSubmit() {
-	 $('#file_upload').uploadifyUpload();
- }
- 
- $(document).ready(function() { 
- 
-	 
-	 $('#login-form').popover({
-		 html: true,
-		 placement: 'below',
-		 delayOut: '5000',
-		 content: function() { 
-			 return '<p>Do you already have an account on one of these sites? Click the logo to log in with it here:</p>'
-					 +'<a href="openid?provider=google"><img src="/resources/images/openid_google.png"/></a> '
-					 + '<a href="openid?provider=yahoo"><img src="/resources/images/openid_yahoo.png"/></a>'; } 
-	 }); 
-	 $('#login-form').popover('show');
-	 setTimeout(function() {$('#login-form').popover('hide');},6000 ); 
-	 $('.tabs').tabs()
-	 $('#assembly-tab-item').trigger('click')
-	 
-  $('#file_upload').uploadify({
-     	// Required Settings
-		//langFile : '/jquery.uploadify-v3.0.0/uploadifyLang_en.js',
-		swf : '/resources/scripts/lib/uploadify/uploadify.swf',
-		checkExisting : '/rest/disassembledfile/checkExisting',
-		uploader : '/rest/disassembledfile/upload;jsessionid={{sessionId}}', 
-		//debug : true, 
-		auto : false,
-		buttonImage : '',
-		multi : false,
-		fileTypeExts : '*',
-		progressData    : 'all',		
-		onUploadSuccess : function(file,data,response) {
-			var ret = jQuery.parseJSON( data ); 
-			$('#listing').html(ret.opcodeHtml);
-			$('#rawBytes').html(ret.rawBytesHtml);
-			$('#offset').html(ret.offsetHtml);
-			$('#branchLines').html(ret.branchTargetHtml);
-			
-			$('#strings-content').html(ret.stringHtml);
-			$('#sections-content').html(ret.sectionHtml);
-		}		  
-     });    
- }); 
-  </script>
+     
     
   </head>
 
