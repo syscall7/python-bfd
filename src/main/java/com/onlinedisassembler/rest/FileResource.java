@@ -61,6 +61,9 @@ public class FileResource {
 			UUID fileId = UUID.randomUUID();
 			File tmpFile = new File("/tmp/" + UUID.randomUUID());
 			OutputStream out = new FileOutputStream(tmpFile);
+			final String HEXES = "0123456789ABCDEF";
+			final StringBuilder hexBuilder = new StringBuilder(2 * bytes.length);
+			
 			while ((read = file.read(bytes)) != -1) {
 				if (objType == null) {
 					if (bytes[0] == 'M' && bytes[1] == 'Z')
@@ -74,6 +77,12 @@ public class FileResource {
 				}
 
 				out.write(bytes, 0, read);
+				
+				for ( final byte b : bytes ) {
+					hexBuilder.append(HEXES.charAt((b & 0xF0) >> 4))
+			         .append(HEXES.charAt((b & 0x0F)))
+			         .append(" ");
+			    }
 			}
 
 			DisassembledFile dFile = new DisassembledFile();
@@ -101,6 +110,7 @@ public class FileResource {
 			DisassemblyAnalyzer analyzer = new DisassemblyAnalyzer();
 			analyzer.parseObjdumpListing(objDumpListing, 0, 1000, platformDesc);
 			DisassemblyOutput ret = analyzer.getDisassemblyOutput();
+			ret.setHexDump(hexBuilder.toString());
 			
 			// Get String Data
 			String strings = com.onlinedisassembler.server.Strings.strings(tmpFile.getAbsolutePath());

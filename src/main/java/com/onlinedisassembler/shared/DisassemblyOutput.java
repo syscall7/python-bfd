@@ -105,6 +105,16 @@ public class DisassemblyOutput implements Serializable {
 		return stringHtml;
 	}
 	
+	public void setHexDump(String hd)
+	{
+		hexDump = hd;
+	}
+	
+	public String getHexDump()
+	{
+		return hexDump;
+	}
+	
 	private String opcodeHtml;
 	private String offsetHtml;
 	private String rawBytesHtml;
@@ -115,4 +125,5 @@ public class DisassemblyOutput implements Serializable {
 	private ObjectType objectType;
 	private HashMap<Integer, Integer> addrToLineMap;
 	private String branchTargetHtml;
+	private String hexDump;
 }
