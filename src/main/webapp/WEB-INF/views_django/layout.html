@@ -57,6 +57,22 @@
     <link rel="stylesheet" type="text/css" media="all" href="/resources/css/uploadify.css" />
     <script type="text/javascript" src="/resources/scripts/lib/uploadify/jquery.uploadify.js"></script>
      
+    <script type="text/javascript">
+    $(document).ready(function() { 
+    	$('#example-strcpy').click(function() { 
+    		alert('here'); 
+    		$.ajax({
+    			  url: '/examples?type=strcpy',    			  
+    			  success: function(){
+    				  alert('done'); 
+    			  },
+    			  error: function(){
+    				  alert('error');
+    			  }
+    		});
+    	}); 
+    }); 
+    </script>
     
   </head>
 
@@ -74,7 +90,7 @@
 			<li class="dropdown" data-dropdown="dropdown">
               <a href="#" class="dropdown-toggle">Examples</a>
               <ul class="dropdown-menu">
-                <li><a href="#fat">strcpy (x86)</a></li>
+                <li><a href="#fat" id="example-strcpy">strcpy (x86)</a></li>
                 <li><a href="#mdo">strcpy (arm)</a></li>
 
               </ul>
