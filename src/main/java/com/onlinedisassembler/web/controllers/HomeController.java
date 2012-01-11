@@ -34,7 +34,7 @@ public class HomeController {
 			User principal = (User) auth.getPrincipal();
 			mav.addObject("username", principal.getUsername());
 		}
-		mav.setViewName("index2");
+		mav.setViewName("index");
 
 		return mav;
 	}
