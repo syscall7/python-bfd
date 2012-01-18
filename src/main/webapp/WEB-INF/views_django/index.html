@@ -44,6 +44,7 @@
 			 success: function(data) { 
 				// var ret = jQuery.parseJSON( data ); 	
 				 processDisassembly(data); 
+				 $('#assembly-tab-item').trigger('click');
 			 }
 		 }); 
 		 return false; 
