@@ -2,6 +2,7 @@ package com.onlinedisassembler.shared;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -114,6 +115,16 @@ public class DisassemblyOutput implements Serializable {
 	{
 		return hexDump;
 	}
+
+	public HashMap<Integer, CodeSection> getSections()
+	{
+		return sections;
+	}
+	
+	public void setSections(HashMap<Integer, CodeSection> s)
+	{
+		sections = s;
+	}
 	
 	private String opcodeHtml;
 	private String offsetHtml;
@@ -126,4 +137,5 @@ public class DisassemblyOutput implements Serializable {
 	private HashMap<Integer, Integer> addrToLineMap;
 	private String branchTargetHtml;
 	private String hexDump;
+	private HashMap<Integer, CodeSection> sections;
 }

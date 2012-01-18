@@ -1,6 +1,7 @@
 package com.onlinedisassembler.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,7 +13,7 @@ import java.math.BigInteger;
 import com.onlinedisassembler.shared.DisassemblyOutput;
 import com.onlinedisassembler.shared.PlatformDescriptor;
 import com.onlinedisassembler.shared.PlatformId;
-
+import com.onlinedisassembler.shared.CodeSection;
 
 
 public class DisassemblyAnalyzer {
@@ -76,6 +77,11 @@ public class DisassemblyAnalyzer {
 		return null;
 	}
 
+	public HashMap<Integer, CodeSection> getSections()
+	{
+		return this.sections;
+	}
+	
 	public String parseSectionData(String listing)
 	{
 		// ignore leading text
@@ -205,7 +211,12 @@ public class DisassemblyAnalyzer {
         // Create pattern to identify and save errors in the disassembly
         //	ARM = <errortype>
         //	x86 - (bad)
-        Pattern errorInstPattern = Pattern.compile("(<.+>|" + Pattern.quote("(bad)") + ")");
+        Pattern errorInstPattern;
+        if (platDesc.platformId == PlatformId.ARM)
+        	errorInstPattern = Pattern.compile("(<.+>)");
+        else
+        	errorInstPattern = Pattern.compile("(" + Pattern.quote("(bad)") + ")");
+        
         Matcher errorInstMatcher;
         
         // now parse each line to get the offset, raw bytes and instruction
@@ -292,7 +303,11 @@ public class DisassemblyAnalyzer {
 	        	currentInstructionCount++;
         	}	        	
         }
-
+        
+        // set branches whose target addresses are not mapped to invalid
+        for (Branch b : this.branches)
+        	if ( !instructionMap.containsKey(b.targetAddr))
+        			b.isTargetAddrValid = false;
         convertToHtml();
 
 	}
@@ -303,6 +318,7 @@ public class DisassemblyAnalyzer {
     	ArrayList<Integer> sortedKeys=new ArrayList<Integer>(instructionMap.keySet());
     	Collections.sort(sortedKeys);
     	
+    	// weed out invalid
     	BranchLineHtmlFormatter blf = new BranchLineHtmlFormatter(this.branches);
     	
     	// Create a formatted listing of instructions 
@@ -340,7 +356,7 @@ public class DisassemblyAnalyzer {
         		rawBytesHtml.append("<raw>\n</raw>");
         		
         		// Insert anchor for jumping to references.  Use ID for finding location of anchor in GWT
-        		opcodeHtml.append("<insn>" + String.format("<a name=\"disoff_%d\" id=%d></a>", address, address) + labels.get(address) +  ":\n</insn>");
+        		opcodeHtml.append(String.format("<a name=\"disoff_%d\" id=%d><insn>%s:\n</insn></a>", address, address, labels.get(address)));
     		}
     		else
     		{
@@ -368,19 +384,17 @@ public class DisassemblyAnalyzer {
 			if ( curInstr.instrType == InstructionType.BRANCH ||
 				 curInstr.instrType == InstructionType.CALL	)
 			{
-				// Make sure the branch target actually exists
-				if ( instructionMap.containsKey(curInstr.targetAddr) )
+				// If the branch target address is invalid
+				if (!curInstr.isTargetAddrValid || (!instructionMap.containsKey(curInstr.targetAddr)))
 				{
-					instrText = String.format("%-7s<a href=\"#disoff_%d\">%s</a>", curInstr.opcode, curInstr.targetAddr, labels.get(curInstr.targetAddr));	
-					
+					instrText = String.format("%-7s <errinsn>%s</errinsn>", curInstr.opcode, curInstr.registers);
+					if (labels.containsKey(curInstr.targetAddr))
+						labels.remove(curInstr.targetAddr);
 				}
 				else
 				{
-					// Branch target doesn't exist
-					labels.remove(curInstr.targetAddr);
-					instrText = String.format("%-7s <errinsn>0x%x</errinsn>", curInstr.opcode, curInstr.targetAddr);
-				}
-				
+					instrText = String.format("%-7s<a href=\"#disoff_%d\">%s</a>", curInstr.opcode, curInstr.targetAddr, labels.get(curInstr.targetAddr));	
+				}				
 			}
 			else
 			{

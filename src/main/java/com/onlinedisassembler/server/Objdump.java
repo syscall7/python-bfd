@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.regex.*;
 import java.util.Arrays;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.*;
 
 import com.onlinedisassembler.shared.ObjectType;
 import com.onlinedisassembler.shared.PlatformDescriptor;
@@ -112,6 +112,7 @@ public class Objdump
     	String machine = getMachine(platform);    	
 		String binutilsDir = HostUtils.getBinutilsDir();    		
     	String endian = "";
+    	String section = platform.section;
     	
     	switch (platform.endian)
     	{
@@ -151,7 +152,20 @@ public class Objdump
     			
     	}
     	
-    	return  binutilsDir + prefix + "objdump -D" + targetTypeStr + "-w -z -m " + machine + " --adjust-vma=" + platform.baseAddress + endian + " " + option + " " + filePath;
+    	String sectionOpt = "";
+    	String machineOpt = " -m " + machine;
+    	String baseAddrOpt = " --adjust-vma=" + platform.baseAddress;
+    	if ((section != null) && !(section.equals("")))
+    	{
+    		sectionOpt = " -j " + section;
+    		machineOpt = "";
+    		baseAddrOpt = "";
+    		endian = "";
+    		targetTypeStr = "";
+    	}
+    		
+    	
+    	return  binutilsDir + prefix + "objdump -D" + sectionOpt + targetTypeStr + " -w -z" + machineOpt + baseAddrOpt + endian + " " + option + " " + filePath;
     }
 
     

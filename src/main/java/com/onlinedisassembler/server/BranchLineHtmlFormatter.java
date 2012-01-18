@@ -21,13 +21,19 @@ public class BranchLineHtmlFormatter {
 	
 	public BranchLineHtmlFormatter(ArrayList<Branch> branches)
 	{
+		ArrayList<Branch> validBranches = (ArrayList<Branch>)branches.clone();
+		for (Branch b : branches)
+		{
+			if (!b.isTargetAddrValid)
+				validBranches.remove(b);
+		}
     	// sort branches based on span (so short, inner branches appear in inner columns)
-    	Collections.sort(branches);
-    	branchArray = new Branch[branches.size()];
-    	branches.toArray(branchArray);
+    	Collections.sort(validBranches);
+    	branchArray = new Branch[validBranches.size()];
+    	validBranches.toArray(branchArray);
 		this.assignColumns();
 		this.lastColFlags = new int[maxColAssigned+1];
-		this.html = "<font face='monospace' color='#093C83'>";
+		this.html = "<font face='Courier' color='#093C83'>";
 	}
 	
 	private void assignColumns()
@@ -74,7 +80,9 @@ public class BranchLineHtmlFormatter {
 				// else, we can't use this column, so add it to the used list
 				else
 				{
-					columnsUsed.add((Integer)c.getTag());
+					Integer usedColumn = (Integer)c.getTag();
+					if (!columnsUsed.contains(usedColumn))
+							columnsUsed.add(usedColumn);
 				}
 			}
 		}
@@ -85,7 +93,7 @@ public class BranchLineHtmlFormatter {
 			for (freeColumn = 0; freeColumn < columnsUsed.size(); freeColumn++)
 			{
 				// if we found a free column
-				if (columnsUsed.get(freeColumn) != freeColumn)
+				if (!columnsUsed.contains(freeColumn))
 					break;
 			}
 			
@@ -122,6 +130,21 @@ public class BranchLineHtmlFormatter {
 		
 		for (int i = 0; i < maxColAssigned+1; i++)
 			htmlRow = flagsToHtml(colFlags[i]) + htmlRow;
+		
+		htmlRow += "<br>";
+		
+		return htmlRow;
+	}
+	
+	private String buildHtmlLabelRow(int[] colFlags)
+	{
+		String htmlRow = "";
+		
+		// add noarrow
+		htmlRow = flagsToHtml(NOARROW);
+				
+		for (int i = 0; i < maxColAssigned+1; i++)
+			htmlRow = flagsToHtmlLabel(colFlags[i]) + htmlRow;
 		
 		htmlRow += "<br>";
 		
@@ -207,13 +230,31 @@ public class BranchLineHtmlFormatter {
 	
 	public void pushLabel()
 	{
-		this.html += buildHtmlRow(lastColFlags, false);
+		this.html += buildHtmlLabelRow(lastColFlags);
 	}
 	
 	public String finalizeHtml()
 	{
 		this.html += "</font>";
 		return this.html;
+	}
+	
+	private String flagsToHtmlLabel(int flags)
+	{
+		// remove HPASSTHRU
+		flags &= ~HPASSTHRU;
+		
+		// remove upper joins
+		flags &= ~UPPERJOIN;
+		
+		// convert lower joins to VPASSTHRU
+		if ((flags & LOWERJOIN) != 0)
+		{
+			flags &= ~LOWERJOIN;
+			flags |= VPASSTHRU;
+		}
+		
+		return flagsToHtml(flags);
 	}
 	
 	private String flagsToHtml(int flags)

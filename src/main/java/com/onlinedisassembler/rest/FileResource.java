@@ -121,6 +121,7 @@ public class FileResource {
 			{
 				String sectionListing = Objdump.getSections(tmpFile.getAbsolutePath(), platformDesc);
 				ret.setSectionHtml(analyzer.parseSectionData(sectionListing));
+				ret.setSections(analyzer.getSections());
 			}
 			else
 			{

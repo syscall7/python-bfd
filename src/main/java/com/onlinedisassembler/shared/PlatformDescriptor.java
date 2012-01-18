@@ -7,4 +7,5 @@ public class PlatformDescriptor {
 	public int baseAddress;
 	public Endian endian;
 	public PlatformOption option;
+	public String section = "";
 }
