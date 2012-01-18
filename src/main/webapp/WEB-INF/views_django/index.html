@@ -34,8 +34,8 @@
 	 }); 
 	 $('#login-form').popover('show');
 	 setTimeout(function() {$('#login-form').popover('hide');},6000 ); 
-	 $('.tabs').tabs()
-	 $('#assembly-tab-item').trigger('click')
+	 $('.tabs').tabs();
+	 $('#assembly-tab-item').trigger('click');
 	 
 	 $('#save-hex').click(function() { 
 		 $.ajax('/rest/disassemble/uploadHex',{
