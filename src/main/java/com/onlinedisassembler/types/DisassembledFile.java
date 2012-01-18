@@ -76,6 +76,7 @@ public class DisassembledFile {
 		this.filePath = filePath;
 	}
 
+	@ManyToOne
 	public User getUser() {
 		return user;
 	}
