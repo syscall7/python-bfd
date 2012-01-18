@@ -9,7 +9,19 @@
  }
  
  $(document).ready(function() { 
- 
+ 	
+	 var processDisassembly = function(ret) { 
+		$('#listing').html(ret.opcodeHtml);
+		$('#rawBytes').html(ret.rawBytesHtml);
+		$('#offset').html(ret.offsetHtml);
+		$('#branchLines').html(ret.branchTargetHtml);
+		
+		$('#strings-content').html(ret.stringHtml);
+		$('#sections-content').html(ret.sectionHtml);
+        $('#hex-content').val(ret.hexDump);
+		$('#modal-from-dom').modal('hide');
+		$('#oda-gear').hide();  
+	 };
 	 
 	 $('#login-form').popover({
 		 html: true,
@@ -25,12 +37,24 @@
 	 $('.tabs').tabs()
 	 $('#assembly-tab-item').trigger('click')
 	 
+	 $('#save-hex').click(function() { 
+		 $.ajax('/rest/disassemble/uploadHex',{
+			 type: 'POST',
+			 data: {hex : $('#hex-content').val() }, 
+			 success: function(data) { 
+				// var ret = jQuery.parseJSON( data ); 	
+				 processDisassembly(data); 
+			 }
+		 }); 
+		 return false; 
+	 }); 
+	 
   $('#file_upload').uploadify({
      	// Required Settings
 		//langFile : '/jquery.uploadify-v3.0.0/uploadifyLang_en.js',
 		swf : '/resources/scripts/lib/uploadify/uploadify.swf',
-		checkExisting : '/rest/disassembledfile/checkExisting',
-		uploader : '/rest/disassembledfile/upload;jsessionid={{sessionId}}', 
+		checkExisting : '/rest/disassemble/checkExisting',
+		uploader : '/rest/disassemble/uploadFile;jsessionid={{sessionId}}', 
 		//debug : true, 
 		auto : false,
 		buttonImage : '',
@@ -38,17 +62,8 @@
 		fileTypeExts : '*',
 		progressData    : 'all',		
 		onUploadSuccess : function(file,data,response) {
-			var ret = jQuery.parseJSON( data ); 
-			$('#listing').html(ret.opcodeHtml);
-			$('#rawBytes').html(ret.rawBytesHtml);
-			$('#offset').html(ret.offsetHtml);
-			$('#branchLines').html(ret.branchTargetHtml);
-			
-			$('#strings-content').html(ret.stringHtml);
-			$('#sections-content').html(ret.sectionHtml);
-	        $('#hex-content').val(ret.hexDump);
-			$('#modal-from-dom').modal('hide');
-			$('#oda-gear').hide(); 
+			var ret = jQuery.parseJSON( data ); 	
+			processDisassembly(ret); 
 		}		  
      });    
  }); 
@@ -130,8 +145,10 @@
           </ul>
           <div id="my-tab-content" class="tab-content">
             <div class="active tab-pane" id="hex">
-            	
-            		<textarea style="width:98%; height:400px;"  id="hex-content">
+            	<form class="well">
+            		 <input class="btn primary" type="submit" value="Save" id="save-hex">
+            	</form>
+            		<textarea style="width:100%; height:400px;"  id="hex-content">
             		Raw denim you probably haven't heard of them jean shorts Austin.
             		</textarea>
               
