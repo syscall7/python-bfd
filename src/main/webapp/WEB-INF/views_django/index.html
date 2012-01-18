@@ -38,6 +38,7 @@
 	 $('#assembly-tab-item').trigger('click');
 	 
 	 $('#save-hex').click(function() { 
+		 $('#oda-gear').show(); 
 		 $.ajax('/rest/disassemble/uploadHex',{
 			 type: 'POST',
 			 data: {hex : $('#hex-content').val() }, 
