@@ -33,7 +33,7 @@ public class BranchLineHtmlFormatter {
     	validBranches.toArray(branchArray);
 		this.assignColumns();
 		this.lastColFlags = new int[maxColAssigned+1];
-		this.html = "<font face='Courier' color='#093C83'>";
+		this.html = "";
 	}
 	
 	private void assignColumns()
@@ -235,7 +235,6 @@ public class BranchLineHtmlFormatter {
 	
 	public String finalizeHtml()
 	{
-		this.html += "</font>";
 		return this.html;
 	}
 	
