@@ -46,7 +46,7 @@
 			
 			$('#strings-content').html(ret.stringHtml);
 			$('#sections-content').html(ret.sectionHtml);
-	        $('#hex-content').html(ret.hexDump);
+	        $('#hex-content').val(ret.hexDump);
 			$('#modal-from-dom').modal('hide');
 			$('#oda-gear').hide(); 
 		}		  
@@ -130,9 +130,11 @@
           </ul>
           <div id="my-tab-content" class="tab-content">
             <div class="active tab-pane" id="hex">
-            	<div class="tabbed-scroll" id="hex-content">
-              		<p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure terry richardson ex squid. Aliquip placeat salvia cillum iphone. Seitan aliquip quis cardigan american apparel, butcher voluptate nisi qui.</p>
-              	</div>
+            	
+            		<textarea style="width:98%; height:400px;"  id="hex-content">
+            		Raw denim you probably haven't heard of them jean shorts Austin.
+            		</textarea>
+              
             </div>
             <div class="tab-pane" id="assembly">
             	<form class="well">
