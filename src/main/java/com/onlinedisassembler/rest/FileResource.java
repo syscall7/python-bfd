@@ -18,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +29,7 @@ import com.onlinedisassembler.server.DisassemblyAnalyzer;
 import com.onlinedisassembler.server.Objdump;
 import com.onlinedisassembler.shared.DisassemblyOutput;
 import com.onlinedisassembler.shared.Endian;
+import com.onlinedisassembler.shared.HexUtils;
 import com.onlinedisassembler.shared.ObjectType;
 import com.onlinedisassembler.shared.PlatformDescriptor;
 import com.onlinedisassembler.shared.PlatformId;
@@ -37,8 +39,10 @@ import com.onlinedisassembler.types.User;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 
-@Path("/disassembledfile")
+@Path("/disassemble")
 public class FileResource {
+	final String HEXES = "0123456789ABCDEF";
+	
 	@POST
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("checkExisting")
@@ -47,7 +51,81 @@ public class FileResource {
 	}
 
 	@POST
-	@Path("/upload")
+	@Path("/uploadHex")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String uploadHex(@Context HttpServletRequest request,
+			@FormParam("hex") String hex) throws IOException {
+		byte [] bytes = HexUtils.textToBytes(hex);
+		File tmpFile = new File("/tmp/" + UUID.randomUUID());
+		FileUtils.writeByteArrayToFile(tmpFile, bytes);
+		
+		PlatformDescriptor platformDesc = new PlatformDescriptor();
+		platformDesc.baseAddress = 0;
+		platformDesc.platformId = PlatformId.X86;
+		platformDesc.endian = Endian.DEFAULT;
+		
+		ObjectType objType = null;
+		int read = 0;
+		FileInputStream file = FileUtils.openInputStream(tmpFile);
+		final StringBuilder hexBuilder = new StringBuilder(2 * bytes.length);
+		while ((read = file.read(bytes)) != -1) {
+			if (objType == null) {
+				if (bytes[0] == 'M' && bytes[1] == 'Z')
+					objType = ObjectType.PE;
+				else if (bytes[0] == 0x7f && bytes[1] == 'E'
+						&& bytes[2] == 'L' && bytes[3] == 'F')
+					objType = ObjectType.ELF;
+				else {
+					objType = ObjectType.BINARY;
+				}
+			}
+			
+			for (final byte b : bytes) {
+				hexBuilder.append(HEXES.charAt((b & 0xF0) >> 4))
+						.append(HEXES.charAt((b & 0x0F))).append(" ");
+			}
+		}
+
+		
+		DisassemblyOutput ret = disassemble(tmpFile, platformDesc, objType,
+				hexBuilder);
+
+		String returnJson = new Gson().toJson(ret);
+		return returnJson;
+	}
+
+	private DisassemblyOutput disassemble(File tmpFile,
+			PlatformDescriptor platformDesc, ObjectType objType,
+			StringBuilder hexBuilder) {
+		String objDumpListing = Objdump.dis(platformDesc,
+				tmpFile.getAbsolutePath(), objType);
+		DisassemblyAnalyzer analyzer = new DisassemblyAnalyzer();
+		analyzer.parseObjdumpListing(objDumpListing, 0, 1000, platformDesc);
+		DisassemblyOutput ret = analyzer.getDisassemblyOutput();
+		ret.setHexDump(hexBuilder.toString());
+
+		// Get String Data
+		String strings = com.onlinedisassembler.server.Strings.strings(tmpFile
+				.getAbsolutePath());
+		ret.setStringHtml(strings);
+
+		// Get Section Data for Elf files
+		if (objType == ObjectType.ELF) {
+			String sectionListing = Objdump.getSections(
+					tmpFile.getAbsolutePath(), platformDesc);
+			ret.setSectionHtml(analyzer.parseSectionData(sectionListing));
+			ret.setSections(analyzer.getSections());
+		} else {
+			ret.setSectionHtml("<insn>No sections found</insn>");
+
+		}
+		return ret;
+
+	}
+
+	@POST
+	@Path("/uploadFile")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.TEXT_PLAIN)
 	public String upload(@Context HttpServletRequest request,
@@ -60,10 +138,9 @@ public class FileResource {
 		try {
 			UUID fileId = UUID.randomUUID();
 			File tmpFile = new File("/tmp/" + UUID.randomUUID());
-			OutputStream out = new FileOutputStream(tmpFile);
-			final String HEXES = "0123456789ABCDEF";
+			OutputStream out = new FileOutputStream(tmpFile);			
 			final StringBuilder hexBuilder = new StringBuilder(2 * bytes.length);
-			
+
 			while ((read = file.read(bytes)) != -1) {
 				if (objType == null) {
 					if (bytes[0] == 'M' && bytes[1] == 'Z')
@@ -77,12 +154,11 @@ public class FileResource {
 				}
 
 				out.write(bytes, 0, read);
-				
-				for ( final byte b : bytes ) {
+
+				for (final byte b : bytes) {
 					hexBuilder.append(HEXES.charAt((b & 0xF0) >> 4))
-			         .append(HEXES.charAt((b & 0x0F)))
-			         .append(" ");
-			    }
+							.append(HEXES.charAt((b & 0x0F))).append(" ");
+				}
 			}
 
 			DisassembledFile dFile = new DisassembledFile();
@@ -92,11 +168,11 @@ public class FileResource {
 
 			Authentication auth = SecurityContextHolder.getContext()
 					.getAuthentication();
-			if (!(auth instanceof AnonymousAuthenticationToken)) { 
-				User user = (User)auth.getPrincipal();
+			if (!(auth instanceof AnonymousAuthenticationToken)) {
+				User user = (User) auth.getPrincipal();
 				dFile.setUser(user);
 			}
-								
+
 			new Repository<DisassembledFile, String>(DisassembledFile.class)
 					.save(dFile);
 
@@ -105,30 +181,10 @@ public class FileResource {
 			platformDesc.platformId = PlatformId.X86;
 			platformDesc.endian = Endian.DEFAULT;
 
-			String objDumpListing = Objdump.dis(platformDesc,
-					tmpFile.getAbsolutePath(), objType);
-			DisassemblyAnalyzer analyzer = new DisassemblyAnalyzer();
-			analyzer.parseObjdumpListing(objDumpListing, 0, 1000, platformDesc);
-			DisassemblyOutput ret = analyzer.getDisassemblyOutput();
-			ret.setHexDump(hexBuilder.toString());
-			
-			// Get String Data
-			String strings = com.onlinedisassembler.server.Strings.strings(tmpFile.getAbsolutePath());
-			ret.setStringHtml(strings);
-			
-			// Get Section Data for Elf files
-			if ( objType == ObjectType.ELF )
-			{
-				String sectionListing = Objdump.getSections(tmpFile.getAbsolutePath(), platformDesc);
-				ret.setSectionHtml(analyzer.parseSectionData(sectionListing));
-				ret.setSections(analyzer.getSections());
-			}
-			else
-			{
-				ret.setSectionHtml("<insn>No sections found</insn>");
-			}
+			DisassemblyOutput ret = disassemble(tmpFile, platformDesc, objType,
+					hexBuilder);
 
-			String returnJson = new Gson().toJson(ret); 
+			String returnJson = new Gson().toJson(ret);
 			return returnJson;
 
 		} catch (IOException e) {
