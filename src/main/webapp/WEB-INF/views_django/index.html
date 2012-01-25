@@ -43,7 +43,9 @@
 			 type: 'POST',
 			 data: {
 				 	hex : $('#hex-content').val(), 
-				 	platformId : $('#platformSelect').val()
+				 	platformId : $('#platformSelect').val(), 
+				 	endian : $('#endianSelect').val(),
+				 	offset : $('#offsetInput').val()
 			  }, 
 			 success: function(data) { 
 				// var ret = jQuery.parseJSON( data ); 	
@@ -173,15 +175,16 @@
 		                <option>PPC</option>		                
 		              </select>
 		            </div>
-		            <label for="normalSelect2">Endian</label>
+		            <label for="endianSelect">Endian</label>
             		<div class="input span2">
-		              <select id="normalSelect2" name="normalSelect2" class="span2">
+		              <select id="endianSelect" name="normalSelect" class="span2">
 		                <option>LITTLE</option>
+		                <option>BIG</option>
 		                <option>DEFAULT</option>
 		              </select>
 		            </div>
-		            <label for="offset">Offset</label>
-		            <input id="" class="span2" type="text" placeholder="0x0" name="offset">
+		            <label for="offsetInput">Offset</label>
+		            <input id="offsetInput" class="span2" type="text" name="offset" value="0x0"/>
 		            <input class="btn primary pull-right" type="submit" value="Disassemble">
 <!-- 		            <div class=""						 -->
 		            </div>

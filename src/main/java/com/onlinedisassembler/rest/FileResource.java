@@ -56,15 +56,17 @@ public class FileResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String uploadHex(@Context HttpServletRequest request,
 			@FormParam("hex") String hex,
-			@FormParam("platformId") PlatformId platformId) throws IOException {
+			@FormParam("platformId") PlatformId platformId,
+			@FormParam("endian") Endian endian, 
+			@FormParam("offset") String offset) throws IOException {
 		byte [] bytes = HexUtils.textToBytes(hex);
 		File tmpFile = new File("/tmp/" + UUID.randomUUID());
 		FileUtils.writeByteArrayToFile(tmpFile, bytes);
 		
 		PlatformDescriptor platformDesc = new PlatformDescriptor();
-		platformDesc.baseAddress = 0;
+		platformDesc.baseAddress = Integer.parseInt(offset.substring(2), 16); 
 		platformDesc.platformId = platformId;
-		platformDesc.endian = Endian.DEFAULT;
+		platformDesc.endian = endian;
 		
 		ObjectType objType = null;
 		int read = 0;
