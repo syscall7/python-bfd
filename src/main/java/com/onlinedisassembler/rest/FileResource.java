@@ -162,6 +162,7 @@ public class FileResource {
 							.append(HEXES.charAt((b & 0x0F))).append(" ");
 				}
 			}
+			out.close();
 
 			DisassembledFile dFile = new DisassembledFile();
 			dFile.setDateUploaded(new Date());
