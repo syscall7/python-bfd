@@ -6,10 +6,10 @@
      function doFormSubmit() {
     	$('#oda-gear').show(); 
 	 	$('#file_upload').uploadifyUpload();
+ 	}
 	 function doFormCancel() {
 		 $('#modal-from-dom').modal('hide');
 	 }
- }
  
  $(document).ready(function() { 
  	
@@ -222,19 +222,19 @@
             </div>
             <div class="modal-body">
             	<div>
-            		<div id="file_upload"></div>
+            		 <div id="file_upload"></div>  
 					
 	
-            		<!--  <img src="/resources/images/upload.png"/>
-            		<form style="width:450px; float: right;">
-            			<input id="fileInput" class="input-file" type="file" name="fileInput" style="width:375px;">
+            		 <!-- <img src="/resources/images/upload.png"/>
+            		<form id="file-input-form" style="width:450px; float: right;" action="/rest/disassemble/uploadFile" method="POST">
+            			<input id="fileInput" class="input-file" type="file" name="file" style="width:375px;">
             		</form>-->
             	</div>
             	{% include 'terms.html' %}
             </div>
             <div class="modal-footer">
               <a href="#" class="btn primary" onclick="doFormSubmit()">Submit</a>
-              <a href="#" class="btn secondary" onclick="doCancel()">Cancel</a>
+              <a href="#" class="btn secondary" onclick="doFormCancel()">Cancel</a>
             </div>
           </div>
       
