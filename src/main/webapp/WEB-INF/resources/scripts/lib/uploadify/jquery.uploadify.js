@@ -332,7 +332,7 @@ if(jQuery)(
 								swfuploadify.startUpload(swfuploadify.queue.uploadQueue.shift());
 							} else {
 								swfuploadify.queue.uploadQueue = [];
-								if (swfuploadify.settings.onQueueComplete) setting.onQueueComplete(stats);
+								if (swfuploadify.settings.onQueueComplete) settings.onQueueComplete(stats);
 							}
 						}
 						if (jQuery.inArray('onUploadComplete',swfuploadify.settings.skipDefault) < 0) {
