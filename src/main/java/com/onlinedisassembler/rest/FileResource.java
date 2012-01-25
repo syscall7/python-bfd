@@ -15,6 +15,7 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
@@ -139,7 +140,8 @@ public class FileResource {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String upload(@Context HttpServletRequest request,
 			@FormDataParam("Filedata") InputStream file,
-			@FormDataParam("Filedata") FormDataContentDisposition fileInfo) {
+			@FormDataParam("Filedata") FormDataContentDisposition fileInfo, 
+			@FormDataParam("platformId") PlatformId platformId) {
 
 		int read = 0;
 		byte[] bytes = new byte[1024];

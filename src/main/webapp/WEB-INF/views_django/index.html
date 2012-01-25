@@ -4,7 +4,9 @@
 
 <script type="text/javascript">
      function doFormSubmit() {
-    	$('#oda-gear').show(); 
+    	$('#oda-gear').show();
+    	var swfuploadify = window['uploadify_' + 'file_upload'];
+    	swfuploadify.addPostParam('platformId', $('#platformSelect').val());
 	 	$('#file_upload').uploadifyUpload();
  	}
 	 function doFormCancel() {
@@ -71,6 +73,7 @@
 		multi : false,
 		fileTypeExts : '*',
 		progressData    : 'all',		
+		'removeCompleted' : true,
 		onUploadSuccess : function(file,data,response) {
 			var ret = jQuery.parseJSON( data ); 	
 			processDisassembly(ret); 
