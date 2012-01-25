@@ -71,14 +71,7 @@ public class FileResource {
 		final StringBuilder hexBuilder = new StringBuilder(2 * bytes.length);
 		while ((read = file.read(bytes)) != -1) {
 			if (objType == null) {
-				if (bytes[0] == 'M' && bytes[1] == 'Z')
-					objType = ObjectType.PE;
-				else if (bytes[0] == 0x7f && bytes[1] == 'E'
-						&& bytes[2] == 'L' && bytes[3] == 'F')
-					objType = ObjectType.ELF;
-				else {
-					objType = ObjectType.BINARY;
-				}
+				objType = getObjectType(bytes); 
 			}
 			
 			for (final byte b : bytes) {
@@ -93,6 +86,19 @@ public class FileResource {
 
 		String returnJson = new Gson().toJson(ret);
 		return returnJson;
+	}
+	
+	private ObjectType getObjectType(byte [] bytes) { 
+		ObjectType objType = null;
+		if (bytes[0] == 'M' && bytes[1] == 'Z')
+			objType = ObjectType.PE;
+		else if (bytes[0] == 0x7f && bytes[1] == 'E'
+				&& bytes[2] == 'L' && bytes[3] == 'F')
+			objType = ObjectType.ELF;
+		else {
+			objType = ObjectType.BINARY;
+		}
+		return objType; 
 	}
 
 	private DisassemblyOutput disassemble(File tmpFile,
@@ -143,14 +149,7 @@ public class FileResource {
 
 			while ((read = file.read(bytes)) != -1) {
 				if (objType == null) {
-					if (bytes[0] == 'M' && bytes[1] == 'Z')
-						objType = ObjectType.PE;
-					else if (bytes[0] == 0x7f && bytes[1] == 'E'
-							&& bytes[2] == 'L' && bytes[3] == 'F')
-						objType = ObjectType.ELF;
-					else {
-						objType = ObjectType.BINARY;
-					}
+					objType = getObjectType(bytes); 
 				}
 
 				out.write(bytes, 0, read);
