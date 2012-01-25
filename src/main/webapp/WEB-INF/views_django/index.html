@@ -37,7 +37,7 @@
 	 $('.tabs').tabs();
 	 $('#assembly-tab-item').trigger('click');
 	 
-	 $('#save-hex').click(function() { 
+	 $('#save-hex,#disassembleBtn').click(function() { 
 		 $('#oda-gear').show(); 
 		 $.ajax('/rest/disassemble/uploadHex',{
 			 type: 'POST',
@@ -185,7 +185,7 @@
 		            </div>
 		            <label for="offsetInput">Offset</label>
 		            <input id="offsetInput" class="span2" type="text" name="offset" value="0x0"/>
-		            <input class="btn primary pull-right" type="submit" value="Disassemble">
+		            <input class="btn primary pull-right" type="submit" id="disassembleBtn" value="Disassemble">
 <!-- 		            <div class=""						 -->
 		            </div>
             	</form>
