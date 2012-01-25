@@ -43,7 +43,7 @@
 			 type: 'POST',
 			 data: {
 				 	hex : $('#hex-content').val(), 
-				 	platformId : $('#normalSelect').val()
+				 	platformId : $('#platformSelect').val()
 			  }, 
 			 success: function(data) { 
 				// var ret = jQuery.parseJSON( data ); 	
@@ -164,9 +164,9 @@
             		<div class="input span3">
             		 		<button data-controls-modal="modal-from-dom" data-backdrop="true" data-keyboard="true" class="btn danger">Upload File</button> 
             		</div>
-                      		<label for="normalSelect">Platform</label>
+                      		<label for="platformSelect">Platform</label>
             		<div class="input span2">
-		              <select id="normalSelect" name="normalSelect" class="span2">
+		              <select id="platformSelect" name="normalSelect" class="span2">
 		                <option>X86</option>
 		                <option>MIPS</option>
 		                <option>ARM</option>
