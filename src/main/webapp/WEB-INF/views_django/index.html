@@ -41,7 +41,10 @@
 		 $('#oda-gear').show(); 
 		 $.ajax('/rest/disassemble/uploadHex',{
 			 type: 'POST',
-			 data: {hex : $('#hex-content').val() }, 
+			 data: {
+				 	hex : $('#hex-content').val(), 
+				 	platformId : $('#normalSelect').val()
+			  }, 
 			 success: function(data) { 
 				// var ret = jQuery.parseJSON( data ); 	
 				 processDisassembly(data); 
@@ -164,10 +167,10 @@
                       		<label for="normalSelect">Platform</label>
             		<div class="input span2">
 		              <select id="normalSelect" name="normalSelect" class="span2">
-		                <option>x86</option>
-		                <option>mips</option>
-		                <option>arm</option>
-		                <option>ppc</option>		                
+		                <option>X86</option>
+		                <option>MIPS</option>
+		                <option>ARM</option>
+		                <option>PPC</option>		                
 		              </select>
 		            </div>
 		            <label for="normalSelect2">Endian</label>
