@@ -26,6 +26,7 @@ public class DjangoView extends InternalResourceView {
 		TemplateEngine engine = new TemplateEngine(); 
 		Resource templateFile = getApplicationContext().getResource(getUrl());
 		String templatePath = templateFile.getFile().getPath();
+		response.setContentType("text/html"); 
 		PrintWriter writer = response.getWriter();
 		
 		writer.print(engine.process(templatePath, model));
