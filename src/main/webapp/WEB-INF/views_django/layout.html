@@ -121,13 +121,13 @@
           <p class="pull-right">Logged in as <a href="#">{{ username }}</a></p>
 {% else %} 
  		<form id="login-form" action="login" class="pull-right">	
-            <input class="input-small" type="text" 
+              <!--<input class="input-small" type="text" 
             	name="username" placeholder="Username">
 
-            <input class="input-small" type="password" 
-            	name="password" placeholder="Password">
-            <button class="btn" type="submit">Log in</button> |
-            <a class="btn small success" href="/signup">Sign Up</a>
+           <input class="input-small" type="password" 
+            	name="password" placeholder="Password">  -->
+            <button class="btn" type="submit" style="margin-left:220px;">Log in with OpenID</button> |
+          <!--   <a class="btn small success" href="/signup">Sign Up</a>  -->
           </form>
           {% endif %} 
         </div>        
