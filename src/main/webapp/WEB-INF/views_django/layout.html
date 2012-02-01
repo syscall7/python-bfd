@@ -77,6 +77,21 @@
     			  }
     		});
     	}); 
+    	var example = function(assembly, platform) { 
+    		$('#hex-content').val(assembly);
+    		$('#platformSelect').val(platform);     	
+    		$('#save-hex').click();
+    	};
+    	
+    	$('#example-strcpy-x86').click(function() { 
+    		example('55 31 D2 89 E5 8B 45 08 56 8B 75 0C 53 8D 58 FF 0F B6 0C 16 88 4C 13 01 83 C2 01 84 C9 75 F1 5B 5E 5D C3','X86'); 
+    		return false; 
+    	}); 
+    	$('#example-strcpy-arm').click(function() { 
+    		example('01 20 40 E2 02 20 61 E0 01 30 D1 E4 00 00 53 E3 02 30 C1 E7 FB FF FF 1A 1E FF 2F E1','ARM');
+    		return false; 
+    	}); 
+    	
     }); 
     </script>
     
@@ -96,8 +111,8 @@
 			<li class="dropdown" data-dropdown="dropdown">
               <a href="#" class="dropdown-toggle">Examples</a>
               <ul class="dropdown-menu">
-                <li><a href="#fat" id="example-strcpy">strcpy (x86)</a></li>
-                <li><a href="#mdo">strcpy (arm)</a></li>
+                <li><a href="#fat" id="example-strcpy-x86">strcpy (x86)</a></li>
+                <li><a href="#mdo" id="example-strcpy-arm">strcpy (arm)</a></li>
 
               </ul>
             </li>            
@@ -129,5 +144,10 @@
         </footer>
     </div>
 
+   <script type="text/javascript">
+    $(document).ready(function() { 
+    	$('#example-strcpy-x86').click();
+    }); 
+    </script>
   </body>
 </html>
