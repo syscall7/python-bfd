@@ -40,11 +40,11 @@ h1_lite {
   margin: 15px 6px 6px;
 }
 
-offset {font-family: monospace; color:black; text-align: right; white-space: pre; font-size: medium}
-raw {font-family: monospace; color:grey; white-space: pre; font-size: medium}
-insn {font-family: monospace; color:#093C83; font-weight:bold; white-space: pre; font-size: medium   }
-errinsn {font-family: monospace; color:red; font-weight:bold; white-space: pre; font-size: medium   }
-
+offset {font-family: 'Courier New',monospace; color:black; text-align: right; line-height: 16px; white-space: pre; font-size: 13px}
+raw {font-family: 'Courier New',monospace; color:grey; white-space: pre; line-height: 16px; font-size: 13px}
+insn {font-family: 'Courier New',monospace; color:#093C83; white-space: pre; line-height: 16px; font-size: 13px; font-weight: bold  }
+errinsn {font-family: 'Courier New',monospace; color:red;  white-space: pre; line-height: 16px; font-size: 13px; font-weight: bold  }
+arrows {font-family: 'Courier New',monospace; color: rgb(9, 60, 131);  white-space: pre; text-align: right; line-height: 16px; font-size: 20px; }
 
 td.offset {font-family: monospace; color:black; text-align: right; white-space: pre}
 td.raw {font-family: monospace; color:grey; white-space: pre}

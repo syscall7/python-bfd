@@ -420,8 +420,9 @@ public class DisassemblyAnalyzer {
     		blf.pushAddr(address);
     	}
     	
+    	branchLineHtml.append("<arrows>");
     	branchLineHtml.append(blf.finalizeHtml());
-
+    	branchLineHtml.append("</arrows>");
 	}
 
 	

@@ -263,13 +263,13 @@ public class BranchLineHtmlFormatter {
 		switch (flags)
 		{
 			case BLANK:
-				s = "&nbsp;";
+				s = "&emsp;";
 				break;
 			case ARROW:
-				s = "&#x25BA;";
+				s = "&#x25BA;&thinsp;&thinsp;";
 				break;
 			case NOARROW:
-				s = "&nbsp;";
+				s = "&emsp;";
 				break;
 			case VPASSTHRU:
 				s = "&#x2503;";
