@@ -95,9 +95,12 @@
     <div class="page-header row">
         <img src="/resources/images/oda.png" class="span2" style="width: 128px; height: 128px;"/>
         <img src="/resources/images/oda.gif" style="width: 128px; height: 128px; float:left; position: relative; left: -128px; margin-right:-128px; display:none;" id="oda-gear"/>
-        <h1 class="span6">The Online Disassembler</h1>       
+        <h1 class="span6">The Online Disassembler</h1> 
     </div>
-       	
+    <div class="alert">
+        <a class="close">×</a>
+        This site is still under development.  Please be patient!
+    </div>  
     <ul class="tabs" data-tabs="tabs">
         <li class="active"><a href="#hex">Hex</a></li>
         <li><a href="#assembly" id="assembly-tab-item">Assembly</a></li>
@@ -145,11 +148,11 @@
 		            <input class="btn primary pull-right" type="submit" id="disassembleBtn" value="Disassemble">
 		        </div>
             </form>
-			<div class="tabbed-scroll">
-                <div id="branchLines" style="width:100px; text-align:right; float:left; font-family:'Lucida Console','DejaVu Sans Mono',monospace; font-size: medium; color:#093C83"></div>
-				<div id="offset" style="width:120px; float:left;"></div>
-				<div id="rawBytes" style="width:80px; float:left;"></div>
-				<div id="listing" style="width:600px; padding-left:300px;"></div>
+			<div class="tabbed-scroll assembly">
+                <div id="branchLines" style="width:200px; text-align:right; float:left; color:#093C83"></div>
+				<div id="offset" style="width:120px; float:left; color:black; text-align: left; white-space: pre;"></div>
+				<div id="rawBytes" style="width:100px; float:left; color:grey; text-align: left; white-space: pre;"></div>
+				<div id="listing" style="width:600px; padding-left:300px; white-space: pre; font-weight: bold; 'Helvetica Neue', Helvetica, Arial, sans-serif"></div>
 			</div>            
         </div>
         

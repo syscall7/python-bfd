@@ -341,8 +341,8 @@ public class DisassemblyAnalyzer {
     			if ( labels.get(address).startsWith("func") )
     			{
     				// Insert an extra line for functions
-    				offsetHtml.append("<offset>" + String.format("0x%08x", address) +  "\n</offset>");
-    				rawBytesHtml.append("<raw>\n</raw>");
+    				offsetHtml.append(String.format("0x%08x", address) +  "\n");
+    				rawBytesHtml.append("\n");
     				opcodeHtml.append("<insn>; ------------ F U N C T I O N -------------\n</insn>");
     						
     			}
@@ -352,8 +352,8 @@ public class DisassemblyAnalyzer {
     	    		blf.pushLabel();
     			}
     			
-        		offsetHtml.append("<offset>" + String.format("0x%08x", address) +  "\n</offset>");
-        		rawBytesHtml.append("<raw>\n</raw>");
+        		offsetHtml.append(String.format("0x%08x", address) +  "\n");
+        		rawBytesHtml.append("\n");
         		
         		// Insert anchor for jumping to references.  Use ID for finding location of anchor in GWT
         		opcodeHtml.append(String.format("<a name=\"disoff_%d\" id=%d><insn>%s:\n</insn></a>", address, address, labels.get(address)));
@@ -372,8 +372,8 @@ public class DisassemblyAnalyzer {
     		
     		// Format a single instruction
     		String instrText;
-    		offsetHtml.append("<offset>" + String.format("0x%08x", address) +  "\n</offset>");
-    		rawBytesHtml.append("<raw>" + hexdata +  "\n</raw>");
+    		offsetHtml.append(String.format("0x%08x", address) +  "\n");
+    		rawBytesHtml.append(hexdata +  "\n");
     		
 			// Check if the instruction gets special handling
     		// Escape special characters in the opcode
