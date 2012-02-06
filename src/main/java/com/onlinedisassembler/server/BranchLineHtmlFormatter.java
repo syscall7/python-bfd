@@ -263,10 +263,10 @@ public class BranchLineHtmlFormatter {
 		switch (flags)
 		{
 			case BLANK:
-				s = "&nbsp;";
+				s = "&#x2001";
 				break;
 			case ARROW:
-				s = "&#x25BA;";
+				s = "&#x25B6;";
 				break;
 			case NOARROW:
 				s = "&nbsp;";
