@@ -1,5 +1,15 @@
 /** Add css rules here for your application. */
 
+@font-face {
+    font-family: 'DejaVuSansMono';
+    
+    /* EOT file for old IE */
+    src: url('/resources/fonts/DejaVuSansMono2.txt'); 
+    
+    /* TTF file for CSS3 browsers */
+    src: url('/resources/fonts/DejaVuSansMono.txt') format('truetype');  
+    
+}
 
 /** Example rules used by the template application (remove for your app) */
 h1 {
@@ -40,7 +50,7 @@ h1_lite {
   margin: 15px 6px 6px;
 }
 
-.assembly { font-family:'Courier New'; font-size: 16px; line-height: 16px; }
+.assembly { font-family:monospace; font-size: 16px; line-height: 16px; }
 insn {color:#093C83; }
 errinsn {color:red; }
 
