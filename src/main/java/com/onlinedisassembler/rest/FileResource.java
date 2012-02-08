@@ -61,7 +61,7 @@ public class FileResource {
 			@FormParam("endian") Endian endian, 
 			@FormParam("offset") String offset) throws IOException {
 		byte [] bytes = HexUtils.textToBytes(hex);
-		File tmpFile = new File("/tmp/" + UUID.randomUUID());
+		File tmpFile = new File("/tmp/hex/" + UUID.randomUUID());		
 		FileUtils.writeByteArrayToFile(tmpFile, bytes);
 		
 		PlatformDescriptor platformDesc = new PlatformDescriptor();
@@ -161,7 +161,7 @@ public class FileResource {
 
 				for (final byte b : bytes) {
 					hexBuilder.append(HEXES.charAt((b & 0xF0) >> 4))
-							.append(HEXES.charAt((b & 0x0F))).append(" ");
+						.append(HEXES.charAt((b & 0x0F))).append(" ");
 				}
 			}
 			out.close();
@@ -170,6 +170,8 @@ public class FileResource {
 			dFile.setDateUploaded(new Date());
 			dFile.setRemoteAddr(request.getRemoteAddr());
 			dFile.setOriginalFilename(fileInfo.getFileName());
+			dFile.setLength((long)bytes.length); 
+			dFile.setArchitecture(platformId.toString()); 
 
 			Authentication auth = SecurityContextHolder.getContext()
 					.getAuthentication();
