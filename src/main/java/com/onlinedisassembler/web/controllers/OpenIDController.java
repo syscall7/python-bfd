@@ -61,7 +61,7 @@ public class OpenIDController {
 
 			// configure the return_to URL where your application will receive
 			// the authentication responses from the OpenID provider
-			String returnToUrl = "http://localhost:8082/openidVerify";
+			String returnToUrl = "http://onlinedisassembler.com/openidVerify";
 
 			// --- Forward proxy setup (only if needed) ---
 			// ProxyProperties proxyProps = new ProxyProperties();
