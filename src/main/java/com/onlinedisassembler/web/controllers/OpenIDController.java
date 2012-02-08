@@ -19,6 +19,7 @@ import org.openid4java.message.ax.FetchRequest;
 import org.openid4java.message.ax.FetchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,6 +38,9 @@ public class OpenIDController {
 	@Autowired
 	@Qualifier("authenticationManager")
 	protected AuthenticationManager authenticationManager;
+	
+	@Value("#{oda.openIdReturnUrl}")
+	protected String openIdReturnUrl; 
 
 	public OpenIDController() {
 		// instantiate a ConsumerManager object
@@ -61,7 +65,7 @@ public class OpenIDController {
 
 			// configure the return_to URL where your application will receive
 			// the authentication responses from the OpenID provider
-			String returnToUrl = "http://onlinedisassembler.com/openidVerify";
+			String returnToUrl = "http://"+openIdReturnUrl+"/openidVerify";
 
 			// --- Forward proxy setup (only if needed) ---
 			// ProxyProperties proxyProps = new ProxyProperties();
