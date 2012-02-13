@@ -50,7 +50,7 @@ h1_lite {
   margin: 15px 6px 6px;
 }
 
-.assembly { font-family:monospace; font-size: 16px; line-height: 16px; }
+.assembly { font-family:monospace; font-size: 14px; line-height: 14px; }
 insn {color:#093C83; }
 errinsn {color:red; }
 
@@ -107,8 +107,6 @@ background-color: #D0E4F6
 
 #sections
 {
-/*font-family:"Arial;  Trebuchet MS", Arial, Helvetica, sans-serif;*/
-width:95%;
 border-collapse:collapse;
 }
 

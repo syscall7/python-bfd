@@ -22,35 +22,90 @@
     <link href="/resources/css/bootstrap.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" media="all" href="/resources/css/oda.css" />
     <style type="text/css">
-      body {
-        padding-top: 60px;
-      }
+        html {
+            height:100%;        
+        }
+    
+		body {
+			/*padding-top: 60px;*/
+			min-height:100%;
+			height:100%;
+			margin:0;
+        }
       
-      .tabbed-scroll {
-      	height:400px; 
-      	overflow:scroll; 
-      }
+        .container {
+            min-height: 100%;
+            position: relative;
+        }
+        
+        .content {
+            min-height: 100%; 
+            padding-bottom: 50px;       
+        }
+        
+        .well {
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .tab-content {
+            min-height:100%;
+            height:100%;        
+        }
+        
+        .tabs {
+            margin-bottom: 10px;
+        }
+              
+        .tabbed-scroll {
+			/*height:200px;*/ 
+			min-height: 100%;
+			overflow:scroll; 
+		}
       
-      .topbar-wrapper {
-    height: 40px;   
-    position: relative;
-}
+		.topbar-wrapper {
+            height: 40px;   
+		    position: relative;
+        }
 
-.topbar-wrapper .topbar {
-    margin: 0 -20px;
-    position: absolute;
-    z-index:1;
-}
+		.topbar-wrapper .topbar {
+		    margin: 0 -20px;
+		    position: absolute;
+		    z-index:1;
+		}
 
-#assembly label {
-	width:60px; 
-}
-
-#hex-content {
-    font-family: "Courier New",
-                 Courier,
-                 monospace;
-} 
+		#assembly label {
+			width:60px; 
+		}
+		
+		/*
+        #upload-file-button { 
+            background-color: hsl(32, 85%, 35%) !important; filter: progid:DXImageTransform.Microsoft.gradient(startColorStr="hsl(32, 85%, 59%)", endColorStr="hsl(32, 85%, 35%)"); background-repeat: repeat-x; background-image: -khtml-gradient(linear, left top, left bottom, from(hsl(32, 85%, 59%)), to(hsl(32, 85%, 35%))); background-image: -moz-linear-gradient(top, hsl(32, 85%, 59%), hsl(32, 85%, 35%)); background-image: -ms-linear-gradient(top, hsl(32, 85%, 59%), hsl(32, 85%, 35%)); background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, hsl(32, 85%, 59%)), color-stop(100%, hsl(32, 85%, 35%))); background-image: -webkit-linear-gradient(top, hsl(32, 85%, 59%), hsl(32, 85%, 35%)); background-image: -o-linear-gradient(top, hsl(32, 85%, 59%), hsl(32, 85%, 35%)); background-image: linear-gradient(hsl(32, 85%, 59%), hsl(32, 85%, 35%)); border-color: hsl(32, 85%, 35%) hsl(32, 85%, 35%) hsl(32, 85%, 29%); color: #fff !important; text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.39); -webkit-font-smoothing: antialiased;    
+        }
+        */		
+		
+		.page-header {
+            padding-top: 30px;		   
+            margin-bottom: 10px;   
+            margin-right: -20px;
+		}
+		
+		footer {
+            bottom: 0;
+            position: absolute;
+            margin-top: 0px;
+            padding-top: 0px;
+            
+		}
+		
+		#hex-content {
+		    font-family: "Courier New",
+		                 Courier,
+		                 monospace;
+            padding-top: 4px;
+            padding-left: 0px;
+            padding-right: 0px;    
+		} 
     </style>
 
     <!-- Le fav and touch icons -->
@@ -64,6 +119,9 @@
     <script type="text/javascript" src="/resources/scripts/lib/uploadify/jquery.uploadify.js"></script>
      
     <script type="text/javascript">
+    var tabViewMinimumHeightHeight = 80;
+    var tabViewPaddingToBottom = 60;
+    
     $(document).ready(function() { 
     	$('#example-strcpy').click(function() { 
     		alert('here'); 
@@ -81,6 +139,9 @@
     		$('#hex-content').val(assembly);
     		$('#platformSelect').val(platform);     	
     		$('#save-hex').click();
+    		
+    	    // Re-size according to browser height 
+            resizeHandler();
     	};
     	
     	$('#example-strcpy-x86').click(function() { 
@@ -92,7 +153,47 @@
     		return false; 
     	}); 
     	
+    	// Attach click events to tab items    		
+    	$('.tabs').bind('change', resizeHandler);
+    	
     }); 
+    
+    function resizeHandler() {
+    	  var myWidth = 0, myHeight = 0;
+          var availableHeight = 0;  
+    	  if( typeof( window.innerWidth ) == 'number' ) {
+    	    //Non-IE 
+    	    myWidth = window.innerWidth;
+    	    myHeight = window.innerHeight;
+    	  } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+    	    //IE 6+ in 'standards compliant mode' 
+    	    myWidth = document.documentElement.clientWidth;
+    	    myHeight = document.documentElement.clientHeight;
+    	  } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {
+    	    //IE 4 compatible 
+    	    myWidth = document.body.clientWidth;
+    	    myHeight = document.body.clientHeight;
+    	  }
+    	  
+    	  // Adjust height of the visible tab-scroller dynamically 
+    	  $(document).find('.tabbed-scroll:visible').each( function() {
+    		  var offset = $(this).offset();     		  
+              availableHeight = myHeight - offset.top - tabViewPaddingToBottom - $("div.footer").height();
+              if ( availableHeight < tabViewMinimumHeightHeight ) {
+                  $(this).height(tabViewMinimumHeightHeight)
+              } else {
+                  $(this).height(availableHeight)
+              }     		 
+    	  });
+    };
+
+    // Use a timer for dynamic sizing for performance reasons 
+    var resizeTimer;
+    $(window).resize(function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(resizeHandler, 100);
+    });
+
     </script>
     
   </head>
