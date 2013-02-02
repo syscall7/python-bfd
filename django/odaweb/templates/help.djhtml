@@ -1,0 +1,42 @@
+<div id="help-modal" class="modal hide fade">
+    <div class="modal-header">
+        <a href="#" class="close">&times;</a>
+        <h3>Help</h3>
+    </div>
+     
+    <div class="modal-body">
+    <div class="gwt-HTML">
+<!--<table>
+ <tbody><tr valign="middle">
+    <td><img width="110px" height="110px" ;="" src="images/oda.png"></td>
+    <td><h1_lite>ODA</h1_lite><br>Online Disassembler</td>
+</tr>
+</tbody></table> -->
+
+<h3>Introduction</h3>
+<p>The Online Disassembler (ODA) is a web-based tool for disassembling binaries targeting a wide range of
+processing platforms.  ODA currently supports the following platforms:
+</p><ul>
+<li>ARM</li>
+<li>Intel x86</li>
+<li>MIPS</li>
+<li>PowerPC</li>
+</ul>
+
+<h3>Work Flow</h3>
+<p>Binaries can be loaded via file upload or manually created in the  <b><i>Hex</i></b> tab.  The <b><i>Strings</i></b> tab
+displays ASCII strings found in the loaded binary.  The <b><i>Assembly</i></b> tab displays the disassembly of the currently
+loaded binary according to the platform, endianness, and base address selected.
+
+</p><h3>Examples</h3>
+Several example binaries are show in the <b><i>Examples</i></b> menu to get you started.
+</div>
+      
+    </div>
+    
+    <div class="modal-footer">
+        <a href="#" class="close">Ok</a>
+    </div>
+</div>
+
+

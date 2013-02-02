@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}lib/bootstrap-2.2.2/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/oda2.css" />
+    <script type="text/javascript" src="{{ STATIC_URL }}lib/jquery/jquery-1.8.3.min.js" ></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}lib/bootstrap-2.2.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}scripts/app.js"></script>
+
+    {% block head %}{% endblock %}
+
+</head>
+<body>
+
+<img src="{{ STATIC_URL }}images/oda.png" style="position: absolute;"/>
+
+<div class="navbar navbar-inverse navbar-static-top" >
+    <div class="navbar-inner">
+
+        <div class="container">
+            <div class="nav-collapse collapse">
+                <a class="brand" href="#">ODA</a>
+                <ul class="nav">
+                    <li class="">
+                        <a href="./_save"><i class="icon-share icon-white"></i>Save</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% block content %}{% endblock %}
+
+</body>
+</html>

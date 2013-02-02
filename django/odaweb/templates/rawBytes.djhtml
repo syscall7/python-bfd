@@ -1,0 +1,5 @@
+<raw>
+	{% for bytes in rawBytes %}
+       {{bytes}}</br>  
+    {% endfor %}
+</raw>

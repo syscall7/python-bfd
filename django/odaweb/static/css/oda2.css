@@ -1,0 +1,95 @@
+html, body {
+    height: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+    position: relative;
+    padding:0px;
+    margin:0px;
+}
+
+body {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+}
+
+#sidebar {
+    bottom: 0;
+    display: block;
+    min-width: 240px;
+    max-width: 400px;
+    width: 400px;
+    position: absolute;
+    top: 46px;
+
+}
+
+.sidebar-content {
+    /*border: 1px solid #DDD;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+    transition: border 0.2s linear 0s, box-shadow 0.2s linear 0s;*/
+    min-height:500px;
+    background-color: FFF#;
+    border-radius: 4px 4px 4px 4px;
+    padding:5px;
+}
+
+#sidebar-tools {
+    padding-left: 120px;
+}
+
+#view {
+    bottom: 0;
+    left: 400px;
+    position: absolute;
+    right: 0;
+    top: 42px;
+    z-index: 1;
+    border-left:#ddd 2px solid;
+}
+
+#view-container {
+    padding-left:15px;
+    height: 500px;
+    overflow: scroll;
+}
+
+#status-bar {
+    background-color: #555;
+    color:white;
+    padding:6px;
+    text-align: right;
+}
+
+#banner {
+    padding: 8px 0px 8px 18px;
+    color:white;
+    clear:both;
+    background-color: #16424f
+}
+
+.assembly {
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 14px;
+}
+
+.assembly th, .table td {
+    border:none;
+    padding: 0px;
+}
+
+
+.insn {
+    color: #093C83;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 14px;
+    white-space: pre;
+}
+
+.raw {
+    color: gray;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 14px;
+}

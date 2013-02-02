@@ -1,0 +1,6 @@
+<div id="strings-display" style="padding:5px; background-color:white;" class="item">
+    <legend>Strings</legend>
+    <div>
+        STRINGS GO HERE
+    </div>
+</div>

@@ -1,0 +1,58 @@
+            <div>
+                <script>
+                    $(document).ready(function() {   
+
+                        // Select Defaults: Pick up Here
+                        {% if defaults %}
+                            {% for name,value in defaults %}
+                                window.foo = 'bar';  
+                                $('#{{name}}').val('{{value}}');
+                            {% endfor %}
+                        {% endif %}
+
+                        // Display widgets
+                        $('#SaveOptionsBtn').click(function () {                                                                                  
+                            window.runHexOptions = {
+                                {% for widgetName, widget, title, desc, unused, opts in options %}
+                                    '{{widgetName}}':$('#{{widgetName}}').val(),
+                                {% endfor %}
+                                    'endianSelect':$('#endianSelect').val()
+                                };
+                            window.load(); 
+                        })    
+                    }); 
+                </script>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="myModalLabel">Architecture Specific Options</h3>
+                </div>
+                <div class="modal-body">
+                    <div>
+                    <label class="control-label upload-form-control" for="endianSelect">Endian</label>
+                       <select class="span2" id="endianSelect" name="normalSelect">
+                        {% for k,v in supported_endians.iteritems %}
+                           <option value="{{v}}">{{k}}</option>  
+                        {% endfor %}    
+                       </select>
+                    </div>
+                {% for widgetName, widget, title, desc, unused, opts in options %}
+                    {% if widget == "select" %}
+                        <div>
+                        <label class="control-label upload-form-control" for={{widgetName}}>{{title}}</label>
+                        <select class="span2" id={{widgetName}} name="normalSelect">
+                            {% for opt in opts %}
+                                <option value="{{opt}}">{{opt}}</option>  
+                            {% endfor %}    
+                        </select>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+   
+                </div>
+                <div class="modal-footer">
+                    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+                    <button id="SaveOptionsBtn" class="btn btn-primary" data-dismiss="modal">Save changes</button>
+                </div>
+            </div>
+        

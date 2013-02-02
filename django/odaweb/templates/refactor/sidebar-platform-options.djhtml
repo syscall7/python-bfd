@@ -1,0 +1,14 @@
+<div id="platform-display" class="item" style="padding:5px; background-color: white;">
+    <legend>Platform Options</legend>
+    <form id="platform-options-form" class="sidebar-content form-inline" action="upload_file">
+        <fieldset>
+            <label>Platform:</label>
+            <select>
+                <option>i386</option>
+                <option>arm</option>
+                <option>mips</option>
+            </select>
+        </fieldset>
+
+    </form>
+</div>

@@ -1,0 +1,5 @@
+<offset>
+	{% for offset in offsets %}
+       {{offset}}</br>  
+    {% endfor %}
+</offset>	

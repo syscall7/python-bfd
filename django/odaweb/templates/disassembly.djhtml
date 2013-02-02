@@ -1,0 +1,315 @@
+{% extends "layout2.djhtml" %}
+
+{% block scripts %}
+
+<script src="{{ STATIC_URL }}scripts/jquery-filedrop.js"></script>
+<script src="{{ STATIC_URL }}scripts/resize-handler.js"></script>
+<script src="{{ STATIC_URL }}scripts/lib/underscore-1.3.3.js"></script>
+<script src="{{ STATIC_URL }}scripts/lib/backbone-0.9.2.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}scripts/history.js"></script>
+
+<script type="text/javascript">
+
+    var DisChunkInfo = Backbone.Model.extend({});
+    var DisChunkList = Backbone.Collection.extend({
+        model: DisChunkInfo
+    });
+    
+    window.disChunks = new DisChunkList([
+        {% for chunk in chunks %}        
+            { sec_name : '{{chunk.sec_name}}', startOffset : 0x{{chunk.start|stringformat:"08x"}}, endOffset: 0x{{chunk.end|stringformat:"08x"}},isBoundary:{{chunk.is_boundary|lower}}, lines : {{chunk.lines}} },
+        {% endfor %}       
+    ]); 
+    
+ 	
+ 	window.getMore = function(ch_name,ch_start,ch_end,chunk_count,dir,offset) { 
+ 		//var start = assembly_position.get('moreOffsetStart');
+ 		//var moreSize = assembly_position.get('moreSize');  		
+		$.getJSON('../update_disassembly/{{odafile.uuid}}', 
+			{name:ch_name,start:ch_start,end:ch_end, count:chunk_count,dir:dir,platformId:"{{platformId}}" }, function(data) {
+	            
+	            //window.ignoreScrollEvents = true;
+			    
+			    // Update the chunk list
+			    if ( dir == 1 && data.chunks.length > 0 )
+			    {
+                    // Remove lower address chunks from the display
+                    var lines = 0; 
+                    for (var i = 0; i < data.chunks.length; i++) 
+                    {
+                        lines += window.disChunks.models[i].get('lines')
+                    }                    
+                    $('#listing').find("tr:lt(" + lines + ")").remove();
+
+                    // Append the new listing
+                    $('#listing tr:last').after(data.disassembly);
+			        			        
+			        // Remove the lowest chunks from the chunk list
+                    for (var i = 0; i < data.chunks.length; i++) 
+                    {
+                        window.disChunks.shift();    
+                    }   
+                    
+			        // Append the new chunks to the end of the list
+			        for (var i = 0; i < data.chunks.length; i++) 
+                    {
+                        var chunk = new DisChunkInfo({ 
+                            sec_name : data.chunks[i].sec_name,
+                            startOffset : data.chunks[i].startOffset,
+                            endOffset : data.chunks[i].endOffset,
+                            lines : data.chunks[i].lines,
+                            isBoundary : data.chunks[i].isBoundary
+                        });
+                        window.disChunks.push(chunk);    
+                    }
+			    }
+                if ( dir == 0 && data.chunks.length > 0 )
+                {
+                    // Remove higher address chunks from the display
+                    var lines = 0; 
+                    for (var i = 0; i < window.disChunks.length-data.chunks.length; i++) 
+                    {
+                        lines += window.disChunks.models[i].get('lines')
+                    }                    
+                    $('#listing').find("tr:gt(" + (lines-1) + ")").remove();
+
+                    // Prepend the new listing
+			        $('#listing tr:first').before(data.disassembly);
+			        
+                    // Remove the highest chunks from the chunk list
+                    for (var i = 0; i < data.chunks.length; i++) 
+                    {
+                        window.disChunks.pop();    
+                    }   
+                    
+                    // Append the new chunks to the beginning of the list
+                    var i = data.chunks.length;
+                    while (i > 0)
+                    {
+                        var chunk = new DisChunkInfo({ 
+                            sec_name : data.chunks[i-1].sec_name,
+                            startOffset : data.chunks[i-1].startOffset,
+                            endOffset : data.chunks[i-1].endOffset,
+                            lines : data.chunks[i-1].lines,
+                            isBoundary : data.chunks[i-1].isBoundary
+
+                        });
+                        window.disChunks.unshift(chunk);    
+                        i = i-1;
+                    }        
+                }	
+                
+                // Recenter the Scrollbar
+                scrollToAddr(offset);
+		    	
+		    	window.ignoreScrollEvents = false;					  
+		});					
+ 	}
+
+    window.refresh = function(offset) { 
+        //var start = assembly_position.get('moreOffsetStart');
+        //var moreSize = assembly_position.get('moreSize');         
+        $.getJSON('../refresh_disassembly/{{odafile.uuid}}', 
+            {addr:offset}, function(data) {
+                
+                // Update the chunk list
+                if ( data.chunks.length > 0 )
+                {
+                    // Remove lower address chunks from the display
+                    $('#listing').find("tr").remove();
+
+                    // Append the new listing
+                    $('#listing').find("tbody").after(data.disassembly);
+                    
+                    // Clear the collection
+                    window.disChunks.reset();
+                       
+                    // Append the new chunks to the end of the list
+                    for (var i = 0; i < data.chunks.length; i++) 
+                    {
+                        var chunk = new DisChunkInfo({ 
+                            sec_name : data.chunks[i].sec_name,
+                            startOffset : data.chunks[i].startOffset,
+                            endOffset : data.chunks[i].endOffset,
+                            lines : data.chunks[i].lines,
+                            isBoundary : data.chunks[i].isBoundary
+                        });
+                        window.disChunks.push(chunk);    
+                    }
+                }
+                                
+                // Recenter the Scrollbar
+                scrollToAddr(offset);
+                                      
+        });                 
+    }
+
+
+ 	
+	$(document).ready(function(){
+		
+		{% for flag in sectionFlagsInfo %}
+		  $('.FLAG_{{flag.abbrev}}').popover({
+		      placement: 'bottom',
+		      delay: 0,
+		      title: '{{flag.name}}',
+		      content: '{{flag.desc}}',
+		  });
+     
+		{% endfor %}
+
+        /* ---------------------------------------------------------------------------------------------------------  *
+         * ADDRESS SLIDER
+         * ---------------------------------------------------------------------------------------------------------  */
+        // update state with new address
+        function updateAddr(addr) {
+            addrStr = addr.toString(16).toUpperCase();
+            while (addrStr.length < 8) addrStr = "0" + addrStr;
+            $("#slider-address").text("0x" + addrStr);
+        }
+
+        // setup slider
+        $( "#slider" ).slider({
+            change: function( event, ui ) { updateAddr(ui.value); },
+            slide: function( event, ui ) { updateAddr(ui.value); },
+            animate: true,
+            min: 0x00000000,
+            max: 0xFFFFFFFF,
+        });
+
+        // set initial position
+        updateAddr($("#slider").slider("value"));
+
+        // remove border
+        $(".ui-slider-horizontal").css('border', 0);
+        $(".ui-slider-handle").removeClass('ui-corner-all');
+
+        $("html").keypress(function(event) {
+            if (String.fromCharCode(event.which) == 'g') {
+                var strAddr = prompt("Go to address:");
+                var addr = parseInt(strAddr, 16);
+                $("#slider").slider("value", addr );
+                
+                // Try to scroll to the address
+                if ( !scrollToAddr(addr) )
+                {
+                    // Isn't loaded. Try to load it
+                    updateDisassembly(addr);   
+                }
+                
+            }
+        });
+
+    });
+	
+
+	
+</script>
+{% endblock %}
+
+{% block content %}
+
+    <div id="slider" style="margin-bottom: 15px">
+        <table id="slider-sections">
+            <tr>
+                <!-- TODO: Generate this with a template -->
+                <td bgcolor="5d8fff" style="width:5%"></td>
+                <td bgcolor="3e79ff" style="width:10%"></td>
+                <td bgcolor="004eff"></td>
+                <td bgcolor="002eff"></td>
+                <td bgcolor="black"></td>
+            </tr>
+        </table>
+    </div>
+    <div id="slider-address" style="color:gray; font-family:monospace; float:right">0</div>
+
+
+    <ul class="nav nav-tabs">
+        <li class='active'><a data-toggle="tab" href="#assembly" id="assembly-tab-item">Assembly</a></li>
+        <li><a data-toggle="tab" href="#sections" id="sections-tab-item">Sections</a></li>
+        <li><a data-toggle="tab" href="#symbols" id="symbols-tab-item">Symbols</a></li>
+        <li><a data-toggle="tab" href="#strings" id="strings-tab-item">Strings</a></li>
+    </ul>
+    
+    <div id="myTabContent" class="tab-content"> <!--style="min-width: 500px;"-->
+        
+        <!--  ASSEMBLY TAB CONTENT -->
+        <div class="active tab-pane" id="assembly">
+        	<div class="alert alert-info" id="download-bar"><div class="btn"><a href="/odaweb/download/{{odafile.uuid}}?platformId={{platformId}}">Download</a></div></div>
+			<div class="tabbed-scroll assembly" id="assembly-scroll">
+	        <table id="listing">
+	        <colgroup>
+	        <col style="width:50px;" align="right" />
+	        <col style="width:80px;" />
+	        <col style="width:90px;" align="right" />
+	        <col style="width:400px;" />
+	        <col />
+	        </colgroup>
+	        {% include "listing.djhtml" %}
+	        </table>
+	    </div>
+	   	</div>
+        
+        <!--  SECTIONS TAB CONTENT -->
+        <div class="tab-pane" id="sections">
+            <div class="tabbed-scroll" id="sections-content">
+                <table class="blue-white-table">
+                    <tr>
+                        <th>Name</th>
+                        <th>Size</th>
+                        <th>VMA</th>
+                        <th>Flags</th>
+                        <th>Alignment</th>
+                    </tr>
+                    {% for s in sections.values %}
+                        <tr class="{% cycle 'even' 'odd' %}">
+                            <td>{{s.name}}</td>
+                            <td align="right">{{s.size}}</td>   
+                            <td align="right">0x{{s.vma|stringformat:'08x'}}</td>  
+                            <td align="left">{% for flag in s.flags %}<span class="FLAG_{{flag.abbrev}}">{{flag.abbrev}}</span>&nbsp;{% endfor %}</td>
+                            <td align="right">2**{{s.alignment}}</td>
+                        </tr>
+                    {% endfor %}
+                </table>     
+            </div>
+        </div>
+        
+        <!--  SYMBOLS TAB CONTENT -->
+        <div class="tab-pane" id="symbols">
+            <div class="tabbed-scroll" id="symbols-content">
+                <table class="blue-white-table"> 
+                    <tr>
+                        <th align="right">Address</th>
+                        <th align="center">Type</th>
+                        <th align="left">Name</th>
+                    </tr>
+                    {% for s in symbols.values %}
+                        <tr class="{% cycle 'even' 'odd' %}">
+                            <td align="right">0x{{s.value|stringformat:'08x'}}</td>  
+                            <td align="center">{{s.type}}</td> 
+                            <td align="left"><a href="#/view/assembly-tab-item/offset/{{s.value|stringformat:"08x"}}">{{s.name}}</a></td> 
+                        </tr>
+                    {% endfor %}
+                </table>     
+            </div>
+        </div>
+             
+        <!--  STRINGS TAB CONTENT -->
+        <div class="tab-pane" id="strings">
+            <div class="tabbed-scroll" id="strings-content">
+                    <table class="blue-white-table"> 
+                    <tr>
+                        <th align="right">Offset</th>
+                        <th align="center">String</th>
+                    </tr>
+                    {% for addr,str in strings %}
+                        <tr class="{% cycle 'even' 'odd' %}">
+                            <td align="right">0x{{addr|stringformat:'08x'}}</td>  
+                            <td align="left">{{str}}</td> 
+                        </tr>
+                    {% endfor %}
+                </table>    
+            </div>
+        </div>            
+    </div>
+{% endblock %}

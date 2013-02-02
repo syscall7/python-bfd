@@ -1,0 +1,7 @@
+<select class="span2 platformSelect" name="platformId">
+{% for a in supported_archs %}
+   <option
+   {% if a == arch %}selected="selected"{% endif %}> 
+   {{a}}</option>  
+{% endfor %}   
+</select>

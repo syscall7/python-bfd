@@ -1,0 +1,47 @@
+{% extends "layout2.djhtml" %}
+
+{% block scripts %}
+<script src="{{ STATIC_URL }}scripts/jquery-filedrop.js"></script>
+<script src="{{ STATIC_URL }}scripts/dragdrop.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="content">
+	
+<div id="dropbox">
+
+{% if files|length == 0 %}
+    <span class="message">
+	<img src="../static/images/oda.png"/><br/>
+	Drop files here to disassemble. <br />
+	<i>(they will only be visible to you)</i>
+    </span>
+{% else %}
+	{% for file, arch in files %}
+		<div class="preview">
+			<div class="the-filename">{{file.filename}}</div>
+			<span class="imageHolder">
+				<img src="../static/images/docs.png"/>
+				<span class="uploaded"></span>
+			</span>							
+			<div><form method="get" action="disassemble/{{file.uuid}}">
+					<div><select class="span2 platformSelect" name="platformId">
+					{% for a in supported_archs %}
+        	           <option
+        	           {% if a == arch %}selected="selected"{% endif %}> 
+        	           {{a}}</option>  
+        	        {% endfor %}   
+        	        </select></div>
+					<input type="submit" href="" class="btn btn-primary" value="Disassemble"/>
+				 </form></div>
+		</div>
+	{% endfor %}
+{% endif %}
+
+</div>
+<div style="margin-left:90px; margin-top:-80px"><a href="clear" class="btn">Clear</a></div>
+
+
+</div>
+{% endblock %}

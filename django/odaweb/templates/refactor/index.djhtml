@@ -1,0 +1,47 @@
+{% extends "refactor/layout-new.djhtml" %}
+
+{% block head %}
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+       // Load('{{ disassembly_id }}');
+    });
+    </script>
+
+{% endblock %}
+
+{% block content %}
+
+{% include "refactor/sidebar.djhtml" %}
+
+
+
+<div id="view">
+    <div id="view-container">
+
+    <ul class="nav nav-tabs" id="myTab" style="margin-bottom: 0px;">
+        <li class="active"><a data-toggle="tab" href="#disassembly">Disassembly</a></li>
+        <li class=""><a data-toggle="tab" href="#hex-dump">Hex Dump <i class="icon-remove-sign"></i> </a></li>
+        <!--<li class="dropdown">
+            <a data-toggle="dropdown" class="dropdown-toggle" href="#">Dropdown <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+                <li><a data-toggle="tab" href="#dropdown1">@fat</a></li>
+                <li><a data-toggle="tab" href="#dropdown2">@mdo</a></li>
+            </ul>
+        </li>-->
+    </ul>
+
+    <div class="tab-content" id="myTabContent">
+        {% include "refactor/tab-disassembly.djhtml" %}
+        {% include "refactor/tab-hexdump.djhtml" %}
+    </div>
+
+    </div>
+
+    <div id="status-bar">
+        <a href="#" id="platform-option">i386-x64 </a>  | 176.6kb | filename.bin
+    </div>
+</div>
+
+
+{% endblock %}

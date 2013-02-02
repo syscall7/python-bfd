@@ -1,0 +1,35 @@
+{% load tags %}
+
+<div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+       <a class="brand" href="http://www.onlinedisassembler.com">ODA</a>
+
+      <ul class="nav">
+        <li><a href="#/save">Save</a></li>
+      	<li class="{% active request "^/odaweb/run_hex$" %}"><a href="{% url odaweb.views.run_hex %}">Copy Hex</a></li>
+        <li class="{% active request "^/odaweb/file_upload|^/odaweb/disassemble" %}">
+        	<a href="{% url odaweb.views.file_upload %}">File Upload</a></li>
+        <li><form class="navbar-form pull-left">
+        	{% if files %}
+        		<select id="selectFile">        		
+        			<option value="">Uploaded Files...</option>
+    				{% for file, arch in files %}
+        			<option value="{{file.uuid}},{{arch}}"
+        			{% if odafile.uuid == file.uuid %}selected="selected"{% endif %}
+        			> {{file.filename}}</option>
+        			{% endfor %}
+        		</select></li>
+        	{% endif %}
+        	</form>        
+        <li>
+        	<a href="http://www.onlinedisassembler.com/blog/">Blog</a>
+        </li>   
+        <li>
+        	<a href=mailto:admin@onlinedisassembler.com>Contact Us!</a>
+        </li>     
+      </ul>
+    </div>        
+  </div>
+  
+</div>

@@ -1,0 +1,46 @@
+<div id="sidebar">
+    <div id="sidebar-tools" class="btn-toolbar" >
+        <div class="btn-group">
+            <a class="btn nav-btn" data-panel="upload-display" href="#">Upload<i class="icon-upload"></i></a>
+            <a class="btn nav-btn"
+               rel="tooltip"
+               data-original-title="Platform Settings"
+               data-panel="platform-display" href="#"><i class="icon-pencil"></i></a>
+        </div>
+        <div class="btn-group">
+            <a class="btn nav-btn"
+               data-panel="function-display"
+               rel="tooltip"
+               data-original-title="Functions"
+               href="#">
+                <i class="icon-list"></i>
+            </a>
+            <a class="btn nav-btn"
+               data-panel="hex-display"
+               rel="tooltip"
+               data-original-title="Raw Bytes"
+               href="#"><i class="icon-asterisk"></i></a>
+            <a class="btn nav-btn" data-panel="strings-display"
+               rel="tooltip"
+               data-original-title="Strings"
+               href="#"><i class="icon-retweet"></i></a>
+        </div>
+
+
+    </div>
+
+    <div id="hex-display" style="padding:5px; background-color:white;" class="active item">
+        <legend>Raw Bytes</legend>
+        <textarea readonly id="hex" style="width:95%;height:500px;" data-bind="value: hex">55 31 D2 89 E5 8B 45 08 56 8B 75 0C 53 8D 58 FF 0F B6 0C 16 88 4C 13 01 83 C2 01 84 C9 75 F1 5B 5E 5D C3 </textarea>
+    </div>
+
+    {% include "refactor/sidebar-strings.djhtml" %}
+
+    {% include "refactor/sidebar-platform-options.djhtml" %}
+
+    {% include "refactor/sidebar-functions.djhtml" %}
+
+    {% include "refactor/sidebar-upload.djhtml" %}
+
+
+</div>
