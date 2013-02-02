@@ -72,17 +72,10 @@ def disassemble_to_file(o, platform):
         
     try: 
         bfd = OdaBfd(o.uuid)
-        sec_name = '.text'
-        sec = bfd.sections()[sec_name]
-        start = sec.vma
-        stop = start+ sec.size
-        disassembly, ignore = bfd.disassemble('.text', start)
+        disassembly, ignore = bfd.disassemble('.text')
     except: 
-        bfd = OdaBfd(o.uuid,'binary', platform)       
-        sec_name = '.text'
-        sec = bfd.sections()[sec_name]
-        start = 0        
-        disassembly, ignore = bfd.disassemble('.data', 0)
+        bfd = OdaBfd(o.uuid,'binary', platform)
+        disassembly, ignore = bfd.disassemble('.data')
     t.write(disassembly)
     return t
 
@@ -99,7 +92,19 @@ class OdaBfd():
         self.filename = oda_file.file_handle().name
         
         self.bfd = bfd.Bfd(self.filename, target, machine)
-    
+
+        # Convert to list, ordered by ascending addresses
+        self.sections = list(self.bfd.sections.values())
+
+        for s in self.sections:
+            for f in bfd.FLAGS:
+                if f.name in s.flags:
+                    setattr(self, f.name, True) # i.e, section.SEC_ALLOC = True
+                else:
+                    setattr(self, f.name, False) # i.e, section.SEC_ALLOC = False
+
+
+
     def rawbytes(self):
         pass
     
@@ -108,13 +113,21 @@ class OdaBfd():
     
     def arch(self):
         return self.bfd.arch
-    
-    def sections(self):
-        return self.bfd.sections
-    
+
+    def sections_iter(self, flags=[]):
+        '''Iterate over all sections (in ascending address order) that have all give flags specified'''
+        for sec in self.sections:
+            sec_flags = [f.name for f in sec.flags]
+            if set(flags).issubset(sec_flags):
+                yield sec
+
+    def section(self, name):
+        '''Get a section by section name'''
+        return self.bfd.sections[name]
+
     def sectionFlagsInfo(self):
         return bfd.FLAGS
-    
+
     def symbols(self):
         return dict(sorted(self.bfd.syms_by_addr.iteritems()))
     
@@ -125,7 +138,7 @@ class OdaBfd():
             strs.append((m.start(), m.group(1)))            
         return strs
     
-    def disassemble(self, name, start, stop=0, numLines=0, endian=bfd.ENDIAN_DEFAULT, options=''):
+    def disassemble(self, name, start=None, stop=None, numLines=None, endian=bfd.ENDIAN_DEFAULT, options=''):
         sec = self.bfd.sections[name]
 
         # this is to force the i386 strcpy example to use intel syntax...need a better solution

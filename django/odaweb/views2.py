@@ -82,7 +82,7 @@ def disassemble(request):
     bfd = engine.OdaBfd(o.uuid, 'binary', platform)
     chunks = []
     sec_names = ['.data']
-    ignore, next_addr, num_lines = bfd.disassemble(sec_names[0], 0, len(byte_array), numLines=0, endian=endian, options=bfdDisOpts)
+    ignore, next_addr, num_lines = bfd.disassemble(sec_names[0], 0, len(byte_array), endian=endian, options=bfdDisOpts)
     chunks.append( dischunk.DisChunk(0, next_addr, num_lines, sec_names[0]) )
     analyzer.analyze(bfd, chunks)
 

@@ -50,6 +50,7 @@ def main():
     i = 0
     for sec in b.sections.values():
         print '   %2d %-32s 0x%08x 0x%08x %s 2**%d' % (i, sec.name, sec.size, sec.vma, ', '.join([f.abbrev for f in sec.flags]), sec.alignment)
+        #print sec.SEC_ALLOC
         i += 1
 
     print '\nSymbols:\n'

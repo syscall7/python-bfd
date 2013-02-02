@@ -201,105 +201,46 @@ def update_disassembly(request, file_id):
 
     return process_chunks(bfd, analyzer, permachunks, request_start_index, count)
 
-
-def is_code_section( bfd, name ):
-    if name in bfd.sections():
-        sec = bfd.sections()[name]
-        for flag in sec.flags:
-            # Find the earliest section with a start address greater than the offset
-            if flag.abbrev == "CODE":
-                return True
-    return False
-
-def is_data_section( bfd, name ):
-    if name in bfd.sections():
-        sec = bfd.sections()[name]
-        for flag in sec.flags:
-            # Find the earliest section with a start address greater than the offset
-            if flag.abbrev == "DATA":
-                return True
-    return False
-
-def filter_sections( bfd ):
-    code_sections = []
-    for sec_name in bfd.sections():
-        if is_code_section( bfd, sec_name ):
-            code_sections.append(sec_name)
-    return code_sections
-    
-def sort_sections( bfd ):    
-    unsorted_sec_names = filter_sections( bfd )
-    sorted_sec_names = []
-    
-    # Place the sections in order from lowest addr to highest
-    #print "Sorting Sections",unsorted_sec_names
-    while len(unsorted_sec_names):
-        target_section = None
-        lower_bound = None
-
-        # Find the lowest addressed section
-        # Note: Assumes no overlapping sections
-        for sec_name in unsorted_sec_names:    
-            sec = bfd.sections()[sec_name]
-            if (lower_bound is None) or (sec.vma < lower_bound):
-                lower_bound = sec.vma
-                target_section = sec_name
-    
-        sorted_sec_names.append(target_section)
-        unsorted_sec_names.remove(target_section)
-    
-    #print "Sorted Sections=",sorted_sec_names
-    return sorted_sec_names 
-
 def disassemble(request,file_id):
     platform=request.GET.get('platformId', 'i386')
     analyzer = analyzerFactory(platform)
     o = OdaFile.objects.get(uuid=file_id)
-    
+
     from cStringIO import StringIO
     file_str = StringIO()
 
     chunks = []
+    print 'disassemble'
 
-    # Get the sections to process 
-    try: 
+    # Get the sections to process
+    try:
         bfd = engine.OdaBfd(o.uuid)
-        sec_names = sort_sections(bfd)
-
-    except: 
+    except:
+        # TODO: Add support for raw binaries
         bfd = engine.OdaBfd(o.uuid,'binary', platform)
-        sec_names = ['.data']
-        
-    # Initialize loop variables
-    sec_index = 0    
-    sec_offset_addr = bfd.sections()[sec_names[sec_index]].vma
-    sec_consumed = 0
-    
-    # Disassemble the entire file, dividing it into disassembly chunks
-    while sec_index < len(sec_names):            
-        
-        # Disassemble a chunk
-        target_section = sec_names[sec_index]
-        sec = bfd.sections()[target_section]
-        chunk_size = min( dischunk.DisChunk.MIN_CHUNK_SIZE_BYTES,sec.size-sec_consumed)
-        disassembly, next_addr, num_lines = bfd.disassemble(target_section, sec_offset_addr, sec_offset_addr+chunk_size, 0)      
-        
-        # Save the disassembly
-        file_str.write( disassembly )
-        
-        # Save the chunk
-        chunks.append( dischunk.DisChunk(sec_offset_addr, next_addr, num_lines, target_section) )
-        
-        # Update loop variables
-        sec_consumed += chunk_size
-        sec_offset_addr = next_addr  
-        
-        # Check if it's time to get the next section          
-        if sec_consumed >= sec.size:
-            sec_index += 1
-            sec_consumed = 0
-            if sec_index < len(sec_names):
-                sec_offset_addr = bfd.sections()[sec_names[sec_index]].vma
+
+    # Disassemble the entire file, one section at a time, dividing it into disassembly chunks
+    for sec in bfd.sections_iter(['SEC_CODE']):
+
+        # Initialize loop variables
+        sec_consumed = 0
+        sec_offset_addr = sec.vma
+
+        while sec_consumed < sec.size:
+
+            # Disassemble a chunk
+            chunk_size = min( dischunk.DisChunk.MIN_CHUNK_SIZE_BYTES,sec.size-sec_consumed)
+            disassembly, next_addr, num_lines = bfd.disassemble(sec.name, sec_offset_addr, sec_offset_addr+chunk_size)
+
+            # Save the disassembly
+            file_str.write( disassembly )
+
+            # Save the chunk
+            chunks.append( dischunk.DisChunk(sec_offset_addr, next_addr, num_lines, sec.name) )
+
+            # Update loop variables
+            sec_consumed += chunk_size
+            sec_offset_addr = next_addr
     
     # Note the boundary chunks
     chunks[0].is_boundary = True
@@ -332,15 +273,24 @@ def disassemble(request,file_id):
         window_chunks = chunks
 
     analyzer.analyze( bfd, window_chunks )
-    
+
+    # sections and names are ordered by increasing vma
+    start_addr = bfd.sections[0].vma
+
+    for s in bfd.sections_iter(['SEC_ALLOC']):
+        stop_addr = s.vma + s.size
+
     return render(request, 'disassembly.djhtml',{
         'disassembly' : analyzer.listing,
         'rawBytes' : analyzer.rawBytes,
         'offsets' : analyzer.offsetStr,
         'branchLines' : analyzer.branchLineHtml,
         'symbols' : bfd.symbols(),
-        'sections' : bfd.sections(),
+        'sections' : bfd.sections,
         'sectionFlagsInfo' : bfd.sectionFlagsInfo(),
+        'sectionsStartAddr' : start_addr,
+        'sectionsStopAddr' : stop_addr,
+        'sectionsAddrRange' : stop_addr - start_addr,
         'strings' : bfd.strings(),
         'platformId' : platform, 
         'odafile' : o,

@@ -102,9 +102,8 @@ class defaultAnalyzer(object):
         # set branches whose target addresses are not mapped to a valid range to invalid
         for b in self.branches:
             b.isTargetAddrValid = False
-            for sec_name in self.bfd.sections():
+            for sec in self.bfd.sections:
                 # Check if the branch falls within a valid section range
-                sec = self.bfd.sections()[sec_name]
                 if b.targetAddr > sec.vma and b.targetAddr < (sec.vma + sec.size):
                     b.isTargetAddrValid = True
                                     

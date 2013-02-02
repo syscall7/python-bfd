@@ -693,13 +693,13 @@ cdef class Bfd:
     cdef _load_sections(self):
         bfd_map_over_sections(self.abfd, <void*>add_sections_callback, self);
 
-    def disassemble(self, section, startAddr, endAddr=0, numLines=0, funcFmtAddr=None, funcFmtLine=None, endian=ENDIAN_DEFAULT, options=''):
+    def disassemble(self, section, startAddr=None, endAddr=None, numLines=None, funcFmtAddr=None, funcFmtLine=None, endian=ENDIAN_DEFAULT, options=''):
         '''Disassemble the given section
 
            section - String specifying the name of the section to disassemble
-           startAddr - The absolute address at which to start disassembling
-           numLines - The maximum number of lines to disassemble.  The default of 0 means return all lines possible.
-           endAddr - The address at which to stop disassembling.  The default of 0 means up to the end of the section.
+           startAddr - The absolute address at which to start disassembling. The default of None means sec.vma.
+           numLines - The maximum number of lines to disassemble.  The default of None means return all lines possible.
+           endAddr - The address at which to stop disassembling.  The default of None means up to the end of the section.
            funcFmtAddr - Called to format address references
            funcFmtLine - Called to format entire lines of disassembly
            endian - Endian to use when disassembling
@@ -794,15 +794,19 @@ cdef class Bfd:
         disasm_info.buffer_vma = sec.vma
         disasm_info.buffer_length = bufSize
 
-        addr = startAddr
+        # start address of None means from beginning of section
+        if startAddr is None:
+            startAddr = sec.vma
 
-        # end address of 0 means everything in the section
-        if endAddr == 0:
+        # end address of None means everything in the section
+        if endAddr is None:
             endAddr = sec.vma + sec.size
 
-        # numLines of 0 means all available in the section
-        if numLines == 0:
+        # numLines of None means all available in the section
+        if numLines is None:
             numLines = sys.maxint
+
+        addr = startAddr
 
         lineCnt = 0
         from StringIO import StringIO
