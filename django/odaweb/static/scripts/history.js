@@ -2,7 +2,6 @@ var check=false;
 var isRelative=true;
 
 var router;
-var scrollTimer;
 
 $(document).ready(function() {
 	var WorkspaceRouter = Backbone.Router.extend({
@@ -36,6 +35,7 @@ $(document).ready(function() {
 	});
 
     window.ignoreScrollEvents = false;
+    window.scrollTimer=null;
 	
 	router = new WorkspaceRouter();
 	Backbone.history.start();
@@ -43,8 +43,11 @@ $(document).ready(function() {
 
 	$('#myTabContent').bind('scrollstop', assemblyScrollStopHandler);
     $('#myTabContent').bind('scroll', function() {
-        clearTimeout(scrollTimer);
-        scrollTimer = setTimeout(assemblyScrollHandler, 20);
+            if ( window.scrollTimer == null ) 
+            {
+                //console.debug("Set timer for 100ms latency\n");
+                window.scrollTimer = setTimeout(assemblyScrollHandler, 100);                
+            }
         });
         
     // Use a timer for dynamic sizing for performance reasons 
@@ -242,16 +245,26 @@ function assemblyScrollHandler()
     //ignoreScrollEvents = false;    
     if (window.ignoreScrollEvents) 
     {
+        window.scrollTimer=null;
         return;
     }
+
+    //console.debug("Scroll Handler fired\n");
 
     var elem = getTopVisibleAssemblyRow();
     if (elem) { 
         var intOffset = parseInt(elem.getAttribute("addr"),16);
         
         // Load Code if necessary
-        updateDisassembly(intOffset);
+        if ( !updateDisassembly(intOffset) )
+        {
+            window.scrollTimer=null;
+        }
     } 
+    else
+    {
+        window.scrollTimer=null;        
+    }
 }
 
 function assemblyScrollStopHandler() 
@@ -267,7 +280,7 @@ function assemblyScrollStopHandler()
     	router.navigate("view/"+url_hash_params.tab + "/offset/" + url_hash_params.offset);
     	
     	// Load code if necessary
-    	var intOffset = parseInt(url_hash_params.offset,16);
-    	updateDisassembly(intOffset);
-    } 
+    	//var intOffset = parseInt(url_hash_params.offset,16);
+    	//updateDisassembly(intOffset);
+    }
 }

@@ -24,12 +24,14 @@
  	
  	window.getMore = function(ch_name,ch_start,ch_end,chunk_count,dir,offset) { 
  		//var start = assembly_position.get('moreOffsetStart');
- 		//var moreSize = assembly_position.get('moreSize');  		
+ 		//var moreSize = assembly_position.get('moreSize');
+	    console.timeStamp("Requesting More\n");  		
 		$.getJSON('../update_disassembly/{{odafile.uuid}}', 
 			{name:ch_name,start:ch_start,end:ch_end, count:chunk_count,dir:dir,platformId:"{{platformId}}" }, function(data) {
 	            
 	            //window.ignoreScrollEvents = true;
-			    
+		        console.timeStamp("Received Response\n");
+
 			    // Update the chunk list
 			    if ( dir == 1 && data.chunks.length > 0 )
 			    {
@@ -37,12 +39,14 @@
                     var lines = 0; 
                     for (var i = 0; i < data.chunks.length; i++) 
                     {
-                        lines += window.disChunks.models[i].get('lines')
+                        //lines += window.disChunks.models[i].get('lines')
                     }                    
-                    $('#listing').find("tr:lt(" + lines + ")").remove();
+                    //$('#listing').find("tr:lt(" + lines + ")").remove();
+                    $('#listing').find("tbody:lt(" + data.chunks.length + ")").remove();
 
                     // Append the new listing
-                    $('#listing tr:last').after(data.disassembly);
+                    //$('#listing tr:last').after(data.disassembly);
+                    $('#listing tbody:last').after(data.disassembly);
 			        			        
 			        // Remove the lowest chunks from the chunk list
                     for (var i = 0; i < data.chunks.length; i++) 
@@ -69,12 +73,15 @@
                     var lines = 0; 
                     for (var i = 0; i < window.disChunks.length-data.chunks.length; i++) 
                     {
-                        lines += window.disChunks.models[i].get('lines')
+                        //lines += window.disChunks.models[i].get('lines')
                     }                    
-                    $('#listing').find("tr:gt(" + (lines-1) + ")").remove();
+                    //$('#listing').find("tr:gt(" + (lines-1) + ")").remove();
+                    var chunks_len = window.disChunks.length-data.chunks.length;
+                    $('#listing').find("tbody:gt(" + (chunks_len-1) + ")").remove();
 
                     // Prepend the new listing
-			        $('#listing tr:first').before(data.disassembly);
+			        //$('#listing tr:first').before(data.disassembly);
+			        $('#listing tbody:first').before(data.disassembly);
 			        
                     // Remove the highest chunks from the chunk list
                     for (var i = 0; i < data.chunks.length; i++) 
@@ -101,7 +108,9 @@
                 
                 // Recenter the Scrollbar
                 scrollToAddr(offset);
-		    	
+	    	    console.timeStamp("Done Processing\n");
+                
+                window.scrollTimer = null;
 		    	window.ignoreScrollEvents = false;					  
 		});					
  	}
@@ -116,10 +125,10 @@
                 if ( data.chunks.length > 0 )
                 {
                     // Remove lower address chunks from the display
-                    $('#listing').find("tr").remove();
+                    $('#listing').find("tbody").remove();
 
                     // Append the new listing
-                    $('#listing').find("tbody").after(data.disassembly);
+                    $('#listing').find("colgroup").after(data.disassembly);
                     
                     // Clear the collection
                     window.disChunks.reset();

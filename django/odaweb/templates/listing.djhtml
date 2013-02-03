@@ -2,8 +2,9 @@
 
 
 {% for chunk in chunks %}
+    <tbody>
     {% for inst in chunk.instUnits %}
-
+    
         {%  if inst.function %}
                 <tr addr={{ inst.offset|stringformat:"08x" }}>
                     <td class="branchLines">{{ inst.branch_label|safe }}</td>
@@ -42,5 +43,6 @@
                 </tr>
 
     {%  endfor %}
+    </tbody>
 {%  endfor %}
 

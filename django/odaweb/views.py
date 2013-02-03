@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django import forms
 
 from django.utils import simplejson
+from django.db.utils import DatabaseError, IntegrityError
 from odaweb.models import OdaFile, BinaryFile, DisassemblyChunk
 from odaweb import engine
 from odaweb import dischunk 
@@ -15,7 +16,9 @@ from odaweb import dischunk
 import re
 import tempfile
 import itertools
+import time
 import colorsys
+
 
 # Minimum number of lines to send to the browser at a time
 # Note: this number must be odd
@@ -215,7 +218,6 @@ def disassemble(request,file_id):
     file_str = StringIO()
 
     chunks = []
-    print 'disassemble'
 
     # Get the sections to process
     try:
@@ -240,6 +242,8 @@ def disassemble(request,file_id):
             # Save the disassembly
             file_str.write( disassembly )
 
+            #print "DISASSEMBLE CHUNK:",len(chunks)
+
             # Save the chunk
             chunks.append( dischunk.DisChunk(sec_offset_addr, next_addr, num_lines, sec.name) )
 
@@ -258,6 +262,7 @@ def disassemble(request,file_id):
     # Don't store the chunks if we've done so previously
     if o.disassemblychunk_set.count() == 0:
         # Persistently store the chunks
+        i = 0
         for chunk in chunks:
             ch = DisassemblyChunk(id=None, 
                                   sec_name=chunk.sec_name, 
@@ -266,8 +271,27 @@ def disassemble(request,file_id):
                                   bfd_lines=chunk.lines, 
                                   is_boundary=chunk.is_boundary,
                                   odafile=o)
-            ch.save()
-    
+            #print "SAVE CHUNK:",i
+            i+=1
+            
+            # NOTE: I believe this is just an artifact of sqlite3 or Windows, but I left this in,
+            #    in case the production database experiences the same issue. The sqlite3
+            #    database occasionally returns an Unable to open database error, which might
+            #    be because the previous save is in the process of executing on the database
+            #    side. Retry a few times after a time delay.
+            for attempt in range(0,4):                
+                if attempt==3:
+                    # Last attempt. Let the error bubble up if it continues to happen
+                    ch.save()
+                else:
+                    try:
+                        ch.save()
+                        # Success!
+                        break
+                    except DatabaseError:
+                        # Sleep for a bit and try again
+                        time.sleep(0.1)                       
+                        print "Retry save for chunk:",i    
     
     # Analyze enough chunks to fill the current window
     window_chunks = []

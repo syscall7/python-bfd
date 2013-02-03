@@ -3,7 +3,7 @@
 
 
 class DisChunk(object):
-    MIN_CHUNK_SIZE_BYTES = 50
+    MIN_CHUNK_SIZE_BYTES = 500
     def __init__(self, startAddr, endAddr, lines, sec_name, is_boundary=False):
         self.start = startAddr
         self.end = endAddr
