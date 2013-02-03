@@ -1,8 +1,8 @@
 from distutils.core import setup
-from Pyrex.Distutils.extension import Extension
-from Pyrex.Distutils import build_ext
+from distutils.extension import Extension
+from Cython.Distutils import build_ext
 
-module1 = Extension('bfd',
+bfd = Extension('bfd',
                     define_macros = [('MAJOR_VERSION', '1'),
                                      ('MINOR_VERSION', '0'),
                                      # get around automake
@@ -19,9 +19,7 @@ setup (name = 'PythonBFD',
        author = 'Anthony DeRosa',
        author_email = 'Anthony.DeRosa@gmail.com',
        url = '',
-       long_description = '''
-First attempt to access BFD library from Python
-''',
+       long_description = '''Access to BFD library from Python''',
        cmdclass = {'build_ext': build_ext},
-       ext_modules = [module1])
+       ext_modules = [bfd])
 
