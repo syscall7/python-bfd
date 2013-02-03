@@ -272,7 +272,7 @@
                         <th>Flags</th>
                         <th>Alignment</th>
                     </tr>
-                    {% for s in sections.values %}
+                    {% for s in sections %}
                         <tr class="{% cycle 'even' 'odd' %}">
                             <td>{{s.name}}</td>
                             <td align="right">{{s.size}}</td>   
