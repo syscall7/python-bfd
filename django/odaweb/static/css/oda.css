@@ -306,8 +306,8 @@ background-color:#C8DEFF;
 }
 
 #slider-sections {
-    border: 0;
-    border-collapse: collapse;
+    /* border-collapse: collapse; */
+    border:1px solid #ffffff; /*#BDBEDF;*/
     width: 100%;
     height: 20px;
 }

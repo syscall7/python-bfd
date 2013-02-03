@@ -488,6 +488,9 @@ cdef class Section:
         const_char_ptr name
         bfd_size_type size
         object flags
+
+        # this is a hack until I can figure out how to add weak references dynamically in upper layers
+        object color
          
     cdef:
         bfd* abfd

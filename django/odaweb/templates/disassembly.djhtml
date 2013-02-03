@@ -173,8 +173,8 @@
             change: function( event, ui ) { updateAddr(ui.value); },
             slide: function( event, ui ) { updateAddr(ui.value); },
             animate: true,
-            min: {{ sectionsStartAddr }},
-            max: {{ sectionsStopAddr }},
+            min: {{ sectionsCodeStartAddr }},
+            max: {{ sectionsCodeStopAddr }},
         });
 
         // set initial position
@@ -212,23 +212,9 @@
     <div id="slider" style="margin-bottom: 15px">
         <table id="slider-sections">
             <tr>
-
-                {% for s in sections.values %}
-                    <tr class="{% cycle 'even' 'odd' %}">
-                        <td>{{s.name}}</td>
-                        <td align="right">{{s.size}}</td>
-                        <td align="right">0x{{s.vma|stringformat:'08x'}}</td>
-                        <td align="left">{% for flag in s.flags %}<span class="FLAG_{{flag.abbrev}}">{{flag.abbrev}}</span>&nbsp;{% endfor %}</td>
-                        <td align="right">2**{{s.alignment}}</td>
-                    </tr>
+                {% for s in sectionsCode %}
+                    <td bgcolor="{{s.color}}" style="border:1px solid #ffffff; width:{% widthratio s.size sectionsCodeAddrRange 100 %}%"></td>
                 {% endfor %}
-
-                <!-- TODO: Generate this with a template -->
-                <td bgcolor="5d8fff" style="width:5%"></td>
-                <td bgcolor="3e79ff" style="width:10%"></td>
-                <td bgcolor="004eff"></td>
-                <td bgcolor="002eff"></td>
-                <td bgcolor="black"></td>
             </tr>
         </table>
     </div>

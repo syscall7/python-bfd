@@ -15,6 +15,7 @@ from odaweb import dischunk
 import re
 import tempfile
 import itertools
+import colorsys
 
 # Minimum number of lines to send to the browser at a time
 # Note: this number must be odd
@@ -201,6 +202,10 @@ def update_disassembly(request, file_id):
 
     return process_chunks(bfd, analyzer, permachunks, request_start_index, count)
 
+def section_color(level):
+    (r,g,b) = colorsys.hsv_to_rgb(220.0/360.0, 100.0/100.0, (100.0-(20*level))/100.0)
+    return '#%02x%02x%02x' % (r*255,g*255,b*255)
+
 def disassemble(request,file_id):
     platform=request.GET.get('platformId', 'i386')
     analyzer = analyzerFactory(platform)
@@ -274,11 +279,15 @@ def disassemble(request,file_id):
 
     analyzer.analyze( bfd, window_chunks )
 
-    # sections and names are ordered by increasing vma
-    start_addr = bfd.sections[0].vma
+    code_sections = []
+    for s in bfd.sections_iter(['SEC_CODE']):
+        # dynamically set color based on section index
+        s.color = section_color(len(code_sections))
+        code_sections.append(s)
 
-    for s in bfd.sections_iter(['SEC_ALLOC']):
-        stop_addr = s.vma + s.size
+    start_addr = code_sections[0].vma
+    stop_addr = code_sections[-1].vma + code_sections[-1].size
+
 
     return render(request, 'disassembly.djhtml',{
         'disassembly' : analyzer.listing,
@@ -288,9 +297,10 @@ def disassemble(request,file_id):
         'symbols' : bfd.symbols(),
         'sections' : bfd.sections,
         'sectionFlagsInfo' : bfd.sectionFlagsInfo(),
-        'sectionsStartAddr' : start_addr,
-        'sectionsStopAddr' : stop_addr,
-        'sectionsAddrRange' : stop_addr - start_addr,
+        'sectionsCodeStartAddr' : start_addr,
+        'sectionsCodeStopAddr' : stop_addr,
+        'sectionsCode' : code_sections,
+        'sectionsCodeAddrRange' : stop_addr - start_addr,
         'strings' : bfd.strings(),
         'platformId' : platform, 
         'odafile' : o,
