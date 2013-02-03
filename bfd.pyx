@@ -1,15 +1,12 @@
 import tempfile
 import sys
-try:
-    from collections import OrderedDict
-# if python is older than 2.7
-except ImportError:
-    try:
-        from ordereddict import OrderedDict
-    # must install OrderedDict manually
-    except ImportError:
-        print 'Missing OrderedDict, try "sudo easy_install ordereddict"'
 
+if sys.version_info < (2, 7):
+    from ordereddict import OrderedDict
+else:
+    from collections import OrderedDict
+    
+    
 # ------------------------------------------------------------------------------
 # PROTOTYPES
 # ------------------------------------------------------------------------------
