@@ -65,7 +65,7 @@ def main():
     sec = b.sections[sec_name]
     start = sec.vma
     numLines = 30
-    (dis,nextAddr, lineCnt) = b.disassemble(sec, start, 0, numLines, funcFmtAddr, funcFmtLine, endian=bfd.ENDIAN_LITTLE)
+    (dis,nextAddr, lineCnt) = b.disassemble(sec, start, None, numLines, funcFmtAddr, funcFmtLine, endian=bfd.ENDIAN_LITTLE)
     print 'disassembly is %s' % dis
     print 'Next address to disassemble is: 0x%08x' % nextAddr
     #print b.disassemble(sec, start, stop, funcFmtAddr, funcFmtLine, endian=bfd.ENDIAN_BIG)
