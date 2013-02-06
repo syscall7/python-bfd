@@ -56,6 +56,34 @@ class DisassemblyChunk(models.Model):
     class Meta:
         ordering = ['start', 'sec_name']
 
+
+
+
+class OdaOptions(models.Model):
+    target = models.CharField(max_length=128)
+    architecture = models.CharField(max_length=128)
+
+class Binary(models.Model):
+    options = models.OneToOneField(OdaOptions, null=True)
+
+    class Meta:
+        abstract = True
+
+class BinaryDisassemblyChunk(models.Model):
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    binary = generic.GenericForeignKey()
+
+    # TODO: Is this length too much? Not enough?
+    sec_name = models.CharField(max_length=128)
+    start = models.IntegerField()
+    end = models.IntegerField()
+    bfd_lines = models.IntegerField()
+    is_boundary = models.BooleanField()
+    class Meta:
+        ordering = ['start', 'sec_name']
+
+
 class DisassemblyComment(models.Model):
     chunk = models.ForeignKey(DisassemblyChunk)
     comment_str = models.CharField(max_length=128)
@@ -64,14 +92,7 @@ class DisassemblyComment(models.Model):
         ordering = ['offset']
 
 
-class OdaOptions(models.Model):
-    platform = models.CharField(max_length=128)
 
-class Binary(models.Model):
-    options = models.OneToOneField(OdaOptions, null=True)
-
-    class Meta:
-        abstract = True
 
 class BinaryString(Binary):
     binary_string = models.TextField()
@@ -94,7 +115,7 @@ class BinaryFile(Binary):
     def file_handle(self):
         return self.the_file.file
 
-    def create(f):
+    def create(f, options):
         u = BinaryFile()
         u.the_file = File(f)
         filename = u.the_file.name
@@ -102,6 +123,7 @@ class BinaryFile(Binary):
         u.filesize = u.the_file.size
         u.the_file.open('rb')
         u.hash = sha1_hash(u.the_file)
+        u.options = options
         return u
 
     create = staticmethod(create)
@@ -114,7 +136,7 @@ class OdaMaster(models.Model):
     copy = models.ForeignKey('OdaMaster', null=True)
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey()
+    binary = generic.GenericForeignKey()
 
     def file_handle(self):
         return self.content_object.file_handle()

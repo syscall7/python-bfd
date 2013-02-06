@@ -33,6 +33,6 @@ url(r'^odaweb/clear$', 'odaweb.views.clear'),
 
     url(r'^odaweb/_save', 'odaweb.views2.save'),
     url(r'^odaweb/_upload', 'odaweb.views2.upload'),
-    url(r'^odaweb/_disassemble', 'odaweb.views2.disassemble'),
+    url(r'^odaweb/_refresh', 'odaweb.views2.refresh_disassembly'),
     url(r'^odaweb/(?P<disassembly_id>\w{0,16})$$', 'odaweb.views2.index'),
 )

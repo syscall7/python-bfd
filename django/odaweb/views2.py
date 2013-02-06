@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect
 
-from odaweb.models import OdaMaster, BinaryFile
+from odaweb.models import OdaMaster, BinaryFile, OdaOptions
 import views
 from odaweb import engine
 from django import forms
 import dischunk
+from disassembler import Disassembler, JsonChunkProcessor
 
 from utils import id_generator
 
@@ -38,6 +39,7 @@ def create_session(request, disassembly_id):
 def get_session(request):
 
     disassembly_session_id = request.session.get('disassembly_session_id')
+    print("Loading short_name = %s" %(disassembly_session_id))
     return OdaMaster.objects.get(short_name = disassembly_session_id)
 
 def set(request):
@@ -60,31 +62,43 @@ class UploadFileForm(forms.Form):
 def upload(request):
     form = UploadFileForm(request.POST, request.FILES)
     if form.is_valid():
-        binary_file = BinaryFile.create(request.FILES['filedata'])
-        binary_file.save()
-        #platform_options = engine.platform_options(binary_file)
 
-        oda_master = OdaMaster(short_name = id_generator(), content_object = binary_file)
+        #platform_options = engine.platform_options(binary_file)
+        #if options can't be determined, we need to display another dialog to get user input on
+        #possible options
+        options = OdaOptions(target='elf32-i386', architecture='i386')
+        options.save()
+
+        binary_file = BinaryFile.create(request.FILES['filedata'], options)
+        binary_file.save()
+
+        oda_master = OdaMaster(short_name = id_generator(), binary = binary_file)
         oda_master.save()
-        return redirect('/odaweb/' + oda_master.short_name)
+        request.session["disassembly_session_id"] = oda_master.short_name
+
+        #we can farm this out to a background thread and return before complete
+        #then the client can spin until we're done
+        disassembler = Disassembler(binary_file)
+        disassembler.process_chunks()
+
+        #return redirect('/odaweb/' + oda_master.short_name)
+        return redirect('/odaweb/_refresh')
     else:
         raise Exception("error" )
 
 
 
-def disassemble(request):
+def refresh_disassembly(request):
     oda_master = get_session(request)
 
-    platform = oda_master.content_object.options.platform
+    binary = oda_master.binary
 
-    analyzer = views.analyzerFactory(platform)
+    addr = int(request.GET.get('addr','0'))
 
-    bfd = engine.OdaBfd(o.uuid, 'binary', platform)
-    chunks = []
-    sec_names = ['.data']
-    ignore, next_addr, num_lines = bfd.disassemble(sec_names[0], 0, len(byte_array), endian=endian, options=bfdDisOpts)
-    chunks.append( dischunk.DisChunk(0, next_addr, num_lines, sec_names[0]) )
-    analyzer.analyze(bfd, chunks)
+    chunks, chunk_list = JsonChunkProcessor(binary).get_chunk_html(addr)
 
-    print 'disassemble'
-    return
+    dis = render_to_string('listing.djhtml', { 'chunks' : chunks, 'functions' : [] } ),
+
+    # Return the new disassembly
+    return HttpResponse(simplejson.dumps({'disassembly' : dis,
+                                          'chunks' : chunk_list }))
