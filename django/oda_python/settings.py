@@ -15,7 +15,7 @@ DATABASES = {
         #'NAME': '/var/www/oda/odaweb.db',                      # Or path to database file if using sqlite3.
         #'NAME': 'odaweb.db',                      # Or path to database file if using sqlite3.
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'odapython'    ,     
+        'NAME': 'odapython'    ,
         'USER': 'root',                      # Not used with sqlite3.
         'PASSWORD': 'password',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -152,24 +152,46 @@ INSTALLED_APPS = (
 # more details on how to customize your logging configuration.
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s (%(module)s@%(lineno)d) %(message)s'
+        },
+    },
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
         }
+
     },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        'console':{
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
     },
     'loggers': {
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
+        },
+        'odaweb.views': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+        'odaweb.engine': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
         },
     }
 }

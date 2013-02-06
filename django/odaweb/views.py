@@ -11,14 +11,16 @@ from django.utils import simplejson
 from django.db.utils import DatabaseError, IntegrityError
 from odaweb.models import OdaFile, BinaryFile, DisassemblyChunk
 from odaweb import engine
-from odaweb import dischunk 
+from odaweb import dischunk
 
 import re
 import tempfile
 import itertools
 import time
 import colorsys
+import logging
 
+logger = logging.getLogger(__name__)
 
 # Minimum number of lines to send to the browser at a time
 # Note: this number must be odd
@@ -48,7 +50,7 @@ def analyzerFactory(arch):
 
 
 def run_hex(request, snippet_id = None):
-   
+
     return render(request, 'run_hex.djhtml', {
         'supported_archs': engine.get_supported_archs,
         'supported_endians': engine.get_supported_endians
@@ -214,6 +216,8 @@ def disassemble(request,file_id):
     analyzer = analyzerFactory(platform)
     o = OdaFile.objects.get(uuid=file_id)
 
+    logger.debug('disassembling file %s with platform %s' % (file_id, platform))
+
     from cStringIO import StringIO
     file_str = StringIO()
 
@@ -246,6 +250,7 @@ def disassemble(request,file_id):
 
             # Save the chunk
             chunks.append( dischunk.DisChunk(sec_offset_addr, next_addr, num_lines, sec.name) )
+            logger.debug('chunk %s:0x%08x, size:%s, num_lines:%s' % (sec.name, sec_offset_addr, chunk_size, num_lines))
 
             # Update loop variables
             sec_consumed += chunk_size
