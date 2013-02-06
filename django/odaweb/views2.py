@@ -6,6 +6,9 @@ from odaweb import engine
 from django import forms
 import dischunk
 from disassembler import Disassembler, JsonChunkProcessor
+from django.template.loader import render_to_string
+from django.http import HttpResponseRedirect, HttpResponse
+from django.utils import simplejson
 
 from utils import id_generator
 
@@ -95,7 +98,7 @@ def refresh_disassembly(request):
 
     addr = int(request.GET.get('addr','0'))
 
-    chunks, chunk_list = JsonChunkProcessor(binary).get_chunk_html(addr)
+    chunks, chunk_list = JsonChunkProcessor(binary).get_chunk_html(addr, 7)
 
     dis = render_to_string('listing.djhtml', { 'chunks' : chunks, 'functions' : [] } ),
 

@@ -81,6 +81,9 @@ class Disassembler(object):
         dis = self.bfd.disassemble(sec, start, stop, numLines, funcFmtAddr, funcFmtLine, endian, options)
         return dis
 
+    def symbols(self):
+        return dict(sorted(self.bfd.syms_by_addr.iteritems()))
+
     def process_chunks(self):
         chunks = []
 
@@ -130,33 +133,36 @@ class JsonChunkProcessor(object):
     def __init__(self, binary):
         self.binary = binary
 
-    def get_chunk_html(self, addr):
+    def get_chunk_html(self, addr, num_chunks):
         analyzer = analyzerFactory( self.binary.options.architecture )
 
         ctype = ContentType.objects.get_for_model(self.binary)
 
-        permachunks = BinaryDisassemblyChunk.objects.filter(
-            content_type=ctype.id, object_id = self.binary.id, start__lte = addr, end__gte = addr )
+        #permachunk = BinaryDisassemblyChunk.objects.filter(
+        #    content_type=ctype.id, object_id = self.binary.id, start__lte = addr, end__gte = addr )[0]
+        permachunks = BinaryDisassemblyChunk.objects.all()[:7]
 
         chunk_count = BinaryDisassemblyChunk.objects.filter(content_type=ctype.id, object_id = self.binary.id).count()
 
         architecture = self.binary.options.architecture
 
-        analyzer = views.analyzerFactory(platform)
+        analyzer = analyzerFactory(architecture)
 
         count = chunk_count
         if (chunk_count < num_chunks):
             count = chunk_count
 
-        start_index = chunk_index - (DISASSEMBLY_WINDOW_SIZE_CHUNKS/2)
-        if start_index < 0:
-            start_index = 0
-        if (start_index + count) > chunk_count:
-            start_index = chunk_count - count
+        #start_index = permachunk.id - (DISASSEMBLY_WINDOW_SIZE_CHUNKS/2)
+        #if start_index < 0:
+        #   start_index = 0
+        #if (start_index + count) > chunk_count:
+        #    start_index = chunk_count - count
+        start_index = 0
+        count = 7
 
-        return process_chunks(bfd, analyzer, permachunks, start_index, count)
+        return self.process_chunks(analyzer, permachunks, start_index, count)
 
-    def process_chunks(bfd, analyzer, permachunks, index, count):
+    def process_chunks(self, analyzer, permachunks, index, count):
 
         # Build a list of chunks to process
         new_chunks = []
@@ -164,7 +170,7 @@ class JsonChunkProcessor(object):
         for chunk in permachunks[index:index+count]:
             new_chunks.append( dischunk.DisChunk(chunk.start, chunk.end, chunk.bfd_lines, chunk.sec_name, chunk.is_boundary) )
 
-        analyzer.analyze( bfd, new_chunks )
+        analyzer.analyze( Disassembler(self.binary), new_chunks )
 
         # Build a primitive object containing the list of chunk data to pass back to the client
         chunk_list = []
