@@ -42,8 +42,8 @@ $(document).ready(function() {
 	
 
 	$('#myTabContent').bind('scrollstop', assemblyScrollStopHandler);
-    $('#myTabContent').bind('scroll', function() {
-            if ( window.scrollTimer == null ) 
+    $('#myTabContent').bind('scroll', function(event) {
+            if ( window.scrollTimer == null )
             {
                 //console.debug("Set timer for 100ms latency\n");
                 window.scrollTimer = setTimeout(assemblyScrollHandler, 100);                
@@ -254,7 +254,9 @@ function assemblyScrollHandler()
     var elem = getTopVisibleAssemblyRow();
     if (elem) { 
         var intOffset = parseInt(elem.getAttribute("addr"),16);
-        
+
+        $("#slider").slider("value", intOffset);
+
         // Load Code if necessary
         if ( !updateDisassembly(intOffset) )
         {
@@ -273,9 +275,13 @@ function assemblyScrollStopHandler()
 	
 	if (elem) { 
         var url_hash_params = {};
+        var offsetStr = elem.getAttribute("addr");
         url_hash_params.tab = "assembly-tab-item";
-		url_hash_params.offset = elem.getAttribute("addr");
-    	
+		url_hash_params.offset = offsetStr;
+
+        var intOffset = parseInt(offsetStr,16);
+        $("#slider").slider("value", intOffset);
+
         // Update the URL
     	router.navigate("view/"+url_hash_params.tab + "/offset/" + url_hash_params.offset);
     	

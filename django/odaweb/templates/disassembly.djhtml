@@ -171,16 +171,24 @@
          * ADDRESS SLIDER
          * ---------------------------------------------------------------------------------------------------------  */
         // update state with new address
-        function updateAddr(addr) {
+        function updateAddr(addr, scrollToo) {
             addrStr = addr.toString(16).toUpperCase();
             while (addrStr.length < 8) addrStr = "0" + addrStr;
             $("#slider-address").text("0x" + addrStr);
+
+            // Try to scroll to the address
+            if ( scrollToo && !updateDisassembly(addr) )
+            {
+                // Isn't loaded. Try to load it
+                scrollToAddr(addr);
+            }
         }
 
         // setup slider
         $( "#slider" ).slider({
-            change: function( event, ui ) { updateAddr(ui.value); },
-            slide: function( event, ui ) { updateAddr(ui.value); },
+            change: function( event, ui ) { updateAddr(ui.value, true); },
+            slide: function( event, ui ) { updateAddr(ui.value, false); },
+            stop: function( event, ui ) { updateAddr(ui.value, true); },
             animate: true,
             min: {{ sectionsCodeStartAddr }},
             max: {{ sectionsCodeStopAddr }},
@@ -200,10 +208,10 @@
                 $("#slider").slider("value", addr );
                 
                 // Try to scroll to the address
-                if ( !scrollToAddr(addr) )
+                if ( !updateDisassembly(addr) )
                 {
                     // Isn't loaded. Try to load it
-                    updateDisassembly(addr);   
+                    scrollToAddr(addr);
                 }
                 
             }
