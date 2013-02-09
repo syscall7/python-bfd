@@ -125,7 +125,7 @@ class Disassembler(object):
                 bfd_lines=chunk.lines,
                 is_boundary=chunk.is_boundary,
                 binary=self.binary)
-            #print "SAVE CHUNK:",i
+            ch.save()
             i+=1
 
 
@@ -140,9 +140,10 @@ class JsonChunkProcessor(object):
 
         #permachunk = BinaryDisassemblyChunk.objects.filter(
         #    content_type=ctype.id, object_id = self.binary.id, start__lte = addr, end__gte = addr )[0]
-        permachunks = BinaryDisassemblyChunk.objects.all()[:7]
+        permachunks = BinaryDisassemblyChunk.objects.filter(
+            content_type=ctype.id, object_id = self.binary.id)[:7]
 
-        chunk_count = BinaryDisassemblyChunk.objects.filter(content_type=ctype.id, object_id = self.binary.id).count()
+        chunk_count = BinaryDisassemblyChunk.objects.filter(content_type=ctype.id, object_id=self.binary.id).count()
 
         architecture = self.binary.options.architecture
 
@@ -175,6 +176,12 @@ class JsonChunkProcessor(object):
         # Build a primitive object containing the list of chunk data to pass back to the client
         chunk_list = []
         for chunk in new_chunks:
-            chunk_list.append ({ 'sec_name': chunk.sec_name, 'startOffset': chunk.start, 'endOffset': chunk.end, 'isBoundary': chunk.is_boundary, 'lines': chunk.lines  })
+            chunk_list.append ({
+                'sec_name': chunk.sec_name,
+                'startOffset': chunk.start,
+                'endOffset': chunk.end,
+                'isBoundary': chunk.is_boundary,
+                'lines': chunk.lines
+            })
 
         return analyzer.chunks, chunk_list
