@@ -67,50 +67,69 @@ $(document).ready(function() {
 
 function scrollToAddr(offset)
 {
-    // Convert to a hex string with leading zeroes
-    var hexStr = ("000000000000000" + offset.toString(16)).substr(-8);
-    
-    // Scroll to the proper offset in the disassembly
-    var offsetselector = 'tr[addr=' + hexStr + ']';
-    var offset_element = $(offsetselector);
-    if ( offset_element.length > 0 )
-    {
-        var dbar_height = $('#download-bar').outerHeight(true);
-        var disoffset_top = offset_element[0].offsetTop;
-        
-        // Row element offset doesn't include size of the download bar
-        $('#myTabContent').scrollTop(disoffset_top + dbar_height + 1);
-        return true;
-    }    
-    
+    console.debug("scrollToAddr, offset %s", offset.toString(16));
+
+    // go back up to 16 bytes
+    var tries = 16;
+
+    while (offset > 0 && tries > 0) {
+        // Convert to a hex string with leading zeroes
+        var hexStr = ("000000000000000" + offset.toString(16)).substr(-8);
+
+        // Scroll to the proper offset in the disassembly
+        var offsetselector = 'tr[addr=' + hexStr + ']';
+        var offset_element = $(offsetselector);
+
+        if ( offset_element.length > 0 )
+        {
+            var dbar_height = $('#download-bar').outerHeight(true);
+            var disoffset_top = offset_element[0].offsetTop;
+
+            console.debug("scrollToAddr, scrollTop %d", disoffset_top + dbar_height + 1);
+
+            // Row element offset doesn't include size of the download bar
+            $('#myTabContent').scrollTop(disoffset_top + dbar_height + 1);
+            return true;
+        }
+
+        tries--;
+        offset--;
+    }
+
     // Offset doesn't exist
     return false;
 }
 
 function updateDisassembly(offset)
 {
+    console.debug("updateDisassembly, start");
+
     var chunks = window.disChunks;
-    
+
     // Map the offset to a chunk
     var index = getChunkIndex(offset);
+    console.debug("updateDisassembly, got chunk index %d", index);
 
     // Determine how many new chunks to request
     var mid_index = Math.floor((chunks.length/2));
     if ( index == -1 )
     {
         // Need to load all new disassembly
+        console.debug("updateDisassembly, refresh entire page");
         window.refresh(offset);
         return true;
     }
     else if ( index > mid_index )
     {
         // Partial load
+        console.debug("updateDisassembly, partial load forward");
         var requested_chunks = index-mid_index;
         return requestMoreDisassembly(1,requested_chunks,offset);
     }
     else if ( index < mid_index )
     {
         // Partial load
+        console.debug("updateDisassembly, partial load reverse");
         var requested_chunks = mid_index - index;
         return requestMoreDisassembly(0,requested_chunks,offset);        
     }
@@ -212,6 +231,9 @@ function getTopVisibleAssemblyRow()
     var dbar_left = $('#download-bar')[0].offsetLeft;
     var dbar_top = $('#download-bar')[0].offsetTop; 
     var dbar_border_width = 1;  // Could get from .css
+
+    console.debug("getTopVisibleAssemblyRow main_left %d, main_top %d, dbar_left %d, dbar_top %d",
+        main_contain_left, main_contain_top, dbar_left, dbar_top);
     
     // Calculate the first pixel of the top-most visible disassembly line
     var target_top = main_contain_top + dbar_top + 1;
@@ -241,21 +263,24 @@ function getTopVisibleAssemblyRow()
 
 function assemblyScrollHandler() 
 {
+    console.debug("assemblyScrollHandler, start");
     //var ignore = ignoreScrollEvents;
     //ignoreScrollEvents = false;    
     if (window.ignoreScrollEvents) 
     {
         window.scrollTimer=null;
+        console.debug("assemblyScrollHandler, ignoring scroll events");
         return;
     }
 
-    //console.debug("Scroll Handler fired\n");
+    console.debug("Scroll Handler fired\n");
 
     var elem = getTopVisibleAssemblyRow();
     if (elem) { 
         var intOffset = parseInt(elem.getAttribute("addr"),16);
 
-        $("#slider").slider("value", intOffset);
+        console.debug("assemblyScrollHandler, updating slider to ", elem.getAttribute("addr"));
+        updateSlider(intOffset);
 
         // Load Code if necessary
         if ( !updateDisassembly(intOffset) )
@@ -270,7 +295,8 @@ function assemblyScrollHandler()
 }
 
 function assemblyScrollStopHandler() 
-{	
+{
+    console.debug("assemblyScrollStopHandler, start");
 	var elem = getTopVisibleAssemblyRow();
 	
 	if (elem) { 
@@ -280,7 +306,8 @@ function assemblyScrollStopHandler()
 		url_hash_params.offset = offsetStr;
 
         var intOffset = parseInt(offsetStr,16);
-        $("#slider").slider("value", intOffset);
+        console.debug("assemblyScrollStopHandler, updating slider to ", offsetStr);
+        updateSlider(intOffset);
 
         // Update the URL
     	router.navigate("view/"+url_hash_params.tab + "/offset/" + url_hash_params.offset);
@@ -290,3 +317,11 @@ function assemblyScrollStopHandler()
     	//updateDisassembly(intOffset);
     }
 }
+
+// update slider position via non-slider events (i.e., via scrollBar)
+function updateSlider(addr) {
+    //updateAddrDisplay(addr);
+    $("#slider").slider("value", addr);
+}
+
+

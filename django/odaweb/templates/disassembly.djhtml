@@ -170,14 +170,23 @@
         /* ---------------------------------------------------------------------------------------------------------  *
          * ADDRESS SLIDER
          * ---------------------------------------------------------------------------------------------------------  */
-        // update state with new address
-        function updateAddr(addr, scrollToo) {
+        // set the slider address display text
+        // NOTE: This function is triggered via updateSlider() in history.js as well
+        function updateAddrDisplay(addr) {
             addrStr = addr.toString(16).toUpperCase();
+            console.debug("updateAddrDisplay to %s", addrStr);
             while (addrStr.length < 8) addrStr = "0" + addrStr;
             $("#slider-address").text("0x" + addrStr);
+        }
+
+        // event handler for slider control
+        function sliderHandler(addr) {
+
+            // no need to set the slider position, that's already been done by the event
+            updateAddrDisplay(addr);
 
             // Try to scroll to the address
-            if ( scrollToo && !updateDisassembly(addr) )
+            if ( !updateDisassembly(addr) )
             {
                 // Isn't loaded. Try to load it
                 scrollToAddr(addr);
@@ -186,16 +195,16 @@
 
         // setup slider
         $( "#slider" ).slider({
-            change: function( event, ui ) { updateAddr(ui.value, true); },
-            slide: function( event, ui ) { updateAddr(ui.value, false); },
-            stop: function( event, ui ) { updateAddr(ui.value, true); },
+            change: function( event, ui ) { console.debug("slider change event"); updateAddrDisplay(ui.value); },
+            slide: function( event, ui ) { console.debug("slider slide event"); updateAddrDisplay(ui.value); },
+            stop: function( event, ui )  { console.debug("slider stop event"); sliderHandler(ui.value); },
             animate: true,
             min: {{ sectionsCodeStartAddr }},
             max: {{ sectionsCodeStopAddr }},
         });
 
         // set initial position
-        updateAddr($("#slider").slider("value"));
+        updateAddrDisplay($("#slider").slider("value"));
 
         // remove border
         $(".ui-slider-horizontal").css('border', 0);
@@ -205,22 +214,20 @@
             if (String.fromCharCode(event.which) == 'g') {
                 var strAddr = prompt("Go to address:");
                 var addr = parseInt(strAddr, 16);
+                console.debug("Setting slider to 0x%s", addr.toString(16));
                 $("#slider").slider("value", addr );
-                
+
                 // Try to scroll to the address
                 if ( !updateDisassembly(addr) )
                 {
                     // Isn't loaded. Try to load it
                     scrollToAddr(addr);
                 }
-                
             }
         });
-
     });
-	
 
-	
+
 </script>
 {% endblock %}
 
