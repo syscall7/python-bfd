@@ -55,8 +55,13 @@ function SidebarCloseHide() {
 
 function Load(id) {
 
-    $.post('_disassemble', {id: id}).done(function(){
-        alert('done');
+    $.post('_refresh', {id: id}).done(function(data){
+
+        $('#listing').find("tbody").remove();
+
+        // Append the new listing
+        $('#listing').find("colgroup").after(data.disassembly);
+
     }).fail(function(){
         alert('fail');
     });

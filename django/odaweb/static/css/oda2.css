@@ -67,24 +67,16 @@ body {
     background-color: #16424f
 }
 
-.assembly {
-    font-family: monospace;
-    font-size: 14px;
-    line-height: 14px;
-}
 
-.assembly th, .table td {
-    border:none;
-    padding: 0px;
-}
+.assembly { font-family:monospace; font-size: 14px; line-height: 14px; }
 
-
-.insn {
+.branchLines {
     color: #093C83;
-    font-family: monospace;
+    font-family:DejaVuSansMono;
     font-size: 14px;
     line-height: 14px;
-    white-space: pre;
+    /**font-weight: bold; */ /** Messes with the line height*/
+    /* white-space: pre; */
 }
 
 .raw {
@@ -92,4 +84,21 @@ body {
     font-family: monospace;
     font-size: 14px;
     line-height: 14px;
+}
+
+.offset {
+    color: black;
+    font-family: monospace;
+    font-size: 14px;
+    text-align: right;
+    line-height: 14px;
+}
+
+.insn {
+    color: #093C83;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 14px;
+    /**font-weight: bold; */ /** Messes with the line height*/
+    white-space: pre;
 }

@@ -84,8 +84,8 @@ def upload(request):
         disassembler = Disassembler(binary_file)
         disassembler.process_chunks()
 
-        #return redirect('/odaweb/' + oda_master.short_name)
-        return redirect('/odaweb/_refresh')
+        return redirect('/odaweb/' + oda_master.short_name)
+        #return redirect('/odaweb/_refresh')
     else:
         raise Exception("error" )
 
@@ -104,4 +104,4 @@ def refresh_disassembly(request):
 
     # Return the new disassembly
     return HttpResponse(simplejson.dumps({'disassembly' : dis,
-                                          'chunks' : chunk_list }))
+                                          'chunks' : chunk_list })  , mimetype='application/json')
