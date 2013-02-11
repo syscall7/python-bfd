@@ -1,59 +1,14 @@
+{% block scripts %}
+<script type="text/javascript" src="{{ STATIC_URL }}scripts/comment.js"></script>
+{% endblock %}
 
 {% block content %}
 
-    <script type="text/javascript">
-       
-    $(".comment").keypress(function(e){
-        
-        if (e.which == 13)
-        {
-        	// TODO: Save the comment
-			$(this).blur()
-       	}
-       	
-       	if (e.which == 10)
-        {
-			// TODO: Handle <CTRL-Enter> and allow multi-line comments
-        }
-       	
-    	return e.which != 13; 
-    });
-    
-    $('.comment').blur(function() {
-  		// TODO: Save the comment
-  		
-  		// firefox needs at least a space to keep it editable
-  		if ($(this).html() == "" || $(this).html() == "<br>" ) {
-  			$(this).html("&nbsp;");
-  		} else {
-  			// add "; "
-  			$(this).html("; " + $(this).html());
-  		}
-	});
-	
-	$('.comment').focus(function() {
-		// on focus, delete the space that firefox requires for contenteditable spans
-  		if ($(this).html() == "&nbsp;") {
-  			$(this).html("");
-  		} else {
-  			// remove the "; "
-  			$(this).html($(this).html().substr(2));
-  		}
-	})
-	$('.comment').tooltip({
-		placement: 'bottom',
-		delay: { show: 100, hide: 100 },
-		title: 'Add Comment',
-		trigger: 'hover',
-		content: 'Click to add a comment',
-	});
-
-    </script>
     <div id="disassembly">
     {% autoescape off %}
         <table>
         <colgroup>
-        <col style="width:32px;" align="right"/>
+        <col style="width:32;" align="right"/>
         <col style="width:80px;" />
         <col style="width:90px;" align="right" />
         <col style="width:400px;" />
@@ -62,22 +17,21 @@
         {% for chunk in chunks %}
             {% for inst in chunk.instUnits%}
                 {%  if inst.labelName %}
-                        <tr>
-                            <td class="branchLines">{{ inst.branch_label }}</td>
-    	                    <td class="offset">0x{{ inst.offset|stringformat:"08x" }}</td>
-                            <td class="insn" style="padding-left:50px; ">{{ inst.labelName }}</td>
-                        </tr>
-             
+                    <tr>
+                        <td class="branchLines">{{ inst.branch_label }}</td>
+                        <td class="offset">0x{{ inst.offset|stringformat:"08x" }}</td>
+                        <td class="insn" style="padding-left:50px;"><span class="oda_label" contenteditable="true">{{ inst.labelName|safe }}</span>:</td>
+                    </tr>
+
                 {%  endif %}
     
-                        <tr>
-                            <td class="branchLines">{{ inst.branch }}</td>
-    	                    <td class="offset"><a name="{{ inst.offset|stringformat:"x" }}"></a>0x{{ inst.offset|stringformat:"08x" }}</td>
-                            <td class="raw" style="padding-left:10px;">{{ inst.rawBytes }}</td>
-                            <td class="insn">{{ inst.instStr }}</td>
-                            <td><span class="comment" contenteditable="true" style="color:blue; outline:none; width:250px; float:right; text-align:left;" >&nbsp;</span></td>
-                        </tr>
-    
+                <tr addr={{ inst.offset|stringformat:"08x" }}>
+                    <td class="branchLines">{{ inst.branch|safe }}</td>
+    	            <td class="offset"><a name="{{ inst.offset|stringformat:"x" }}"></a>0x{{ inst.offset|stringformat:"08x" }}</td>
+                    <td class="raw" style="padding-left:10px;">{{ inst.rawBytes }}</td>
+                    <td class="insn">{{ inst.instStr|safe }}&nbsp;&nbsp;<span class="comment" contenteditable="true" style="color:blue; outline:none; width:250px; text-align:left;" >&nbsp;</span></td>
+                </tr>
+
             {%  endfor %}
         {%  endfor %}
         </table>

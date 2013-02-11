@@ -1,6 +1,3 @@
-
-
-
 {% for chunk in chunks %}
     <tbody>
     {% for inst in chunk.instUnits %}
@@ -29,7 +26,7 @@
                     <td class="branchLines">{{ inst.branch_label|safe }}</td>
                     <td class="offset">{{inst.section_name}}:0x{{ inst.offset|stringformat:"08x" }}</td>
                     <td></td>
-                    <td class="insn"">{{ inst.labelName|safe }}:</td>
+                    <td class="insn""><span class="oda_label" contenteditable="true">{{ inst.labelName|safe }}</span>:</td>
                 </tr>
      
         {%  endif %}
@@ -38,8 +35,7 @@
                     <td class="branchLines">{{ inst.branch|safe }}</td>
                     <td class="offset">{{inst.section_name}}:0x{{ inst.offset|stringformat:"08x" }}</td>
                     <td class="raw" style="padding-left:10px;">{{ inst.rawBytes }}</td>
-                    <td class="insn" style="padding-left:40px;">{{ inst.instStr|safe }}</td>
-                    <td><span class="comment" contenteditable="true" style="color:blue; outline:none; width:250px; float:right; text-align:left;" >&nbsp;</span></td>
+                    <td class="insn" style="padding-left:40px;">{{ inst.instStr|safe }}&nbsp;&nbsp;<span class="comment" contenteditable="true" style="color:blue; outline:none; width:250px; text-align:left;" >&nbsp;</span></td>
                 </tr>
 
     {%  endfor %}
