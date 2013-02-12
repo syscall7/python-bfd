@@ -5,9 +5,12 @@
     <title></title>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}lib/bootstrap-2.2.2/css/bootstrap.min.css"/>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/oda2.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
     <script type="text/javascript" src="{{ STATIC_URL }}lib/jquery/jquery-1.8.3.min.js" ></script>
     <script type="text/javascript" src="{{ STATIC_URL }}lib/bootstrap-2.2.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}scripts/lib/splitter.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}scripts/app.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
 
     {% block head %}{% endblock %}
 
@@ -26,14 +29,23 @@
                     <li class="">
                         <a href="./_save"><i class="icon-share icon-white"></i>Save</a>
                     </li>
+                    <li class="">
+                        <a href="http://www.onlinedisassembler.com/blog/">Blog</a>
+                    </li>   
+                    <li class="">
+                        <a href=mailto:admin@onlinedisassembler.com>Contact Us!</a>
+                    </li>                    
                 </ul>
             </div>
         </div>
     </div>
 </div>
 
+<div id="main-display">
+    {% block content %}{% endblock %}
 
-{% block content %}{% endblock %}
+</div>
+
 
 </body>
 </html>

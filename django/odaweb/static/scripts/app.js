@@ -14,9 +14,23 @@ function FileUploadTab() {
 
 function ResizeHandler() {
     $(window).resize(function() {
+        // TODO: Hardcoded Height includes footer and banner
         $('#view-container').height($(window).height()-74);
+        $('#vertSplitter').height($(window).height()-47);
+        
+        // TODO: Hardcoded Height includes footer, banner, and tabs
+        $('#myTabContent').height($(window).height()-152);
+             
+        $('#sidebar-container').height($(window).height()-47);
+        $('sidebar-content').height($(window).height()-197);
     });
     $('#view-container').height($(window).height()-74);
+    $('#vertSplitter').height($(window).height()-47);
+    $('#myTabContent').height($(window).height()-152);
+    $('#sidebar-container').height($(window).height()-47);
+    $('sidebar-content').height($(window).height()-197);
+
+    
 }
 
 function InitializeTabs() {
@@ -35,6 +49,24 @@ function InitializeTabs() {
 
     $('.item').hide();
     $('.active').show();
+}
+
+function InitializeSplitter() {
+    $("#main-display").splitter({type: 'v'});    
+}
+
+function InitializeSlider() {
+    // setup slider
+    $( "#slider" ).slider({
+        animate: true,
+        min: 0x00000000,
+        max: 0xFFFFFFFF,
+    });
+
+    // remove border
+    $(".ui-slider-horizontal").css('border', 0);
+    $(".ui-slider-handle").removeClass('ui-corner-all');
+    
 }
 
 function SidebarCloseHide() {
@@ -75,4 +107,8 @@ $(document).ready(function(){
     FileUploadTab();
 
     ResizeHandler();
+    
+    InitializeSplitter();
+
+    InitializeSlider()
 });

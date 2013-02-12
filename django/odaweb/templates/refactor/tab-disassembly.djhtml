@@ -1,14 +1,14 @@
 <div id="disassembly" class="tab-pane fade active in">
-
-    <table id="listing">
-        <colgroup>
-            <col style="width:50px;" align="right" />
-            <col style="width:80px;" />
-            <col style="width:90px;" align="right" />
-            <col style="width:400px;" />
-            <col />
-        </colgroup>
-       <tbody></tbody>
-    </table>
-
+    <div id="assembly-scroll" class="tabbed-scroll assembly">
+        <table id="listing">
+            <colgroup>
+                <col style="width:50px;" align="right" />
+                <col style="width:80px;" />
+                <col style="width:90px;" align="right" />
+                <col style="width:400px;" />
+                <col />
+            </colgroup>
+           <tbody></tbody>
+        </table>
+    </div>
 </div>
