@@ -155,6 +155,11 @@
         });                 
     }
 
+    window.comment = function(offset, comment) {
+        // TODO: Save the comment
+        console.debug("comment is \""+comment+ "\"");
+        $.post("/odaweb/comment/{{odafile.uuid}}/"+offset, { comment: comment } );
+    }
 
  	
 	$(document).ready(function(){

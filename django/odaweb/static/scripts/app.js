@@ -99,6 +99,67 @@ function Load(id) {
     });
 }
 
+function InitializeComments() {
+
+    console.debug('intializing comments...');
+
+    $(document).on("keypress", ".comment", function(e) {
+
+        console.debug("keypress " + e.which);
+
+        if (e.which == 13)
+        {
+            // TODO: Save the comment
+            $(this).blur()
+        }
+
+        if (e.which == 10)
+        {
+            // TODO: Handle <CTRL-Enter> and allow multi-line comments
+        }
+
+        return e.which != 13;
+    });
+
+    $(document).on("blur", ".comment", function(e) {
+
+        console.debug("blur");
+
+        var comment = $(this).html();
+        //window.comment("12345678", comment);
+
+        // firefox needs at least a space to keep it editable
+        if (comment == "" || comment == "<br>" ) {
+            comment = "&nbsp;";
+        } else {
+            // add "; "
+            comment = "; " + comment;
+        }
+
+        $(this).html(comment);
+    });
+
+    $(document).on("focus", ".comment", function(e) {
+
+        // on focus, delete the space that firefox requires for contenteditable spans
+        if ($(this).html() == "&nbsp;") {
+            $(this).html("");
+        } else {
+            // remove the "; "
+            $(this).html($(this).html().substr(2));
+        }
+    });
+
+    /*
+    $(document).on("tooltip", ".comment", function(e) {
+        placement: 'bottom',
+        delay: { show: 100, hide: 100 },
+        title: 'Add Comment',
+        trigger: 'hover',
+        content: 'Click to add a comment',
+    });
+    */
+}
 
 $(document).ready(function(){
 
@@ -110,5 +171,8 @@ $(document).ready(function(){
     
     InitializeSplitter();
 
-    InitializeSlider()
+    InitializeSlider();
+
+    InitializeComments();
+
 });

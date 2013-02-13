@@ -17,15 +17,17 @@ $(document).ready(function() {
     });
 
     $('.comment').blur(function() {
-        // TODO: Save the comment
-
+        var comment = $(this).html();
+        window.comment("12345678", comment);
         // firefox needs at least a space to keep it editable
-        if ($(this).html() == "" || $(this).html() == "<br>" ) {
-            $(this).html("&nbsp;");
+        if (comment == "" || comment == "<br>" ) {
+            comment = "&nbsp;";
         } else {
             // add "; "
-            $(this).html("; " + $(this).html());
+            comment = "; " + comment;
         }
+
+        $(this).html(comment);
     });
 
     $('.comment').focus(function() {
