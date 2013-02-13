@@ -14,6 +14,7 @@ from utils import id_generator
 
 def index(request, disassembly_id):
 
+    print 'index'
     oda_master = create_session(request, disassembly_id)
 
     return render(request, 'refactor/index.djhtml',{
@@ -22,18 +23,21 @@ def index(request, disassembly_id):
 
 
 def save(request):
+    print 'Saving...'
     disassembly_session_id = request.session["disassembly_session_id"]
     return redirect('/odaweb/' + disassembly_session_id)
 
 def create_session(request, disassembly_id):
 
     disassembly_session_id = request.session.get('disassembly_session_id')
+    print 'disassembly_session_id is ', disassembly_session_id
 
     if not disassembly_session_id:
         if disassembly_id:
             disassembly_id = 'some_default'
 
         diassembly_session_id = id_generator()
+        print 'New session_id is ', diassembly_session_id
         request.session["disassembly_session_id"] = diassembly_session_id
 
         OdaMaster(short_name = disassembly_session_id)
@@ -105,3 +109,7 @@ def refresh_disassembly(request):
     # Return the new disassembly
     return HttpResponse(simplejson.dumps({'disassembly' : dis,
                                           'chunks' : chunk_list })  , mimetype='application/json')
+def comment(request, offset):
+    comment = request.POST['comment']
+    print 'Adding comment at offset %s: %s' % (offset, comment)
+    return HttpResponse()

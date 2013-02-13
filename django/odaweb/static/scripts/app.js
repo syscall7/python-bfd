@@ -123,10 +123,11 @@ function InitializeComments() {
 
     $(document).on("blur", ".comment", function(e) {
 
-        console.debug("blur");
-
         var comment = $(this).html();
-        //window.comment("12345678", comment);
+        var offset = $(this).parent().parent().attr("addr");
+        console.debug("adding comment at offset %s: \"%s\"", offset, comment);
+
+        $.post("/odaweb/comment/"+offset, { comment: comment } );
 
         // firefox needs at least a space to keep it editable
         if (comment == "" || comment == "<br>" ) {
