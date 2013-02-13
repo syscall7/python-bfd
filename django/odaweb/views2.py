@@ -13,8 +13,8 @@ from django.utils import simplejson
 
 from utils import id_generator
 
-def render_to_json(request, context):
-    HttpResponse(simplejson.dumps(context)  , mimetype='application/json')
+def render_to_json(context):
+    return HttpResponse(simplejson.dumps(context)  , mimetype='application/json')
 
 def index(request, disassembly_id):
 
@@ -107,6 +107,9 @@ def refresh_disassembly(request):
 
     chunks, chunk_list = JsonChunkProcessor(binary).get_chunk_html(addr, 7)
 
+    for c in chunks:
+        c.attach_comments(binary)
+
     dis = render_to_string('listing.djhtml', { 'chunks' : chunks, 'functions' : [] } ),
 
     # Return the new disassembly
@@ -126,8 +129,8 @@ def comment(request):
         oda_master = get_session(request)
         binary = oda_master.binary
         ctype = ContentType.objects.get_for_model(binary)
-        oda_master = get_session(request)
-        comment = Comment(content_type=ctype, object_id=binary.id, comment = form.comment, address = form.address)
+
+        comment = Comment(content_type=ctype, object_id=binary.id, comment = form.comment, offset = offset)
         comment.save()
         #return render_to_json({"status" : "ok"})
         return HttpResponse()

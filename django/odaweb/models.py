@@ -1,3 +1,4 @@
+from os import stat
 from django.db import models
 from django.core.files.storage import FileSystemStorage
 from django.core.files import File
@@ -108,7 +109,12 @@ class Comment(models.Model):
     object_id = models.PositiveIntegerField()
     binary = generic.GenericForeignKey()
     comment = models.CharField(max_length=255)
-    address = models.CharField(max_length=32)
+    offset = models.CharField(max_length=32)
+
+    @staticmethod
+    def get_for_binary(binary):
+        ctype = ContentType.objects.get_for_model(binary)
+        return Comment.objects.filter(content_type=ctype.id, object_id = binary.id)
 
 
 class BinaryFile(Binary):
