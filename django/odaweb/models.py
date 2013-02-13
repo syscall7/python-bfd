@@ -109,7 +109,7 @@ class Comment(models.Model):
     object_id = models.PositiveIntegerField()
     binary = generic.GenericForeignKey()
     comment = models.CharField(max_length=255)
-    offset = models.CharField(max_length=32)
+    offset = models.IntegerField()
 
     @staticmethod
     def get_for_binary(binary):
