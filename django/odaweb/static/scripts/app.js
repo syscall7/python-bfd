@@ -125,14 +125,14 @@ function InitializeComments() {
 
         var comment = $(this).html();
         var offset = $(this).parent().parent().attr("addr");
-        console.debug("adding comment at offset %s: \"%s\"", offset, comment);
-
-        $.post("/odaweb/comment/"+offset, { comment: comment } );
 
         // firefox needs at least a space to keep it editable
         if (comment == "" || comment == "<br>" ) {
             comment = "&nbsp;";
         } else {
+            console.debug("adding comment at offset %s: \"%s\"", offset, comment);
+            $.post("/odaweb/comment/", { comment: comment, address: offset } );
+
             // add "; "
             comment = "; " + comment;
         }

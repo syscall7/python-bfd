@@ -112,15 +112,16 @@ def refresh_disassembly(request):
     # Return the new disassembly
     return HttpResponse(simplejson.dumps({'disassembly' : dis,
                                           'chunks' : chunk_list })  , mimetype='application/json')
-def comment(request, offset):
+def comment(request):
 
     class CommentForm(forms.Form):
         comment = forms.TextInput()
+        address = forms.TextInput()
 
     form = CommentForm(request.POST, request.FILES)
 
     if form.is_valid():
-        print 'Adding comment at offset %s: %s' % (offset, form.comment)
+        print 'Adding comment at offset %s: %s' % (form.address, form.comment)
 
         oda_master = get_session(request)
         binary = oda_master.binary
@@ -128,5 +129,6 @@ def comment(request, offset):
         oda_master = get_session(request)
         comment = Comment(content_type=ctype, object_id=binary.id, comment = form.comment, address = form.address)
         comment.save()
-        return render_to_json({"status" : "ok"})
+        #return render_to_json({"status" : "ok"})
+        return HttpResponse()
 
