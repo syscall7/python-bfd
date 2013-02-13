@@ -124,13 +124,13 @@ def comment(request):
     form = CommentForm(request.POST, request.FILES)
 
     if form.is_valid():
-        print 'Adding comment at offset %s: %s' % (form.cleaned_data.offset, form.cleaned_data.comment)
+        print 'Adding comment at offset %s: %s' % (form.cleaned_data['offset'], form.cleaned_data['comment'])
 
         oda_master = get_session(request)
         binary = oda_master.binary
         ctype = ContentType.objects.get_for_model(binary)
 
-        comment = Comment(content_type=ctype, object_id=binary.id, comment = form.cleaned_data.comment, offset = int(form.cleaned_data.offset,16))
+        comment = Comment(content_type=ctype, object_id=binary.id, comment = form.cleaned_data['comment'], offset = int(form.cleaned_data['offset'],16))
         comment.save()
         #return render_to_json({"status" : "ok"})
         return HttpResponse()
