@@ -1,16 +1,20 @@
 from django.shortcuts import render, redirect
 
-from odaweb.models import OdaMaster, BinaryFile, OdaOptions
+from odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment
 import views
 from odaweb import engine
 from django import forms
 import dischunk
+from django.contrib.contenttypes.models import ContentType
 from disassembler import Disassembler, JsonChunkProcessor
 from django.template.loader import render_to_string
 from django.http import HttpResponseRedirect, HttpResponse
 from django.utils import simplejson
 
 from utils import id_generator
+
+def render_to_json(request, context):
+    HttpResponse(simplejson.dumps(context)  , mimetype='application/json')
 
 def index(request, disassembly_id):
 
@@ -62,6 +66,25 @@ def strings(request):
     pass
 
 
+def comment(request):
+
+    class CommentForm(forms.Form):
+        comment = forms.TextInput()
+        address = forms.TextInput()
+
+    form = CommentForm(request.POST, request.FILES)
+
+    if form.is_valid():
+        oda_master = get_session(request)
+        binary = oda_master.binary
+        ctype = ContentType.objects.get_for_model(binary)
+        oda_master = get_session(request)
+        comment = Comment(content_type=ctype, object_id=binary.id, comment = form.comment, address = form.address)
+        comment.save()
+        return render_to_json({"status" : "ok"})
+
+
+
 class UploadFileForm(forms.Form):
     filedata = forms.FileField()
     #filename = forms.CharField()
@@ -110,6 +133,20 @@ def refresh_disassembly(request):
     return HttpResponse(simplejson.dumps({'disassembly' : dis,
                                           'chunks' : chunk_list })  , mimetype='application/json')
 def comment(request, offset):
-    comment = request.POST['comment']
-    print 'Adding comment at offset %s: %s' % (offset, comment)
-    return HttpResponse()
+
+    class CommentForm(forms.Form):
+        comment = forms.TextInput()
+
+    form = CommentForm(request.POST, request.FILES)
+
+    if form.is_valid():
+        print 'Adding comment at offset %s: %s' % (offset, form.comment)
+
+        oda_master = get_session(request)
+        binary = oda_master.binary
+        ctype = ContentType.objects.get_for_model(binary)
+        oda_master = get_session(request)
+        comment = Comment(content_type=ctype, object_id=binary.id, comment = form.comment, address = form.address)
+        comment.save()
+        return render_to_json({"status" : "ok"})
+
