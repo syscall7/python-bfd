@@ -91,9 +91,6 @@ class DisassemblyComment(models.Model):
     class Meta:
         ordering = ['offset']
 
-
-
-
 class BinaryString(Binary):
     binary_string = models.TextField()
 
@@ -105,6 +102,14 @@ class BinaryString(Binary):
         t = tempfile.NamedTemporaryFile()
         t.write(byte_array)
         return t
+
+class Comment(models.Model):
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    binary = generic.GenericForeignKey()
+    comment = models.CharField(max_length=255)
+    address = models.CharField(max_length=32)
+
 
 class BinaryFile(Binary):
     the_file = models.FileField(storage=fs, upload_to="uploads")
