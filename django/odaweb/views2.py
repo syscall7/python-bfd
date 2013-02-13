@@ -65,26 +65,6 @@ def functions(request):
 def strings(request):
     pass
 
-
-def comment(request):
-
-    class CommentForm(forms.Form):
-        comment = forms.TextInput()
-        address = forms.TextInput()
-
-    form = CommentForm(request.POST, request.FILES)
-
-    if form.is_valid():
-        oda_master = get_session(request)
-        binary = oda_master.binary
-        ctype = ContentType.objects.get_for_model(binary)
-        oda_master = get_session(request)
-        comment = Comment(content_type=ctype, object_id=binary.id, comment = form.comment, address = form.address)
-        comment.save()
-        return render_to_json({"status" : "ok"})
-
-
-
 class UploadFileForm(forms.Form):
     filedata = forms.FileField()
     #filename = forms.CharField()
