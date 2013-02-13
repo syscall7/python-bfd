@@ -1,7 +1,7 @@
 {% for chunk in chunks %}
     <tbody>
     {% for inst in chunk.instUnits %}
-    
+
         {%  if inst.function %}
                 <tr addr={{ inst.offset|stringformat:"08x" }}>
                     <td class="branchLines">{{ inst.branch_label|safe }}</td>
@@ -35,7 +35,7 @@
                     <td class="branchLines">{{ inst.branch|safe }}</td>
                     <td class="offset">{{inst.section_name}}:0x{{ inst.offset|stringformat:"08x" }}</td>
                     <td class="raw" style="padding-left:10px;">{{ inst.rawBytes }}</td>
-                    <td class="insn" style="padding-left:40px;">{{ inst.instStr|safe }}&nbsp;&nbsp;<span class="comment" contenteditable="true" style="color:blue; outline:none; width:250px; text-align:left;" >&nbsp;</span></td>
+                    <td class="insn" style="padding-left:40px;">{{ inst.instStr|safe }}&nbsp;&nbsp;<span class="comment" contenteditable="true" style="color:blue; outline:none; width:250px; text-align:left;" >&nbsp;{{ inst.comment|safe }}</span></td>
                 </tr>
 
     {%  endfor %}
