@@ -1,5 +1,7 @@
 {% extends "refactor/layout-new.djhtml" %}
 
+{% load tags %}
+
 {% block head %}
 
     <script type="text/javascript">
@@ -13,29 +15,24 @@
 {% block content %}
 
 
-    
+
     {% include "refactor/sidebar.djhtml" %}
-        
+
     <div id="view">
         <div id="view-container">
             <!--div id="slider-container"-->
-                <div id="slider" class="ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all" aria-disabled="false" style="border: 0px none;">
-                    <table id="coloredChunks">
-                    <tbody>
-                    <tr>
-                    <td bgcolor="5d8fff" style="width:5%"></td>
-                    <td bgcolor="3e79ff" style="width:10%"></td>
-                    <td bgcolor="004eff"></td>
-                    <td bgcolor="black"></td>
-                    </tr>
-                    </tbody>
+                <div id="slider" style="margin-bottom: 15px">
+                    <table id="slider-sections">
+                        <tr>
+                            {% for s in section_info.code_sections %}
+                                <td bgcolor="{%  sectioncolor forloop.counter0 %}"
+                                    style="border:1px solid #ffffff; width:{% widthratio s.size section_info.addr_range  100 %}%"></td>
+                            {% endfor %}
+                        </tr>
                     </table>
-                    <a class="ui-slider-handle ui-state-default" href="#" style="left: 0%;"></a>
                 </div>
-                <p> </p>
-                <p> </p>
-                <div id="location" style="color:gray; font-family:monospace">0x00000000</div>
-            <!--/div-->    
+                <div id="slider-address" style="color:gray; font-family:monospace; float:right">0</div>
+            <!--/div-->
             <ul class="nav nav-tabs" id="myTab" style="margin-bottom: 0px;">
                 <li class="active"><a data-toggle="tab" href="#disassembly">Disassembly</a></li>
                 <li class=""><a data-toggle="tab" href="#hex-dump">Hex Dump <i class="icon-remove-sign"></i> </a></li>
@@ -51,9 +48,9 @@
                 {% include "refactor/tab-disassembly.djhtml" %}
                 {% include "refactor/tab-hexdump.djhtml" %}
             </div>
-    
+
         </div>
-    
+
         <div id="status-bar">
             <a href="#" id="platform-option">i386-x64 </a>  | 176.6kb | filename.bin
         </div>

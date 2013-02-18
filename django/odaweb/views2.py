@@ -13,16 +13,20 @@ from django.utils import simplejson
 
 from utils import id_generator
 
+
 def render_to_json(context):
     return HttpResponse(simplejson.dumps(context)  , mimetype='application/json')
+
 
 def index(request, disassembly_id):
 
     print 'index'
     oda_master = create_session(request, disassembly_id)
+    if oda_master:
+        section_info = Disassembler(oda_master.binary).get_sections_code()
 
-    return render(request, 'refactor/index.djhtml',{
-        #'disassembly_id': oda_master.short_name
+    return render(request, 'refactor/index.djhtml', {
+        'section_info': section_info
     })
 
 
@@ -30,6 +34,7 @@ def save(request):
     print 'Saving...'
     disassembly_session_id = request.session["disassembly_session_id"]
     return redirect('/odaweb/' + disassembly_session_id)
+
 
 def create_session(request, disassembly_id):
 
@@ -46,6 +51,9 @@ def create_session(request, disassembly_id):
 
         OdaMaster(short_name = disassembly_session_id)
         #Copy Disassembly ID into
+
+    return OdaMaster.objects.get(short_name = disassembly_session_id)
+
 
 def get_session(request):
 

@@ -84,6 +84,22 @@ class Disassembler(object):
     def symbols(self):
         return dict(sorted(self.bfd.syms_by_addr.iteritems()))
 
+    def get_sections_code(self):
+        class SectionInfo(object):
+            def __init__(self, code_sections):
+                self.code_sections = code_sections
+                self.start_addr = code_sections[0].vma
+                self.stop_addr = code_sections[-1].vma + code_sections[-1].size
+
+            addr_range = property(lambda self: self.stop_addr - self.start_addr)
+
+        def filter_sec_code(sec):
+            return {'SEC_CODE'}.issubset([f.name for f in sec.flags])
+
+        section_info = SectionInfo(filter(filter_sec_code, self.sections))
+
+        return section_info
+
     def process_chunks(self):
         chunks = []
 
