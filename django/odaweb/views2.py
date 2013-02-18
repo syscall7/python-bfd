@@ -42,7 +42,7 @@ def create_session(request, disassembly_id):
     print 'disassembly_session_id is ', disassembly_session_id
 
     if not disassembly_session_id:
-        if disassembly_id:
+        if not disassembly_id:
             disassembly_id = 'some_default'
 
         diassembly_session_id = id_generator()
