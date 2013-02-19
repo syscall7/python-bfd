@@ -9,6 +9,7 @@
     <script type="text/javascript" src="{{ STATIC_URL }}lib/jquery/jquery-1.8.3.min.js" ></script>
     <script type="text/javascript" src="{{ STATIC_URL }}lib/bootstrap-2.2.2/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}scripts/lib/splitter.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}scripts/fixed-table.js"></script>
     <script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}scripts/app.js"></script>
 

@@ -63,8 +63,8 @@ body {
     /*border: 1px solid #DDD;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
     transition: border 0.2s linear 0s, box-shadow 0.2s linear 0s;*/
-    min-height:200px;
-    background-color: FFF#;
+    /*min-height:200px;*/
+    background-color: #FFF;
     border-radius: 4px 4px 4px 4px;
     padding:5px;
 }
@@ -75,7 +75,11 @@ body {
     margin-bottom: 15px;
 }
 
-
+.sidebar-table td{
+    padding: 4px;
+    line-height: 10px;
+    width: 95%;
+}
 
 #view {
     bottom: 0;
@@ -101,9 +105,17 @@ tbody.scrollContent {
 }
 
 #slider-container {
-    margin-right: 20px;
+    margin-right: 15px;
 }
 
+.sidebar-scroll-container {
+    overflow: scroll;
+    height: 75px;
+}
+
+#function-table {
+    margin-bottom: 5px;
+}
 
 #coloredChunks {
     border: 0;
@@ -131,7 +143,7 @@ legend {
 }
 
 #myTabContent {
-    height: 500px;
+    /*height: 500px;*/
     overflow: scroll;    
 }
 

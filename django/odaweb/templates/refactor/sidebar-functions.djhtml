@@ -2,57 +2,59 @@
      style="padding:5px; background-color: white;" class="item">
     <legend>Function</legend>
     <div class="sidebar-content">
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th>#</th>
-                <th>Address</th>
-                <th>Name</th>
-            </tr>
-            </thead>
-            <tbody class="scrollContent">
-            <tr>
-                <td>1</td>
-                <td>0x08060300</td>
-                <td>stdout</td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>0x080602c0</td>
-                <td>program_invocation_short_name</td>
-            </tr>
-            <tr>
-                <td>3</td>
-                <td>0x080602e8</td>
-                <td>stderr</td>
-            </tr>
-            <tr>
-                <td>4</td>
-                <td>0x080602e8</td>
-                <td>stderr</td>
-            </tr>
-            <tr>
-                <td>5</td>
-                <td>0x080602e8</td>
-                <td>stderr</td>
-            </tr>
-            <tr>
-                <td>6</td>
-                <td>0x080602e8</td>
-                <td>stderr</td>
-            </tr>
-            <tr>
-                <td>7</td>
-                <td>0x080602e8</td>
-                <td>stderr</td>
-            </tr>
-            <tr>
-                <td>8</td>
-                <td>0x080602e8</td>
-                <td>stderrffdsfdsf</td>
-            </tr>
-                        
-            </tbody>
-        </table>
+        <div class="sidebar-scroll-container">
+            <table class="table table-striped sidebar-table" id="function-table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Address</th>
+                    <th>Name</th>
+                </tr>
+                </thead>
+                <tbody class="scrollContent">
+                <tr>
+                    <td>1</td>
+                    <td>0x08060300</td>
+                    <td>stdout</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>0x080602c0</td>
+                    <td>program_invocation_short_name</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>0x080602e8</td>
+                    <td>stderr</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>0x080602e8</td>
+                    <td>stderr</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>0x080602e8</td>
+                    <td>stderr</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>0x080602e8</td>
+                    <td>stderr</td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td>0x080602e8</td>
+                    <td>stderr</td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td>0x080602e8</td>
+                    <td>stderrffdsfdsf</td>
+                </tr>
+                            
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

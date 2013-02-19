@@ -12,23 +12,42 @@ function FileUploadTab() {
     });
 }
 
+function ResizeSidebarScroll(elem) {
+        var new_offset = $("#sidebarContent").offset().top;
+        var accum_margins = 30; //Not captured by jquery
+        if ( $(elem).find('table').length )
+        {
+            // Table header height
+            new_offset += 36;
+        }
+        else
+        {
+            // Margins and Padding 
+            new_offset += 15;
+        }
+        new_offset += $("#sidebar").offset().top + accum_margins;
+        return $(window).height()-new_offset;  //237;        
+}
+
+
 function ResizeHandler() {
     $(window).resize(function() {
         // TODO: Hardcoded Height includes footer and banner
-        $('#view-container').height($(window).height()-74);
+        /*$('#view-container').height($(window).height()-74);*/
         $('#vertSplitter').height($(window).height()-47);
         
         // TODO: Hardcoded Height includes footer, banner, and tabs
         $('#myTabContent').height($(window).height()-152);
              
-        $('#sidebar-container').height($(window).height()-47);
-        $('sidebar-content').height($(window).height()-197);
+        $('.sidebar-scroll-container').each( function (i,elem) {
+            $(elem).height( ResizeSidebarScroll($(elem)) );} );
+        
     });
-    $('#view-container').height($(window).height()-74);
+    //$('#view-container').height($(window).height()-74);
     $('#vertSplitter').height($(window).height()-47);
     $('#myTabContent').height($(window).height()-152);
-    $('#sidebar-container').height($(window).height()-47);
-    $('sidebar-content').height($(window).height()-197);
+    $('.sidebar-scroll-container').each( function (i,elem) {
+        $(elem).height( ResizeSidebarScroll($(elem)) );} );
 
     
 }
@@ -224,5 +243,7 @@ $(document).ready(function(){
     InitializeSplitter();
 
     InitializeComments();
+
+    scrolify($('#function-table')); // 160 is height
 
 });
