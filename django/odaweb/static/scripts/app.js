@@ -45,7 +45,7 @@ function InitializeTabs() {
     $('#myTab a').click(function (e) {
         e.preventDefault();
         $(this).tab('show');
-    })
+    });
 
     $('.item').hide();
     $('.active').show();
@@ -55,18 +55,69 @@ function InitializeSplitter() {
     $("#main-display").splitter({type: 'v'});    
 }
 
-function InitializeSlider() {
-    // setup slider
-    $( "#slider" ).slider({
-        animate: true,
-        min: 0x00000000,
-        max: 0xFFFFFFFF,
-    });
+/* ---------------------------------------------------------------------------------------------------------  *
+ * ADDRESS SLIDER
+ * ---------------------------------------------------------------------------------------------------------  */
+function InitializeSlider(min, max) {
 
     // remove border
     $(".ui-slider-horizontal").css('border', 0);
     $(".ui-slider-handle").removeClass('ui-corner-all');
-    
+
+    // set the slider address display text
+    // NOTE: This function is triggered via updateSlider() in history.js as well
+    function updateAddrDisplay(addr) {
+        addrStr = addr.toString(16).toUpperCase();
+        console.debug("updateAddrDisplay to %s", addrStr);
+        while (addrStr.length < 8) addrStr = "0" + addrStr;
+        $("#slider-address").text("0x" + addrStr);
+    }
+
+    // event handler for slider control
+    function sliderHandler(addr) {
+
+        // no need to set the slider position, that's already been done by the event
+        updateAddrDisplay(addr);
+
+        /* TODO: Uncomment this after porting over history.js
+        // Try to scroll to the address
+        if ( !updateDisassembly(addr) )
+        {
+            // Isn't loaded. Try to load it
+            scrollToAddr(addr);
+        }
+        */
+    }
+
+    // setup slider
+    $( "#slider" ).slider({
+        change: function( event, ui ) { console.debug("slider change event"); updateAddrDisplay(ui.value); },
+        slide: function( event, ui ) { console.debug("slider slide event"); updateAddrDisplay(ui.value); },
+        stop: function( event, ui )  { console.debug("slider stop event"); sliderHandler(ui.value); },
+        animate: true,
+        min: min,
+        max: max,
+    });
+
+    // set initial position
+    updateAddrDisplay($("#slider").slider("value"));
+
+    $("html").keypress(function(event) {
+        if (String.fromCharCode(event.which) == 'g') {
+            var strAddr = prompt("Go to address:");
+            var addr = parseInt(strAddr, 16);
+            console.debug("Setting slider to 0x%s", addr.toString(16));
+            $("#slider").slider("value", addr );
+
+            // Try to scroll to the address
+            if ( !updateDisassembly(addr) )
+            {
+                // Isn't loaded. Try to load it
+                scrollToAddr(addr);
+            }
+        }
+    });
+
 }
 
 function SidebarCloseHide() {
@@ -131,7 +182,7 @@ function InitializeComments() {
             comment = "&nbsp;";
         } else {
             console.debug("adding comment at offset %s: \"%s\"", offset, comment);
-            $.post("/odaweb/comment/", { comment: comment, address: offset } );
+            $.post("/odaweb/comment/", { comment: comment, offset: offset } );
 
             // add "; "
             comment = "; " + comment;
@@ -171,8 +222,6 @@ $(document).ready(function(){
     ResizeHandler();
     
     InitializeSplitter();
-
-    InitializeSlider();
 
     InitializeComments();
 

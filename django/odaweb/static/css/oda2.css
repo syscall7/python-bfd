@@ -184,3 +184,19 @@ legend {
     /**font-weight: bold; */ /** Messes with the line height*/
     white-space: pre;
 }
+
+#slider-sections {
+    /* border-collapse: collapse; */
+    border:1px solid #ffffff; /*#BDBEDF;*/
+    width: 100%;
+    height: 20px;
+}
+
+.ui-slider-horizontal .ui-state-default {
+    background: url('/static/images/handle.png');
+    width:21px;
+    height:27px;
+    border: 0;
+    outline: 0;
+
+}

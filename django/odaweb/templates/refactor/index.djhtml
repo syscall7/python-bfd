@@ -6,7 +6,11 @@
 
     <script type="text/javascript">
     $(document).ready(function(){
-       Load('{{ disassembly_id }}');
+
+        // set the address range for the slider
+        InitializeSlider({{ section_info.start_addr  }}, {{ section_info.stop_addr }})
+
+        Load('{{ disassembly_id }}');
     });
     </script>
 
@@ -21,7 +25,7 @@
     <div id="view">
         <div id="view-container">
             <!--div id="slider-container"-->
-                <div id="slider" style="margin-bottom: 15px">
+                <div id="slider" style="margin-bottom: 15px; margin-top: 5px; border: 0px">
                     <table id="slider-sections">
                         <tr>
                             {% for s in section_info.code_sections %}
