@@ -9,6 +9,7 @@ import os.path
 from datetime import datetime
 from utils import sha1_hash
 import uuid
+import tempfile
 
 fs = FileSystemStorage(location='/tmp/odaweb')
 
@@ -96,13 +97,14 @@ class BinaryString(Binary):
     binary_string = models.TextField()
 
     def file_handle(self):
-        import tempfile
+
         if len(self.binary_string) % 2 == 1:
             self.binary_string += '0'
         byte_array = self.binary_string.decode("hex")
-        t = tempfile.NamedTemporaryFile()
+        t = tempfile.NamedTemporaryFile(delete = False)
         t.write(byte_array)
-        return t
+
+        return File(t)
 
     def name(self):
         return 'hex string'

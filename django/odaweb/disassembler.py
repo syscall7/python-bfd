@@ -4,7 +4,7 @@ import bfd
 import dischunk
 from django.contrib.contenttypes.models import ContentType
 
-from odaweb.models import BinaryDisassemblyChunk
+from odaweb.models import BinaryDisassemblyChunk, Binary, BinaryString, OdaMaster, OdaOptions
 
 
 def funcFmtAddr(bfd, addr):
@@ -51,7 +51,9 @@ class Disassembler(object):
 
         self.binary = binary
 
-        self.filename = binary.file_handle().name
+        self.file_handle = binary.file_handle()
+
+        self.filename = self.file_handle.name
 
         self.bfd = bfd.Bfd(self.filename, binary.options.target, binary.options.architecture)
 
@@ -63,6 +65,8 @@ class Disassembler(object):
                     setattr(self, f.name, True) # i.e, section.SEC_ALLOC = True
                 else:
                     setattr(self, f.name, False) # i.e, section.SEC_ALLOC = False
+
+
 
     def sections_iter(self, flags=[]):
         '''Iterate over all sections (in ascending address order) that have all give flags specified'''
@@ -100,10 +104,8 @@ class Disassembler(object):
 
         return section_info
 
-    def process_chunks(self):
+    def get_chunks_from_file(self):
         chunks = []
-
-        # Disassemble the entire file, one section at a time, dividing it into disassembly chunks
         for sec in self.sections_iter(['SEC_CODE']):
 
             # Initialize loop variables
@@ -127,6 +129,31 @@ class Disassembler(object):
                 # Update loop variables
                 sec_consumed += chunk_size
                 sec_offset_addr = next_addr
+
+        return chunks
+
+    def get_chunks_from_unknown_target(self):
+        chunks = []
+        consumed = 0
+        size = self.binary.size()
+        while consumed < size:
+            chunk_size = min( dischunk.DisChunk.MIN_CHUNK_SIZE_BYTES, size - consumed)
+            disassembly, next_addr, num_lines = self.disassemble('.data', consumed, consumed+chunk_size)
+            chunks.append(dischunk.DisChunk(consumed, next_addr, num_lines, '.data'))
+            consumed += chunk_size
+
+        return chunks
+
+
+    def process_chunks(self):
+        chunks = []
+
+        # Disassemble the entire file, one section at a time, dividing it into disassembly chunks
+        if self.binary.options.target == 'binary':
+            chunks = self.get_chunks_from_unknown_target()
+        else:
+            chunks = self.get_chunks_from_file()
+
 
         # Note the boundary chunks
         chunks[0].is_boundary = True
@@ -201,3 +228,22 @@ class JsonChunkProcessor(object):
             })
 
         return analyzer.chunks, chunk_list
+
+
+def create_default_view(short_name):
+
+
+    options = OdaOptions(target="binary", architecture="i386")
+    options.save()
+
+    binary = BinaryString()
+    binary.binary_string = ''.join('55 31 D2 89 E5 8B 45 08 56 8B 75 0C 53 8D 58 FF 0F B6 0C 16 88 4C 13 01 83 C2 01 84 C9 75 F1 5B 5E 5D C3 '.split())
+    binary.options = options
+    binary.save()
+
+    oda_master = OdaMaster()
+    oda_master.short_name = short_name
+    oda_master.binary = binary
+    oda_master.save()
+
+    return oda_master
