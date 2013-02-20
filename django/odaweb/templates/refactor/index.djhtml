@@ -56,7 +56,7 @@
         </div>
 
         <div id="status-bar">
-            <a href="#" id="platform-option">i386-x64 </a>  | 176.6kb | filename.bin
+            <a href="#" id="platform-option"> {{ binary.options.architecture }}</a>  | {{ binary.size|filesizeformat }} | {{ binary.name }}
         </div>
     </div>
     <div id="vertSplitter" class="vsplitbar"></div>

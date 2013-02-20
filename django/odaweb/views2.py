@@ -26,7 +26,8 @@ def index(request, disassembly_id):
         section_info = Disassembler(oda_master.binary).get_sections_code()
 
     return render(request, 'refactor/index.djhtml', {
-        'section_info': section_info
+        'section_info': section_info,
+        'binary': oda_master.binary,
     })
 
 

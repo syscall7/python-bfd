@@ -107,6 +107,10 @@ class BinaryString(Binary):
     def name(self):
         return 'hex string'
 
+    def size(self):
+        return len(self.binary_string)/2
+
+
 class Comment(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
@@ -131,6 +135,9 @@ class BinaryFile(Binary):
 
     def name(self):
         return self.filename
+
+    def size(self):
+        return self.filesize
 
     def create(f, options):
         u = BinaryFile()
