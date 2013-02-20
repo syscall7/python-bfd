@@ -20,15 +20,15 @@ def render_to_json(context):
 
 def index(request, disassembly_id):
 
-    print 'index'
+    render_dict = {}
     oda_master = create_session(request, disassembly_id)
+
     if oda_master:
         section_info = Disassembler(oda_master.binary).get_sections_code()
+        render_dict['section_info'] = section_info
+        render_dict['binary'] = oda_master.binary
 
-    return render(request, 'refactor/index.djhtml', {
-        'section_info': section_info,
-        'binary': oda_master.binary,
-    })
+    return render(request, 'refactor/index.djhtml', render_dict)
 
 
 def save(request):
@@ -53,7 +53,12 @@ def create_session(request, disassembly_id):
         OdaMaster(short_name = disassembly_session_id)
         #Copy Disassembly ID into
 
-    return OdaMaster.objects.get(short_name = disassembly_session_id)
+    try:
+        oda_master = OdaMaster.objects.get(short_name = disassembly_session_id)
+    except Exception as e:
+        oda_master = None
+
+    return oda_master
 
 
 def get_session(request):
