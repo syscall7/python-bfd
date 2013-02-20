@@ -7,7 +7,7 @@
                     <td class="branchLines">{{ inst.branch_label|safe }}</td>
                     <td class="offset">{{inst.section_name}}:0x{{ inst.offset|stringformat:"08x" }}</td>
                     <td></td>
-                    <td class="function" colspan="4">; =============== F U N C T I O N ====================================</td>
+                    <td class="function" style="width:100%;">; =============== F U N C T I O N ====================================</td>
                 </tr>
                 
                 {% for xref in inst.function.xrefs %}
