@@ -6,7 +6,7 @@ from odaweb import engine
 from django import forms
 import dischunk
 from django.contrib.contenttypes.models import ContentType
-from disassembler import Disassembler, JsonChunkProcessor
+from disassembler import Disassembler, JsonChunkProcessor, create_default_view
 from django.template.loader import render_to_string
 from django.http import HttpResponseRedirect, HttpResponse
 from django.utils import simplejson
@@ -39,26 +39,20 @@ def save(request):
 
 def create_session(request, disassembly_id):
 
-    disassembly_session_id = request.session.get('disassembly_session_id')
-    print 'disassembly_session_id is ', disassembly_session_id
-
-    if not disassembly_session_id:
-        if not disassembly_id:
-            disassembly_id = 'some_default'
-
+    if not disassembly_id:
+        #They've arrived at odaweb/
         diassembly_session_id = id_generator()
         print 'New session_id is ', diassembly_session_id
         request.session["disassembly_session_id"] = diassembly_session_id
+        create_default_view(diassembly_session_id)
 
-        OdaMaster(short_name = disassembly_session_id)
-        #Copy Disassembly ID into
+    disassembly_session_id = request.session.get('disassembly_session_id')
+    if not disassembly_session_id:
+        #TODO They've not been here before, copy the disassembly_id into they session
+        pass
 
-    try:
-        oda_master = OdaMaster.objects.get(short_name = disassembly_session_id)
-    except Exception as e:
-        oda_master = None
+    return OdaMaster.objects.get(short_name = disassembly_session_id)
 
-    return oda_master
 
 
 def get_session(request):

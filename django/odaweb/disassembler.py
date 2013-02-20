@@ -92,8 +92,12 @@ class Disassembler(object):
         class SectionInfo(object):
             def __init__(self, code_sections):
                 self.code_sections = code_sections
-                self.start_addr = code_sections[0].vma
-                self.stop_addr = code_sections[-1].vma + code_sections[-1].size
+                if len(code_sections):
+                    self.start_addr = code_sections[0].vma
+                    self.stop_addr = code_sections[-1].vma + code_sections[-1].size
+                else:
+                    self.start_addr = 0
+                    self.stop_addr = 0
 
             addr_range = property(lambda self: self.stop_addr - self.start_addr)
 
@@ -131,19 +135,6 @@ class Disassembler(object):
                 sec_offset_addr = next_addr
 
         return chunks
-
-    def get_chunks_from_unknown_target(self):
-        chunks = []
-        consumed = 0
-        size = self.binary.size()
-        while consumed < size:
-            chunk_size = min( dischunk.DisChunk.MIN_CHUNK_SIZE_BYTES, size - consumed)
-            disassembly, next_addr, num_lines = self.disassemble('.data', consumed, consumed+chunk_size)
-            chunks.append(dischunk.DisChunk(consumed, next_addr, num_lines, '.data'))
-            consumed += chunk_size
-
-        return chunks
-
 
     def process_chunks(self):
         chunks = []
