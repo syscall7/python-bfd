@@ -104,6 +104,9 @@ class BinaryString(Binary):
         t.write(byte_array)
         return t
 
+    def name(self):
+        return 'hex string'
+
 class Comment(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
@@ -125,6 +128,9 @@ class BinaryFile(Binary):
 
     def file_handle(self):
         return self.the_file.file
+
+    def name(self):
+        return self.filename
 
     def create(f, options):
         u = BinaryFile()
