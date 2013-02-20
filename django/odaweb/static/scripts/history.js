@@ -100,6 +100,43 @@ function scrollToAddr(offset)
     return false;
 }
 
+// Load an entire new page of disassembly
+function refreshDisassembly(offset)
+{
+    console.debug("refreshDisassembly, start");
+    $.post('_refresh', {id: id, addr: offset}).done(function(data){            
+        // Update the chunk list
+        if ( data.chunks.length > 0 )
+        {
+            // Remove lower address chunks from the display
+            $('#listing').find("tbody").remove();
+
+            // Append the new listing
+            $('#listing').find("colgroup").after(data.disassembly);
+            
+            // Clear the collection
+            window.disChunks.reset();
+               
+            // Append the new chunks to the end of the list
+            for (var i = 0; i < data.chunks.length; i++) 
+            {
+                var chunk = new DisChunkInfo({ 
+                    sec_name : data.chunks[i].sec_name,
+                    startOffset : data.chunks[i].startOffset,
+                    endOffset : data.chunks[i].endOffset,
+                    lines : data.chunks[i].lines,
+                    isBoundary : data.chunks[i].isBoundary
+                });
+                window.disChunks.push(chunk);    
+            }
+        }
+                        
+        // Recenter the Scrollbar
+        scrollToAddr(offset);
+                                    
+    });                     
+}
+
 function updateDisassembly(offset)
 {
     console.debug("updateDisassembly, start");
@@ -110,28 +147,32 @@ function updateDisassembly(offset)
     var index = getChunkIndex(offset);
     console.debug("updateDisassembly, got chunk index %d", index);
 
-    // Determine how many new chunks to request
-    var mid_index = Math.floor((chunks.length/2));
     if ( index == -1 )
     {
         // Need to load all new disassembly
         console.debug("updateDisassembly, refresh entire page");
-        window.refresh(offset);
+        //window.refresh(offset);
         return true;
     }
-    else if ( index > mid_index )
+    else
     {
-        // Partial load
-        console.debug("updateDisassembly, partial load forward");
-        var requested_chunks = index-mid_index;
-        return requestMoreDisassembly(1,requested_chunks,offset);
-    }
-    else if ( index < mid_index )
-    {
-        // Partial load
-        console.debug("updateDisassembly, partial load reverse");
-        var requested_chunks = mid_index - index;
-        return requestMoreDisassembly(0,requested_chunks,offset);        
+        // Determine how many new chunks to request
+        var mid_index = Math.floor((chunks.length/2));
+
+        if ( index > mid_index )
+        {
+            // Partial load
+            console.debug("updateDisassembly, partial load forward");
+            var requested_chunks = index-mid_index;
+            return requestMoreDisassembly(1,requested_chunks,offset);
+        }
+        else if ( index < mid_index )
+        {
+            // Partial load
+            console.debug("updateDisassembly, partial load reverse");
+            var requested_chunks = mid_index - index;
+            return requestMoreDisassembly(0,requested_chunks,offset);        
+        }
     }
     
     return false;                
@@ -141,14 +182,17 @@ function updateDisassembly(offset)
 function getChunkIndex(offset)
 {
     // Find the chunk that contains the address
-    var chunks = window.disChunks;
-    for (var i = 0; i < chunks.length; i++) 
+    if ( "disChunks" in window )
     {
-        var start = chunks.models[i].get('startOffset');
-        var end = chunks.models[i].get('endOffset');
-        if ( offset >= start && offset < end )
+        var chunks = window.disChunks;
+        for (var i = 0; i < chunks.length; i++) 
         {
-            return i;
+            var start = chunks.models[i].get('startOffset');
+            var end = chunks.models[i].get('endOffset');
+            if ( offset >= start && offset < end )
+            {
+                return i;
+            }
         }
     }
     
@@ -182,12 +226,13 @@ function requestMoreDisassembly(dir,chunk_count,offset)
         {
             // Append new chunks to the bottom
             window.ignoreScrollEvents = true;
-            getMore(chunks.models[index].get('sec_name'),
-                    chunks.models[index].get('startOffset'),
-                    chunks.models[index].get('endOffset'),
-                    chunk_count,
-                    dir,
-                    offset);
+            // TODO: Put back when server supports partial refresh
+            // getMore(chunks.models[index].get('sec_name'),
+                    // chunks.models[index].get('startOffset'),
+                    // chunks.models[index].get('endOffset'),
+                    // chunk_count,
+                    // dir,
+                    // offset);
             
             return true;            
         }
@@ -226,31 +271,34 @@ function myElementFromPoint(x,y)
 function getTopVisibleAssemblyRow()
 {
     // Find the position of the top most disassembly line
-    var main_contain_left = $("#main-container")[0].offsetLeft;
-    var main_contain_top = $("#main-container")[0].offsetTop;
-    var dbar_left = $('#download-bar')[0].offsetLeft;
-    var dbar_top = $('#download-bar')[0].offsetTop; 
-    var dbar_border_width = 1;  // Could get from .css
+    var main_contain_left = $("#view")[0].offsetLeft;
+    var main_contain_top = $("#view")[0].offsetTop;
+    // var dbar_left = $('#download-bar')[0].offsetLeft;
+    // var dbar_top = $('#download-bar')[0].offsetTop; 
+    // var dbar_border_width = 1;  // Could get from .css
+    var view_padding_left = 16;
+    var content_top = $("#myTabContent")[0].offsetTop;
 
-    console.debug("getTopVisibleAssemblyRow main_left %d, main_top %d, dbar_left %d, dbar_top %d",
-        main_contain_left, main_contain_top, dbar_left, dbar_top);
+    console.debug("getTopVisibleAssemblyRow main_left %d, main_top %d",
+        main_contain_left, main_contain_top);
     
     // Calculate the first pixel of the top-most visible disassembly line
-    var target_top = main_contain_top + dbar_top + 1;
+    var target_top = main_contain_top + content_top + 1;
     
     // Calculate the left most pixel of the top-most visible disassembly line
-    var target_left = main_contain_left + dbar_left + + dbar_border_width + 1;
+    var target_left = main_contain_left + view_padding_left + 1;
     
     // Get the Line of disassembly to determine the corresponding address
     var elem = myElementFromPoint(target_left, target_top);
 
     // Handle labels and other internal tags
-    if ( elem.id == 'download-bar')
-    {
-        // The dbar is at the top of the listing so just skip to the first row
-        elem = $('#listing').find('tr').first()[0];
-    }
-    else if ( elem.tagName.toLowerCase() != 'tr' )
+    // if ( elem.id == 'download-bar')
+    // {
+        // // The dbar is at the top of the listing so just skip to the first row
+        // elem = $('#listing').find('tr').first()[0];
+    // }
+    // else 
+    if ( elem.tagName.toLowerCase() != 'tr' )
     { 
         // Most likely in an internal tag (tr.branchlines, etc)
         elem = $(elem).closest('tr')[0];

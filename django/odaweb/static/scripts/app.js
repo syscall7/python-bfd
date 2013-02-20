@@ -98,14 +98,12 @@ function InitializeSlider(min, max) {
         // no need to set the slider position, that's already been done by the event
         updateAddrDisplay(addr);
 
-        /* TODO: Uncomment this after porting over history.js
         // Try to scroll to the address
         if ( !updateDisassembly(addr) )
         {
             // Isn't loaded. Try to load it
             scrollToAddr(addr);
         }
-        */
     }
 
     // setup slider
@@ -157,13 +155,42 @@ function SidebarCloseHide() {
 
 function Load(id) {
 
+    var DisChunkInfo = Backbone.Model.extend({});
+    var DisChunkList = Backbone.Collection.extend({
+        model: DisChunkInfo
+    });
+
+    window.disChunks = new DisChunkList([]);
+
+
     $.post('_refresh', {id: id}).done(function(data){
 
-        $('#listing').find("tbody").remove();
-
-        // Append the new listing
-        $('#listing').find("colgroup").after(data.disassembly);
-
+        // Update the chunk list
+        if ( data.chunks.length > 0 )
+        {
+            // Remove lower address chunks from the display
+            $('#listing').find("tbody").remove();
+    
+            // Append the new listing
+            $('#listing').find("colgroup").after(data.disassembly);
+            
+            // Clear the collection
+            window.disChunks.reset();
+               
+            // Append the new chunks to the end of the list
+            for (var i = 0; i < data.chunks.length; i++) 
+            {
+                var chunk = new DisChunkInfo({ 
+                    sec_name : data.chunks[i].sec_name,
+                    startOffset : data.chunks[i].startOffset,
+                    endOffset : data.chunks[i].endOffset,
+                    lines : data.chunks[i].lines,
+                    isBoundary : data.chunks[i].isBoundary
+                });
+                window.disChunks.push(chunk);    
+            }
+        }
+     
     }).fail(function(){
         alert('fail');
     });
