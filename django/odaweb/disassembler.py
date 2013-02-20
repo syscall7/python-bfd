@@ -104,9 +104,9 @@ class Disassembler(object):
 
         return section_info
 
-    def get_chunks_from_file(self):
+    def get_chunks_from_file(self, sections):
         chunks = []
-        for sec in self.sections_iter(['SEC_CODE']):
+        for sec in sections:
 
             # Initialize loop variables
             sec_consumed = 0
@@ -150,9 +150,9 @@ class Disassembler(object):
 
         # Disassemble the entire file, one section at a time, dividing it into disassembly chunks
         if self.binary.options.target == 'binary':
-            chunks = self.get_chunks_from_unknown_target()
+            chunks = self.get_chunks_from_file(self.sections)
         else:
-            chunks = self.get_chunks_from_file()
+            chunks = self.get_chunks_from_file(self.sections_iter(['SEC_CODE']))
 
 
         # Note the boundary chunks
@@ -245,5 +245,8 @@ def create_default_view(short_name):
     oda_master.short_name = short_name
     oda_master.binary = binary
     oda_master.save()
+
+    disassembler = Disassembler(oda_master.binary)
+    disassembler.process_chunks()
 
     return oda_master
