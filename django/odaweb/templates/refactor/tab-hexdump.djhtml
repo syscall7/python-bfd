@@ -3,13 +3,17 @@
     function mouseoverBytes(e) {
         var currentId = e.target.id;
         var addr = currentId.substring(1, currentId.length);
-        $("#a"+addr).addClass("hex-hovered");
-        $("#h"+addr).addClass("hex-hovered");
+        var ascii = $("#a"+addr);
+        var hex = $("#h"+addr);
+
+        ascii.addClass("hex-hovered");
+        hex.addClass("hex-hovered");
+
+        var status = "Address: 0x" + addr + " Byte: " + hex.text() + " ASCII: '" + ascii.text() + "'";
+        $("#status-bar-left").html(status);
 
         addr = addr.substring(0, addr.length-1) + "0";
         $("#p"+addr).addClass("hex-hovered");
-
-        //SetValueElement(byte);
     }
 
     function mouseoutBytes(e) {
@@ -20,6 +24,7 @@
 
         addr = addr.substring(0, addr.length-1) + "0";
         $("#p"+addr).removeClass("hex-hovered");
+        $("#status-bar-left").html("");
     };
 
 

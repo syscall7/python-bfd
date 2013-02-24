@@ -150,8 +150,14 @@ legend {
 #status-bar {
     background-color: #555;
     color:white;
-    padding:6px;
+    width: 100%;
+}
+#status-bar-right {
     text-align: right;
+}
+
+#status-bar-left {
+    text-align: left;
 }
 
 #banner {

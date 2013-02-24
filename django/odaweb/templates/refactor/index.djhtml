@@ -55,9 +55,15 @@
 
         </div>
 
-        <div id="status-bar">
-            <a href="#" id="platform-option"> {{ binary.options.architecture }}</a>  | {{ binary.size|filesizeformat }} | {{ binary.name }}
-        </div>
+        <table id="status-bar">
+            <tr>
+                <td id="status-bar-left">
+
+                </td>
+                <td id="status-bar-right">
+                    <a href="#" id="platform-option"> {{ binary.options.architecture }}</a>  | {{ binary.size|filesizeformat }} | {{ binary.name }}
+                </td>
+        </table>
     </div>
     <div id="vertSplitter" class="vsplitbar"></div>
 {% endblock %}
