@@ -2,6 +2,7 @@
 import bfd
 import sys
 import os
+import binascii
 
 # Called each time there is an address referenced in an instruction,
 #   such as move r0, 0x12345678
@@ -26,6 +27,12 @@ def funcFmtLine(addr, rawData, instr, abfd):
     ret += ' %08x %-32s %s\n' % (addr, bytes, instr)
     return ret
 
+def dump_sec(abfd, sec_name, offset, size):
+    
+    text = abfd.sections[sec_name]
+    dump = abfd.raw_data(text, text.vma + offset, size)
+    print binascii.hexlify(dump)
+
 def main():
 
     exe = '/bin/ls'
@@ -40,7 +47,7 @@ def main():
 
     #b=bfd.Bfd(exe, 'binary', 'mips')
     b=bfd.Bfd(exe)
-    
+
     print '\nFile: %s' % exe
     print 'Architecture: %s' % b.arch
     print 'Target: %s' % b.target

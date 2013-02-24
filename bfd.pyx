@@ -519,8 +519,10 @@ cdef class Section:
             if f.isset(flags):
                 self.flags.append(f)
 
-    cdef get_section_contents(self, bfd_byte* buf):
-        bfd_get_section_contents(<bfd*>self.abfd, <asection*>self.section, buf, 0, self.size)
+    cdef get_section_contents(self, bfd_byte* buf, offset=0, size=0):
+        if size == 0:
+            size = self.size
+        bfd_get_section_contents(<bfd*>self.abfd, <asection*>self.section, buf, offset, size)
         return
 
 ENDIAN_DEFAULT=BFD_ENDIAN_UNKNOWN
@@ -693,6 +695,27 @@ cdef class Bfd:
     cdef _load_sections(self):
         bfd_map_over_sections(self.abfd, <void*>add_sections_callback, self);
 
+    def raw_data(self, section, addr, size):
+
+        cdef Section sec = section
+        cdef char* buf
+        cdef bytes raw
+
+        bufSize = size
+        buf = <char*> malloc(bufSize)
+        if buf == NULL:
+            print 'Failed to allocate disassembly buffer'
+            return
+
+        sec.get_section_contents(<bfd_byte*>buf, addr - sec.vma, size)
+
+        # cython will automiatically convert this to a python string
+        raw = buf[:size]
+
+        free(buf)
+
+        return raw
+
     def disassemble(self, section, startAddr=None, endAddr=None, numLines=None, funcFmtAddr=None, funcFmtLine=None, endian=ENDIAN_DEFAULT, options=''):
         '''Disassemble the given section
 
@@ -715,14 +738,16 @@ cdef class Bfd:
         cdef Section sec
         cdef int i
         cdef FILE* stream
-        cdef bfd_target* xvec
+        cdef bfd_target* xvec_new
+        cdef bfd_target* xvec_orig
 
         # make sure right away that we can disassemble this bfd
         disassemble_fn = <disassembler_ftype> disassembler(self.abfd)
         if NULL == disassemble_fn:  
             raise BfdErr('Cannot disassemble for arch %s' % self.arch) 
 
-        xvec = NULL
+        xvec_new = NULL
+        xvec_orig = self.abfd.xvec
 
         iostream = tempfile.TemporaryFile()
         if hasattr(iostream, 'file'):
@@ -759,15 +784,15 @@ cdef class Bfd:
             disasm_info.endian = BFD_ENDIAN_UNKNOWN;
 
         if endian != ENDIAN_DEFAULT:
-            xvec = <bfd_target*> malloc (sizeof (bfd_target))
-            memcpy (xvec, self.abfd.xvec, sizeof(bfd_target))
+            xvec_new = <bfd_target*> malloc (sizeof (bfd_target))
+            memcpy (xvec_new, self.abfd.xvec, sizeof(bfd_target))
             if endian == ENDIAN_BIG:
-                xvec.byteorder = BFD_ENDIAN_BIG
+                xvec_new.byteorder = BFD_ENDIAN_BIG
                 disasm_info.display_endian = disasm_info.endian = BFD_ENDIAN_BIG
             else:
-                xvec.byteorder = BFD_ENDIAN_LITTLE
+                xvec_new.byteorder = BFD_ENDIAN_LITTLE
                 disasm_info.display_endian = disasm_info.endian = BFD_ENDIAN_LITTLE
-            self.abfd.xvec = xvec
+            self.abfd.xvec = xvec_new
 
         # get disassemble function again, since we modified xvec
         disassemble_fn = <disassembler_ftype> disassembler(self.abfd)
@@ -784,8 +809,9 @@ cdef class Bfd:
         buf = <bfd_byte*> malloc(bufSize)
         if buf == NULL:
             print 'Failed to allocate disassembly buffer'
-            if xvec != NULL:
-                free(xvec)
+            if xvec_new != NULL:
+                free(xvec_new)
+            self.abfd.xvec = xvec_orig    
             return
 
         sec.get_section_contents(buf)
@@ -825,6 +851,8 @@ cdef class Bfd:
             iostream.truncate(0)
             rawData = []
             offset = addr - sec.vma
+
+            # TODO: Let cython convert this to a python string
             for 0 <= i < instrSize:
                 rawData.append( buf[offset+i])
 
@@ -847,8 +875,9 @@ cdef class Bfd:
 
         iostream.close()
         free(buf)
-        if xvec != NULL:
-            free(xvec)
+        if xvec_new != NULL:
+            free(xvec_new)
+        self.abfd.xvec = xvec_orig    
         return (output.getvalue(), addr, lineCnt)
 
     def print_dis_options(self):
