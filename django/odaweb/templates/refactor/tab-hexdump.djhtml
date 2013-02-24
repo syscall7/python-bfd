@@ -9,7 +9,12 @@
         ascii.addClass("hex-hovered");
         hex.addClass("hex-hovered");
 
-        var status = "Address: 0x" + addr + " Byte: " + hex.text() + " ASCII: '" + ascii.text() + "'";
+        var asciiVal = ascii.text().trim();
+        // if we trimmed everything away, it must be a SPACE
+        if (asciiVal == "")
+            asciiVal = " ";
+
+        var status = "Address: <b>" + addr + "h</b> Byte: <b>" + hex.text().trim() + "h</b> ASCII: <b>'" + asciiVal + "'</b>";
         $("#status-bar-left").html(status);
 
         addr = addr.substring(0, addr.length-1) + "0";

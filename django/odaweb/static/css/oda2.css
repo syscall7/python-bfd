@@ -158,6 +158,7 @@ legend {
 
 #status-bar-left {
     text-align: left;
+    font-family:monospace;
 }
 
 #banner {
