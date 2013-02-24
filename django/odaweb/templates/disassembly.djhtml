@@ -152,7 +152,7 @@
                 // Recenter the Scrollbar
                 scrollToAddr(offset);
                                       
-        });                 
+        });
     }
 
     window.comment = function(offset, comment) {

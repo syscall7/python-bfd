@@ -1,0 +1,30 @@
+{% autoescape off %}
+{% for chunk in chunks %}
+    <tbody>
+    {% for addr, bytes, ascii in chunk.hex_lines %}
+        <tr class="{% cycle 'row_even' 'row_odd' %}">
+            {# section #}
+            <td class="hex-cell-sec">{{ chunk.sec_name }}</td>
+
+            {# address #}
+            <td class="hex-cell-addr">:{{ addr|stringformat:"08x" }}</td>
+
+            {# hex bytes #}
+            {% for byte in bytes %}
+                <td class="hex-cell-byte {% if forloop.counter|divisibleby:"8" %}hex-cell-byte-wide{% endif %}">
+                    {{ byte }}
+                </td>
+            {% endfor %}
+
+            {# ascii bytes #}
+            {% for asc in ascii %}
+                <td class="hex-cell-asc">
+                    {{ asc }}
+                </td>
+            {% endfor %}
+
+        </tr>
+    {% endfor %}
+    </tbody>
+{% endfor %}
+{% endautoescape %}

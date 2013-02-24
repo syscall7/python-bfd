@@ -105,9 +105,9 @@ class OdaBfd():
 
 
 
-    def rawbytes(self):
-        pass
-    
+    def raw_data(self, sec_name, addr, size):
+        return bfd.raw_data(bfd.sections[sec_name], addr, size)
+
     def target(self):
         return self.bfd.target
     

@@ -1,5 +1,6 @@
 __author__ = 'davis'
 
+import string
 import bfd
 import dischunk
 from django.contrib.contenttypes.models import ContentType
@@ -162,6 +163,50 @@ class Disassembler(object):
             ch.save()
             i+=1
 
+    def mk_hex_lines(self, chunks):
+        LINE_WIDTH = 16
+
+        def toAscii(line):
+            ascii = []
+            printable = string.digits + string.letters + string.punctuation
+            for c in line:
+                if c in printable:
+                    ascii.append(c)
+                elif c == ' ':
+                    ascii.append('&nbsp;')
+                else:
+                    ascii.append('.')
+
+            # pad out to LINE_WIDTH
+            ascii.extend(['&nbsp;']*(LINE_WIDTH-len(line)))
+
+            return ascii
+
+        def toHex(line):
+
+            hex = ['%02x' % c for c in map(ord, line)]
+
+            # pad out to LINE_WIDTH
+            hex.extend(['&nbsp;&nbsp;']*(LINE_WIDTH-len(line)))
+
+            return hex
+
+        for chunk in chunks:
+            # TODO: Deal with sections whose start address is not LINE_WIDTH aligned
+            rounded_start = chunk.start & ~(LINE_WIDTH-1)
+            rounded_end = chunk.end & ~(LINE_WIDTH-1)
+            raw = self.bfd.raw_data(self.bfd.sections[chunk.sec_name], rounded_start, rounded_end - rounded_start)
+            raw_lines = [raw[i:i+LINE_WIDTH] for i in range(0,len(raw),LINE_WIDTH)]
+            addr = rounded_start
+            chunk.hex_lines = []
+            for line in raw_lines:
+                ascii = toAscii(line)
+                hex = toHex(line)
+                chunk.hex_lines.append((addr, hex, ascii))
+                addr += len(line)
+
+
+
 
 class JsonChunkProcessor(object):
     def __init__(self, binary):
@@ -205,7 +250,9 @@ class JsonChunkProcessor(object):
         for chunk in permachunks[index:index+count]:
             new_chunks.append( dischunk.DisChunk(chunk.start, chunk.end, chunk.bfd_lines, chunk.sec_name, chunk.is_boundary) )
 
-        analyzer.analyze( Disassembler(self.binary), new_chunks )
+        dasm = Disassembler(self.binary)
+        analyzer.analyze( dasm, new_chunks )
+        dasm.mk_hex_lines(new_chunks)
 
         # Build a primitive object containing the list of chunk data to pass back to the client
         chunk_list = []
@@ -215,7 +262,8 @@ class JsonChunkProcessor(object):
                 'startOffset': chunk.start,
                 'endOffset': chunk.end,
                 'isBoundary': chunk.is_boundary,
-                'lines': chunk.lines
+                'lines': chunk.lines,
+                'hex_lines' : chunk.hex_lines
             })
 
         return analyzer.chunks, chunk_list

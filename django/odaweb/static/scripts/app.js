@@ -173,7 +173,13 @@ function Load(id) {
     
             // Append the new listing
             $('#listing').find("colgroup").after(data.disassembly);
-            
+
+            // Remove lower address chunks from the display
+            $('#hex-dump-table').find("tbody").remove();
+
+            // Append the new listing
+            $('#hex-dump-table').append(data.hex_dump);
+
             // Clear the collection
             window.disChunks.reset();
                
@@ -185,6 +191,7 @@ function Load(id) {
                     startOffset : data.chunks[i].startOffset,
                     endOffset : data.chunks[i].endOffset,
                     lines : data.chunks[i].lines,
+                    //hex_dump : data.chunks[i].lines,
                     isBoundary : data.chunks[i].isBoundary
                 });
                 window.disChunks.push(chunk);    

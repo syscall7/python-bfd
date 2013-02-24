@@ -4,7 +4,7 @@
 from odaweb.models import Comment
 
 class DisChunk(object):
-    MIN_CHUNK_SIZE_BYTES = 500
+    MIN_CHUNK_SIZE_BYTES = 512
     def __init__(self, startAddr, endAddr, lines, sec_name, is_boundary=False):
         self.start = startAddr
         self.end = endAddr

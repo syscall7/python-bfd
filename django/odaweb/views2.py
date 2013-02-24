@@ -105,7 +105,6 @@ def upload(request):
         raise Exception("error" )
 
 
-
 def refresh_disassembly(request):
     oda_master = get_session(request)
 
@@ -118,10 +117,26 @@ def refresh_disassembly(request):
     for c in chunks:
         c.attach_comments(binary)
 
-    dis = render_to_string('listing.djhtml', { 'chunks' : chunks, 'functions' : [] } ),
+    dis = render_to_string('listing.djhtml', { 'chunks' : chunks, 'functions' : [] } )
+    hex = render_to_string('hex_listing.djhtml', { 'chunks' : chunks } )
 
     # Return the new disassembly
     return HttpResponse(simplejson.dumps({'disassembly' : dis,
+                                          'hex_dump' : hex,
+                                          'chunks' : chunk_list })  , mimetype='application/json')
+
+def refresh_hex(request):
+    oda_master = get_session(request)
+
+    binary = oda_master.binary
+
+    addr = int(request.GET.get('addr','0'))
+
+    chunks, chunk_list = JsonChunkProcessor(binary).get_chunk_html(addr, 7)
+
+
+    # Return the new disassembly
+    return HttpResponse(simplejson.dumps({'hex_html' : hex,
                                           'chunks' : chunk_list })  , mimetype='application/json')
 def comment(request):
 

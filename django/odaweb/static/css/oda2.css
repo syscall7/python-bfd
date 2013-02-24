@@ -210,5 +210,40 @@ legend {
     height:27px;
     border: 0;
     outline: 0;
+}
 
+#hex-dump-table {
+    font-family: monospace;
+}
+
+#hex-dump-table .row_even {
+
+}
+
+#hex-dump-table .row_odd {
+    /* background:#BEDEFF; */
+}
+
+.hex-cell-sec {
+    text-align: right;
+    color: #808080;
+}
+
+.hex-cell-addr {
+    padding: 0px 10px 0px 0px;
+}
+
+.hex-cell-byte {
+    color: #093C83;
+    padding: 0px 2px 0px 2px;
+    border: 1px;
+}
+
+.hex-cell-byte-wide {
+    padding-right: 10px;
+}
+
+.hex-cell-asc {
+    color: gray;
+    padding: 0px 0px 0px 0px;
 }
