@@ -125,19 +125,6 @@ def refresh_disassembly(request):
                                           'hex_dump' : hex,
                                           'chunks' : chunk_list })  , mimetype='application/json')
 
-def refresh_hex(request):
-    oda_master = get_session(request)
-
-    binary = oda_master.binary
-
-    addr = int(request.GET.get('addr','0'))
-
-    chunks, chunk_list = JsonChunkProcessor(binary).get_chunk_html(addr, 7)
-
-
-    # Return the new disassembly
-    return HttpResponse(simplejson.dumps({'hex_html' : hex,
-                                          'chunks' : chunk_list })  , mimetype='application/json')
 def comment(request):
 
     class CommentForm(forms.Form):
