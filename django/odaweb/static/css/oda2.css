@@ -214,6 +214,7 @@ legend {
 
 #hex-dump-table {
     font-family: monospace;
+    cursor: text;
 }
 
 #hex-dump-table .row_even {
@@ -230,7 +231,7 @@ legend {
 }
 
 .hex-cell-addr {
-    padding: 0px 10px 0px 0px;
+    padding: 0px 0px 0px 0px;
 }
 
 .hex-cell-byte {
@@ -239,11 +240,19 @@ legend {
     border: 1px;
 }
 
-.hex-cell-byte-wide {
-    padding-right: 10px;
+.hex-cell-byte:hover {
+   background-color: #CCCCCC;
+}
+
+.hex-cell-gap {
+    padding: 0px 5px 0px 5px;
 }
 
 .hex-cell-asc {
     color: gray;
     padding: 0px 0px 0px 0px;
+}
+
+.hex-hovered {
+    background-color: #CCCCCC;
 }

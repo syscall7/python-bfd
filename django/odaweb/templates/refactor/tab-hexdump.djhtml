@@ -1,10 +1,34 @@
 <script type="text/javascript">
-    /*
-    $("#asciiCell").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
-    $("#hexCell").mouseover(mouseoverBytes).mouseout(mouseoutBytes);
-    $("#hexCell").mouseup(snapSelectionToWord);
-    $("#addressCell").mouseup(snapSelectionToWord);
-    */
+
+    function mouseoverBytes(e) {
+        var currentId = e.target.id;
+        var addr = currentId.substring(1, currentId.length);
+        $("#a"+addr).addClass("hex-hovered");
+        $("#h"+addr).addClass("hex-hovered");
+
+        addr = addr.substring(0, addr.length-1) + "0";
+        $("#p"+addr).addClass("hex-hovered");
+
+        //SetValueElement(byte);
+    }
+
+    function mouseoutBytes(e) {
+        var currentId = e.target.id;
+        var addr = currentId.substring(1, currentId.length);
+        $("#a"+addr).removeClass( "hex-hovered");
+        $("#h"+addr).removeClass( "hex-hovered");
+
+        addr = addr.substring(0, addr.length-1) + "0";
+        $("#p"+addr).removeClass("hex-hovered");
+    };
+
+
+    $(".hex-cell-asc").live("mouseover", mouseoverBytes);
+    $(".hex-cell-asc").live("mouseout", mouseoutBytes);
+    $(".hex-cell-byte").live("mouseover", mouseoverBytes);
+    $(".hex-cell-byte").live("mouseout", mouseoutBytes);
+    //$(".hex-cell-byte").mouseup(snapSelectionToWord);
+    //$(".hex-cell-addr").mouseup(snapSelectionToWord);
 </script>
 
 <div id="hex-dump" class="tab-pane fade">

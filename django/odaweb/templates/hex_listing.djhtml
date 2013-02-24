@@ -3,22 +3,31 @@
     <tbody>
     {% for addr, bytes, ascii in chunk.hex_lines %}
         <tr class="{% cycle 'row_even' 'row_odd' %}">
+
             {# section #}
-            <td class="hex-cell-sec">{{ chunk.sec_name }}</td>
+            <td class="hex-cell-sec">{{ chunk.sec_name }}:</td>
 
             {# address #}
-            <td class="hex-cell-addr">:{{ addr|stringformat:"08x" }}</td>
+            <td class="hex-cell-addr" id="p{{ addr|stringformat:'x'}}" >{{ addr|stringformat:"08x" }}</td>
+            <td class="hex-cell-gap"></td>
 
             {# hex bytes #}
             {% for byte in bytes %}
-                <td class="hex-cell-byte {% if forloop.counter|divisibleby:"8" %}hex-cell-byte-wide{% endif %}">
+
+                <td class="hex-cell-byte" id="h{{ addr|add:forloop.counter0|stringformat:'x'}}">
                     {{ byte }}
                 </td>
+
+                {# add gap #}
+                {% if forloop.counter|divisibleby:"8" %}
+                    <td class="hex-cell-gap"></td>
+                {% endif %}
+
             {% endfor %}
 
             {# ascii bytes #}
             {% for asc in ascii %}
-                <td class="hex-cell-asc">
+                <td class="hex-cell-asc" id="a{{ addr|add:forloop.counter0|stringformat:'x'}}">
                     {{ asc }}
                 </td>
             {% endfor %}
