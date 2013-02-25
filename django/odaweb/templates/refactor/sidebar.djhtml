@@ -10,9 +10,9 @@
             </div>
             <div class="btn-group">
                 <a class="btn nav-btn"
-                   data-panel="function-display"
+                   data-panel="symbols-display"
                    rel="tooltip"
-                   data-original-title="Functions"
+                   data-original-title="Symbols"
                    href="#">
                     <i class="icon-list"></i>
                 </a>
@@ -42,7 +42,7 @@
         
             {% include "refactor/sidebar-platform-options.djhtml" %}
         
-            {% include "refactor/sidebar-functions.djhtml" %}
+            {% include "refactor/sidebar-symbols.djhtml" %}
         
             {% include "refactor/sidebar-upload.djhtml" %}
         </div>

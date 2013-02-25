@@ -78,9 +78,9 @@ class defaultAnalyzer(object):
         self.symbols = self.bfd.symbols() 
         
         # Add preidentified symbols to the labels and functions list
-        for addr in self.symbols:
-            if self.symbols[addr].type == 'T' or self.symbols[addr].type == 't':
-                self.functions[addr] = Function(addr, self.symbols[addr].name, set())
+        for sym in self.symbols:
+            if sym.type == 'T' or sym.type == 't':
+                self.functions[addr] = Function(addr, sym.name, set())
                 
         # Make a first pass at parsing for organizing the instructions
         self.chunks = chunks

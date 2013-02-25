@@ -201,6 +201,12 @@ function Load(id) {
     }).fail(function(){
         alert('fail');
     });
+
+    $.post('_symbols', {id: id}).done(function(data){
+        $('#symbol-content').append(data.symbols_html);
+    }).fail(function(){
+        alert('symbols fail to load');
+    });
 }
 
 function InitializeComments() {

@@ -32,9 +32,10 @@ url(r'^odaweb/clear$', 'odaweb.views.clear'),
     #url(r'^odaweb/comment/(?P<file_id>[\w-]+)/(?P<offset>[0-9A-Fa-f]{8})$', 'odaweb.views.comment'),
 
 
-    url(r'^odaweb/_save', 'odaweb.views2.save'),
-    url(r'^odaweb/_upload', 'odaweb.views2.upload'),
-    url(r'^odaweb/_refresh', 'odaweb.views2.refresh_disassembly'),
+    url(r'^odaweb/_save$', 'odaweb.views2.save'),
+    url(r'^odaweb/_upload$', 'odaweb.views2.upload'),
+    url(r'^odaweb/_refresh$', 'odaweb.views2.refresh_disassembly'),
+    url(r'^odaweb/comment$', 'odaweb.views2.comment'),
+    url(r'^odaweb/_symbols$', 'odaweb.views2.symbols'),
     url(r'^odaweb/(?P<disassembly_id>\w{0,16})$$', 'odaweb.views2.index'),
-    url(r'^odaweb/comment', 'odaweb.views2.comment'),
 )

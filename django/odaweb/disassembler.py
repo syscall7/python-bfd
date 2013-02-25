@@ -86,8 +86,18 @@ class Disassembler(object):
         dis = self.bfd.disassemble(sec, start, stop, numLines, funcFmtAddr, funcFmtLine, endian, options)
         return dis
 
+    def symbol(self, lookup):
+        '''Lookup can either be address or name'''
+        if type(lookup) == int:
+            return bfd.syms_by_addr[lookup]
+        elif type(lookup) == string:
+            return bfd.syms_by_name[lookup]
+        else:
+            raise Exception('Can\'t lookup symbol by type %s' % type(lookup))
+
     def symbols(self):
-        return dict(sorted(self.bfd.syms_by_addr.iteritems()))
+        '''Returns a list of Symbols sorted by increasing address'''
+        return [sym for (name, sym) in sorted(self.bfd.syms_by_name.iteritems(), key=lambda (name, sym): sym.value)]
 
     def get_sections_code(self):
         class SectionInfo(object):

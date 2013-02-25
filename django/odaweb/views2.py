@@ -67,8 +67,17 @@ def set(request):
 def hex(request):
     pass
 
-def functions(request):
-    pass
+def symbols(request):
+    oda_master = get_session(request)
+
+    binary = oda_master.binary
+    dasm = Disassembler(binary)
+
+    syms = render_to_string('symbols.djhtml', { 'symbols' : dasm.symbols() })
+    print syms
+
+    # Return the new disassembly
+    return HttpResponse(simplejson.dumps({'symbols_html' : syms })  , mimetype='application/json')
 
 def strings(request):
     pass
