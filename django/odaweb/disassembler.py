@@ -99,7 +99,7 @@ class Disassembler(object):
         '''Returns a list of Symbols sorted by increasing address'''
         return [sym for (name, sym) in sorted(self.bfd.syms_by_name.iteritems(), key=lambda (name, sym): sym.value)]
 
-    def get_sections_code(self):
+    def get_code_sections(self):
         class SectionInfo(object):
             def __init__(self, code_sections):
                 self.code_sections = code_sections
@@ -115,7 +115,14 @@ class Disassembler(object):
         def filter_sec_code(sec):
             return {'SEC_CODE'}.issubset([f.name for f in sec.flags])
 
-        section_info = SectionInfo(filter(filter_sec_code, self.sections))
+        # HACK: if there's only one section, it's the .data section for raw binaries, so let's include it
+        if len(self.sections) == 1 and self.sections[0].name == '.data':
+            code_sections = self.sections
+        # else, only get the code sections
+        else:
+            code_sections = filter(filter_sec_code, self.sections)
+
+        section_info = SectionInfo(code_sections)
 
         return section_info
 

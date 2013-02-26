@@ -24,7 +24,7 @@ def index(request, disassembly_id):
     oda_master = create_session(request, disassembly_id)
 
     if oda_master:
-        section_info = Disassembler(oda_master.binary).get_sections_code()
+        section_info = Disassembler(oda_master.binary).get_code_sections()
         render_dict['section_info'] = section_info
         render_dict['binary'] = oda_master.binary
 
