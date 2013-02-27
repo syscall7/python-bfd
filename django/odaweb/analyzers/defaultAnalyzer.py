@@ -80,7 +80,7 @@ class defaultAnalyzer(object):
         # Add preidentified symbols to the labels and functions list
         for sym in self.symbols:
             if sym.type == 'T' or sym.type == 't':
-                self.functions[addr] = Function(addr, sym.name, set())
+                self.functions[sym.value] = Function(sym.value, sym.name, set())
                 
         # Make a first pass at parsing for organizing the instructions
         self.chunks = chunks
