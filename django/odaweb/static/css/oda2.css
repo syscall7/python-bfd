@@ -159,6 +159,7 @@ legend {
 }
 #status-bar-right {
     text-align: right;
+    padding-right: 10px;
 }
 
 #status-bar-left {
