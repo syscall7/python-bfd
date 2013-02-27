@@ -180,6 +180,10 @@ legend {
 
 #listing tr.selected { background-color: #44daff; }
 
+#listing tr {
+    white-space: nowrap;
+}
+
 .branchLines {
     color: #093C83;
     font-family:DejaVuSansMono;
