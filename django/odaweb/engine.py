@@ -129,7 +129,8 @@ class OdaBfd():
         return bfd.FLAGS
 
     def symbols(self):
-        return dict(sorted(self.bfd.syms_by_addr.iteritems()))
+        '''Returns a list of Symbols sorted by increasing address'''
+        return [sym for (name, sym) in sorted(self.bfd.syms_by_name.iteritems(), key=lambda (name, sym): sym.value)]
     
     def strings(self):
         strs = []

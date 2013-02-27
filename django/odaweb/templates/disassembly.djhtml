@@ -311,7 +311,7 @@
                         <th align="center">Type</th>
                         <th align="left">Name</th>
                     </tr>
-                    {% for s in symbols.values %}
+                    {% for s in symbols %}
                         <tr class="{% cycle 'even' 'odd' %}">
                             <td align="right">0x{{s.value|stringformat:'08x'}}</td>  
                             <td align="center">{{s.type}}</td> 
