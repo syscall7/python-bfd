@@ -176,7 +176,9 @@ legend {
 
 .assembly { font-family:monospace; font-size: 14px; line-height: 14px; }
 
-.assembly tr:hover { background-color: #44daff; }
+#listing tr:hover { background-color: #f4ffe8; }
+
+#listing tr.selected { background-color: #44daff; }
 
 .branchLines {
     color: #093C83;

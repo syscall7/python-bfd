@@ -79,8 +79,7 @@ function InitializeSplitter() {
  * ---------------------------------------------------------------------------------------------------------  */
 function InitializeSlider(min, max) {
 
-    var hoverAddress = -1;
-    var hoverTableRow = null;
+    var selectedRow = null;
 
     // remove border
     $(".ui-slider-horizontal").css('border', 0);
@@ -122,9 +121,13 @@ function InitializeSlider(min, max) {
     // set initial position
     updateAddrDisplay($("#slider").slider("value"));
 
+    $(document).on("click", "#listing tr", function(){
+        console.debug("selected row: " + $(this).attr('addr'));
+        selectedRow = $(this);
+        $('tr.selected').removeClass('selected');
+        $(this).addClass('selected');
+    });
     $(document).on("hover", "#listing tr", function(){
-        console.debug("slider change event: " + $(this).attr('addr'));
-        hoverTableRow = $(this);
         updateAddrDisplay($(this).attr('addr'));
     });
 
@@ -142,10 +145,10 @@ function InitializeSlider(min, max) {
                 scrollToAddr(addr);
             }
         } else if (String.fromCharCode(event.which) == ';') {
-            if (hoverTableRow != null) {
+            if (selectedRow != null) {
                 //console.debug('here');
-                hoverTableRow.find('.comment').text('   ');
-                hoverTableRow.find('.comment').focus();
+                selectedRow.find('.comment').text('   ');
+                selectedRow.find('.comment').focus();
             }
         }
     });
@@ -258,7 +261,7 @@ function InitializeComments() {
             comment = "&nbsp;";
         } else {
             console.debug("adding comment at offset %s: \"%s\"", offset, comment);
-            $.post("/odaweb/comment/", { comment: comment, offset: offset } );
+            $.post("/odaweb/comment", { comment: comment, offset: offset } );
 
             // add "; "
             comment = "; " + comment;
