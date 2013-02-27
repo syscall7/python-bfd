@@ -14,7 +14,7 @@ function FileUploadTab() {
 
 function ResizeSidebarScroll(elem) {
         var new_offset = $("#sidebarContent").offset().top;
-        var accum_margins = 30; //Not captured by jquery
+        var accum_margins = 15; //Not captured by jquery
         if ( $(elem).find('table').length )
         {
             // Table header height
@@ -37,7 +37,7 @@ function ResizeHandler() {
         $('#vertSplitter').height($(window).height()-47);
         
         // TODO: Hardcoded Height includes footer, banner, and tabs
-        $('#myTabContent').height($(window).height()-152);
+        $('#myTabContent').height($(window).height()-132);
              
         $('.sidebar-scroll-container').each( function (i,elem) {
             $(elem).height( ResizeSidebarScroll($(elem)) );} );
@@ -45,7 +45,7 @@ function ResizeHandler() {
     });
     //$('#view-container').height($(window).height()-74);
     $('#vertSplitter').height($(window).height()-47);
-    $('#myTabContent').height($(window).height()-152);
+    $('#myTabContent').height($(window).height()-132);
     $('.sidebar-scroll-container').each( function (i,elem) {
         $(elem).height( ResizeSidebarScroll($(elem)) );} );
 
@@ -219,6 +219,8 @@ function Load(id) {
 
     $.post('_symbols', {id: id}).done(function(data){
         $('#symbol-content').append(data.symbols_html);
+        scrolify($('#symbol-table')); // 160 is height
+        ResizeHandler();
     }).fail(function(){
         alert('symbols fail to load');
     });
@@ -298,7 +300,4 @@ $(document).ready(function(){
     InitializeSplitter();
 
     InitializeComments();
-
-    scrolify($('#function-table')); // 160 is height
-
 });
