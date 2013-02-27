@@ -269,7 +269,7 @@ cdef class Symbol:
         bfd_vma base
         const_char_ptr name
         object dynamic
-        char type
+        bytes type
 
     def __cinit__(self):
         pass
@@ -282,7 +282,7 @@ cdef class Symbol:
         #self.base = bfd_asymbol_base(asym)
         self.name = bfd_asymbol_name(asym)
         self.value = syminfo.value
-        self.type = syminfo.type
+        self.type = <bytes>syminfo.type
         self.dynamic = dynamic
 
 class SectionFlag:
