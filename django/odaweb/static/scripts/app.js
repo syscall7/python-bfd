@@ -79,6 +79,9 @@ function InitializeSplitter() {
  * ---------------------------------------------------------------------------------------------------------  */
 function InitializeSlider(min, max) {
 
+    var hoverAddress = -1;
+    var hoverTableRow = null;
+
     // remove border
     $(".ui-slider-horizontal").css('border', 0);
     $(".ui-slider-handle").removeClass('ui-corner-all');
@@ -119,6 +122,12 @@ function InitializeSlider(min, max) {
     // set initial position
     updateAddrDisplay($("#slider").slider("value"));
 
+    $(document).on("hover", "#listing tr", function(){
+        console.debug("slider change event: " + $(this).attr('addr'));
+        hoverTableRow = $(this);
+        updateAddrDisplay($(this).attr('addr'));
+    });
+
     $("html").keypress(function(event) {
         if (String.fromCharCode(event.which) == 'g') {
             var strAddr = prompt("Go to address:");
@@ -131,6 +140,12 @@ function InitializeSlider(min, max) {
             {
                 // Isn't loaded. Try to load it
                 scrollToAddr(addr);
+            }
+        } else if (String.fromCharCode(event.which) == ';') {
+            if (hoverTableRow != null) {
+                //console.debug('here');
+                hoverTableRow.find('.comment').text('   ');
+                hoverTableRow.find('.comment').focus();
             }
         }
     });
