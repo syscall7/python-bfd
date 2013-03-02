@@ -45,7 +45,7 @@ body {
 
 .vsplitbar {
     width: 4px;
-    background: #ff9933;
+    background: #ddd;
 }
 
 #sidebar {
@@ -71,6 +71,7 @@ body {
 
 #sidebar-tools {
     padding-left: 120px;
+    padding-right: 10px;
     margin-top: 5px;
     margin-bottom: 15px;
 }
@@ -137,8 +138,12 @@ tbody.scrollContent {
     outline: 0;
 } 
 
-legend {
-    margin-bottom: 5px;
+.sidebar-legend
+{
+    font-size: 21px;
+    margin: 8px 5px 2px 2px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ddd;
 }
 
 #view-container {

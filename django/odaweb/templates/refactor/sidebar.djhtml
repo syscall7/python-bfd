@@ -1,6 +1,6 @@
 <div id="sidebar">
     <div id="sidebar-container">
-        <div id="sidebar-tools" class="btn-toolbar" >
+        <div id="sidebar-tools" class="btn-toolbar pull-right">
             <div class="btn-group">
                 <a class="btn nav-btn"
                    data-panel="symbols-display"
@@ -19,13 +19,11 @@
                    title="Strings"
                    href="#"><i class="icon-font"></i></a>
             </div>
-    
-    
         </div>
-    
+
         <div id="sidebarContent">
             <div id="hex-display" style="padding:5px; background-color:white;" class="active item">
-                <legend>Raw Bytes</legend>
+                <div class="sidebar-legend">Raw Bytes</div>
                 <div id="hex-sidebar-scroll" class="sidebar-content">    
                         <textarea class="sidebar-scroll-container" readonly id="hex" style="width:95%; margin-bottom: 5px;" data-bind="value: hex">55 31 D2 89 E5 8B 45 08 56 8B 75 0C 53 8D 58 FF 0F B6 0C 16 88 4C 13 01 83 C2 01 84 C9 75 F1 5B 5E 5D C3 </textarea>
                 </div>    

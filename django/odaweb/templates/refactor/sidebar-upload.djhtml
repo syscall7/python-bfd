@@ -1,6 +1,6 @@
 <div id="upload-display"
      style="padding:5px; background-color: white;" class="item">
-    <legend>Upload Binary</legend>
+    <div class="sidebar-legend">Upload Binary</div>
     <form id="upload-form" class="sidebar-content form-inline"
           enctype="multipart/form-data"
           action="_upload" method="post">
