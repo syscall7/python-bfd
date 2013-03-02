@@ -4,20 +4,20 @@
             <div class="btn-group">
                 <a class="btn nav-btn"
                    data-panel="symbols-display"
-                   rel="tooltip"
-                   data-original-title="Symbols"
+                   data-toggle="tooltip"
+                   title="Symbols"
                    href="#">
                     <i class="icon-list"></i>
                 </a>
                 <a class="btn nav-btn"
                    data-panel="hex-display"
-                   rel="tooltip"
-                   data-original-title="Raw Bytes"
+                   data-toggle="tooltip"
+                   title="Raw Bytes"
                    href="#"><i class="icon-asterisk"></i></a>
                 <a class="btn nav-btn" data-panel="strings-display"
-                   rel="tooltip"
-                   data-original-title="Strings"
-                   href="#"><i class="icon-retweet"></i></a>
+                   data-toggle="tooltip"
+                   title="Strings"
+                   href="#"><i class="icon-font"></i></a>
             </div>
     
     
