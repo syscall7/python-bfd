@@ -34,8 +34,6 @@
             {% include "refactor/sidebar-platform-options.djhtml" %}
         
             {% include "refactor/sidebar-symbols.djhtml" %}
-        
-            {% include "refactor/sidebar-upload.djhtml" %}
         </div>
     </div>
 </div>

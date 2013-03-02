@@ -10,6 +10,10 @@ function FileUploadTab() {
 
         $('#filename').val(file[file.length-1]);
     });
+
+    $('#upload-submit-btn').click(function(e){
+        $('#upload-form').submit();
+    });
 }
 
 function ResizeSidebarScroll(elem) {

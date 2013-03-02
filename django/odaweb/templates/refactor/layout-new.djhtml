@@ -36,7 +36,7 @@
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">File<b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            <li><a class="nav-btn" data-panel="upload-display" href="#"><i class="icon-upload"></i>&nbsp;Upload</a></li>
+                            <li><a class="nav-btn" href="#upload-modal" data-toggle="modal"><i class="icon-upload"></i>&nbsp;Upload</a></li>
                             <li><a href="#">Copy/Paste Hex</a></li>
                             <li class="divider"></li>
                             <li><a href="./_save"><i class="icon-share"></i>Save</a></li>
@@ -71,6 +71,8 @@
         </div>
     </div>
 </div>
+
+{% include "file_upload.djhtml" %}
 
 <div id="main-display">
     {% block content %}{% endblock %}
