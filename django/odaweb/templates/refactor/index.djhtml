@@ -41,6 +41,7 @@
                 <li class="active"><a data-toggle="tab" href="#tab-disassembly">Disassembly</a></li>
                 <li class=""><a data-toggle="tab" href="#tab-hexdump">Hex Dump</a></li>
                 <li class=""><a data-toggle="tab" href="#tab-sections">Sections</a></li>
+                <li class=""><a data-toggle="tab" href="#tab-fileinfo">File Info</a></li>
                 <!--<li class="dropdown">
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">Dropdown <b class="caret"></b></a>
                     <ul class="dropdown-menu">
@@ -52,7 +53,8 @@
             <div class="tab-content" id="myTabContent">
                 {% include "refactor/tab-disassembly.djhtml" %}
                 {% include "refactor/tab-hexdump.djhtml" %}
-                {% include "refactor/tab-sections.djhtml" %}
+                <div id="tab-sections" class="tab-pane fade"></div>
+                <div id="tab-fileinfo" class="tab-pane fade"></div>
             </div>
 
         </div>

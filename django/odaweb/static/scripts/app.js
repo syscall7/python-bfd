@@ -251,6 +251,14 @@ function Load(id) {
     }).fail(function(){
         alert('sections failed to load');
     });
+
+    $.post('_fileinfo', {id: id}).done(function(data){
+
+        $('#tab-fileinfo').append(data.fileinfo_tab);
+
+    }).fail(function(){
+        alert('file info failed to load');
+    });
 }
 
 function InitializeComments() {

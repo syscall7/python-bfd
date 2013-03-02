@@ -1,0 +1,76 @@
+<div class="row">&nbsp;</div>
+
+<div class="row">
+    <div class="span9 group">
+        <table class="table-file-props">
+            <tr>
+                <td class="prop-label">Name:</td>
+                <td>{{ binary.name }}</td>
+            </tr>
+            <tr>
+                <td class="prop-label">Format:</td>
+                <td>
+                    {% for desc in binary.desc %}
+                        {% if forloop.first %}
+                            {{ desc }}
+                            <ul>
+                        {% else %}
+                            <li>{{ desc }}</li>
+                        {% endif %}
+
+                        {% if forloop.last %}
+                            </ul>
+                        {% endif %}
+
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <td class="prop-label">Size:</td>
+                <td>{{ binary.size|filesizeformat }}</td>
+            </tr>
+            <tr>
+                <td class="prop-label">MD5:</td>
+                <td>{{ binary.md5 }}</td>
+            </tr>
+            <tr>
+                <td class="prop-label">SHA-1:</td>
+                <td>{{ binary.sha1 }}</td>
+            </tr>
+        </table>
+    </div>
+
+</div>
+
+<div class="row"><div class="span9">&nbsp;</div></div>
+
+<div class="row">
+
+    <div class="span2 group">
+        <table class="table-file-props">
+            <tr><td class="prop-label">Malware:</td></tr>
+            <tr><td class="prop-label">Benign:</td></tr>
+        </table>
+    </div>
+
+    <div class="span7 group">
+        <table class="table-file-props">
+            <tr>
+                <td class="prop-label">Dependencies:</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="prop-label">Number of Imports:</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="prop-label">Number of Exports:</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td class="prop-label">Debug Present:</td>
+                <td></td>
+            </tr>
+        <br>
+    </div>
+</div>

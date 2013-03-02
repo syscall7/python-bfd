@@ -10,6 +10,8 @@ from datetime import datetime
 from utils import sha1_hash
 import uuid
 import tempfile
+import hashlib
+import subprocess
 
 fs = FileSystemStorage(location='/tmp/odaweb')
 
@@ -67,6 +69,22 @@ class OdaOptions(models.Model):
 
 class Binary(models.Model):
     options = models.OneToOneField(OdaOptions, null=True)
+
+    def md5(self):
+        f = open(self.file_handle().name)
+        md5 = hashlib.md5(f.read()).hexdigest()
+        f.close()
+        return md5
+
+    def sha1(self):
+        f = open(self.file_handle().name)
+        md5 = hashlib.sha1(f.read()).hexdigest()
+        f.close()
+        return md5
+
+    def desc(self):
+        line = subprocess.check_output('file -b %s' % self.file_handle().name, shell=True)
+        return line.split(', ')
 
     class Meta:
         abstract = True

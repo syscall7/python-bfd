@@ -305,3 +305,22 @@ legend {
     color:#000000;
     background-color:#C8DEFF;
 }
+
+.group
+{
+    border:1px solid #ddd; /*#BDBEDF;*/
+    padding: 10px 10px 10px 10px;
+    border-radius: 4px;
+}
+
+.table-file-props {
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 14px;
+    color: dimgrey;
+}
+
+.prop-label {
+    vertical-align: top;
+    color: #093C83;
+}

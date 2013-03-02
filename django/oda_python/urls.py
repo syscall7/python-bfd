@@ -38,5 +38,6 @@ url(r'^odaweb/clear$', 'odaweb.views.clear'),
     url(r'^odaweb/comment$', 'odaweb.views2.comment'),
     url(r'^odaweb/_symbols$', 'odaweb.views2.symbols'),
     url(r'^odaweb/_sections$', 'odaweb.views2.sections'),
+    url(r'^odaweb/_fileinfo$', 'odaweb.views2.fileinfo'),
     url(r'^odaweb/(?P<disassembly_id>\w{0,16})$$', 'odaweb.views2.index'),
 )
