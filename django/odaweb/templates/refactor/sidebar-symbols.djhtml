@@ -1,5 +1,4 @@
-<div id="symbols-display"
-     style="padding:5px; background-color: white;" class="item">
+<div id="symbols-display" style="padding:5px; background-color: white;" class="item">
     <legend>Symbols</legend>
     <div class="sidebar-content">
         <div class="sidebar-scroll-container" id="symbol-content">

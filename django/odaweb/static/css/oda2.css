@@ -324,3 +324,11 @@ legend {
     vertical-align: top;
     color: #093C83;
 }
+
+.str-offset {
+    text-align: right;
+}
+
+.string {
+    color: crimson;
+}

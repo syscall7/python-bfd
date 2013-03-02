@@ -115,7 +115,17 @@ def symbols(request):
     return HttpResponse(simplejson.dumps({'symbols_html' : syms })  , mimetype='application/json')
 
 def strings(request):
-    pass
+    oda_master = get_session(request)
+
+    binary = oda_master.binary
+    dasm = Disassembler(binary)
+
+    strings = render_to_string('strings.djhtml', {
+        'strings' : dasm.strings(),
+        })
+
+    # Return the new disassembly
+    return HttpResponse(simplejson.dumps({'strings' : strings })  , mimetype='application/json')
 
 class UploadFileForm(forms.Form):
     filedata = forms.FileField()

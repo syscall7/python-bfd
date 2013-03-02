@@ -1,5 +1,6 @@
 __author__ = 'davis'
 
+import re
 import string
 import bfd
 import dischunk
@@ -70,6 +71,13 @@ class Disassembler(object):
 
     def sectionFlagsInfo(self):
         return bfd.FLAGS
+
+    def strings(self):
+        strs = []
+        bin = open(self.filename, "rb").read()
+        for m in re.finditer("([\t\x20-\x7e]{4,})", bin):
+            strs.append((m.start(), m.group(1)))
+        return strs
 
     def sections_iter(self, flags=[]):
         '''Iterate over all sections (in ascending address order) that have all give flags specified'''

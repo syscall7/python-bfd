@@ -242,6 +242,14 @@ function Load(id) {
         alert('symbols fail to load');
     });
 
+    $.post('_strings', {id: id}).done(function(data){
+        $('#strings-content').append(data.strings);
+        scrolify($('#strings-table')); // 160 is height
+        ResizeHandler();
+    }).fail(function(){
+            alert('symbols fail to load');
+    });
+
     $.post('_sections', {id: id}).done(function(data){
 
         $('#tab-sections').append(data.sections_tab);
