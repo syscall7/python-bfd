@@ -171,6 +171,20 @@ function SidebarCloseHide() {
     });
 }
 
+function SetupSectionFlagPopovers(sectionFlags) {
+
+    // TODO: Move javascript from sections_tab.djhtml over to here
+
+    /*
+        $('.FLAG_{{flag.abbrev}}').popover({
+            placement: 'bottom',
+            delay: 0,
+            title: '{{flag.name}}',
+            content: '{{flag.desc}}',
+        });
+        */
+}
+
 function Load(id) {
 
     var DisChunkInfo = Backbone.Model.extend({});
@@ -226,6 +240,16 @@ function Load(id) {
         ResizeHandler();
     }).fail(function(){
         alert('symbols fail to load');
+    });
+
+    $.post('_sections', {id: id}).done(function(data){
+
+        $('#tab-sections').append(data.sections_tab);
+
+        SetupSectionFlagPopovers(data.section_flags);
+
+    }).fail(function(){
+        alert('sections failed to load');
     });
 }
 

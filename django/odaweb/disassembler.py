@@ -68,6 +68,8 @@ class Disassembler(object):
                     setattr(self, f.name, False) # i.e, section.SEC_ALLOC = False
 
 
+    def sectionFlagsInfo(self):
+        return bfd.FLAGS
 
     def sections_iter(self, flags=[]):
         '''Iterate over all sections (in ascending address order) that have all give flags specified'''

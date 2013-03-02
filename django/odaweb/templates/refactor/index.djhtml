@@ -38,8 +38,9 @@
                 <div id="slider-address" style="color:gray; font-family:monospace; float:right">0</div>
             <!--/div-->
             <ul class="nav nav-tabs" id="myTab" style="margin-bottom: 0px;">
-                <li class="active"><a data-toggle="tab" href="#disassembly">Disassembly</a></li>
-                <li class=""><a data-toggle="tab" href="#hex-dump">Hex Dump <i class="icon-remove-sign"></i> </a></li>
+                <li class="active"><a data-toggle="tab" href="#tab-disassembly">Disassembly</a></li>
+                <li class=""><a data-toggle="tab" href="#tab-hexdump">Hex Dump</a></li>
+                <li class=""><a data-toggle="tab" href="#tab-sections">Sections</a></li>
                 <!--<li class="dropdown">
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">Dropdown <b class="caret"></b></a>
                     <ul class="dropdown-menu">
@@ -51,6 +52,7 @@
             <div class="tab-content" id="myTabContent">
                 {% include "refactor/tab-disassembly.djhtml" %}
                 {% include "refactor/tab-hexdump.djhtml" %}
+                {% include "refactor/tab-sections.djhtml" %}
             </div>
 
         </div>
@@ -58,7 +60,6 @@
         <table id="status-bar">
             <tr>
                 <td id="status-bar-left">
-
                 </td>
                 <td id="status-bar-right">
                     <a href="#" id="platform-option"> {{ binary.options.architecture }}</a>  | {{ binary.size|filesizeformat }} | {{ binary.name }}

@@ -41,7 +41,7 @@
     //$(".hex-cell-addr").mouseup(snapSelectionToWord);
 </script>
 
-<div id="hex-dump" class="tab-pane fade">
+<div id="tab-hexdump" class="tab-pane fade">
     <div id="hex-scroll" >
         <table id="hex-dump-table">
         </table>

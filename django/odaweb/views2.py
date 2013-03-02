@@ -67,13 +67,33 @@ def set(request):
 def hex(request):
     pass
 
+def sections(request):
+    oda_master = get_session(request)
+
+    binary = oda_master.binary
+    dasm = Disassembler(binary)
+
+    sections_tab = render_to_string('sections_tab.djhtml', {
+        'sections' : dasm.sections,
+        'sectionFlagsInfo' : dasm.sectionFlagsInfo(),
+    })
+
+    # Return the new disassembly
+    return HttpResponse(simplejson.dumps({
+        'sections_tab' : sections_tab,
+        #'section_flags' : dasm.sectionFlagsInfo(),
+        }),
+        mimetype='application/json')
+
 def symbols(request):
     oda_master = get_session(request)
 
     binary = oda_master.binary
     dasm = Disassembler(binary)
 
-    syms = render_to_string('symbols.djhtml', { 'symbols' : dasm.symbols() })
+    syms = render_to_string('symbols.djhtml', {
+        'symbols' : dasm.symbols(),
+    })
     print syms
 
     # Return the new disassembly

@@ -1,4 +1,4 @@
-<div id="disassembly" class="tab-pane fade active in">
+<div id="tab-disassembly" class="tab-pane fade active in">
     <div id="assembly-scroll" class="tabbed-scroll assembly">
         <table id="listing">
             <colgroup>
