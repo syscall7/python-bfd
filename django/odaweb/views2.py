@@ -27,6 +27,8 @@ def index(request, disassembly_id):
         section_info = Disassembler(oda_master.binary).get_code_sections()
         render_dict['section_info'] = section_info
         render_dict['binary'] = oda_master.binary
+        render_dict['disassembly_id'] = disassembly_id
+        render_dict['share_url'] =  request.build_absolute_uri()
 
     return render(request, 'refactor/index.djhtml', render_dict)
 

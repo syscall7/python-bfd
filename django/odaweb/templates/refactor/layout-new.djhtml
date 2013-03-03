@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
 <head>
 
     <title></title>
@@ -32,14 +32,18 @@
                 <a class="brand" href="#">ODA</a>
                 <ul class="nav">
 
+                    <li class="">
+                        <a href="#modal-share" data-toggle="modal"><i class="icon-share icon-white"></i>Share</a>
+                    </li>
+
                     <!-- File Menu -->
                     <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">File<b class="caret"></b></a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="menu-item-file">File<b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <li><a href="#upload-modal" data-toggle="modal"><i class="icon-upload"></i>&nbsp;Upload</a></li>
                             <li><a href="#">Copy/Paste Hex</a></li>
                             <li class="divider"></li>
-                            <li><a href="./_save"><i class="icon-share"></i>Save</a></li>
+                            <li><a href="#modal-share" data-toggle="modal"><i class="icon-share"></i>Share</a></li>
                             <li><a href="#">Download</a></li>
                         </ul>
                     </li>
@@ -72,7 +76,9 @@
     </div>
 </div>
 
-{% include "file_upload.djhtml" %}
+{% include "modal-upload.djhtml" %}
+
+{% include "modal-share.djhtml" %}
 
 <div id="main-display">
     {% block content %}{% endblock %}

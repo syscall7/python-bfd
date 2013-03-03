@@ -336,6 +336,14 @@ function InitializeComments() {
     */
 }
 
+function InitializeModalShare() {
+
+    // select the link in the text box when the modal is shown
+    $('#modal-share').on('shown', function() {
+        $("#share-url").select();
+    });
+}
+
 $(document).ready(function(){
 
     InitializeTabs();
@@ -347,4 +355,6 @@ $(document).ready(function(){
     InitializeSplitter();
 
     InitializeComments();
+
+    InitializeModalShare();
 });
