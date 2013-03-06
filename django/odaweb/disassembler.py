@@ -165,6 +165,8 @@ class Disassembler(object):
         return chunks
 
     def process_chunks(self):
+        BinaryDisassemblyChunk.objects.filter(object_id=self.binary.id).delete()
+
         chunks = []
 
         # Disassemble the entire file, one section at a time, dividing it into disassembly chunks

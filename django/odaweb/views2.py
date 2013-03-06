@@ -64,7 +64,31 @@ def get_session(request):
     return OdaMaster.objects.get(short_name = disassembly_session_id)
 
 def set(request):
-    pass
+
+    class HexUploadForm(forms.Form):
+        hex_val = forms.CharField()
+
+    form = HexUploadForm(request.POST) # A form bound to the POST data
+    if form.is_valid():
+        hex_string = form.cleaned_data['hex_val']
+        try:
+            cleaned_hex_string = ''.join(hex_string.split())
+            byte_array = cleaned_hex_string.decode("hex")
+        except TypeError,e:
+            if (e.args[0]=='Non-hexadecimal digit found'):
+                return HttpResponse('<div>NON HEX DIGIT</div>')
+            else:
+                cleaned_hex_string = (cleaned_hex_string + '0')
+
+        oda_master = get_session(request)
+        print cleaned_hex_string
+        oda_master.binary.binary_string = cleaned_hex_string
+        oda_master.binary.save()
+
+        disassembler = Disassembler(oda_master.binary)
+        disassembler.process_chunks()
+
+        return render_to_json({"status" : "ok"})
 
 def hex(request):
     pass

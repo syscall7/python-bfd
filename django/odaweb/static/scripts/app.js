@@ -359,4 +359,6 @@ $(document).ready(function(){
     InitializeComments();
 
     InitializeModalShare();
+
+    LiveHex();
 });
