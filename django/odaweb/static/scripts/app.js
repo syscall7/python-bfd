@@ -201,6 +201,8 @@ function Load(id) {
 
     $.post('_refresh', {id: id}).done(function(data){
 
+        $('#loading-panel').hide();
+
         // Update the chunk list
         if ( data.chunks.length > 0 )
         {
