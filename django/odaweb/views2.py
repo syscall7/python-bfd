@@ -8,7 +8,7 @@ import dischunk
 from django.contrib.contenttypes.models import ContentType
 from disassembler import Disassembler, JsonChunkProcessor, create_default_view
 from django.template.loader import render_to_string
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseServerError
 from django.utils import simplejson
 
 from utils import id_generator
@@ -76,7 +76,7 @@ def set(request):
             byte_array = cleaned_hex_string.decode("hex")
         except TypeError,e:
             if (e.args[0]=='Non-hexadecimal digit found'):
-                return HttpResponse('<div>NON HEX DIGIT</div>')
+                return HttpResponseServerError('<div>NON HEX DIGIT</div>')
             else:
                 cleaned_hex_string = (cleaned_hex_string + '0')
 

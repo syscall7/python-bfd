@@ -13,7 +13,11 @@ window.LiveHex = function() {
             $.post('/odaweb/_set', {
                 hex_val : newText
             }).done(function() {
+                $('#hex-alert').hide();
                 Load();
+                refreshing = false;
+            }).fail(function(){
+                $('#hex-alert').show();
                 refreshing = false;
             });
         }

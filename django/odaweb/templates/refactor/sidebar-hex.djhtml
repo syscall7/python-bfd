@@ -1,5 +1,13 @@
 <div id="hex-display" style="padding:5px; background-color:white;" class="active item">
+
+
     <div class="sidebar-legend">Raw Bytes</div>
+
+    <div class="alert" id="hex-alert" style="display:none;">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <strong>Warning!</strong> You can only disassemble hexadecimal characters, check your inputs.
+    </div>
+
     <div id="hex-sidebar-scroll" class="sidebar-content">
         <textarea class="sidebar-scroll-container" id="hex"
                   style="width:95%; margin-bottom: 5px;" data-bind="value: hex">
