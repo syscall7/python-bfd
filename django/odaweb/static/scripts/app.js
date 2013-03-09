@@ -191,7 +191,7 @@ function SetupSectionFlagPopovers(sectionFlags) {
 
 function Load(id) {
 
-    var DisChunkInfo = Backbone.Model.extend({});
+   var DisChunkInfo = Backbone.Model.extend({});
     var DisChunkList = Backbone.Collection.extend({
         model: DisChunkInfo
     });
@@ -235,7 +235,40 @@ function Load(id) {
                 window.disChunks.push(chunk);    
             }
         }
-     
+
+        $('.insn').popover({
+            placement: 'left',
+            trigger: 'hover',
+            html : true,
+            title : function() {
+                var instruction = $(this).text();
+                var re = /^\s*(\w+)\s*.*$/;
+                match = re.exec(instruction);
+                return match[1];
+            },
+            content : function(e) {
+                var instruction = $(this).text();
+                var re = /^\s*(\w+)\s*.*$/;
+                var mnemonic = re.exec(instruction)[1];
+
+                $.ajax({
+                    type: 'POST',
+                    url: '_instdoc',
+                    data: {mnemonic: mnemonic},
+                    // Must be a blocking request in order for popopver to work for the very first hover
+                    async: false,
+                    success: function(instdoc_data){
+                        $('#popover-inst-doc').html(instdoc_data.instdoc);
+                    },
+                    error: function(){
+                        $('#popover-inst-doc').html("Failed to fetch instruction documentation.");
+                    }
+                });
+
+                return $('#popover-inst-doc').html();
+            }
+        });
+
     }).fail(function(){
         alert('fail');
     });

@@ -81,6 +81,8 @@
 
 {% include "modal-share.djhtml" %}
 
+{% include "refactor/popover-inst-doc.djhtml" %}
+
 <div id="main-display">
     {% block content %}{% endblock %}
 
