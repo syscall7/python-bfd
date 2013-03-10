@@ -186,4 +186,9 @@ class OdaMaster(models.Model):
         return self.content_object.file_handle()
 
 
-        
+class InstDoc(models.Model):
+    platform = models.TextField()
+    mnemonic = models.TextField()
+    short = models.TextField()
+    long = models.TextField()
+

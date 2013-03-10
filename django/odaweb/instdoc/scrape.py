@@ -14,13 +14,13 @@
 import re
 import subprocess
 import os
-import sqlite3
+import json
 
 class InstDoc:
     def __init__(self, page_num):
         self.mnemonic = 'unknown'
-        self.short_help = 'uninitialized'
-        self.long_help = ''
+        self.short = 'uninitialized'
+        self.long = ''
         self.page_start = page_num
         self.num_pages = 1
 
@@ -39,16 +39,16 @@ class InstDoc:
         if line.startswith('\x0c'):
             return
 
-        if self.mnemonic in line and self.short_help in line:
+        if self.mnemonic in line and self.short in line:
             return
 
         line = line.strip()
 
         if line[0].isupper() and (self.prev_line.endswith('.') or self.prev_line.endswith('.)')):
-            self.long_help += '\n'
+            self.long += '\n'
 
         self.prev_line = line
-        self.long_help += self.prev_line + '\n'
+        self.long += self.prev_line + '\n'
 
     def gen_png(self, directory, name):
         
@@ -69,8 +69,8 @@ class InstDoc:
 
 
     mnemonic = property()
-    short_help = property()
-    long_help = property()
+    short = property()
+    long = property()
 
 # read in text file and extract pages
 with open('intel_ref.latin', 'r') as f:
@@ -89,7 +89,7 @@ inst_docs = []
 desc_start = re.compile(r'^\s*Description.*$')
 desc_end = re.compile(r'^\s*Operation.*$')
 inst_ref = re.compile(r'^\s*INSTRUCTION SET REFERENCE.*$')
-inst_start = re.compile(r'^(?P<mnemonic>[A-Z]+[a-zA-Z/0-9 ]*)\s*-+\s*(?P<short_help>.*)$')
+inst_start = re.compile(r'^(?P<mnemonic>[A-Z]+[a-zA-Z/0-9 ]*)\s*-+\s*(?P<short>.*)$')
 
 for (page_num, page) in enumerate(pages):
 
@@ -113,7 +113,7 @@ for (page_num, page) in enumerate(pages):
                 elif inst_match and 'Opcode' in '\n'.join(lines[i+1:i+2]):
                     cur_inst = InstDoc(page_num+1)
                     cur_inst.mnemonic = inst_match.group('mnemonic')
-                    cur_inst.short_help = inst_match.group('short_help')
+                    cur_inst.short = inst_match.group('short')
                     inst_docs.append(cur_inst)
                     state = STATE_FIND_DESC
                 else:
@@ -139,27 +139,28 @@ for (page_num, page) in enumerate(pages):
                 else:
                     cur_inst.update_long(line)
 
-db = "instdoc.db"
-connection=sqlite3.connect(db)
-cursor=connection.cursor()
-cursor.execute('CREATE TABLE IF NOT EXISTS instdoc (id INTEGER PRIMARY KEY, platform TEXT, mnemonic TEXT, short TEXT, long TEXT)')
-connection.commit()
+f = open('instdoc_i386.json', 'w')
+f.write('[\n')
 
-f = open('def.py', 'w')
-f.write('instructions = {\n')
+for (i,inst) in enumerate(inst_docs):
 
-for inst in inst_docs:
+    f.write('\t{\n' +
+            '\t\t"model": "odaweb.InstDoc",\n' +
+            '\t\t"pk": %d,\n' % i +
+            '\t\t"fields": {\n'+
+            '\t\t\t"platform": "i386",\n' + 
+            '\t\t\t"mnemonic": "%s",\n' % inst.mnemonic +
+            '\t\t\t"short": %s,\n' % json.dumps(inst.short.decode('latin-1').encode('utf-8')) +
+            '\t\t\t"long": %s\n' % json.dumps(inst.long.decode('latin-1').encode('utf-8')) +
+            '\t\t}\n' + 
+            '\t}%s\n' % (',' if i+1 < len(inst_docs) else '' ))
 
-    cursor.execute('INSERT INTO instdoc VALUES(null, ?, ?, ?, ?)', ('i386', inst.mnemonic, inst.short_help.decode('latin-1'), inst.long_help.decode('latin-1')))
 
-    f.write("\t'%s' : ( '%s',\n'''%s'''),\n" % (inst.mnemonic, inst.short_help, inst.long_help))
-    print '%s -- %s (page %d, count %d)\n' % (inst.mnemonic, inst.short_help, inst.page_start, inst.num_pages)
-    #for line in inst.long_help.split('\n'):
+    print '%s -- %s (page %d, count %d)\n' % (inst.mnemonic, inst.short, inst.page_start, inst.num_pages)
+    #for line in inst.long.split('\n'):
     #    print '\t%s' % line
 
     #name = inst.mnemonic.replace('/', '_').replace(' ','')
     #inst.gen_pdf('./pdf', name)
 
-f.write('}\n')
-connection.commit()
-cursor.close()
+f.write(']\n')

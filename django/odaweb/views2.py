@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 
-from odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment
+from odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment, InstDoc
 import views
 from odaweb import engine
 from django import forms
@@ -10,7 +10,6 @@ from disassembler import Disassembler, JsonChunkProcessor, create_default_view
 from django.template.loader import render_to_string
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseServerError
 from django.utils import simplejson
-from odaweb.instdoc import InstDocFactory
 
 from utils import id_generator
 
@@ -110,11 +109,7 @@ def fileinfo(request):
         #'section_flags' : dasm.sectionFlagsInfo(),
     }), mimetype='application/json')
 
-counter = 0
 def instdoc(request):
-
-    global counter
-    counter += 1
 
     class InstDocForm(forms.Form):
         mnemonic = forms.CharField()
@@ -122,21 +117,23 @@ def instdoc(request):
     form = InstDocForm(request.POST, request.FILES)
 
     if form.is_valid():
+        instdoc_html = 'Invalid instruction'
+
         mnemonic = form.cleaned_data['mnemonic']
         print 'Getting instruction documentation for "%s"' % (mnemonic)
 
-        doc = InstDocFactory('platform', mnemonic.upper())
+        # TODO: Get the actual platform
+        result = InstDoc.objects.filter(platform = 'i386', mnemonic = mnemonic.upper())
+        if result:
+            doc = result[0]
 
-        oda_master = get_session(request)
-        binary = oda_master.binary
+            oda_master = get_session(request)
+            binary = oda_master.binary
 
-        description = 'This is a description of the instruction %d' % counter
+            instdoc_html = render_to_string('refactor/inst-doc-content.djhtml', {
+                'description': doc.short,
+                })
 
-        instdoc_html = render_to_string('refactor/inst-doc-content.djhtml', {
-            'description': doc.short,
-            })
-
-        # Return the new disassembly
         return HttpResponse(simplejson.dumps({
             'instdoc' : instdoc_html,
         }), mimetype='application/json')
