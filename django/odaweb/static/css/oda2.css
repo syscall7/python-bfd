@@ -222,6 +222,23 @@ tbody.scrollContent {
     white-space: pre;
 }
 
+errinsn {
+    color: red;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 14px;
+    white-space: pre;
+}
+
+dislineerr {
+    color: red;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 14px;
+    white-space: pre;
+}
+
+
 #slider-sections {
     /* border-collapse: collapse; */
     border:1px solid #ffffff; /*#BDBEDF;*/
