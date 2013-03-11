@@ -92,6 +92,7 @@ function InitializeSlider(min, max) {
     // set the slider address display text
     // NOTE: This function is triggered via updateSlider() in history.js as well
     function updateAddrDisplay(addr) {
+        window.topDisplayAddr = addr;
         addrStr = addr.toString(16).toUpperCase();
         console.debug("updateAddrDisplay to %s", addrStr);
         while (addrStr.length < 8) addrStr = "0" + addrStr;
@@ -105,9 +106,11 @@ function InitializeSlider(min, max) {
         updateAddrDisplay(addr);
 
         // Try to scroll to the address
-        if ( !updateDisassembly(addr) )
+        if ( !scrollToAddr(addr) )
         {
             // Isn't loaded. Try to load it
+            //window.topDisplayAddr = addr;
+            updateDisassembly(addr);
             scrollToAddr(addr);
         }
     }
@@ -191,88 +194,27 @@ function SetupSectionFlagPopovers(sectionFlags) {
 
 function Load(id) {
 
-   var DisChunkInfo = Backbone.Model.extend({});
-    var DisChunkList = Backbone.Collection.extend({
-        model: DisChunkInfo
+    window.DisChunkInfo = Backbone.Model.extend({});
+    window.DisChunkList = Backbone.Collection.extend({
+        model: window.DisChunkInfo
     });
 
-    window.disChunks = new DisChunkList([]);
+    window.disChunks = new window.DisChunkList([]);
+    window.disId = id;
 
-
-    $.post('_refresh', {id: id}).done(function(data){
-
-        $('#loading-panel').hide();
-
-        // Update the chunk list
-        if ( data.chunks.length > 0 )
-        {
-            // Remove lower address chunks from the display
-            $('#listing').find("tbody").remove();
+    var addr = 0;
+    if (typeof window.initialOffset === "undefined")
+    {
+        addr = 0;
+    }
+    else
+    {
+        addr = window.initialOffset;
+    }
     
-            // Append the new listing
-            $('#listing').find("colgroup").after(data.disassembly);
-
-            // Remove lower address chunks from the display
-            $('#hex-dump-table').find("tbody").remove();
-
-            // Append the new listing
-            $('#hex-dump-table').append(data.hex_dump);
-
-            // Clear the collection
-            window.disChunks.reset();
-               
-            // Append the new chunks to the end of the list
-            for (var i = 0; i < data.chunks.length; i++) 
-            {
-                var chunk = new DisChunkInfo({ 
-                    sec_name : data.chunks[i].sec_name,
-                    startOffset : data.chunks[i].startOffset,
-                    endOffset : data.chunks[i].endOffset,
-                    lines : data.chunks[i].lines,
-                    //hex_dump : data.chunks[i].lines,
-                    isBoundary : data.chunks[i].isBoundary
-                });
-                window.disChunks.push(chunk);    
-            }
-        }
-
-        $('.insn').popover({
-            placement: 'left',
-            trigger: 'hover',
-            html : true,
-            title : function() {
-                var instruction = $(this).text();
-                var re = /^\s*(\w+)\s*.*$/;
-                match = re.exec(instruction);
-                return match[1];
-            },
-            content : function(e) {
-                var instruction = $(this).text();
-                var re = /^\s*(\w+)\s*.*$/;
-                var mnemonic = re.exec(instruction)[1];
-
-                $.ajax({
-                    type: 'POST',
-                    url: '_instdoc',
-                    data: {mnemonic: mnemonic},
-                    // Must be a blocking request in order for popopver to work for the very first hover
-                    async: false,
-                    success: function(instdoc_data){
-                        $('#popover-inst-doc').html(instdoc_data.instdoc);
-                    },
-                    error: function(){
-                        $('#popover-inst-doc').html("Failed to fetch instruction documentation.");
-                    }
-                });
-
-                return $('#popover-inst-doc').html();
-            }
-        });
-
-    }).fail(function(){
-        alert('fail');
-    });
-
+    console.debug("Load, refreshDisassembly addr= %x %d %s",addr,addr,addr);    
+    refreshDisassembly(addr);
+    
     $.post('_symbols', {id: id}).done(function(data){
         $('#symbol-content').append(data.symbols_html);
         scrolify($('#symbol-table')); // 160 is height

@@ -12,15 +12,15 @@ urlpatterns = patterns('',
     (r'^$', lambda x: HttpResponseRedirect('/odaweb/')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
-url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
-# Uncomment the next line to enable the admin:
-url(r'^admin/', include(admin.site.urls)),
-
-url(r'^odaweb/run_hex$', 'odaweb.views.run_hex'),
-url(r'^odaweb/run_hex/(?P<snippet_id>[\w-]+)$', 'odaweb.views.run_hex'),
-url(r'^odaweb/file_upload', 'odaweb.views.file_upload'),
-url(r'^odaweb/clear$', 'odaweb.views.clear'),
+    # Uncomment the next line to enable the admin:
+    url(r'^admin/', include(admin.site.urls)),
+    
+    url(r'^odaweb/run_hex$', 'odaweb.views.run_hex'),
+    url(r'^odaweb/run_hex/(?P<snippet_id>[\w-]+)$', 'odaweb.views.run_hex'),
+    url(r'^odaweb/file_upload', 'odaweb.views.file_upload'),
+    url(r'^odaweb/clear$', 'odaweb.views.clear'),
     url(r'^odaweb/disassemble/uploadHex$', 'odaweb.views.upload_hex'),
     url(r'^odaweb/disassemble/showOptions$', 'odaweb.views.show_options'),
     url(r'^disassemble/uploadFile$', 'odaweb.views.upload_file'),
@@ -31,10 +31,10 @@ url(r'^odaweb/clear$', 'odaweb.views.clear'),
     url(r'^odaweb/refresh_disassembly/(?P<file_id>[\w-]+)$', 'odaweb.views.refresh_disassembly'),
     #url(r'^odaweb/comment/(?P<file_id>[\w-]+)/(?P<offset>[0-9A-Fa-f]{8})$', 'odaweb.views.comment'),
 
-
     url(r'^odaweb/_save$', 'odaweb.views2.save'),
     url(r'^odaweb/_upload$', 'odaweb.views2.upload'),
     url(r'^odaweb/_refresh$', 'odaweb.views2.refresh_disassembly'),
+    url(r'^odaweb/_partial_refresh$', 'odaweb.views2.partial_refresh_disassembly'),
     url(r'^odaweb/comment$', 'odaweb.views2.comment'),
     url(r'^odaweb/_symbols$', 'odaweb.views2.symbols'),
     url(r'^odaweb/_strings$', 'odaweb.views2.strings'),

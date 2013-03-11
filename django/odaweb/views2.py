@@ -219,9 +219,10 @@ def refresh_disassembly(request):
 
     binary = oda_master.binary
 
-    addr = int(request.GET.get('addr','0'))
+    addr = int(request.POST.get('addr','0'))
+    print "TotalRefresh: addr",addr
 
-    chunks, chunk_list = JsonChunkProcessor(binary).get_chunk_html(addr, 7)
+    chunks, chunk_list = JsonChunkProcessor(binary).get_chunks_from_addr(addr, 7)
 
     for c in chunks:
         c.attach_comments(binary)
@@ -233,6 +234,33 @@ def refresh_disassembly(request):
     return HttpResponse(simplejson.dumps({'disassembly' : dis,
                                           'hex_dump' : hex,
                                           'chunks' : chunk_list })  , mimetype='application/json')
+
+def partial_refresh_disassembly(request):
+    oda_master = get_session(request)
+
+    binary = oda_master.binary
+
+    sec_name=request.POST.get('name', '.data')
+    start =int(request.POST.get('start','0'))
+    end=int(request.POST.get('end', '0'))
+    count=int(request.POST.get('count', '0'))
+    direction=int(request.POST.get('dir', '0'))
+
+    print "PartialRefresh: SEC",sec_name,"START",start,"COUNT",count
+
+    chunks, chunk_list = JsonChunkProcessor(binary).get_chunks_from_chunk(sec_name, start, end, direction, count)
+
+    for c in chunks:
+        c.attach_comments(binary)
+
+    dis = render_to_string('listing.djhtml', { 'chunks' : chunks, 'functions' : [] } )
+    hex = render_to_string('hex_listing.djhtml', { 'chunks' : chunks } )
+
+    # Return the new disassembly
+    return HttpResponse(simplejson.dumps({'disassembly' : dis,
+                                          'hex_dump' : hex,
+                                          'chunks' : chunk_list })  , mimetype='application/json')
+    
 
 def comment(request):
 

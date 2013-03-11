@@ -16,19 +16,34 @@ $(document).ready(function() {
 		tab : function(tab,offset) {
 			if ( tab == 'assembly-tab-item')
 			{
-				var assembly_position = window.assembly_position; 
-
-				// Select the assembly tab
-				var tabselector = '#' + tab;
-			    $(tabselector).tab('show');
-				
-				// Check if the target offset is currently loaded in the browser
-				var intOffset = parseInt(offset,16);
-                if ( !updateDisassembly(intOffset) )
-                {
-                    // Need to handle the scroll if the window isn't changing
-                    scrollToAddr(intOffset);                    
-                }                							
+			    // Only process tabs for existing sessions
+			    //   In other words, you can't navigate to an address
+			    //   by typing in the URL if you haven't already started
+			    //   a session
+			    if (typeof window.disId === "undefined") 
+			    {
+			        // Save the initial offset for use by the Load function
+			        window.initialOffset = parseInt(offset,16);
+			        console.debug("Save Initial Offset %d %x %d %x",window.initialOffset,window.initialOffset,offset,offset)    
+			    }
+			    else
+			    {
+    				var assembly_position = window.assembly_position; 
+    
+    				// Select the assembly tab
+    				var tabselector = '#' + tab;
+    			    $(tabselector).tab('show');
+    				
+    				// Check if the target offset is currently loaded in the browser
+    				var intOffset = parseInt(offset,16);
+    				window.topDisplayAddr = intOffset;
+    				console.debug("tab, updateDisassembly offset %s", intOffset.toString(16));
+                    if ( !updateDisassembly(intOffset) )
+                    {
+                        // Need to handle the scroll if the window isn't changing
+                        scrollToAddr(intOffset);                    
+                    }                				
+                }			
 			} 
 		}
 		
@@ -36,6 +51,7 @@ $(document).ready(function() {
 
     window.ignoreScrollEvents = false;
     window.scrollTimer=null;
+	window.topDisplayAddr=0;
 	
 	router = new WorkspaceRouter();
 	Backbone.history.start();
@@ -85,7 +101,7 @@ function scrollToAddr(offset)
             var dbar_height = $('#download-bar').outerHeight(true);
             var disoffset_top = offset_element[0].offsetTop;
 
-            console.debug("scrollToAddr, scrollTop %d", disoffset_top + dbar_height + 1);
+            console.debug("scrollToAddr, scrollTop %x", disoffset_top + dbar_height + 1);
 
             // Row element offset doesn't include size of the download bar
             $('#myTabContent').scrollTop(disoffset_top + dbar_height + 1);
@@ -100,24 +116,75 @@ function scrollToAddr(offset)
     return false;
 }
 
+function loadPopovers()
+{
+    $('.insn').popover({
+        placement: 'left',
+        trigger: 'hover',
+        html : true,
+        title : function() {
+            var instruction = $(this).text();
+            var re = /^\s*(\w+)\s*.*$/;
+            match = re.exec(instruction);
+            return match[1];
+        },
+        content : function(e) {
+            var instruction = $(this).text();
+            var re = /^\s*(\w+)\s*.*$/;
+            var mnemonic = re.exec(instruction)[1];
+
+            $.ajax({
+                type: 'POST',
+                url: '_instdoc',
+                data: {mnemonic: mnemonic},
+                // Must be a blocking request in order for popopver to work for the very first hover
+                async: false,
+                success: function(instdoc_data){
+                    $('#popover-inst-doc').html(instdoc_data.instdoc);
+                },
+                error: function(){
+                    $('#popover-inst-doc').html("Failed to fetch instruction documentation.");
+                }
+            });
+
+            return $('#popover-inst-doc').html();
+        }
+    });    
+}
+
+
 // Load an entire new page of disassembly
 function refreshDisassembly(offset)
 {
-    console.debug("refreshDisassembly, start");
-    $.post('_refresh', {id: id, addr: offset}).done(function(data){            
+	console.debug("refreshDisassembly, start");
+    $.post('_refresh', {id: window.disId, addr:offset}).done(function(data){
+
+        $('#loading-panel').hide();
+
         // Update the chunk list
         if ( data.chunks.length > 0 )
         {
-            // Remove lower address chunks from the display
+            // Remove old chunks from the display
+            console.debug("refreshDisassembly, remove old listing");
             $('#listing').find("tbody").remove();
+    
+            // Append the new listing
+            console.debug("refreshDisassembly, append new listing");
+            $('#listing').find("colgroup").after(data.disassembly);
+
+            // Remove old chunks from the display
+            console.debug("refreshDisassembly, remove old hex");
+            $('#hex-dump-table').find("tbody").remove();
 
             // Append the new listing
-            $('#listing').find("colgroup").after(data.disassembly);
-            
+            console.debug("refreshDisassembly, append new hex");
+            $('#hex-dump-table').append(data.hex_dump);
+
             // Clear the collection
             window.disChunks.reset();
                
             // Append the new chunks to the end of the list
+            console.debug("refreshDisassembly, append new chunks %d",data.chunks.length);
             for (var i = 0; i < data.chunks.length; i++) 
             {
                 var chunk = new DisChunkInfo({ 
@@ -125,16 +192,23 @@ function refreshDisassembly(offset)
                     startOffset : data.chunks[i].startOffset,
                     endOffset : data.chunks[i].endOffset,
                     lines : data.chunks[i].lines,
+                    hex_dump : data.chunks[i].lines,
                     isBoundary : data.chunks[i].isBoundary
                 });
                 window.disChunks.push(chunk);    
             }
         }
-                        
+        
         // Recenter the Scrollbar
         scrollToAddr(offset);
-                                    
-    });                     
+     
+        loadPopovers();
+     
+     
+    }).fail(function(){
+        alert('fail');
+    });
+                    
 }
 
 function updateDisassembly(offset)
@@ -151,7 +225,7 @@ function updateDisassembly(offset)
     {
         // Need to load all new disassembly
         console.debug("updateDisassembly, refresh entire page");
-        //window.refresh(offset);
+        refreshDisassembly(offset);
         return true;
     }
     else
@@ -220,19 +294,125 @@ function requestMoreDisassembly(dir,chunk_count,offset)
             // Prepend new chunks
             index = 0;
         }
+        
+        var ch_name = chunks.models[index].get('sec_name');
+        var ch_start = chunks.models[index].get('startOffset');
+        var ch_end = chunks.models[index].get('endOffset');
+
+        console.debug("Call partial: start %d, name %s\n",ch_start,ch_name);
 
         // Check if we can request more chunks
         if ( chunks.models[index].get('isBoundary') == false )
         {
             // Append new chunks to the bottom
             window.ignoreScrollEvents = true;
-            // TODO: Put back when server supports partial refresh
-            // getMore(chunks.models[index].get('sec_name'),
-                    // chunks.models[index].get('startOffset'),
-                    // chunks.models[index].get('endOffset'),
-                    // chunk_count,
-                    // dir,
-                    // offset);
+                        
+            $.post('_partial_refresh', {id: window.disId, name:ch_name, start:ch_start, end:ch_end, count:chunk_count, dir:dir}).done(function(data){
+                
+                console.timeStamp("Received Response\n");
+
+                // Determine the top most visible address
+                var topAddr = getTopVisibleAssemblyAddr();
+                console.debug("Partial Determine Top Visible %x",topAddr);
+
+                // Update the chunk list
+                if ( dir == 1 && data.chunks.length > 0 )
+                {                                                                              
+                    // Remove lower address chunks from the display
+                    $('#listing').find("tbody:lt(" + data.chunks.length + ")").remove();
+                    console.timeStamp("Remove %d chunks\n",data.chunks.length);
+
+                    // Append the new listing
+                    $('#listing tbody:last').after(data.disassembly);
+                                        
+                    // Scroll back to the original address
+                    //if (topAddr != -1)
+                    //{
+                        scrollToAddr(topAddr);                            
+                        console.debug("Partial SCrollto %x",topAddr)
+                    //}
+                    //else
+                    //{
+                    //    scrollToAddr(window.topDisplayAddr);
+                    //    console.debug("Partial: No top address returned");
+                    //}                    
+                    
+                    // Remove the lowest chunks from the chunk list
+                    for (var i = 0; i < data.chunks.length; i++) 
+                    {
+                        window.disChunks.shift();    
+                    }   
+                    
+                    // Append the new chunks to the end of the list
+                    for (var i = 0; i < data.chunks.length; i++) 
+                    {
+                        var chunk = new DisChunkInfo({ 
+                            sec_name : data.chunks[i].sec_name,
+                            startOffset : data.chunks[i].startOffset,
+                            endOffset : data.chunks[i].endOffset,
+                            lines : data.chunks[i].lines,
+                            isBoundary : data.chunks[i].isBoundary
+                        });
+                        window.disChunks.push(chunk);    
+                    }
+                }
+                if ( dir == 0 && data.chunks.length > 0 )
+                {                    
+                    // Remove higher address chunks from the display
+                    var chunks_len = window.disChunks.length-data.chunks.length;
+                    $('#listing').find("tbody:gt(" + (chunks_len-1) + ")").remove();
+
+                    // Prepend the new listing
+                    $('#listing tbody:first').before(data.disassembly);
+
+                    // Scroll back to the original topmost address
+                    //if (topAddr != -1)
+                    //{
+                        scrollToAddr(topAddr);                            
+                        console.debug("Partial SCrollto %x",topAddr)
+                    //}
+                    //else
+                   // {
+                    //    scrollToAddr(window.topDisplayAddr);
+                    //    console.debug("Partial: No top address returned");
+                    //}
+                    
+                    // Remove the highest chunks from the chunk list
+                    for (var i = 0; i < data.chunks.length; i++) 
+                    {
+                        window.disChunks.pop();    
+                    }   
+                    
+                    // Append the new chunks to the beginning of the list
+                    var i = data.chunks.length;
+                    while (i > 0)
+                    {
+                        var chunk = new DisChunkInfo({ 
+                            sec_name : data.chunks[i-1].sec_name,
+                            startOffset : data.chunks[i-1].startOffset,
+                            endOffset : data.chunks[i-1].endOffset,
+                            lines : data.chunks[i-1].lines,
+                            isBoundary : data.chunks[i-1].isBoundary
+
+                        });
+                        window.disChunks.unshift(chunk);    
+                        i = i-1;
+                    }        
+                }   
+
+                loadPopovers();
+                                
+                // Recenter the Scrollbar
+                //scrollToAddr(window.topDisplayAddr);
+                //console.debug("Partial SCrollto %x",window.topDisplayAddr)
+                //scrollToAddr(offset);
+                //console.debug("Partial SCrollto %x",offset)
+                console.timeStamp("Done Processing\n");
+                
+                window.scrollTimer = null;
+                window.ignoreScrollEvents = false;                    
+                  
+            });                     
             
             return true;            
         }
@@ -291,13 +471,6 @@ function getTopVisibleAssemblyRow()
     // Get the Line of disassembly to determine the corresponding address
     var elem = myElementFromPoint(target_left, target_top);
 
-    // Handle labels and other internal tags
-    // if ( elem.id == 'download-bar')
-    // {
-        // // The dbar is at the top of the listing so just skip to the first row
-        // elem = $('#listing').find('tr').first()[0];
-    // }
-    // else 
     if ( elem.tagName.toLowerCase() != 'tr' )
     { 
         // Most likely in an internal tag (tr.branchlines, etc)
@@ -307,13 +480,21 @@ function getTopVisibleAssemblyRow()
     return elem;    
 }
 
+function getTopVisibleAssemblyAddr()
+{
+    var elem = getTopVisibleAssemblyRow();
+    var intOffset = -1;
+    if (elem) { 
+        intOffset = parseInt(elem.getAttribute("addr"),16);
+    }
+    
+    return intOffset;
+}
 
 
 function assemblyScrollHandler() 
 {
     console.debug("assemblyScrollHandler, start");
-    //var ignore = ignoreScrollEvents;
-    //ignoreScrollEvents = false;    
     if (window.ignoreScrollEvents) 
     {
         window.scrollTimer=null;
@@ -327,7 +508,8 @@ function assemblyScrollHandler()
     if (elem) { 
         var intOffset = parseInt(elem.getAttribute("addr"),16);
 
-        console.debug("assemblyScrollHandler, updating slider to ", elem.getAttribute("addr"));
+        console.debug("assemblyScrollHandler, updating slider to 0x%x", elem.getAttribute("addr"));
+        window.topDisplayAddr = intOffset;
         updateSlider(intOffset);
 
         // Load Code if necessary
@@ -338,6 +520,7 @@ function assemblyScrollHandler()
     } 
     else
     {
+        console.debug("ScrollHandler: No addr in row")
         window.scrollTimer=null;        
     }
 }
@@ -354,7 +537,8 @@ function assemblyScrollStopHandler()
 		url_hash_params.offset = offsetStr;
 
         var intOffset = parseInt(offsetStr,16);
-        console.debug("assemblyScrollStopHandler, updating slider to ", offsetStr);
+        console.debug("assemblyScrollStopHandler, updating slider to 0x%x", offsetStr);
+        window.topDisplayAddr = intOffset;
         updateSlider(intOffset);
 
         // Update the URL

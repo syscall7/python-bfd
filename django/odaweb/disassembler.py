@@ -233,7 +233,7 @@ class Disassembler(object):
                 hex = toHex(line)
                 chunk.hex_lines.append((addr, hex, ascii))
                 addr += len(line)
-
+                
 
 
 
@@ -241,48 +241,85 @@ class JsonChunkProcessor(object):
     def __init__(self, binary):
         self.binary = binary
 
-    def get_chunk_html(self, addr, num_chunks):
+    def get_chunks_from_addr(self, addr, num_chunks):
         analyzer = analyzerFactory( self.binary.options.architecture )
 
         ctype = ContentType.objects.get_for_model(self.binary)
 
-        #permachunk = BinaryDisassemblyChunk.objects.filter(
-        #    content_type=ctype.id, object_id = self.binary.id, start__lte = addr, end__gte = addr )[0]
-        permachunks = BinaryDisassemblyChunk.objects.filter(
-            content_type=ctype.id, object_id = self.binary.id)[:7]
-
-        chunk_count = BinaryDisassemblyChunk.objects.filter(content_type=ctype.id, object_id=self.binary.id).count()
+        # The requested address is the center chunk. We need to get chunks
+        #    before and after the center chunk (if possible)
+        
+        # Chunks after an address are easier to retrieve. Retrieve the 
+        #    maximum number in case there is a shortage of chunks before 
+        #    the provided address. Include the chunk that contains the 
+        #    provided address
+        afterChunks = BinaryDisassemblyChunk.objects.filter(
+            content_type=ctype.id, object_id = self.binary.id, start__gte = addr )[0:num_chunks]
+        
+        # Determine how many chunks before the address that we need to get
+        numAfterChunks = len(afterChunks)
+        if numAfterChunks > (num_chunks//2):
+            # Plenty of chunks, just request the minimum
+            numRequested = num_chunks//2
+        else:
+            # Towards the back of the address space, or a very small file
+            #    Request more chunks before the given address to make up
+            #    the difference
+            numRequested = num_chunks - numAfterChunks
+            
+        # Get the chunks before the address
+        beforeChunksReversed = BinaryDisassemblyChunk.objects.filter(
+            content_type=ctype.id, object_id = self.binary.id, start__lt = addr ).order_by('-start')[0:numRequested]      
+        
+        # Chunks before the given chunk but in reverse order
+        beforeChunks = list(beforeChunksReversed)
+        beforeChunks.reverse()
+        
+        # Get the chunks to return 
+        numBeforeChunks = len(beforeChunks)
+        numAfterChunks = num_chunks - numBeforeChunks
+        print "BEFORE: %d, AFTER %d" % (numBeforeChunks,numAfterChunks)         
+        permachunks = beforeChunks + afterChunks[0:numAfterChunks]    
 
         architecture = self.binary.options.architecture
 
         analyzer = analyzerFactory(architecture)
 
-        count = chunk_count
-        if (chunk_count < num_chunks):
-            count = chunk_count
+        return self.process_chunks(analyzer, permachunks)
 
-        #start_index = permachunk.id - (DISASSEMBLY_WINDOW_SIZE_CHUNKS/2)
-        #if start_index < 0:
-        #   start_index = 0
-        #if (start_index + count) > chunk_count:
-        #    start_index = chunk_count - count
-        start_index = 0
-        count = 7
+    def get_chunks_from_chunk(self, name, start, end, direction, num_chunks):
+        analyzer = analyzerFactory( self.binary.options.architecture )
 
-        return self.process_chunks(analyzer, permachunks, start_index, count)
+        ctype = ContentType.objects.get_for_model(self.binary)
 
-    def process_chunks(self, analyzer, permachunks, index, count):
+        if direction == 1:
+            # Chunks after the given chunk
+            permachunks = BinaryDisassemblyChunk.objects.filter(
+                content_type=ctype.id, object_id = self.binary.id, start__gt = start )[0:num_chunks]
+        else:
+            # Chunks before the given chunk
+            permachunksReversed = BinaryDisassemblyChunk.objects.filter(
+                content_type=ctype.id, object_id = self.binary.id, start__lt = start ).order_by('-start')[0:num_chunks]      
+            
+            # Chunks before the given chunk but in reverse order
+            permachunks = list(permachunksReversed)
+            permachunks.reverse()
+        
+        return self.process_chunks(analyzer, permachunks)
+
+    def process_chunks(self, analyzer, permachunks):
 
         # Build a list of chunks to process
         new_chunks = []
 
-        for chunk in permachunks[index:index+count]:
+        for chunk in permachunks:
+            print "APPEND CHUNK 0x%x" % (chunk.start)
             new_chunks.append( dischunk.DisChunk(chunk.start, chunk.end, chunk.bfd_lines, chunk.sec_name, chunk.is_boundary) )
 
         dasm = Disassembler(self.binary)
         analyzer.analyze( dasm, new_chunks )
         dasm.mk_hex_lines(new_chunks)
-
+        chunk.hex_lines = '<>'
         # Build a primitive object containing the list of chunk data to pass back to the client
         chunk_list = []
         for chunk in new_chunks:
