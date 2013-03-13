@@ -10,7 +10,11 @@
         // set the address range for the slider
         InitializeSlider({{ section_info.start_addr  }}, {{ section_info.stop_addr }})
 
-        Load('{{ disassembly_id }}');
+        var binary = new Binary({
+            id : '{{ binary.id }}',
+            liveMode : {{ binary.is_live_mode|jsonify  }}
+        });
+        Load(binary);
     });
     </script>
 

@@ -128,8 +128,10 @@ class BinaryString(Binary):
         return 'hex string'
 
     def size(self):
-        return len(self.binary_string)/2
+        return len(self.binary_string) / 2
 
+    def is_live_mode(self):
+        return True
 
 class Comment(models.Model):
     content_type = models.ForeignKey(ContentType)
@@ -169,6 +171,9 @@ class BinaryFile(Binary):
         u.hash = sha1_hash(u.the_file)
         u.options = options
         return u
+
+    def is_live_mode(self):
+        return False
 
     create = staticmethod(create)
 

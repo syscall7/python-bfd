@@ -6,6 +6,7 @@
                    data-panel="symbols-display"
                    data-toggle="tooltip"
                    title="Symbols"
+                   id="symbols-btn"
                    href="#">
                     <i class="icon-list"></i>
                 </a>
@@ -13,11 +14,15 @@
                    data-panel="hex-display"
                    data-toggle="tooltip"
                    title="Raw Bytes"
-                   href="#"><i class="icon-asterisk"></i></a>
+                   id="hex-display-btn"
+                   href="#"><i class="icon-asterisk"></i>
+                </a>
                 <a class="btn nav-btn" data-panel="strings-display"
                    data-toggle="tooltip"
                    title="Strings"
-                   href="#"><i class="icon-font"></i></a>
+                   href="#">
+                    <i class="icon-font"></i>
+                </a>
             </div>
         </div>
 

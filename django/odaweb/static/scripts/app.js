@@ -1,3 +1,7 @@
+var Binary = Backbone.Model.extend({
+
+});
+
 function FileUploadTab() {
     $('#fileselectbutton').click(function(e){
         $('#file').trigger('click');
@@ -192,7 +196,7 @@ function SetupSectionFlagPopovers(sectionFlags) {
         */
 }
 
-function Load(id) {
+function Load(binary) {
 
     window.DisChunkInfo = Backbone.Model.extend({});
     window.DisChunkList = Backbone.Collection.extend({
@@ -200,7 +204,7 @@ function Load(id) {
     });
 
     window.disChunks = new window.DisChunkList([]);
-    window.disId = id;
+    window.disId = binary.id;
 
     var addr = 0;
     if (typeof window.initialOffset === "undefined")
@@ -215,7 +219,7 @@ function Load(id) {
     console.debug("Load, refreshDisassembly addr= %x %d %s",addr,addr,addr);    
     refreshDisassembly(addr);
     
-    $.post('_symbols', {id: id}).done(function(data){
+    $.post('_symbols', {id: binary.id}).done(function(data){
         $('#symbol-content').append(data.symbols_html);
         scrolify($('#symbol-table')); // 160 is height
         ResizeHandler();
@@ -223,7 +227,7 @@ function Load(id) {
         alert('symbols fail to load');
     });
 
-    $.post('_strings', {id: id}).done(function(data){
+    $.post('_strings', {id: binary.id}).done(function(data){
         $('#strings-content').append(data.strings);
         scrolify($('#strings-table')); // 160 is height
         ResizeHandler();
@@ -231,7 +235,7 @@ function Load(id) {
             alert('symbols fail to load');
     });
 
-    $.post('_sections', {id: id}).done(function(data){
+    $.post('_sections', {id: binary.id}).done(function(data){
 
         $('#tab-sections').append(data.sections_tab);
 
@@ -241,13 +245,18 @@ function Load(id) {
         alert('sections failed to load');
     });
 
-    $.post('_fileinfo', {id: id}).done(function(data){
+    $.post('_fileinfo', {id: binary.id}).done(function(data){
 
         $('#tab-fileinfo').append(data.fileinfo_tab);
 
     }).fail(function(){
         alert('file info failed to load');
     });
+
+    if (!binary.get('liveMode')) {
+        $('#hex-display-btn').hide();
+        $('#symbols-btn').click();
+    }
 }
 
 function InitializeComments() {

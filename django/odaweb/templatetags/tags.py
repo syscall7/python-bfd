@@ -1,4 +1,7 @@
 from django import template
+from django.core.serializers import serialize
+from django.utils import simplejson
+from django.db.models.query import QuerySet
 
 register = template.Library()
 
@@ -16,3 +19,11 @@ def sectioncolor(level):
 
     (r,g,b) = colorsys.hsv_to_rgb(220.0/360.0, 100.0/100.0, (100.0-(20*level))/100.0)
     return '#%02x%02x%02x' % (r*255,g*255,b*255)
+
+
+def jsonify(object):
+    if isinstance(object, QuerySet):
+        return serialize('json', object)
+    return simplejson.dumps(object)
+
+register.filter('jsonify', jsonify)
