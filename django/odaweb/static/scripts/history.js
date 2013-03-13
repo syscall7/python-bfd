@@ -155,14 +155,15 @@ function loadPopovers()
 function refreshDisassembly(offset)
 {
 	console.debug("refreshDisassembly, start");
+    $('#loading-panel').show();
+    $('#assembly-scroll').hide();
+
     $.post('_refresh', {id: window.disId, addr:offset}).done(function(data){
 
         console.timeStamp("Refresh: Received Response\n");
 
         // Append new chunks to the bottom
         window.ignoreScrollEvents = true;
-
-        $('#loading-panel').hide();
 
         // Update the chunk list
         if ( data.chunks.length > 0 )
@@ -208,6 +209,8 @@ function refreshDisassembly(offset)
             console.timeStamp("Refresh: Dischunk processing\n");
 
         }
+        $('#assembly-scroll').show();
+        $('#loading-panel').hide();
         
         // Recenter the Scrollbar
         console.timeStamp("Refresh: Start ScrollTo\n");
