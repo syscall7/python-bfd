@@ -241,7 +241,7 @@ class defaultAnalyzer(object):
 
         # Check for errors
         if inst.isError:
-            instStr = "<disline addr=%x><dislineerr>     %s</dislineerr></disline></br>" % (inst.offset,instStr)
+            instStr = "<disline addr=%x><dislineerr>     %s</dislineerr></disline>" % (inst.offset,instStr)
         else:
             instStr = " %s" % (instStr)
 
