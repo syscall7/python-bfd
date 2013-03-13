@@ -3,7 +3,7 @@ var Binary = Backbone.Model.extend({
 });
 
 var Sidebar = Backbone.Model.extend({
-    initialize : function() {
+    initialize : function(liveMode) {
 
         $('.nav-btn').tooltip();
         $('.nav-btn').click(this, function(event){
@@ -20,11 +20,13 @@ var Sidebar = Backbone.Model.extend({
 
         $('.item').hide();
         $('.active').show();
-    },
 
-    hideRaw : function() {
-        $('#hex-display-btn').hide();
-        $('#symbols-btn').click();
+        if (liveMode) {
+            $('#sidebar-tools').hide();
+        } else {
+            $('#hex-display-btn').hide();
+            $('#symbols-btn').click();
+        }
     },
 
     resize : function(elem) {
@@ -261,10 +263,6 @@ function Load(binary) {
     }).fail(function(){
         alert('file info failed to load');
     });
-
-    if (!binary.get('liveMode')) {
-        sidebar.hideRaw();
-    }
 }
 
 function InitializeComments() {
@@ -338,14 +336,14 @@ function InitializeModalShare() {
     });
 }
 
-$(document).ready(function(){
+function OdaApplication(binary) {
 
-    sidebar.initialize();
+    sidebar.initialize(binary.get('liveMode'));
 
     FileUploadTab();
 
     ResizeHandler();
-    
+
     InitializeSplitter();
 
     InitializeComments();
@@ -353,4 +351,6 @@ $(document).ready(function(){
     InitializeModalShare();
 
     LiveHex();
-});
+
+    Load(binary);
+}

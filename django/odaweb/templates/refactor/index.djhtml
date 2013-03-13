@@ -14,7 +14,9 @@
             id : '{{ binary.id }}',
             liveMode : {{ binary.is_live_mode|jsonify  }}
         });
-        Load(binary);
+
+        OdaApplication(binary);
+
     });
     </script>
 
