@@ -70,6 +70,14 @@
                             <li><a href="#">Go to...</a></li>
                         </ul>
                     </li>
+
+                    <!-- Examples Menu -->
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Examples<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/odaweb/sha1sum">sha1sum</a></li>
+                        </ul>
+                    </li>
                     <li class="">
                         <a href="http://www.onlinedisassembler.com/blog/">Blog</a>
                     </li>   
