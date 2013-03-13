@@ -36,7 +36,6 @@ $(document).ready(function() {
     				
     				// Check if the target offset is currently loaded in the browser
     				var intOffset = parseInt(offset,16);
-    				window.topDisplayAddr = intOffset;
     				console.debug("tab, updateDisassembly offset %s", intOffset.toString(16));
                     if ( !updateDisassembly(intOffset) )
                     {
@@ -51,7 +50,6 @@ $(document).ready(function() {
 
     window.ignoreScrollEvents = false;
     window.scrollTimer=null;
-	window.topDisplayAddr=0;
 	
 	router = new WorkspaceRouter();
 	Backbone.history.start();
@@ -326,16 +324,8 @@ function requestMoreDisassembly(dir,chunk_count,offset)
                     $('#listing tbody:last').after(data.disassembly);
                                         
                     // Scroll back to the original address
-                    //if (topAddr != -1)
-                    //{
-                        scrollToAddr(topAddr);                            
-                        console.debug("Partial SCrollto %x",topAddr)
-                    //}
-                    //else
-                    //{
-                    //    scrollToAddr(window.topDisplayAddr);
-                    //    console.debug("Partial: No top address returned");
-                    //}                    
+                    scrollToAddr(topAddr);                            
+                    console.debug("Partial SCrollto %x",topAddr)
                     
                     // Remove the lowest chunks from the chunk list
                     for (var i = 0; i < data.chunks.length; i++) 
@@ -366,16 +356,8 @@ function requestMoreDisassembly(dir,chunk_count,offset)
                     $('#listing tbody:first').before(data.disassembly);
 
                     // Scroll back to the original topmost address
-                    //if (topAddr != -1)
-                    //{
-                        scrollToAddr(topAddr);                            
-                        console.debug("Partial SCrollto %x",topAddr)
-                    //}
-                    //else
-                   // {
-                    //    scrollToAddr(window.topDisplayAddr);
-                    //    console.debug("Partial: No top address returned");
-                    //}
+                    scrollToAddr(topAddr);                            
+                    console.debug("Partial SCrollto %x",topAddr)
                     
                     // Remove the highest chunks from the chunk list
                     for (var i = 0; i < data.chunks.length; i++) 
@@ -402,11 +384,6 @@ function requestMoreDisassembly(dir,chunk_count,offset)
 
                 loadPopovers();
                                 
-                // Recenter the Scrollbar
-                //scrollToAddr(window.topDisplayAddr);
-                //console.debug("Partial SCrollto %x",window.topDisplayAddr)
-                //scrollToAddr(offset);
-                //console.debug("Partial SCrollto %x",offset)
                 console.timeStamp("Done Processing\n");
                 
                 window.scrollTimer = null;
@@ -453,9 +430,6 @@ function getTopVisibleAssemblyRow()
     // Find the position of the top most disassembly line
     var main_contain_left = $("#view")[0].offsetLeft;
     var main_contain_top = $("#view")[0].offsetTop;
-    // var dbar_left = $('#download-bar')[0].offsetLeft;
-    // var dbar_top = $('#download-bar')[0].offsetTop; 
-    // var dbar_border_width = 1;  // Could get from .css
     var view_padding_left = 16;
     var content_top = $("#myTabContent")[0].offsetTop;
 
@@ -509,7 +483,6 @@ function assemblyScrollHandler()
         var intOffset = parseInt(elem.getAttribute("addr"),16);
 
         console.debug("assemblyScrollHandler, updating slider to 0x%x", elem.getAttribute("addr"));
-        window.topDisplayAddr = intOffset;
         updateSlider(intOffset);
 
         // Load Code if necessary
@@ -538,15 +511,10 @@ function assemblyScrollStopHandler()
 
         var intOffset = parseInt(offsetStr,16);
         console.debug("assemblyScrollStopHandler, updating slider to 0x%x", offsetStr);
-        window.topDisplayAddr = intOffset;
         updateSlider(intOffset);
 
         // Update the URL
-    	router.navigate("view/"+url_hash_params.tab + "/offset/" + url_hash_params.offset);
-    	
-    	// Load code if necessary
-    	//var intOffset = parseInt(url_hash_params.offset,16);
-    	//updateDisassembly(intOffset);
+    	router.navigate("view/"+url_hash_params.tab + "/offset/" + url_hash_params.offset);    	
     }
 }
 
