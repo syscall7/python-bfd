@@ -1,5 +1,13 @@
 [
-     {
+    {
+        "pk": 2,
+        "model": "odaweb.odaoptions",
+        "fields": {
+            "target": "elf32-i386",
+            "architecture": "i386"
+        }
+    },
+    {
          "pk": 1,
          "model": "odaweb.binarydisassemblychunk",
          "fields": {
