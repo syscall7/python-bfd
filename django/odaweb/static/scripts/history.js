@@ -37,7 +37,7 @@ $(document).ready(function() {
     				// Check if the target offset is currently loaded in the browser
     				var intOffset = parseInt(offset,16);
     				console.debug("tab, updateDisassembly offset %s", intOffset.toString(16));
-                    if ( !updateDisassembly(intOffset) )
+                    if ( !updateDisassembly(intOffset,false) )
                     {
                         // Need to handle the scroll if the window isn't changing
                         scrollToAddr(intOffset);                    
@@ -157,26 +157,35 @@ function refreshDisassembly(offset)
 	console.debug("refreshDisassembly, start");
     $.post('_refresh', {id: window.disId, addr:offset}).done(function(data){
 
+        console.timeStamp("Refresh: Received Response\n");
+
+        // Append new chunks to the bottom
+        window.ignoreScrollEvents = true;
+
         $('#loading-panel').hide();
 
         // Update the chunk list
         if ( data.chunks.length > 0 )
         {
             // Remove old chunks from the display
+            console.timeStamp("Refresh: Start Remove\n");
             console.debug("refreshDisassembly, remove old listing");
             $('#listing').find("tbody").remove();
+            console.timeStamp("Refresh: Finish Remove\n");
     
             // Append the new listing
+            console.timeStamp("Refresh: Start Append\n");
             console.debug("refreshDisassembly, append new listing");
             $('#listing').find("colgroup").after(data.disassembly);
+            console.timeStamp("Refresh: Finish Append\n");
 
             // Remove old chunks from the display
-            console.debug("refreshDisassembly, remove old hex");
-            $('#hex-dump-table').find("tbody").remove();
+            //console.debug("refreshDisassembly, remove old hex");
+            //$('#hex-dump-table').find("tbody").remove();
 
             // Append the new listing
-            console.debug("refreshDisassembly, append new hex");
-            $('#hex-dump-table').append(data.hex_dump);
+            //console.debug("refreshDisassembly, append new hex");
+            //$('#hex-dump-table').append(data.hex_dump);
 
             // Clear the collection
             window.disChunks.reset();
@@ -195,12 +204,24 @@ function refreshDisassembly(offset)
                 });
                 window.disChunks.push(chunk);    
             }
+            
+            console.timeStamp("Refresh: Dischunk processing\n");
+
         }
         
         // Recenter the Scrollbar
+        console.timeStamp("Refresh: Start ScrollTo\n");
         scrollToAddr(offset);
-     
+        console.timeStamp("Refresh: ScrollTo Return\n");
+
+        console.timeStamp("Refresh: Start load Popovers\n");     
         loadPopovers();
+        console.timeStamp("Refresh: Start loadPopovers return\n");     
+        
+        window.scrollTimer = null;
+        window.ignoreScrollEvents = false;                    
+
+        console.timeStamp("Refresh: Done Processing\n");
      
      
     }).fail(function(){
@@ -209,7 +230,7 @@ function refreshDisassembly(offset)
                     
 }
 
-function updateDisassembly(offset)
+function updateDisassembly(offset,isScroll)
 {
     console.debug("updateDisassembly, start");
 
@@ -236,14 +257,14 @@ function updateDisassembly(offset)
             // Partial load
             console.debug("updateDisassembly, partial load forward");
             var requested_chunks = index-mid_index;
-            return requestMoreDisassembly(1,requested_chunks,offset);
+            return requestMoreDisassembly(1,requested_chunks,offset,isScroll);
         }
         else if ( index < mid_index )
         {
             // Partial load
             console.debug("updateDisassembly, partial load reverse");
             var requested_chunks = mid_index - index;
-            return requestMoreDisassembly(0,requested_chunks,offset);        
+            return requestMoreDisassembly(0,requested_chunks,offset,isScroll);        
         }
     }
     
@@ -273,7 +294,7 @@ function getChunkIndex(offset)
     
 }
 
-function requestMoreDisassembly(dir,chunk_count,offset)
+function requestMoreDisassembly(dir,chunk_count,offset,isScroll)
 {
     var lines = 0;
     if ( chunk_count < window.disChunks.length )
@@ -307,12 +328,20 @@ function requestMoreDisassembly(dir,chunk_count,offset)
                         
             $.post('_partial_refresh', {id: window.disId, name:ch_name, start:ch_start, end:ch_end, count:chunk_count, dir:dir}).done(function(data){
                 
-                console.timeStamp("Received Response\n");
+                console.timeStamp("Partial: Received Response\n");
 
-                // Determine the top most visible address
-                var topAddr = getTopVisibleAssemblyAddr();
-                console.debug("Partial Determine Top Visible %x",topAddr);
-
+                if ( isScroll )
+                {
+                    // Scroll to the top most visible address after load
+                    var scrollAddr = getTopVisibleAssemblyAddr();
+                    console.debug("Partial: Determine Top Visible %x",scrollAddr);
+                }
+                else
+                {
+                    // Scroll to the provided address
+                    var scrollAddr = offset;
+                }
+                
                 // Update the chunk list
                 if ( dir == 1 && data.chunks.length > 0 )
                 {                                                                              
@@ -324,8 +353,8 @@ function requestMoreDisassembly(dir,chunk_count,offset)
                     $('#listing tbody:last').after(data.disassembly);
                                         
                     // Scroll back to the original address
-                    scrollToAddr(topAddr);                            
-                    console.debug("Partial SCrollto %x",topAddr)
+                    scrollToAddr(scrollAddr);                            
+                    console.debug("Partial SCrollto %x",scrollAddr)
                     
                     // Remove the lowest chunks from the chunk list
                     for (var i = 0; i < data.chunks.length; i++) 
@@ -356,8 +385,8 @@ function requestMoreDisassembly(dir,chunk_count,offset)
                     $('#listing tbody:first').before(data.disassembly);
 
                     // Scroll back to the original topmost address
-                    scrollToAddr(topAddr);                            
-                    console.debug("Partial SCrollto %x",topAddr)
+                    scrollToAddr(scrollAddr);                            
+                    console.debug("Partial SCrollto %x",scrollAddr)
                     
                     // Remove the highest chunks from the chunk list
                     for (var i = 0; i < data.chunks.length; i++) 
@@ -384,7 +413,7 @@ function requestMoreDisassembly(dir,chunk_count,offset)
 
                 loadPopovers();
                                 
-                console.timeStamp("Done Processing\n");
+                console.timeStamp("Partial: Done Processing\n");
                 
                 window.scrollTimer = null;
                 window.ignoreScrollEvents = false;                    
@@ -486,7 +515,7 @@ function assemblyScrollHandler()
         updateSlider(intOffset);
 
         // Load Code if necessary
-        if ( !updateDisassembly(intOffset) )
+        if ( !updateDisassembly(intOffset,true) )
         {
             window.scrollTimer=null;
         }
@@ -501,6 +530,13 @@ function assemblyScrollHandler()
 function assemblyScrollStopHandler() 
 {
     console.debug("assemblyScrollStopHandler, start");
+
+    if (window.ignoreScrollEvents) 
+    {
+        console.debug("assemblyScrollStopHandler, ignoring scroll events");
+        return;
+    }
+
 	var elem = getTopVisibleAssemblyRow();
 	
 	if (elem) { 

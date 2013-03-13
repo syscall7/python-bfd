@@ -83,7 +83,10 @@ class Binary(models.Model):
         return md5
 
     def desc(self):
-        line = subprocess.check_output('file -b %s' % self.file_handle().name, shell=True)
+        if os.name == 'nt':
+            line = ''
+        else:
+            line = subprocess.check_output('file -b %s' % self.file_handle().name, shell=True)
         return line.split(', ')
 
     class Meta:

@@ -253,21 +253,22 @@ class JsonChunkProcessor(object):
         #    maximum number in case there is a shortage of chunks before 
         #    the provided address. Include the chunk that contains the 
         #    provided address
+        #    Note: afterChunks does not include the center chunk
         afterChunks = BinaryDisassemblyChunk.objects.filter(
             content_type=ctype.id, object_id = self.binary.id, start__gte = addr )[0:num_chunks]
         
         # Determine how many chunks before the address that we need to get
         numAfterChunks = len(afterChunks)
-        if numAfterChunks > (num_chunks//2):
-            # Plenty of chunks, just request the minimum
-            numRequested = num_chunks//2
+        if numAfterChunks >= (num_chunks//2):
+            # Plenty of chunks, request the minimum beforeChunks
+            numRequested = (num_chunks//2) + 1
         else:
             # Towards the back of the address space, or a very small file
             #    Request more chunks before the given address to make up
             #    the difference
             numRequested = num_chunks - numAfterChunks
             
-        # Get the chunks before the address
+        # Get the chunks before the address (including the center chunk)
         beforeChunksReversed = BinaryDisassemblyChunk.objects.filter(
             content_type=ctype.id, object_id = self.binary.id, start__lt = addr ).order_by('-start')[0:numRequested]      
         
