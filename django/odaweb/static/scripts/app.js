@@ -350,7 +350,7 @@ function OdaApplication(binary) {
 
     InitializeModalShare();
 
-    LiveHex();
+    LiveHex(binary);
 
     Load(binary);
 }

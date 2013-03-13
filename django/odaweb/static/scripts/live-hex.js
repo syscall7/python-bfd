@@ -1,6 +1,6 @@
 
 
-window.LiveHex = function() {
+window.LiveHex = function(binary) {
     var lastText = null;
     var refreshing = false;
 
@@ -14,7 +14,7 @@ window.LiveHex = function() {
                 hex_val : newText
             }).done(function() {
                 $('#hex-alert').hide();
-                Load();
+                Load(binary);
                 refreshing = false;
             }).fail(function(){
                 $('#hex-alert').show();
