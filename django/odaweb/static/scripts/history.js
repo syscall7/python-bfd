@@ -181,12 +181,12 @@ function refreshDisassembly(offset)
             console.timeStamp("Refresh: Finish Append\n");
 
             // Remove old chunks from the display
-            //console.debug("refreshDisassembly, remove old hex");
-            //$('#hex-dump-table').find("tbody").remove();
+            console.debug("refreshDisassembly, remove old hex");
+            $('#hex-dump-table').find("tbody").remove();
 
             // Append the new listing
-            //console.debug("refreshDisassembly, append new hex");
-            //$('#hex-dump-table').append(data.hex_dump);
+            console.debug("refreshDisassembly, append new hex");
+            $('#hex-dump-table').append(data.hex_dump);
 
             // Clear the collection
             window.disChunks.reset();
