@@ -2,6 +2,67 @@ var Binary = Backbone.Model.extend({
 
 });
 
+var Sidebar = Backbone.Model.extend({
+    initialize : function() {
+
+        $('.nav-btn').tooltip();
+        $('.nav-btn').click(this, function(event){
+            $('#sidebar .active').removeClass('active');
+            $('.item').hide();
+            $('#'+$(this).data('panel')).show();
+            event.data.set('active_tab', $('#'+$(this).data('panel')).attr('id'));
+        });
+
+        $('#myTab a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+        });
+
+        $('.item').hide();
+        $('.active').show();
+    },
+
+    hideRaw : function() {
+        $('#hex-display-btn').hide();
+        $('#symbols-btn').click();
+    },
+
+    resize : function(elem) {
+        var new_offset = $("#sidebarContent").offset().top;
+        var accum_margins = 15; //Not captured by jquery
+        if ( $(elem).find('table').length )
+        {
+            // Table header height
+            new_offset += 36;
+        }
+        else
+        {
+            // Margins and Padding
+            new_offset += 15;
+        }
+        new_offset += $("#sidebar").offset().top + accum_margins;
+        return $(window).height()-new_offset;  //237;
+    },
+
+    close : function() {
+        $("#close").click(function(){
+            $('#sidebar').hide();
+            $('#view').animate({
+                left: '0'
+            }, 250);
+        });
+
+        $("#show").click(function(){
+            $('#sidebar').show();
+            $('#view').animate({
+                left: '400'
+            }, 250);
+        });
+    }
+});
+
+var sidebar = new Sidebar();
+
 function FileUploadTab() {
     $('#fileselectbutton').click(function(e){
         $('#file').trigger('click');
@@ -20,24 +81,6 @@ function FileUploadTab() {
     });
 }
 
-function ResizeSidebarScroll(elem) {
-        var new_offset = $("#sidebarContent").offset().top;
-        var accum_margins = 15; //Not captured by jquery
-        if ( $(elem).find('table').length )
-        {
-            // Table header height
-            new_offset += 36;
-        }
-        else
-        {
-            // Margins and Padding 
-            new_offset += 15;
-        }
-        new_offset += $("#sidebar").offset().top + accum_margins;
-        return $(window).height()-new_offset;  //237;        
-}
-
-
 function ResizeHandler() {
     $(window).resize(function() {
         // TODO: Hardcoded Height includes footer and banner
@@ -48,34 +91,16 @@ function ResizeHandler() {
         $('#myTabContent').height($(window).height()-132);
              
         $('.sidebar-scroll-container').each( function (i,elem) {
-            $(elem).height( ResizeSidebarScroll($(elem)) );} );
+            $(elem).height( sidebar.resize($(elem)) );} );
         
     });
     //$('#view-container').height($(window).height()-74);
     $('#vertSplitter').height($(window).height()-47);
     $('#myTabContent').height($(window).height()-132);
     $('.sidebar-scroll-container').each( function (i,elem) {
-        $(elem).height( ResizeSidebarScroll($(elem)) );} );
+        $(elem).height( sidebar.resize($(elem)) );} );
 
     
-}
-
-function InitializeTabs() {
-
-    $('.nav-btn').tooltip();
-    $('.nav-btn').click(function(){
-        $('sidebar .active').removeClass('active');
-        $('.item').hide();
-        $('#'+$(this).data('panel')).show();
-    });
-
-    $('#myTab a').click(function (e) {
-        e.preventDefault();
-        $(this).tab('show');
-    });
-
-    $('.item').hide();
-    $('.active').show();
 }
 
 function InitializeSplitter() {
@@ -166,22 +191,6 @@ function InitializeSlider(min, max) {
 
 }
 
-function SidebarCloseHide() {
-    $("#close").click(function(){
-        $('#sidebar').hide();
-        $('#view').animate({
-            left: '0'
-        }, 250);
-    });
-
-    $("#show").click(function(){
-        $('#sidebar').show();
-        $('#view').animate({
-            left: '400'
-        }, 250);
-    });
-}
-
 function SetupSectionFlagPopovers(sectionFlags) {
 
     // TODO: Move javascript from sections_tab.djhtml over to here
@@ -254,8 +263,7 @@ function Load(binary) {
     });
 
     if (!binary.get('liveMode')) {
-        $('#hex-display-btn').hide();
-        $('#symbols-btn').click();
+        sidebar.hideRaw();
     }
 }
 
@@ -332,7 +340,7 @@ function InitializeModalShare() {
 
 $(document).ready(function(){
 
-    InitializeTabs();
+    sidebar.initialize();
 
     FileUploadTab();
 
