@@ -14,3 +14,7 @@
         {% endfor %}
     </tbody>
 </table>
+
+{% if not strings %}
+    <em>No strings found</em>
+{% endif %}
