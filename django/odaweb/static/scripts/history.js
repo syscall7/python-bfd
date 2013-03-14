@@ -532,7 +532,7 @@ function assemblyScrollHandler()
 
     if ( window.activeTab != 'tab-assembly-tab-item')
     {
-        console.debug("assemblyScrollHandler: assembly tab not active");
+        console.debug("assemblyScrollHandler: assembly tab not active (%s)",window.activeTab);
         return;        
     }
 

@@ -124,7 +124,7 @@ function InitializeSplitter() {
 function InitializeSlider(min, max) {
 
     var selectedRow = null;
-
+    
     // remove border
     $(".ui-slider-horizontal").css('border', 0);
     $(".ui-slider-handle").removeClass('ui-corner-all');
@@ -166,6 +166,8 @@ function InitializeSlider(min, max) {
     });
 
     // set initial position
+    window.initialOffset = min;
+    window.activeTab = "tab-assembly-tab-item";
     updateAddrDisplay($("#slider").slider("value"));
 
     $(document).on("click", "#listing tr", function(){
@@ -236,7 +238,7 @@ function Load(binary) {
         addr = window.initialOffset;
     }
     
-    console.debug("Load, refreshDisassembly addr= %s",addr.toString(16));    
+    console.debug("Load, refreshDisassembly addr= 0x%s",addr.toString(16));    
     refreshDisassembly(addr);
     
     $.post('_symbols', {id: binary.id}).done(function(data){
