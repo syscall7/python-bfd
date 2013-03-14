@@ -12,7 +12,7 @@
                 <td align="right">0x{{s.value|stringformat:'08x'}}</td>
                 <td align="center">{{s.type|stringformat:'c'}}</td>
                 {% if s.type == 'T' or s.type == 't'  %}
-                    <td align="left"><a href="#/view/assembly-tab-item/offset/{{s.value|stringformat:"08x"}}">{{s.name}}</a></td>
+                    <td align="left"><a href="#/view/tab-assembly-tab-item/offset/{{s.value|stringformat:"08x"}}">{{s.name}}</a></td>
                 {% else  %}
                     <td align="left">{{s.name}}</td>
                 {% endif %}

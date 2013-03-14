@@ -10,11 +10,19 @@ $(document).ready(function() {
 			"view/:tab" : "generic_tab" 
 		},
         generic_tab : function(tab) {
+            window.activeTab = tab;
+            console.debug("genericTab: WindowActivetab %s",tab);
+            if ( tab == 'tab-assembly-tab-item')
+            {
+                scrollToAddr(window.lastAddr);
+            }
             var tabselector = '#' + tab; 
             $(tabselector).tab('show');
 		},
 		tab : function(tab,offset) {
-			if ( tab == 'assembly-tab-item')
+		    window.activeTab = tab;
+		    console.debug("WindowActivetab %s",tab);
+			if ( tab == 'tab-assembly-tab-item')
 			{
 			    // Only process tabs for existing sessions
 			    //   In other words, you can't navigate to an address
@@ -24,7 +32,7 @@ $(document).ready(function() {
 			    {
 			        // Save the initial offset for use by the Load function
 			        window.initialOffset = parseInt(offset,16);
-			        console.debug("Save Initial Offset %d %x %d %x",window.initialOffset,window.initialOffset,offset,offset)    
+			        console.debug("Save Initial Offset %s",window.initialOffset.toString(16))    
 			    }
 			    else
 			    {
@@ -50,6 +58,7 @@ $(document).ready(function() {
 
     window.ignoreScrollEvents = false;
     window.scrollTimer=null;
+	window.lastAddr = 0;
 	
 	router = new WorkspaceRouter();
 	Backbone.history.start();
@@ -79,30 +88,38 @@ $(document).ready(function() {
 });
 
 
+function intToHexStr(offset)
+{
+    return ("000000000000000" + offset.toString(16)).substr(-8);    
+}
+
+
 function scrollToAddr(offset)
 {
-    console.debug("scrollToAddr, offset %s", offset.toString(16));
+    console.debug("scrollToAddr, offset 0x%s", offset.toString(16));
 
     // go back up to 16 bytes
     var tries = 16;
 
     while (offset > 0 && tries > 0) {
         // Convert to a hex string with leading zeroes
-        var hexStr = ("000000000000000" + offset.toString(16)).substr(-8);
+        var hexStr = intToHexStr(offset);
 
         // Scroll to the proper offset in the disassembly
         var offsetselector = 'tr[addr=' + hexStr + ']';
         var offset_element = $(offsetselector);
 
+        // Check if element exists
         if ( offset_element.length > 0 )
         {
-            var dbar_height = $('#download-bar').outerHeight(true);
             var disoffset_top = offset_element[0].offsetTop;
 
-            console.debug("scrollToAddr, scrollTop %x", disoffset_top + dbar_height + 1);
+            console.debug("scrollToAddr, scrollTop %d", disoffset_top + 1);
 
             // Row element offset doesn't include size of the download bar
-            $('#myTabContent').scrollTop(disoffset_top + dbar_height + 1);
+            $('#myTabContent').scrollTop(disoffset_top + 1);
+            window.lastAddr = offset;
+            console.debug("scrollToAddr: 0x%s",window.lastAddr.toString(16));
             return true;
         }
 
@@ -321,7 +338,7 @@ function requestMoreDisassembly(dir,chunk_count,offset,isScroll)
         var ch_start = chunks.models[index].get('startOffset');
         var ch_end = chunks.models[index].get('endOffset');
 
-        console.debug("Call partial: start %d, name %s\n",ch_start,ch_name);
+        console.debug("Call partial: start 0x%s, name %s\n",ch_start.toString(16),ch_name);
 
         // Check if we can request more chunks
         if ( chunks.models[index].get('isBoundary') == false )
@@ -337,7 +354,7 @@ function requestMoreDisassembly(dir,chunk_count,offset,isScroll)
                 {
                     // Scroll to the top most visible address after load
                     var scrollAddr = getTopVisibleAssemblyAddr();
-                    console.debug("Partial: Determine Top Visible %x",scrollAddr);
+                    console.debug("Partial: Determine Top Visible 0x%s",scrollAddr.toString(16));
                 }
                 else
                 {
@@ -357,7 +374,7 @@ function requestMoreDisassembly(dir,chunk_count,offset,isScroll)
                                         
                     // Scroll back to the original address
                     scrollToAddr(scrollAddr);                            
-                    console.debug("Partial SCrollto %x",scrollAddr)
+                    console.debug("Partial SCrollto 0x%s",scrollAddr.toString(16))
                     
                     // Remove the lowest chunks from the chunk list
                     for (var i = 0; i < data.chunks.length; i++) 
@@ -389,7 +406,7 @@ function requestMoreDisassembly(dir,chunk_count,offset,isScroll)
 
                     // Scroll back to the original topmost address
                     scrollToAddr(scrollAddr);                            
-                    console.debug("Partial SCrollto %x",scrollAddr)
+                    console.debug("Partial SCrollto 0x%s",scrollAddr.toString(16))
                     
                     // Remove the highest chunks from the chunk list
                     for (var i = 0; i < data.chunks.length; i++) 
@@ -424,6 +441,11 @@ function requestMoreDisassembly(dir,chunk_count,offset,isScroll)
             });                     
             
             return true;            
+        }
+        else
+        {
+            console.debug("Call partial: ignore, boundary\n");
+            
         }
     }
     
@@ -500,12 +522,18 @@ function getTopVisibleAssemblyAddr()
 
 function assemblyScrollHandler() 
 {
-    console.debug("assemblyScrollHandler, start");
+    console.debug("assemblyScrollHandler: start");
     if (window.ignoreScrollEvents) 
     {
         window.scrollTimer=null;
-        console.debug("assemblyScrollHandler, ignoring scroll events");
+        console.debug("assemblyScrollHandler: ignoring scroll events");
         return;
+    }
+
+    if ( window.activeTab != 'tab-assembly-tab-item')
+    {
+        console.debug("assemblyScrollHandler: assembly tab not active");
+        return;        
     }
 
     console.debug("Scroll Handler fired\n");
@@ -514,7 +542,7 @@ function assemblyScrollHandler()
     if (elem) { 
         var intOffset = parseInt(elem.getAttribute("addr"),16);
 
-        console.debug("assemblyScrollHandler, updating slider to 0x%x", elem.getAttribute("addr"));
+        console.debug("assemblyScrollHandler: updating slider to 0x%s", elem.getAttribute("addr"));
         updateSlider(intOffset);
 
         // Load Code if necessary
@@ -532,12 +560,18 @@ function assemblyScrollHandler()
 
 function assemblyScrollStopHandler() 
 {
-    console.debug("assemblyScrollStopHandler, start");
+    console.debug("assemblyScrollStopHandler: start");
 
     if (window.ignoreScrollEvents) 
     {
-        console.debug("assemblyScrollStopHandler, ignoring scroll events");
+        console.debug("assemblyScrollStopHandler: ignoring scroll events");
         return;
+    }
+    
+    if ( window.activeTab != 'tab-assembly-tab-item')
+    {
+        console.debug("assemblyScrollStopHandler: assembly tab not active");
+        return;        
     }
 
 	var elem = getTopVisibleAssemblyRow();
@@ -545,12 +579,13 @@ function assemblyScrollStopHandler()
 	if (elem) { 
         var url_hash_params = {};
         var offsetStr = elem.getAttribute("addr");
-        url_hash_params.tab = "assembly-tab-item";
+        url_hash_params.tab = "tab-assembly-tab-item";
 		url_hash_params.offset = offsetStr;
 
         var intOffset = parseInt(offsetStr,16);
-        console.debug("assemblyScrollStopHandler, updating slider to 0x%x", offsetStr);
+        console.debug("assemblyScrollStopHandler, updating slider to 0x%s", offsetStr.toString(16));
         updateSlider(intOffset);
+        window.lastAddr = intOffset;
 
         // Update the URL
     	router.navigate("view/"+url_hash_params.tab + "/offset/" + url_hash_params.offset);    	

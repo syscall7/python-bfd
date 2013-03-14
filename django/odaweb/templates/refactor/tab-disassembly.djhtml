@@ -1,4 +1,4 @@
-<div id="tab-disassembly" class="tab-pane fade active in">
+<div id="tab-assembly" class="tab-pane active in">
     <div id="loading-panel" style="text-align: center;">
         <h1>Loading...</h1>
         <img src="{{ STATIC_URL }}images/32.gif" />

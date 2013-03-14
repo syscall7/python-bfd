@@ -173,7 +173,7 @@
                         <tr class="{% cycle 'even' 'odd' %}">
                             <td align="right">0x{{s.value|stringformat:'08x'}}</td>  
                             <td align="center">{{s.type}}</td> 
-                            <td align="left"><a href="#/view/assembly-tab-item/offset/{{s.value|stringformat:"08x"}}">{{s.name}}</a></td> 
+                            <td align="left"><a href="#/view/tab-assembly-tab-item/offset/{{s.value|stringformat:"08x"}}">{{s.name}}</a></td> 
                         </tr>
                     {% endfor %}
                 </table>     

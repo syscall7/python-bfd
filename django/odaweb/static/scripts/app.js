@@ -15,7 +15,17 @@ var Sidebar = Backbone.Model.extend({
 
         $('#myTab a').click(function (e) {
             e.preventDefault();
+            window.activeTab = e.target.hash.split('#')[1] + '-tab-item';
+            console.debug("WindowActivetab %s %s",window.activeTab,window.lastAddr.toString(16));
             $(this).tab('show');
+            if ( window.activeTab == "tab-assembly-tab-item" )
+            {
+                router.navigate("view/"+ window.activeTab + "/offset/" + intToHexStr(window.lastAddr), {trigger: true});
+            } 
+            else
+            {
+                router.navigate("view/"+ window.activeTab, {trigger: true});
+            }
         });
 
         $('.item').hide();
@@ -104,7 +114,6 @@ function ResizeHandler() {
 
     
 }
-
 function InitializeSplitter() {
     $("#main-display").splitter({type: 'v'});    
 }
@@ -227,7 +236,7 @@ function Load(binary) {
         addr = window.initialOffset;
     }
     
-    console.debug("Load, refreshDisassembly addr= %x %d %s",addr,addr,addr);    
+    console.debug("Load, refreshDisassembly addr= %s",addr.toString(16));    
     refreshDisassembly(addr);
     
     $.post('_symbols', {id: binary.id}).done(function(data){

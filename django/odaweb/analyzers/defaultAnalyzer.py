@@ -233,7 +233,7 @@ class defaultAnalyzer(object):
                         labelName = self.mkLabelName(inst.targetAddr,'func')
                     else:
                         labelName = self.mkLabelName(inst.targetAddr,'loc')
-                    instStr += "%-7s<a href=\"#view/assembly-tab-item/offset/%08x\">%s</a>" % (inst.opcode, inst.targetAddr, labelName)
+                    instStr += "%-7s<a href=\"#view/tab-assembly-tab-item/offset/%08x\">%s</a>" % (inst.opcode, inst.targetAddr, labelName)
             else:
                 instStr += rawInstrStr
         else:

@@ -44,7 +44,7 @@
                 <div id="slider-address" style="color:gray; font-family:monospace; float:right">0</div>
             <!--/div-->
             <ul class="nav nav-tabs" id="myTab" style="margin-bottom: 0px;">
-                <li class="active"><a data-toggle="tab" href="#tab-disassembly">Disassembly</a></li>
+                <li class="active"><a data-toggle="tab" href="#tab-assembly">Disassembly</a></li>
                 <li class=""><a data-toggle="tab" href="#tab-hexdump">Hex Dump</a></li>
                 <li class=""><a data-toggle="tab" href="#tab-sections">Sections</a></li>
                 <li class=""><a data-toggle="tab" href="#tab-fileinfo">File Info</a></li>
