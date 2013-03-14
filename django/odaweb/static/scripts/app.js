@@ -47,6 +47,12 @@ var Sidebar = Backbone.Model.extend({
             // Table header height
             new_offset += 36;
         }
+        else if ( $(elem)[0].type == 'textarea' )
+        {
+            // Hex Dump has a help banner.
+            //  TODO: Calculate this programatically
+            new_offset += 68;
+        }
         else
         {
             // Margins and Padding
