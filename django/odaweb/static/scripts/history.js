@@ -12,17 +12,19 @@ $(document).ready(function() {
         generic_tab : function(tab) {
             window.activeTab = tab;
             console.debug("genericTab: WindowActivetab %s",tab);
-            if ( tab == 'tab-assembly-tab-item')
+            if ( tab == 'tab-assembly')
             {
                 scrollToAddr(window.lastAddr);
             }
-            var tabselector = '#' + tab; 
+            var tabselector = '[data-toggle="tab"][href="#' + tab + '"]'; 
             $(tabselector).tab('show');
 		},
 		tab : function(tab,offset) {
 		    window.activeTab = tab;
+            var tabselector = '[data-toggle="tab"][href="#' + tab + '"]'; 
+            $(tabselector).tab('show');
 		    console.debug("WindowActivetab %s",tab);
-			if ( tab == 'tab-assembly-tab-item')
+			if ( tab == 'tab-assembly')
 			{
 			    // Only process tabs for existing sessions
 			    //   In other words, you can't navigate to an address
@@ -79,9 +81,9 @@ $(document).ready(function() {
 		
 		// Don't navigate to tabs that are already showing
         var t = $(e.target).attr('href').replace('#','')
-		if( window.location.hash.indexOf( t + '-tab-item' ) == -1 )
+		if( window.location.hash.indexOf( t ) == -1 )
 		{
-            router.navigate("view/" + t + '-tab-item');
+            router.navigate("view/" + t);
 	    } 
 	})
 
@@ -530,7 +532,7 @@ function assemblyScrollHandler()
         return;
     }
 
-    if ( window.activeTab != 'tab-assembly-tab-item')
+    if ( window.activeTab != 'tab-assembly')
     {
         console.debug("assemblyScrollHandler: assembly tab not active (%s)",window.activeTab);
         return;        
@@ -568,7 +570,7 @@ function assemblyScrollStopHandler()
         return;
     }
     
-    if ( window.activeTab != 'tab-assembly-tab-item')
+    if ( window.activeTab != 'tab-assembly')
     {
         console.debug("assemblyScrollStopHandler: assembly tab not active");
         return;        
@@ -579,7 +581,7 @@ function assemblyScrollStopHandler()
 	if (elem) { 
         var url_hash_params = {};
         var offsetStr = elem.getAttribute("addr");
-        url_hash_params.tab = "tab-assembly-tab-item";
+        url_hash_params.tab = "tab-assembly";
 		url_hash_params.offset = offsetStr;
 
         var intOffset = parseInt(offsetStr,16);

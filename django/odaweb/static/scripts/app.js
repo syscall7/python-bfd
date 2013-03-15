@@ -15,10 +15,11 @@ var Sidebar = Backbone.Model.extend({
 
         $('#myTab a').click(function (e) {
             e.preventDefault();
-            window.activeTab = e.target.hash.split('#')[1] + '-tab-item';
+            window.activeTab = e.target.hash.split('#')[1];
             console.debug("WindowActivetab %s %s",window.activeTab,window.lastAddr.toString(16));
             $(this).tab('show');
-            if ( window.activeTab == "tab-assembly-tab-item" )
+            var jtab = $(this);
+            if ( window.activeTab == "tab-assembly" )
             {
                 router.navigate("view/"+ window.activeTab + "/offset/" + intToHexStr(window.lastAddr), {trigger: true});
             } 
@@ -173,7 +174,7 @@ function InitializeSlider(min, max) {
 
     // set initial position
     window.initialOffset = min;
-    window.activeTab = "tab-assembly-tab-item";
+    window.activeTab = "tab-assembly";
     updateAddrDisplay($("#slider").slider("value"));
 
     $(document).on("click", "#listing tr", function(){
