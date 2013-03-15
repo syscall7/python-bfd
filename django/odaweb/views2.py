@@ -6,7 +6,7 @@ from odaweb import engine
 from django import forms
 import dischunk
 from django.contrib.contenttypes.models import ContentType
-from disassembler import Disassembler, JsonChunkProcessor, create_default_view
+from disassembler import Disassembler, JsonChunkProcessor
 from django.template.loader import render_to_string
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseServerError
 from django.utils import simplejson
@@ -35,33 +35,39 @@ def index(request, disassembly_id):
 
 def save(request):
     print 'Saving...'
-    disassembly_session_id = request.session["disassembly_session_id"]
-    return redirect('/odaweb/' + disassembly_session_id)
+    user_id = request.session["user_id"]
+    return redirect('/odaweb/' + user_id)
 
 
 def create_session(request, disassembly_id):
 
     if not disassembly_id:
-        #They've arrived at odaweb/
-        diassembly_session_id = id_generator()
-        print 'New session_id is ', diassembly_session_id
-        request.session["disassembly_session_id"] = diassembly_session_id
-        create_default_view(diassembly_session_id)
 
-    disassembly_session_id = request.session.get('disassembly_session_id')
-    if not disassembly_session_id:
+        # use default
+        disassembly_id = "strcpy_x86"
+
+        #They've arrived at odaweb/
+        user_id = id_generator()
+        print 'New user_id is ', user_id
+        request.session["user_id"] = user_id
+
+    request.session["disassembly_id"] = disassembly_id
+    user_id = request.session.get('user_id')
+
+    if not user_id:
         #TODO They've not been here before, copy the disassembly_id into they session
         pass
 
-    return OdaMaster.objects.get(short_name = disassembly_session_id)
+    return OdaMaster.objects.get(short_name = disassembly_id)
 
 
 
 def get_session(request):
 
-    disassembly_session_id = request.session.get('disassembly_session_id')
-    print("Loading short_name = %s" %(disassembly_session_id))
-    return OdaMaster.objects.get(short_name = disassembly_session_id)
+    user_id = request.session.get('user_id')
+    disassembly_id = request.session.get('disassembly_id')
+    print("Loading short_name = %s" %(disassembly_id))
+    return OdaMaster.objects.get(short_name = disassembly_id)
 
 def set(request):
 
@@ -201,7 +207,7 @@ def upload(request):
 
         oda_master = OdaMaster(short_name = id_generator(), binary = binary_file)
         oda_master.save()
-        request.session["disassembly_session_id"] = oda_master.short_name
+        request.session["disassembly_id"] = oda_master.short_name
 
         #we can farm this out to a background thread and return before complete
         #then the client can spin until we're done

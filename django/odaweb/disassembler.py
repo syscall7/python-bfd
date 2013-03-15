@@ -1,12 +1,13 @@
 __author__ = 'davis'
 
+import os
 import re
 import string
 import bfd
 import dischunk
 from django.contrib.contenttypes.models import ContentType
 
-from odaweb.models import BinaryDisassemblyChunk, Binary, BinaryString, OdaMaster, OdaOptions
+from odaweb.models import BinaryDisassemblyChunk, Binary, BinaryString, BinaryFile, OdaMaster, OdaOptions
 
 
 def funcFmtAddr(bfd, addr):
@@ -165,7 +166,8 @@ class Disassembler(object):
         return chunks
 
     def process_chunks(self):
-        BinaryDisassemblyChunk.objects.filter(object_id=self.binary.id).delete()
+        ctype = ContentType.objects.get_for_model(self.binary)
+        BinaryDisassemblyChunk.objects.filter(content_type=ctype.id, object_id=self.binary.id).delete()
 
         chunks = []
 
@@ -336,23 +338,54 @@ class JsonChunkProcessor(object):
         return analyzer.chunks, chunk_list
 
 
-def create_default_view(short_name):
+def make_examples():
 
+    EXAMPLES_DIR = os.path.join(os.path.dirname(__file__), 'examples')
+    examples = (
+        {
+            'short_name' : 'sha1sum',
+            'binary_type' : 'file',
+            'file_name' : 'sha1sum',
+            'options' : OdaOptions(target="elf32-i386", architecture="i386"),
+        },
+        {
+            'short_name' : 'sasser',
+            'binary_type' : 'file',
+            'file_name' : 'net-worm.win32.sasser.a',
+            'options' : OdaOptions(target="elf32-i386", architecture="i386"),
+        },
+        {
+            'short_name' : 'strcpy_x86',
+            'binary_type' : 'string',
+            'data' : '55 31 D2 89 E5 8B 45 08 56 8B 75 0C 53 8D 58 FF 0F B6 0C 16 88 4C 13 01 83 C2 01 84 C9 75 F1 5B 5E 5D C3 ',
+            'options' : OdaOptions(target="binary", architecture="i386"),
+        },
+    )
 
-    options = OdaOptions(target="binary", architecture="i386")
-    options.save()
+    for example in examples:
+        short_name = example['short_name']
+        if OdaMaster.objects.filter(short_name=short_name).exists():
+            print 'Example %s already exists in the database' % short_name
+            continue
 
-    binary = BinaryString()
-    binary.binary_string = ''.join('55 31 D2 89 E5 8B 45 08 56 8B 75 0C 53 8D 58 FF 0F B6 0C 16 88 4C 13 01 83 C2 01 84 C9 75 F1 5B 5E 5D C3 '.split())
-    binary.options = options
-    binary.save()
+        print 'Adding example %s to database' % short_name
 
-    oda_master = OdaMaster()
-    oda_master.short_name = short_name
-    oda_master.binary = binary
-    oda_master.save()
+        options = example['options']
+        options.save()
 
-    disassembler = Disassembler(oda_master.binary)
-    disassembler.process_chunks()
+        if example['binary_type'] is 'file':
+            f = open(os.path.join(EXAMPLES_DIR, example['file_name']))
+            binary = BinaryFile.create(f, options)
+            binary.save()
+        elif example['binary_type'] is 'string':
+            binary = BinaryString()
+            binary.binary_string = ''.join(example['data'].split())
+            binary.options = options
+            binary.save()
 
-    return oda_master
+        oda_master = OdaMaster(short_name = short_name, binary = binary)
+        oda_master.save()
+
+        disassembler = Disassembler(binary)
+        disassembler.process_chunks()
+
