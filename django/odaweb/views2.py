@@ -10,6 +10,7 @@ from disassembler import Disassembler, JsonChunkProcessor, examples
 from django.template.loader import render_to_string
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseServerError
 from django.utils import simplejson
+import dns.resolver
 
 from utils import id_generator
 
@@ -106,8 +107,18 @@ def fileinfo(request):
     binary = oda_master.binary
     dasm = Disassembler(binary)
 
+    malware = False
+
+    try:
+        [cymru_record,] = dns.resolver.query('%s.malware.hash.cymru.com' % binary.md5(), 'TXT')
+        malware = True
+        print 'cymru is %s' % cymru_record
+    except dns.resolver.NXDOMAIN:
+        pass
+
     fileinfo_tab = render_to_string('tab_fileinfo.djhtml', {
         'binary': binary,
+        'malware': malware,
         })
 
     # Return the new disassembly

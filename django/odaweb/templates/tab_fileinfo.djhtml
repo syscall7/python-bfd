@@ -46,14 +46,14 @@
 
 <div class="row">
 
-    <div class="span2 group">
+    <div class="span3 group">
         <table class="table-file-props">
-            <tr><td class="prop-label">Malware:</td></tr>
-            <tr><td class="prop-label">Benign:</td></tr>
+            <tr><td class="prop-label">Known Malware: {{ malware|yesno }}</td></tr>
+            <tr><td class="prop-label">Known Benign: {{ benign|yesno }}</td></tr>
         </table>
     </div>
 
-    <div class="span7 group">
+    <div class="span6 group">
         <table class="table-file-props">
             <tr>
                 <td class="prop-label">Dependencies:</td>
