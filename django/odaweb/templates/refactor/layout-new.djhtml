@@ -76,9 +76,9 @@
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Examples<b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <!-- TODO: Build this list dynamically -->
-                            <li><a href="/odaweb/strcpy_x86">strcpy (x86)</a></li>
-                            <li><a href="/odaweb/sha1sum">sha1sum (Linux)</a></li>
-                            <li><a href="/odaweb/sasser">Sasser Worm (Windows)</a></li>
+                            {% for example in examples %}
+                                <li><a href="/odaweb/{{ example.short_name }}">{{ example.description }}</a></li>
+                            {% endfor %}
                         </ul>
                     </li>
                     <li class="">

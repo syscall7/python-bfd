@@ -6,7 +6,7 @@ from odaweb import engine
 from django import forms
 import dischunk
 from django.contrib.contenttypes.models import ContentType
-from disassembler import Disassembler, JsonChunkProcessor
+from disassembler import Disassembler, JsonChunkProcessor, examples
 from django.template.loader import render_to_string
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseServerError
 from django.utils import simplejson
@@ -29,6 +29,7 @@ def index(request, disassembly_id):
         render_dict['binary'] = oda_master.binary
         render_dict['disassembly_id'] = disassembly_id
         render_dict['share_url'] =  request.build_absolute_uri()
+        render_dict['examples'] = examples
 
     return render(request, 'refactor/index.djhtml', render_dict)
 

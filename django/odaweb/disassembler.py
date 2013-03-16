@@ -1,6 +1,5 @@
 __author__ = 'davis'
 
-import os
 import re
 import string
 import bfd
@@ -337,55 +336,33 @@ class JsonChunkProcessor(object):
 
         return analyzer.chunks, chunk_list
 
-
-def make_examples():
-
-    EXAMPLES_DIR = os.path.join(os.path.dirname(__file__), 'examples')
-    examples = (
-        {
-            'short_name' : 'sha1sum',
-            'binary_type' : 'file',
-            'file_name' : 'sha1sum',
-            'options' : OdaOptions(target="elf32-i386", architecture="i386"),
+examples = (
+    {
+        'description' : 'strcpy (x86)',
+        'short_name' : 'strcpy_x86',
+        'binary_type' : 'string',
+        'data' : '55 31 D2 89 E5 8B 45 08 56 8B 75 0C 53 8D 58 FF 0F B6 0C 16 88 4C 13 01 83 C2 01 84 C9 75 F1 5B 5E 5D C3 ',
+        'options' : OdaOptions(target="binary", architecture="i386"),
         },
-        {
-            'short_name' : 'sasser',
-            'binary_type' : 'file',
-            'file_name' : 'net-worm.win32.sasser.a',
-            'options' : OdaOptions(target="elf32-i386", architecture="i386"),
+    {
+        'description' : 'strcpy (arm)',
+        'short_name' : 'strcpy_arm',
+        'binary_type' : 'string',
+        'data' : '01 20 40 E2 02 20 61 E0 01 30 D1 E4 00 00 53 E3 02 30 C1 E7 FB FF FF 1A 1E FF 2F E1',
+        'options' : OdaOptions(target="binary", architecture="arm"),
         },
-        {
-            'short_name' : 'strcpy_x86',
-            'binary_type' : 'string',
-            'data' : '55 31 D2 89 E5 8B 45 08 56 8B 75 0C 53 8D 58 FF 0F B6 0C 16 88 4C 13 01 83 C2 01 84 C9 75 F1 5B 5E 5D C3 ',
-            'options' : OdaOptions(target="binary", architecture="i386"),
+    {
+        'description' : 'sha1sum (Linux)',
+        'short_name' : 'sha1sum',
+        'binary_type' : 'file',
+        'file_name' : 'sha1sum',
+        'options' : OdaOptions(target="elf32-i386", architecture="i386"),
         },
-    )
-
-    for example in examples:
-        short_name = example['short_name']
-        if OdaMaster.objects.filter(short_name=short_name).exists():
-            print 'Example %s already exists in the database' % short_name
-            continue
-
-        print 'Adding example %s to database' % short_name
-
-        options = example['options']
-        options.save()
-
-        if example['binary_type'] is 'file':
-            f = open(os.path.join(EXAMPLES_DIR, example['file_name']),'rb')
-            binary = BinaryFile.create(f, options)
-            binary.save()
-        elif example['binary_type'] is 'string':
-            binary = BinaryString()
-            binary.binary_string = ''.join(example['data'].split())
-            binary.options = options
-            binary.save()
-
-        oda_master = OdaMaster(short_name = short_name, binary = binary)
-        oda_master.save()
-
-        disassembler = Disassembler(binary)
-        disassembler.process_chunks()
-
+    {
+        'description' : 'Sasser Worm (Windows)',
+        'short_name' : 'sasser',
+        'binary_type' : 'file',
+        'file_name' : 'net-worm.win32.sasser.a',
+        'options' : OdaOptions(target="elf32-i386", architecture="i386"),
+        },
+)

@@ -261,7 +261,7 @@ function Load(binary) {
         scrolify($('#strings-table')); // 160 is height
         ResizeHandler();
     }).fail(function(){
-            alert('symbols fail to load');
+            alert('strings fail to load');
     });
 
     $.post('_sections', {id: binary.id}).done(function(data){
