@@ -137,6 +137,7 @@ function loadPopovers()
 {
     $('insn').popover({
         placement: 'left',
+        delay: { show: 1000, hide: 100 },
         trigger: 'hover',
         html : true,
         title : function() {
