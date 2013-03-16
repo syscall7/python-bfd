@@ -71,13 +71,13 @@ class Binary(models.Model):
     options = models.OneToOneField(OdaOptions, null=True)
 
     def md5(self):
-        f = open(self.file_handle().name)
+        f = open(self.file_handle().name,'rb')
         md5 = hashlib.md5(f.read()).hexdigest()
         f.close()
         return md5
 
     def sha1(self):
-        f = open(self.file_handle().name)
+        f = open(self.file_handle().name,'rb')
         md5 = hashlib.sha1(f.read()).hexdigest()
         f.close()
         return md5

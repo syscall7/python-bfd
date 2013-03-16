@@ -374,7 +374,7 @@ def make_examples():
         options.save()
 
         if example['binary_type'] is 'file':
-            f = open(os.path.join(EXAMPLES_DIR, example['file_name']))
+            f = open(os.path.join(EXAMPLES_DIR, example['file_name']),'rb')
             binary = BinaryFile.create(f, options)
             binary.save()
         elif example['binary_type'] is 'string':
