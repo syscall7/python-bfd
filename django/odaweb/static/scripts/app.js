@@ -281,6 +281,12 @@ function Load(binary) {
     }).fail(function(){
         alert('file info failed to load');
     });
+
+    $.post('_owned_files', {id: binary.id}).done(function(data){
+        $('#open-existing-list').html(data.file_list_html)
+    }).fail(function(){
+            alert('failed to load owned files');
+    });
 }
 
 function InitializeComments() {

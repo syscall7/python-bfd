@@ -46,7 +46,17 @@
                     <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="menu-item-file">File<b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#upload-modal" data-toggle="modal"><i class="icon-upload"></i>&nbsp;Upload</a></li>
+                            <li class="dropdown-submenu"><a href="#" tab-index="-1"><i class="icon-file"></i>&nbsp;New</a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#open-modal" data-toggle="modal"><i class="icon-upload"></i>&nbsp;Upload File...</a></li>
+                                    <li><a href="#">Live Mode</a></li>
+                                </ul>
+                            </li>
+                            <li class="dropdown-submenu"><a href="#" tab-index="-1"><i class="icon-folder-open"></i>&nbsp;Open Existing</a>
+                                <ul id="open-existing-list" class="dropdown-menu">
+                                    <li class="disabled"><a href="#">No files exist</a></li>
+                                </ul>
+                            </li>
                             <li><a href="#">Copy/Paste Hex</a></li>
                             <li class="divider"></li>
                             <li><a href="#modal-share" data-toggle="modal"><i class="icon-share"></i>Share</a></li>
@@ -104,7 +114,7 @@
     </div>
 </div>
 
-{% include "modal-upload.djhtml" %}
+{% include "modal-open.djhtml" %}
 
 {% include "modal-share.djhtml" %}
 

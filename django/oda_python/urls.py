@@ -31,6 +31,7 @@ urlpatterns = patterns('',
     url(r'^odaweb/refresh_disassembly/(?P<file_id>[\w-]+)$', 'odaweb.views.refresh_disassembly'),
     #url(r'^odaweb/comment/(?P<file_id>[\w-]+)/(?P<offset>[0-9A-Fa-f]{8})$', 'odaweb.views.comment'),
 
+    url(r'^odaweb/_owned_files$', 'odaweb.views2.owned_files'),
     url(r'^odaweb/_save$', 'odaweb.views2.save'),
     url(r'^odaweb/_upload$', 'odaweb.views2.upload'),
     url(r'^odaweb/_refresh$', 'odaweb.views2.refresh_disassembly'),

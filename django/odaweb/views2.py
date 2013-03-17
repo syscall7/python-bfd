@@ -207,6 +207,7 @@ class UploadFileForm(forms.Form):
 def upload(request):
     form = UploadFileForm(request.POST, request.FILES)
     if form.is_valid():
+        user_id = request.session["user_id"]
 
         #platform_options = engine.platform_options(binary_file)
         #if options can't be determined, we need to display another dialog to get user input on
@@ -217,7 +218,7 @@ def upload(request):
         binary_file = BinaryFile.create(request.FILES['filedata'], options)
         binary_file.save()
 
-        oda_master = OdaMaster(short_name = id_generator(), binary = binary_file)
+        oda_master = OdaMaster(owner = user_id, short_name = id_generator(), binary = binary_file)
         oda_master.save()
         request.session["disassembly_id"] = oda_master.short_name
 
@@ -299,4 +300,16 @@ def comment(request):
         comment.save()
         #return render_to_json({"status" : "ok"})
         return HttpResponse()
+
+
+def owned_files(request):
+    user_id = request.session.get('user_id')
+    files = OdaMaster.objects.filter(owner=user_id)
+
+    # TODO: Add a descriptive name property to both Binary and BinaryFile, as the following only works for BinaryFile
+    owned_files = [{'name': f.binary.filename, 'short_name': f.short_name} for f in files]
+
+    file_list =  render_to_string('open-existing-list.djhtml', {'files' : owned_files})
+
+    return HttpResponse(simplejson.dumps({'file_list_html' : file_list}), mimetype='application/json')
 

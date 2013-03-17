@@ -72,7 +72,7 @@ def base_context(request, context = {}):
  
 def file_upload(request):
        
-    return render(request, 'modal-upload.djhtml',base_context(request, {
+    return render(request, 'modal-open.djhtml',base_context(request, {
         'supported_archs': engine.get_supported_archs
     }))
     
