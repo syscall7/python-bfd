@@ -306,8 +306,7 @@ def owned_files(request):
     user_id = request.session.get('user_id')
     files = OdaMaster.objects.filter(owner=user_id)
 
-    # TODO: Add a descriptive name property to both Binary and BinaryFile, as the following only works for BinaryFile
-    owned_files = [{'name': f.binary.filename, 'short_name': f.short_name} for f in files]
+    owned_files = [{'name': f.binary.name, 'short_name': f.short_name} for f in files]
 
     file_list =  render_to_string('open-existing-list.djhtml', {'files' : owned_files})
 
