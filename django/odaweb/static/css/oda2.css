@@ -194,6 +194,7 @@ tbody.scrollContent {
     font-family:DejaVuSansMono;
     font-size: 14px;
     line-height: 14px;
+    text-align: right;
     /**font-weight: bold; */ /** Messes with the line height*/
     /* white-space: pre; */
 }
