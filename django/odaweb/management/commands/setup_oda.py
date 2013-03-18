@@ -43,6 +43,23 @@ def load_examples():
 # Date: March 2013
 # ------------------------------------------------------------------------------
 
+class TmpSubCode:
+    def __init__(self, mnemonic, short):
+        self.mnemonic = mnemonic
+        self.short = short
+
+    def update_short(self, more_short):
+        if self.short.endswith('-'):
+            self.short += more_short
+        else:
+            self.short += ' ' + more_short
+
+        #print 'New short is "%s"' % self.short
+
+    mnemonic = property()
+    short = property()
+
+
 class TmpInstDoc:
     def __init__(self, page_num):
         self.mnemonic = 'unknown'
@@ -50,6 +67,7 @@ class TmpInstDoc:
         self.long = ''
         self.page_start = page_num
         self.num_pages = 1
+        self.sub_codes = []
 
         # used in stream filtering of long help
         self.prev_line = ''
@@ -129,6 +147,7 @@ def load_instdocs():
     desc_end = re.compile(r'^\s*Operation.*$')
     inst_ref = re.compile(r'^\s*INSTRUCTION SET REFERENCE.*$')
     inst_start = re.compile(r'^(?P<mnemonic>[A-Z]+[a-zA-Z/0-9 ]*)\s*-+\s*(?P<short>.*)$')
+    sub_code = re.compile(r'(?:[0-9A-F]{2} )+')
 
     for (page_num, page) in enumerate(pages):
 
@@ -137,7 +156,7 @@ def load_instdocs():
         if state == STATE_FIND_START:
             if inst_ref.match(lines[0]):
 
-                # we already know what the first line looks like, so skip it
+                # we already know what the first line of each page looks like, so skip it
                 for i in range(1,len(lines)):
 
                     line = lines[i]
@@ -154,7 +173,7 @@ def load_instdocs():
                         cur_inst.mnemonic = inst_match.group('mnemonic')
                         cur_inst.short = inst_match.group('short')
                         inst_docs.append(cur_inst)
-                        state = STATE_FIND_DESC
+                        state = STATE_FIND_SUBCODES
                     else:
                         break
 
@@ -165,6 +184,29 @@ def load_instdocs():
 
             for i in range(1,len(lines)):
                 line = lines[i]
+
+                if state == STATE_FIND_SUBCODES:
+                    if cur_inst.mnemonic != 'Jcc':
+                        state = STATE_FIND_DESC
+                    else:
+                        desc_match = desc_start.match(line)
+                        if desc_match:
+                            state = STATE_GATHER_DESC
+                            continue
+
+                        # split fields based on 2 or more spaces as the delimiter
+                        fields = re.split(r'\s{2,}', line)
+
+                        if len(fields) == 6 and sub_code.match(line):
+                            mnemonic = fields[1].split()[0]
+                            short = fields[5].strip()
+                            cur_inst.sub_codes.append(TmpSubCode(mnemonic, short))
+                        # catch any part of the description that wrapped to the next line
+                        elif (len(fields) == 2) and fields[0] == '' and lines[i-1].strip() != '':
+                            print fields[1]
+                            # add the text to the last sub code added
+                            cur_inst.sub_codes[-1].update_short(fields[1])
+
 
                 if state == STATE_FIND_DESC:
                     desc_match = desc_start.match(line)
@@ -196,6 +238,21 @@ def load_instdocs():
 
             inst_doc.save()
 
+        # process sub-instructions (i.e., JNE is a "sub" instruction of Jxx)
+        for sub in inst.sub_codes:
+
+            if InstDoc.objects.filter(mnemonic=sub.mnemonic).exists():
+                print 'Sub instruction %s already exists in the database' % sub.mnemonic
+                continue
+
+            print 'Adding sub instruction %s: %s' % (sub.mnemonic, sub.short)
+            inst_doc = InstDoc(
+                platform='i386',
+                mnemonic=sub.mnemonic,
+                short=sub.short.decode('latin-1').encode('utf-8'),
+                long= inst.long.decode('latin-1').encode('utf-8'))
+
+            inst_doc.save()
 
 class Command(BaseCommand):
     args = '<>'
