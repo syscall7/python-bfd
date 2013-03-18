@@ -136,7 +136,7 @@ function scrollToAddr(offset)
 function loadPopovers()
 {
     $('insn').popover({
-        placement: 'left',
+        placement: 'right',
         delay: { show: 1000, hide: 100 },
         trigger: 'hover',
         html : true,

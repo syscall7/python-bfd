@@ -73,7 +73,7 @@ class InstDoc:
     long = property()
 
 # read in text file and extract pages
-with open('intel_ref.latin', 'r') as f:
+with open('../management/commands/intel_ref.latin', 'r') as f:
     txt = f.read()
     pages = txt.split('\f')
 
