@@ -122,6 +122,7 @@ function scrollToAddr(offset)
             $('#myTabContent').scrollTop(disoffset_top + 1);
             window.lastAddr = offset;
             console.debug("scrollToAddr: 0x%s",window.lastAddr.toString(16));
+            updateSlider(offset);
             return true;
         }
 
