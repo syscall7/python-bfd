@@ -57,7 +57,6 @@
                                     <li class="disabled"><a href="#">No files exist</a></li>
                                 </ul>
                             </li>
-                            <li><a href="#">Copy/Paste Hex</a></li>
                             <li class="divider"></li>
                             <li><a href="#modal-share" data-toggle="modal"><i class="icon-share"></i>Share</a></li>
                             <li><a href="#">Download</a></li>
