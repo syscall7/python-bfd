@@ -263,16 +263,19 @@ class Disassembler(object):
                 # TODO: Deal with sections whose start address is not LINE_WIDTH aligned
                 rounded_start = chunk.start & ~(LINE_WIDTH-1)
                 rounded_end = chunk.end & ~(LINE_WIDTH-1)
-                raw = self.bfd.raw_data(self.bfd.sections[chunk.name], rounded_start, rounded_end - rounded_start)
-                raw_lines = [raw[i:i+LINE_WIDTH] for i in range(0,len(raw),LINE_WIDTH)]
-                addr = rounded_start
-                superchunk.hex_lines = []
-                for line in raw_lines:
-                    ascii = toAscii(line)
-                    hex = toHex(line)
-                    name = chunk.name
-                    superchunk.hex_lines.append((name, addr, hex, ascii))
-                    addr += len(line)
+                rounded_size = rounded_end - rounded_start
+                
+                if rounded_size > 0:
+                    raw = self.bfd.raw_data(self.bfd.sections[chunk.name], rounded_start, rounded_size)
+                    raw_lines = [raw[i:i+LINE_WIDTH] for i in range(0,len(raw),LINE_WIDTH)]
+                    addr = rounded_start
+                    superchunk.hex_lines = []
+                    for line in raw_lines:
+                        ascii = toAscii(line)
+                        hex = toHex(line)
+                        name = chunk.name
+                        superchunk.hex_lines.append((name, addr, hex, ascii))
+                        addr += len(line)
                 
 
 
