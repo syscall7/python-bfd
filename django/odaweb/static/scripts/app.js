@@ -141,7 +141,7 @@ function InitializeSlider(min, max) {
     function updateAddrDisplay(addr) {
         window.topDisplayAddr = addr;
         addrStr = addr.toString(16).toUpperCase();
-        console.debug("updateAddrDisplay to %s", addrStr);
+        //console.debug("updateAddrDisplay to %s", addrStr);
         while (addrStr.length < 8) addrStr = "0" + addrStr;
         $("#slider-address").text("0x" + addrStr);
     }
