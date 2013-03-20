@@ -6,7 +6,10 @@ import bfd
 import dischunk
 from django.contrib.contenttypes.models import ContentType
 
-from odaweb.models import BinaryDisassemblyChunk, Binary, BinaryString, BinaryFile, OdaMaster, OdaOptions
+from odaweb.models import (BinaryDisassemblySuperChunk, Binary, BinaryString,
+                           BinaryFile, OdaMaster, OdaOptions, 
+                           BinaryDisassemblyChunk)
+from itertools import chain
 
 
 def funcFmtAddr(bfd, addr):
@@ -135,9 +138,11 @@ class Disassembler(object):
         section_info = SectionInfo(code_sections)
 
         return section_info
-
+    
     def get_chunks_from_file(self, sections):
-        chunks = []
+        super_chunks = []
+        cur_super_chunk = dischunk.DisSuperChunk()
+        
         for sec in sections:
 
             # Initialize loop variables
@@ -146,54 +151,67 @@ class Disassembler(object):
 
             while sec_consumed < sec.size:
 
+                disassemble_size = min( cur_super_chunk.available_len(), sec.size-sec_consumed )
+
                 # Disassemble a chunk
-                chunk_size = min( dischunk.DisChunk.MIN_CHUNK_SIZE_BYTES,sec.size-sec_consumed)
-                disassembly, next_addr, num_lines = self.disassemble(sec.name, sec_offset_addr, sec_offset_addr+chunk_size)
+                disassembly, next_addr, num_lines = self.disassemble(sec.name, sec_offset_addr, sec_offset_addr+disassemble_size)
+                
+                # Update Size 
+                disassemble_size = next_addr - sec_offset_addr
 
-                # Save the disassembly
-                # file_str.write( disassembly )
+                # Grow the super chunk
+                cur_super_chunk.grow(sec.name, sec_offset_addr, disassemble_size)
 
-                #print "DISASSEMBLE CHUNK:",len(chunks)
-
-                # Save the chunk
-                chunks.append( dischunk.DisChunk(sec_offset_addr, next_addr, num_lines, sec.name) )
+                # Check if we need to add another super chunk 
+                if cur_super_chunk.available_len() == 0 or disassemble_size == 0:
+                    # Not enough room in the chunk to add to it
+                    #    Get a new chunk
+                    super_chunks.append(cur_super_chunk)
+                    cur_super_chunk = dischunk.DisSuperChunk()
 
                 # Update loop variables
-                sec_consumed += chunk_size
+                sec_consumed += disassemble_size
                 sec_offset_addr = next_addr
 
-        return chunks
+        # Include the last chunk
+        if len(cur_super_chunk) > 0:
+            super_chunks.append(cur_super_chunk)
+            
+        return super_chunks
 
     def process_chunks(self):
         ctype = ContentType.objects.get_for_model(self.binary)
-        BinaryDisassemblyChunk.objects.filter(content_type=ctype.id, object_id=self.binary.id).delete()
-
-        chunks = []
+        BinaryDisassemblySuperChunk.objects.filter(content_type=ctype.id, object_id=self.binary.id).delete()
 
         # Disassemble the entire file, one section at a time, dividing it into disassembly chunks
         if self.binary.options.target == 'binary':
-            chunks = self.get_chunks_from_file(self.sections)
+            super_chunks = self.get_chunks_from_file(self.sections)
         else:
-            chunks = self.get_chunks_from_file(self.sections_iter(['SEC_CODE']))
-
+            super_chunks = self.get_chunks_from_file(self.sections_iter(['SEC_CODE']))
 
         # Note the boundary chunks
-        chunks[0].is_boundary = True
-        chunks[len(chunks)-1].is_boundary = True
+        super_chunks[0].is_boundary = True
+        super_chunks[len(super_chunks)-1].is_boundary = True
 
-        i = 0
-        for chunk in chunks:
-            ch = BinaryDisassemblyChunk(id=None,
-                sec_name=chunk.sec_name,
-                start=chunk.start,
-                end=chunk.end,
-                bfd_lines=chunk.lines,
-                is_boundary=chunk.is_boundary,
+        #i = 0
+        for super_chunk in super_chunks:
+            sch = BinaryDisassemblySuperChunk(id=None,
+                start=super_chunk.start,
+                end=super_chunk.end,
+                is_boundary=super_chunk.is_boundary,
                 binary=self.binary)
-            ch.save()
-            i+=1
+            sch.save()
+            for chunk in super_chunk.chunks.values():
+                ch = BinaryDisassemblyChunk(id=None,
+                     start=chunk.start,
+                     end=chunk.end,
+                     name=chunk.name,
+                     superchunk=sch)
+                ch.save()
 
-    def mk_hex_lines(self, chunks):
+            #i+=1
+
+    def mk_hex_lines(self, superchunks):
         LINE_WIDTH = 16
 
         def toAscii(line):
@@ -221,19 +239,21 @@ class Disassembler(object):
 
             return hex
 
-        for chunk in chunks:
-            # TODO: Deal with sections whose start address is not LINE_WIDTH aligned
-            rounded_start = chunk.start & ~(LINE_WIDTH-1)
-            rounded_end = chunk.end & ~(LINE_WIDTH-1)
-            raw = self.bfd.raw_data(self.bfd.sections[chunk.sec_name], rounded_start, rounded_end - rounded_start)
-            raw_lines = [raw[i:i+LINE_WIDTH] for i in range(0,len(raw),LINE_WIDTH)]
-            addr = rounded_start
-            chunk.hex_lines = []
-            for line in raw_lines:
-                ascii = toAscii(line)
-                hex = toHex(line)
-                chunk.hex_lines.append((addr, hex, ascii))
-                addr += len(line)
+        for superchunk in superchunks:
+            for chunk in superchunk.chunks():
+                # TODO: Deal with sections whose start address is not LINE_WIDTH aligned
+                rounded_start = chunk.start & ~(LINE_WIDTH-1)
+                rounded_end = chunk.end & ~(LINE_WIDTH-1)
+                raw = self.bfd.raw_data(self.bfd.sections[chunk.name], rounded_start, rounded_end - rounded_start)
+                raw_lines = [raw[i:i+LINE_WIDTH] for i in range(0,len(raw),LINE_WIDTH)]
+                addr = rounded_start
+                superchunk.hex_lines = []
+                for line in raw_lines:
+                    ascii = toAscii(line)
+                    hex = toHex(line)
+                    name = chunk.name
+                    superchunk.hex_lines.append((name, addr, hex, ascii))
+                    addr += len(line)
                 
 
 
@@ -255,7 +275,7 @@ class JsonChunkProcessor(object):
         #    the provided address. Include the chunk that contains the 
         #    provided address
         #    Note: afterChunks does not include the center chunk
-        afterChunks = BinaryDisassemblyChunk.objects.filter(
+        afterChunks = BinaryDisassemblySuperChunk.objects.filter(
             content_type=ctype.id, object_id = self.binary.id, start__gte = addr )[0:num_chunks]
         
         # Determine how many chunks before the address that we need to get
@@ -270,7 +290,7 @@ class JsonChunkProcessor(object):
             numRequested = num_chunks - numAfterChunks
             
         # Get the chunks before the address (including the center chunk)
-        beforeChunksReversed = BinaryDisassemblyChunk.objects.filter(
+        beforeChunksReversed = BinaryDisassemblySuperChunk.objects.filter(
             content_type=ctype.id, object_id = self.binary.id, start__lt = addr ).order_by('-start')[0:numRequested]      
         
         # Chunks before the given chunk but in reverse order
@@ -280,7 +300,7 @@ class JsonChunkProcessor(object):
         # Get the chunks to return 
         numBeforeChunks = len(beforeChunks)
         numAfterChunks = num_chunks - numBeforeChunks
-        print "BEFORE: %d, AFTER %d" % (numBeforeChunks,numAfterChunks)         
+        #print "BEFORE: %d, AFTER %d" % (numBeforeChunks,numAfterChunks)         
         permachunks = beforeChunks + afterChunks[0:numAfterChunks]    
 
         architecture = self.binary.options.architecture
@@ -289,18 +309,18 @@ class JsonChunkProcessor(object):
 
         return self.process_chunks(analyzer, permachunks)
 
-    def get_chunks_from_chunk(self, name, start, end, direction, num_chunks):
+    def get_chunks_from_chunk(self, start, end, direction, num_chunks):
         analyzer = analyzerFactory( self.binary.options.architecture )
 
         ctype = ContentType.objects.get_for_model(self.binary)
 
         if direction == 1:
             # Chunks after the given chunk
-            permachunks = BinaryDisassemblyChunk.objects.filter(
+            permachunks = BinaryDisassemblySuperChunk.objects.filter(
                 content_type=ctype.id, object_id = self.binary.id, start__gt = start )[0:num_chunks]
         else:
             # Chunks before the given chunk
-            permachunksReversed = BinaryDisassemblyChunk.objects.filter(
+            permachunksReversed = BinaryDisassemblySuperChunk.objects.filter(
                 content_type=ctype.id, object_id = self.binary.id, start__lt = start ).order_by('-start')[0:num_chunks]      
             
             # Chunks before the given chunk but in reverse order
@@ -309,32 +329,25 @@ class JsonChunkProcessor(object):
         
         return self.process_chunks(analyzer, permachunks)
 
-    def process_chunks(self, analyzer, permachunks):
-
-        # Build a list of chunks to process
-        new_chunks = []
-
-        for chunk in permachunks:
-            print "APPEND CHUNK 0x%x" % (chunk.start)
-            new_chunks.append( dischunk.DisChunk(chunk.start, chunk.end, chunk.bfd_lines, chunk.sec_name, chunk.is_boundary) )
+    def process_chunks(self, analyzer, superchunks):
 
         dasm = Disassembler(self.binary)
-        analyzer.analyze( dasm, new_chunks )
-        dasm.mk_hex_lines(new_chunks)
-        chunk.hex_lines = '<>'
+        analyzer.analyze( dasm, superchunks )
+        
+        dasm.mk_hex_lines(superchunks)
+        #superchunk.hex_lines = '<>'
+        hex_lines = '<>'
         # Build a primitive object containing the list of chunk data to pass back to the client
         chunk_list = []
-        for chunk in new_chunks:
+        for superchunk in superchunks:
             chunk_list.append ({
-                'sec_name': chunk.sec_name,
-                'startOffset': chunk.start,
-                'endOffset': chunk.end,
-                'isBoundary': chunk.is_boundary,
-                'lines': chunk.lines,
-                'hex_lines' : chunk.hex_lines
+                'startOffset': superchunk.start,
+                'endOffset': superchunk.end,
+                'isBoundary': superchunk.is_boundary,
+                #'hex_lines' : hex_lines #chunk.hex_lines
             })
 
-        return analyzer.chunks, chunk_list
+        return analyzer.superchunks, chunk_list
 
 examples = (
     {
