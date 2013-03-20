@@ -15,7 +15,18 @@ var Sidebar = Backbone.Model.extend({
 
         $('#myTab a').click(function (e) {
             e.preventDefault();
+            window.activeTab = e.target.hash.split('#')[1];
+            console.debug("WindowActivetab %s %s",window.activeTab,window.lastAddr.toString(16));
             $(this).tab('show');
+            var jtab = $(this);
+            if ( window.activeTab == "tab-assembly" )
+            {
+                router.navigate("view/"+ window.activeTab + "/offset/" + intToHexStr(window.lastAddr), {trigger: true});
+            } 
+            else
+            {
+                router.navigate("view/"+ window.activeTab, {trigger: true});
+            }
         });
 
         $('.item').hide();
@@ -36,6 +47,12 @@ var Sidebar = Backbone.Model.extend({
         {
             // Table header height
             new_offset += 36;
+        }
+        else if ( $(elem)[0].type == 'textarea' )
+        {
+            // Hex Dump has a help banner.
+            //  TODO: Calculate this programatically
+            new_offset += 68;
         }
         else
         {
@@ -88,13 +105,13 @@ function ResizeHandler() {
         // TODO: Hardcoded Height includes footer and banner
         /*$('#view-container').height($(window).height()-74);*/
         $('#vertSplitter').height($(window).height()-47);
-
+        
         // TODO: Hardcoded Height includes footer, banner, and tabs
         $('#myTabContent').height($(window).height()-132);
-
+             
         $('.sidebar-scroll-container').each( function (i,elem) {
             $(elem).height( sidebar.resize($(elem)) );} );
-
+        
     });
     //$('#view-container').height($(window).height()-74);
     $('#vertSplitter').height($(window).height()-47);
@@ -102,11 +119,10 @@ function ResizeHandler() {
     $('.sidebar-scroll-container').each( function (i,elem) {
         $(elem).height( sidebar.resize($(elem)) );} );
 
-
+    
 }
-
 function InitializeSplitter() {
-    $("#main-display").splitter({type: 'v'});
+    $("#main-display").splitter({type: 'v'});    
 }
 
 /* ---------------------------------------------------------------------------------------------------------  *
@@ -115,7 +131,7 @@ function InitializeSplitter() {
 function InitializeSlider(min, max) {
 
     var selectedRow = null;
-
+    
     // remove border
     $(".ui-slider-horizontal").css('border', 0);
     $(".ui-slider-handle").removeClass('ui-corner-all');
@@ -157,6 +173,8 @@ function InitializeSlider(min, max) {
     });
 
     // set initial position
+    window.initialOffset = min;
+    window.activeTab = "tab-assembly";
     updateAddrDisplay($("#slider").slider("value"));
 
     $(document).on("click", "#listing tr", function(){
@@ -226,10 +244,10 @@ function Load(binary) {
     {
         addr = window.initialOffset;
     }
-
-    console.debug("Load, refreshDisassembly addr= %x %d %s",addr,addr,addr);
+    
+    console.debug("Load, refreshDisassembly addr= 0x%s",addr.toString(16));    
     refreshDisassembly(addr);
-
+    
     $.post('_symbols', {id: binary.id}).done(function(data){
         $('#symbol-content').append(data.symbols_html);
         scrolify($('#symbol-table')); // 160 is height
@@ -243,7 +261,7 @@ function Load(binary) {
         scrolify($('#strings-table')); // 160 is height
         ResizeHandler();
     }).fail(function(){
-            alert('symbols fail to load');
+            alert('strings fail to load');
     });
 
     $.post('_sections', {id: binary.id}).done(function(data){
