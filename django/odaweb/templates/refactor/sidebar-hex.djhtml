@@ -3,11 +3,16 @@
 
     <div class="sidebar-legend">Live View</div>
 
+    <div class="alert alert-info">
+        Change the settings below to modify the disassembly.
+    </div>
+
+
     <div class="accordion" id="accordion2">
         <div class="accordion-group">
             <div class="accordion-heading">
                 <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
-                    Platform Options: {{ arch }}
+                    Platform Options: <span class="platform-option">{{ binary.options.architecture }}</span>
                 </a>
             </div>
             <div id="collapseTwo" class="accordion-body collapse">
@@ -26,10 +31,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="alert alert-info">
-        Change the bytes below to modify the disassembly.
     </div>
 
     <div class="alert" id="hex-alert" style="display:none;">

@@ -32,9 +32,12 @@ window.LiveHex = function(binary) {
     });
 
     $('#select-live-architecture').change(function(){
+        var arch = $('#select-live-architecture').val()
         Reload({
-            arch : $('#select-live-architecture').val()
-        })
+            arch : arch
+        });
+
+        $('.platform-option').text(arch);
     });
 
 };

@@ -30,7 +30,6 @@ def index(request, disassembly_id):
         context['share_url'] =  request.build_absolute_uri()
         context['examples'] = examples,
         context['supported_archs'] = get_supported_archs()
-        context['arch'] = oda_master.binary.options.architecture
 
     from pprint import pprint
     print(pprint(context))
