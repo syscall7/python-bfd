@@ -12,7 +12,8 @@
 
         var binary = new Binary({
             id : '{{ binary.id }}',
-            liveMode : {{ binary.is_live_mode|jsonify  }}
+            liveMode : {{ binary.is_live_mode|jsonify  }},
+            arch : '{{ arch }}'
         });
 
         OdaApplication(binary);

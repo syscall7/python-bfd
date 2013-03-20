@@ -1,14 +1,11 @@
 from django.shortcuts import render, redirect
 
 from odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment, InstDoc
-import views
-from odaweb import engine
 from django import forms
-import dischunk
 from django.contrib.contenttypes.models import ContentType
-from disassembler import Disassembler, JsonChunkProcessor, examples
+from disassembler import Disassembler, JsonChunkProcessor, examples, get_supported_archs
 from django.template.loader import render_to_string
-from django.http import HttpResponseRedirect, HttpResponse, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseServerError
 from django.utils import simplejson
 import dns.resolver
 
@@ -16,23 +13,28 @@ from utils import id_generator
 
 
 def render_to_json(context):
-    return HttpResponse(simplejson.dumps(context)  , mimetype='application/json')
+    return HttpResponse(simplejson.dumps(context), mimetype='application/json')
 
 
 def index(request, disassembly_id):
 
-    render_dict = {}
+    context = {}
     oda_master = create_session(request, disassembly_id)
 
     if oda_master:
-        section_info = Disassembler(oda_master.binary).get_code_sections()
-        render_dict['section_info'] = section_info
-        render_dict['binary'] = oda_master.binary
-        render_dict['disassembly_id'] = disassembly_id
-        render_dict['share_url'] =  request.build_absolute_uri()
-        render_dict['examples'] = examples
+        d = Disassembler(oda_master.binary)
+        section_info = d.get_code_sections()
+        context['section_info'] = section_info
+        context['binary'] = oda_master.binary
+        context['disassembly_id'] = disassembly_id
+        context['share_url'] =  request.build_absolute_uri()
+        context['examples'] = examples,
+        context['supported_archs'] = get_supported_archs()
+        context['arch'] = oda_master.binary.options.architecture
 
-    return render(request, 'refactor/index.djhtml', render_dict)
+    from pprint import pprint
+    print(pprint(context))
+    return render(request, 'refactor/index.djhtml', context)
 
 
 def save(request):
@@ -74,24 +76,33 @@ def get_session(request):
 def set(request):
 
     class HexUploadForm(forms.Form):
-        hex_val = forms.CharField()
+        hex_val = forms.CharField(required=False)
+        arch = forms.CharField(required=False)
 
     form = HexUploadForm(request.POST) # A form bound to the POST data
     if form.is_valid():
-        hex_string = form.cleaned_data['hex_val']
-        try:
-            cleaned_hex_string = ''.join(hex_string.split())
-            byte_array = cleaned_hex_string.decode("hex")
-        except TypeError,e:
-            if (e.args[0]=='Non-hexadecimal digit found'):
-                return HttpResponseServerError('<div>NON HEX DIGIT</div>')
-            else:
-                cleaned_hex_string = (cleaned_hex_string + '0')
 
         oda_master = get_session(request)
-        print cleaned_hex_string
-        oda_master.binary.binary_string = cleaned_hex_string
-        oda_master.binary.save()
+
+        if form.cleaned_data['hex_val']:
+            hex_string = form.cleaned_data['hex_val']
+            try:
+                cleaned_hex_string = ''.join(hex_string.split())
+                byte_array = cleaned_hex_string.decode("hex")
+            except TypeError,e:
+                if (e.args[0]=='Non-hexadecimal digit found'):
+                    return HttpResponseServerError('<div>NON HEX DIGIT</div>')
+                else:
+                    cleaned_hex_string = (cleaned_hex_string + '0')
+
+            oda_master.binary.binary_string = cleaned_hex_string
+            oda_master.binary.save()
+
+        if form.cleaned_data['arch']:
+            oda_master.binary.options.architecture = form.cleaned_data['arch']
+            oda_master.binary.options.save()
+
+
 
         disassembler = Disassembler(oda_master.binary)
         disassembler.process_chunks()

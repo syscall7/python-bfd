@@ -1,7 +1,32 @@
 <div id="hex-display" style="padding:5px; background-color:white;" class="active item">
 
 
-    <div class="sidebar-legend">Raw Bytes</div>
+    <div class="sidebar-legend">Live View</div>
+
+    <div class="accordion" id="accordion2">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
+                    Platform Options: {{ arch }}
+                </a>
+            </div>
+            <div id="collapseTwo" class="accordion-body collapse">
+                <div class="accordion-inner">
+                    <form>
+
+                        <select class="platformSelect" id="select-live-architecture" name="select-live-architecture">
+                            {% for a in supported_archs %}
+                                <option
+                                        {% if a == arch %}selected="selected"{% endif %}>
+                                    {{a}}</option>
+                            {% endfor %}
+                        </select>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="alert alert-info">
         Change the bytes below to modify the disassembly.

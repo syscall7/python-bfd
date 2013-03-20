@@ -50,6 +50,25 @@ def analyzerFactory(arch):
 
     return obj
 
+
+def get_supported_archs():
+    '''Return a list of all architectures supported
+    '''
+    supportedArchs = bfd.list_architectures()
+
+    # Remove Problem archs
+    problemArchs = ['MicroBlaze',
+                    'i960:ka_sa',
+                    'i960:kb_sb',
+                    'r800',
+                    'moxie',
+                    ]
+
+    for arch in problemArchs:
+        supportedArchs.remove(arch)
+
+    return supportedArchs
+
 class Disassembler(object):
 
     def __init__(self, binary):
