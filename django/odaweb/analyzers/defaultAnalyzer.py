@@ -56,7 +56,7 @@ class defaultAnalyzer(object):
         # don't include "<symbol_name>" as part of operands
         self.opcodeRegExStr = "^(\w+)\s+([^<]+)"
 
-    def analyze(self, bfd, chunks=None):
+    def analyze(self, bfd, superchunks=None):
         
         self.bfd = bfd
         self.instParserRegEx = re.compile(
@@ -74,7 +74,7 @@ class defaultAnalyzer(object):
         
         self.opcodeRegEx = re.compile( self.opcodeRegExStr )
 
-        # Grab the symbols for convenience and performance reasons
+        # Grab the symbols and sections for convenience and performance reasons
         self.symbols = self.bfd.symbols() 
         
         # Add preidentified symbols to the labels and functions list
@@ -83,21 +83,27 @@ class defaultAnalyzer(object):
                 self.functions[sym.value] = Function(sym.value, sym.name, set())
                 
         # Make a first pass at parsing for organizing the instructions
-        self.chunks = chunks
-        for chunk in self.chunks:
-            
-            # Convert the chunk to disassembly
-            from cStringIO import StringIO
-            file_str = StringIO()
-            file_str.write( bfd.disassemble(chunk.sec_name, chunk.start, chunk.end)[0] )
-            rawDisassembly = file_str.getvalue()
+        self.superchunks = superchunks
+        for superchunk in self.superchunks:
+            superchunk.instructions = {}
+            for chunk in superchunk.chunks():
                 
-            # Parse each disassembly line in the chunk
-            chunk.instructions = {}
-            for line in rawDisassembly.split('\n'):
-                inst = self.parseDisassemblyLine(line)
-                if inst:
-                    chunk.instructions[inst.offset] = inst
+                print "CHUNK START: 0x%08x" % (chunk.start)
+                
+                # Convert the chunk to disassembly
+                from cStringIO import StringIO
+                file_str = StringIO()
+                # TODO: Fix sec name
+                file_str.write( bfd.disassemble(chunk.name, chunk.start, chunk.end)[0] )
+                rawDisassembly = file_str.getvalue()
+                    
+                # Parse each disassembly line in the chunk
+                
+                for line in rawDisassembly.split('\n'):
+                    inst = self.parseDisassemblyLine(line)
+                    if inst:
+                        inst.name = chunk.name
+                        superchunk.instructions[inst.offset] = inst
                         
         # set branches whose target addresses are not mapped to a valid range to invalid
         for b in self.branches:
@@ -182,10 +188,10 @@ class defaultAnalyzer(object):
         # weed out invalid branches
         blf = branch.BranchLineHtmlFormatter(self.branches)
 
-        for chunk in self.chunks:
-            chunk.instUnits = []
-            for key in sorted(chunk.instructions.iterkeys()):
-                inst = chunk.instructions[key]
+        for superchunk in self.superchunks:
+            superchunk.instUnits = []
+            for key in sorted(superchunk.instructions.iterkeys()):
+                inst = superchunk.instructions[key]
     
                 # Fill the rawBytes structure
                 byteStr = re.sub(r'\s', '',inst.rawBytes)
@@ -199,16 +205,16 @@ class defaultAnalyzer(object):
                 # got to get the label first, because it is based on the previous offset
                 branchLabel = blf.pushLabel()
                 branchLines = blf.pushAddr(inst.offset)
-                unit = InstUnit(chunk.sec_name[:8], inst.offset, rawBytes, instStr, branchLines, branchLabel)
+                unit = InstUnit(inst.name[:8], inst.offset, rawBytes, instStr, branchLines, branchLabel)
     
                 if inst.offset in self.functions:
                     unit.make_label_target(self.functions[inst.offset].name)
                     unit.function = self.functions[inst.offset]
-                    chunk.lines += 2 + len(self.functions[inst.offset].xrefs)
+                    #chunk.lines += 2 + len(self.functions[inst.offset].xrefs)
                 elif inst.offset in self.labels:
                     unit.make_label_target(self.mkLabelName(inst.offset,'loc'))
-                    chunk.lines += 1
-                chunk.instUnits.append(unit)
+                    #chunk.lines += 1
+                superchunk.instUnits.append(unit)
 
 
     def makeInstr(self, inst):

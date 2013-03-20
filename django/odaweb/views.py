@@ -152,7 +152,7 @@ def process_chunks(bfd, analyzer, permachunks, index, count):
     # Build a list of chunks to process
     new_chunks = []    
     for chunk in permachunks[index:index+count]:
-        new_chunks.append( dischunk.DisChunk(chunk.start, chunk.end, chunk.bfd_lines, chunk.sec_name, chunk.is_boundary) )
+        new_chunks.append( dischunk.DisChunk(chunk.start, chunk.end, chunk.is_boundary) )
                 
     analyzer.analyze( bfd, new_chunks )
                 
@@ -249,7 +249,7 @@ def disassemble(request,file_id):
             #print "DISASSEMBLE CHUNK:",len(chunks)
 
             # Save the chunk
-            chunks.append( dischunk.DisChunk(sec_offset_addr, next_addr, num_lines, sec.name) )
+            chunks.append( dischunk.DisChunk(sec_offset_addr, next_addr ) )
             logger.debug('chunk %s:0x%08x, size:%s, num_lines:%s' % (sec.name, sec_offset_addr, chunk_size, num_lines))
 
             # Update loop variables
@@ -270,10 +270,8 @@ def disassemble(request,file_id):
         i = 0
         for chunk in chunks:
             ch = DisassemblyChunk(id=None, 
-                                  sec_name=chunk.sec_name, 
                                   start=chunk.start, 
                                   end=chunk.end, 
-                                  bfd_lines=chunk.lines, 
                                   is_boundary=chunk.is_boundary,
                                   odafile=o)
             #print "SAVE CHUNK:",i

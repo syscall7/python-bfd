@@ -216,11 +216,8 @@ function refreshDisassembly(offset)
             for (var i = 0; i < data.chunks.length; i++) 
             {
                 var chunk = new DisChunkInfo({ 
-                    sec_name : data.chunks[i].sec_name,
                     startOffset : data.chunks[i].startOffset,
                     endOffset : data.chunks[i].endOffset,
-                    lines : data.chunks[i].lines,
-                    hex_dump : data.chunks[i].lines,
                     isBoundary : data.chunks[i].isBoundary
                 });
                 window.disChunks.push(chunk);    
@@ -317,9 +314,21 @@ function getChunkIndex(offset)
     
 }
 
+function debugChunks()
+{
+    for (var i = 0; i < window.disChunks.length; i++) 
+    {
+        console.debug("Chunk %d: S=0x%s E=0x%s B=%d",
+                        i,
+                        window.disChunks.models[i].get('startOffset').toString(16),
+                        window.disChunks.models[i].get('endOffset').toString(16),
+                        window.disChunks.models[i].get('isBoundary'));
+    }   
+    
+}
+
 function requestMoreDisassembly(dir,chunk_count,offset,isScroll)
 {
-    var lines = 0;
     if ( chunk_count < window.disChunks.length )
     {
         // Keeping some of the existing window
@@ -337,11 +346,10 @@ function requestMoreDisassembly(dir,chunk_count,offset,isScroll)
             index = 0;
         }
         
-        var ch_name = chunks.models[index].get('sec_name');
         var ch_start = chunks.models[index].get('startOffset');
         var ch_end = chunks.models[index].get('endOffset');
 
-        console.debug("Call partial: start 0x%s, name %s\n",ch_start.toString(16),ch_name);
+        console.debug("Call partial: start 0x%s\n",ch_start.toString(16));
 
         // Check if we can request more chunks
         if ( chunks.models[index].get('isBoundary') == false )
@@ -349,7 +357,7 @@ function requestMoreDisassembly(dir,chunk_count,offset,isScroll)
             // Append new chunks to the bottom
             window.ignoreScrollEvents = true;
                         
-            $.post('_partial_refresh', {id: window.disId, name:ch_name, start:ch_start, end:ch_end, count:chunk_count, dir:dir}).done(function(data){
+            $.post('_partial_refresh', {id: window.disId, start:ch_start, end:ch_end, count:chunk_count, dir:dir}).done(function(data){
                 
                 console.timeStamp("Partial: Received Response\n");
 
@@ -357,7 +365,6 @@ function requestMoreDisassembly(dir,chunk_count,offset,isScroll)
                 {
                     // Scroll to the top most visible address after load
                     var scrollAddr = getTopVisibleAssemblyAddr();
-                    console.debug("Partial: Determine Top Visible 0x%s",scrollAddr.toString(16));
                 }
                 else
                 {
@@ -370,14 +377,13 @@ function requestMoreDisassembly(dir,chunk_count,offset,isScroll)
                 {                                                                              
                     // Remove lower address chunks from the display
                     $('#listing').find("tbody:lt(" + data.chunks.length + ")").remove();
-                    console.timeStamp("Remove %d chunks\n",data.chunks.length);
+                    console.timeStamp("Partial: Remove %d low addr chunks\n",data.chunks.length);
 
                     // Append the new listing
                     $('#listing tbody:last').after(data.disassembly);
                                         
                     // Scroll back to the original address
                     scrollToAddr(scrollAddr);                            
-                    console.debug("Partial SCrollto 0x%s",scrollAddr.toString(16))
                     
                     // Remove the lowest chunks from the chunk list
                     for (var i = 0; i < data.chunks.length; i++) 
@@ -389,10 +395,8 @@ function requestMoreDisassembly(dir,chunk_count,offset,isScroll)
                     for (var i = 0; i < data.chunks.length; i++) 
                     {
                         var chunk = new DisChunkInfo({ 
-                            sec_name : data.chunks[i].sec_name,
                             startOffset : data.chunks[i].startOffset,
                             endOffset : data.chunks[i].endOffset,
-                            lines : data.chunks[i].lines,
                             isBoundary : data.chunks[i].isBoundary
                         });
                         window.disChunks.push(chunk);    
@@ -409,7 +413,6 @@ function requestMoreDisassembly(dir,chunk_count,offset,isScroll)
 
                     // Scroll back to the original topmost address
                     scrollToAddr(scrollAddr);                            
-                    console.debug("Partial SCrollto 0x%s",scrollAddr.toString(16))
                     
                     // Remove the highest chunks from the chunk list
                     for (var i = 0; i < data.chunks.length; i++) 
@@ -422,12 +425,9 @@ function requestMoreDisassembly(dir,chunk_count,offset,isScroll)
                     while (i > 0)
                     {
                         var chunk = new DisChunkInfo({ 
-                            sec_name : data.chunks[i-1].sec_name,
                             startOffset : data.chunks[i-1].startOffset,
                             endOffset : data.chunks[i-1].endOffset,
-                            lines : data.chunks[i-1].lines,
                             isBoundary : data.chunks[i-1].isBoundary
-
                         });
                         window.disChunks.unshift(chunk);    
                         i = i-1;

@@ -48,20 +48,18 @@ class OdaFile(models.Model):
 
     create = staticmethod(create)
 
+
+# TODO: Used by views.py. Delete when views.py is obsoleted
 class DisassemblyChunk(models.Model):
     odafile = models.ForeignKey(OdaFile)
 
     # TODO: Is this length too much? Not enough?    
-    sec_name = models.CharField(max_length=128)
+    #sec_name = models.CharField(max_length=128)
     start = models.IntegerField()
     end = models.IntegerField()
-    bfd_lines = models.IntegerField()
     is_boundary = models.BooleanField()
     class Meta:
-        ordering = ['start', 'sec_name']
-
-
-
+        ordering = ['start']
 
 class OdaOptions(models.Model):
     target = models.CharField(max_length=128)
@@ -92,21 +90,43 @@ class Binary(models.Model):
     class Meta:
         abstract = True
 
-class BinaryDisassemblyChunk(models.Model):
+class BinaryDisassemblySuperChunk(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     binary = generic.GenericForeignKey()
 
     # TODO: Is this length too much? Not enough?
-    sec_name = models.CharField(max_length=128)
     start = models.IntegerField()
     end = models.IntegerField()
-    bfd_lines = models.IntegerField()
     is_boundary = models.BooleanField()
     class Meta:
-        ordering = ['start', 'sec_name']
+        ordering = ['start']
+
+    def chunks(self):
+        chunks_temp = BinaryDisassemblyChunk.objects.filter(
+            superchunk_id = self.id )
+        return list(chunks_temp)
 
 
+class BinaryDisassemblyChunk(models.Model):
+    superchunk = models.ForeignKey(BinaryDisassemblySuperChunk)
+    
+    name = models.CharField(max_length=128)
+    start = models.IntegerField()
+    end = models.IntegerField()
+    class Meta:
+        ordering = ['start']
+        
+    def attach_comments(self, binary):
+        comments = Comment.get_for_binary(binary)
+        if len(comments) == 0:
+            return
+        for iu in self.instUnits:
+            comments_for_address = filter( lambda c: c.offset == iu.offset, comments )
+            if (len(comments_for_address) > 0):
+                iu.comment = comments_for_address[0].comment
+
+# TODO: Used by views.py. Delete when views.py is obsoleted
 class DisassemblyComment(models.Model):
     chunk = models.ForeignKey(DisassemblyChunk)
     comment_str = models.CharField(max_length=128)

@@ -1,11 +1,11 @@
 {% autoescape off %}
 {% for chunk in chunks %}
     <tbody>
-    {% for addr, bytes, ascii in chunk.hex_lines %}
+    {% for name, addr, bytes, ascii in chunk.hex_lines %}
         <tr class="{% cycle 'row_even' 'row_odd' %}">
 
             {# section #}
-            <td class="hex-cell-sec">{{ chunk.sec_name }}:</td>
+            <td class="hex-cell-sec">{{ name }}:</td>
 
             {# address #}
             <td class="hex-cell-addr" id="p{{ addr|stringformat:'x'}}" >{{ addr|stringformat:"08x" }}</td>

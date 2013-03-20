@@ -241,13 +241,10 @@ def refresh_disassembly(request):
     addr = int(request.POST.get('addr','0'))
     print "TotalRefresh: addr",addr
 
-    chunks, chunk_list = JsonChunkProcessor(binary).get_chunks_from_addr(addr, 7)
+    superchunks, chunk_list = JsonChunkProcessor(binary).get_chunks_from_addr(addr, 3)
 
-    for c in chunks:
-        c.attach_comments(binary)
-
-    dis = render_to_string('listing.djhtml', { 'chunks' : chunks, 'functions' : [] } )
-    hex = render_to_string('hex_listing.djhtml', { 'chunks' : chunks } )
+    dis = render_to_string('listing.djhtml', { 'chunks' : superchunks, 'functions' : [] } )
+    hex = render_to_string('hex_listing.djhtml', { 'chunks' : superchunks } )
 
     # Return the new disassembly
     return HttpResponse(simplejson.dumps({'disassembly' : dis,
@@ -259,21 +256,22 @@ def partial_refresh_disassembly(request):
 
     binary = oda_master.binary
 
-    sec_name=request.POST.get('name', '.data')
     start =int(request.POST.get('start','0'))
     end=int(request.POST.get('end', '0'))
     count=int(request.POST.get('count', '0'))
     direction=int(request.POST.get('dir', '0'))
 
-    print "PartialRefresh: SEC",sec_name,"START",start,"COUNT",count
+    print "PartialRefresh: START 0x%08x COUNT %d DIR %d" % (start,count,direction)
 
-    chunks, chunk_list = JsonChunkProcessor(binary).get_chunks_from_chunk(sec_name, start, end, direction, count)
+    superchunks, chunk_list = JsonChunkProcessor(binary).get_chunks_from_chunk(start, end, direction, count)
 
-    for c in chunks:
-        c.attach_comments(binary)
+    dis = render_to_string('listing.djhtml', { 'chunks' : superchunks, 'functions' : [] } )
+    hex = render_to_string('hex_listing.djhtml', { 'chunks' : superchunks } )
 
-    dis = render_to_string('listing.djhtml', { 'chunks' : chunks, 'functions' : [] } )
-    hex = render_to_string('hex_listing.djhtml', { 'chunks' : chunks } )
+    print "PartialRefresh: Disassembly", dis[:128]
+
+    for chunk in chunk_list:
+        print "CHUNK: ADDR=0x%08x BOUNDARY=%d" % (chunk['startOffset'], chunk['isBoundary'])
 
     # Return the new disassembly
     return HttpResponse(simplejson.dumps({'disassembly' : dis,
