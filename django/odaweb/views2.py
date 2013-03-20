@@ -28,7 +28,7 @@ def index(request, disassembly_id):
         context['binary'] = oda_master.binary
         context['disassembly_id'] = disassembly_id
         context['share_url'] =  request.build_absolute_uri()
-        context['examples'] = examples,
+        context['examples'] = examples
         context['supported_archs'] = get_supported_archs()
 
     from pprint import pprint
