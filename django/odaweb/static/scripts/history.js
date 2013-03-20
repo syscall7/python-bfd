@@ -535,6 +535,7 @@ function assemblyScrollHandler()
 
     if ( window.activeTab != 'tab-assembly')
     {
+        window.scrollTimer=null;
         console.debug("assemblyScrollHandler: assembly tab not active (%s)",window.activeTab);
         return;        
     }
