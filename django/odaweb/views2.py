@@ -37,9 +37,8 @@ def index(request, disassembly_id):
 
 
 def save(request):
-    print 'Saving...'
-    user_id = request.session["user_id"]
-    return redirect('/odaweb/' + user_id)
+    o_id = request.session["disassembly_token"]['id']
+    return redirect('/odaweb/' + o_id)
 
 
 def create_session(request, to_copy_id, to_copy_version):

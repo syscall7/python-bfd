@@ -7,7 +7,7 @@ import dischunk
 from django.contrib.contenttypes.models import ContentType
 
 from odaweb.models import (BinaryDisassemblySuperChunk, Binary, BinaryString,
-                           BinaryFile, OdaMaster, OdaOptions, 
+                           BinaryFile, OdaMaster, OdaOptions, Comment,
                            BinaryDisassemblyChunk)
 from itertools import chain
 
@@ -405,6 +405,8 @@ examples = (
 
 def copy_disassembly(from_id, from_version, to_id):
     to_oda = OdaMaster.objects.get(short_name = from_id, revision = from_version)
+    comments = Comment.get_for_binary(to_oda.binary)
+
     to_oda.id = None
 
     options = to_oda.binary.options
@@ -420,3 +422,9 @@ def copy_disassembly(from_id, from_version, to_id):
     to_oda.short_name = to_id
     to_oda.revision = 0
     to_oda.save()
+
+    for comment in comments:
+        comment.id = None
+        comment.object_id = binary.id
+        comment.save()
+
