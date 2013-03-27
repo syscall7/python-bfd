@@ -1,4 +1,3 @@
-
 {% for chunk in chunks %}
     <tbody>
     {% for inst in chunk.instUnits %}
@@ -52,29 +51,3 @@
 {%  endfor %}
 
 
-<!--
-{% for chunk in chunks %}
-    <tbody>
-    {% for inst in chunk.instUnits %}
-
-        {%  if inst.function %}
-            <tr addr={{ inst.offset|stringformat:"08x" }}>
-                <td>{{ inst.branch_label|safe }}</td>
-                <td>{{inst.section_name}}:0x{{ inst.offset|stringformat:"08x" }}</td>
-                <td></td>
-                <td colspan="2">; =============== F U N C T I O N ====================================</td>
-            </tr>
-        {% endif %}
-
-        <tr addr={{ inst.offset|stringformat:"08x" }}>
-            <td>{{ inst.branch|safe }}</td>
-            <td>{{inst.section_name}}:0x{{ inst.offset|stringformat:"08x" }}</td>
-            <td>{{ inst.rawBytes }}</td>
-            <td style="white-space: nowrap;"><insn>{{ inst.instStr|safe }}</insn></td>
-            <td width="99%"><span class="comment" contenteditable="true">&nbsp;{{ inst.comment|safe }}</span></td>
-        </tr>
-
-    {%  endfor %}
-    </tbody>
-{%  endfor %}
--->

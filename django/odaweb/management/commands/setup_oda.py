@@ -4,7 +4,8 @@ import subprocess
 from django.core.management.base import BaseCommand, CommandError
 import odaweb.disassembler
 from odaweb.disassembler import Disassembler, examples
-from odaweb.models import BinaryDisassemblyChunk, Binary, BinaryString, BinaryFile, OdaMaster, OdaOptions, InstDoc
+from odaweb.models import BinaryDisassemblyChunk, Binary, BinaryString, BinaryFile, OdaMaster, OdaOptions, InstDoc, Comment
+from django.contrib.contenttypes.models import ContentType
 
 def load_examples():
 
@@ -33,6 +34,12 @@ def load_examples():
 
         oda_master = OdaMaster(short_name = short_name, binary = binary)
         oda_master.save()
+
+        ctype = ContentType.objects.get_for_model(binary)
+        if 'comments' in example:
+            for offset,msg in example['comments']:
+                comment = Comment(content_type=ctype, object_id=binary.id, comment = msg, offset = offset)
+                comment.save()
 
         disassembler = Disassembler(binary)
         disassembler.process_chunks()

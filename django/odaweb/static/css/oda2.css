@@ -229,6 +229,7 @@ insn {
 
 .insn-col {
     padding-left: 40px;
+    white-space:nowrap;
 }
 
 .comment-col {
