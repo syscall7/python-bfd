@@ -5,13 +5,7 @@
     </div>
     <div id="assembly-scroll" class="tabbed-scroll assembly">
         <table id="listing">
-            <colgroup>
-                <col style="width:50px;" align="right" />
-                <col style="width:80px;" />
-                <col style="width:90px;" align="right" />
-                <col style="width:400px;" />
-                <col />
-            </colgroup>
+            <colgroup></colgroup>
            <tbody></tbody>
         </table>
     </div>

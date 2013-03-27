@@ -106,7 +106,7 @@ function ResizeHandler() {
         /*$('#view-container').height($(window).height()-74);*/
         $('#vertSplitter').height($(window).height()-47);
         
-        // TODO: Hardcoded Height includes footer, banner, and tabs
+        // TODO: Hardcoded Height incluees footer, banner, and tabs
         $('#myTabContent').height($(window).height()-132);
              
         $('.sidebar-scroll-container').each( function (i,elem) {

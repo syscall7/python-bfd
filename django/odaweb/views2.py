@@ -31,8 +31,6 @@ def index(request, disassembly_id):
         context['examples'] = examples
         context['supported_archs'] = get_supported_archs()
 
-    from pprint import pprint
-    print(pprint(context))
     return render(request, 'refactor/index.djhtml', context)
 
 

@@ -181,13 +181,19 @@ tbody.scrollContent {
 
 .assembly { font-family:monospace; font-size: 14px; line-height: 14px; }
 
+#listing {
+    width: 100%;
+}
+
 #listing tr:hover { background-color: #f4ffe8; }
 
 #listing tr.selected { background-color: #44daff; }
 
+/*
 #listing tr {
     white-space: nowrap;
 }
+*/
 
 .branchLines {
     color: #093C83;
@@ -200,6 +206,7 @@ tbody.scrollContent {
 }
 
 .raw {
+    padding-left:10px;
     color: gray;
     font-family: monospace;
     font-size: 14px;
@@ -219,8 +226,18 @@ insn {
     font-family: monospace;
     font-size: 14px;
     line-height: 14px;
-    /**font-weight: bold; */ /** Messes with the line height*/
     white-space: pre;
+}
+
+.insn-col {
+    padding-left: 40px;
+}
+
+.comment-col {
+    width: 99%;
+}
+
+.listing-label {
 }
 
 errinsn {
@@ -354,3 +371,10 @@ dislineerr {
 .string {
     color: crimson;
 }
+
+.comment {
+    color:blue;
+    outline:none;
+    text-align:left;
+}
+
