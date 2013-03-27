@@ -423,6 +423,8 @@ def copy_disassembly(from_id, from_version, to_id):
     to_oda.revision = 0
     to_oda.save()
 
+    Disassembler(to_oda.binary).process_chunks()
+
     for comment in comments:
         comment.id = None
         comment.object_id = binary.id
