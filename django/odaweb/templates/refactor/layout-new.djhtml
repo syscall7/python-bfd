@@ -39,7 +39,7 @@
                 <ul class="nav">
 
                     <li class="">
-                        <a href="#modal-share" data-toggle="modal"><i class="icon-share icon-white"></i>Share</a>
+                        <a href="/odaweb/_save"><i class="icon-share icon-white"></i>Share</a>
                     </li>
 
                     <!-- File Menu -->
@@ -58,7 +58,7 @@
                                 </ul>
                             </li>
                             <li class="divider"></li>
-                            <li><a href="#modal-share" data-toggle="modal"><i class="icon-share"></i>Share</a></li>
+                            <li><a href="/odaweb/_save"><i class="icon-share"></i>Share</a></li>
                             <li><a href="#">Download</a></li>
                         </ul>
                     </li>
