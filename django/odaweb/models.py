@@ -207,7 +207,8 @@ class OdaMaster(models.Model):
 
     ipAddress = models.CharField(max_length=64, default='')
     short_name = models.CharField(max_length=12, db_index = True, unique = True)
-    owner = models.CharField(max_length=128)
+    revision = models.IntegerField(default=0)
+    #owner = models.CharField(max_length=128)
     creation_date = models.DateTimeField(auto_now_add = True)
     copy = models.ForeignKey('OdaMaster', null=True)
     content_type = models.ForeignKey(ContentType)

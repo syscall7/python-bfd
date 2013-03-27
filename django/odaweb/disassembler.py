@@ -401,3 +401,22 @@ examples = (
         'options' : OdaOptions(target="elf32-i386", architecture="i386"),
         },
 )
+
+
+def copy_disassembly(from_id, from_version, to_id):
+    to_oda = OdaMaster.objects.get(short_name = from_id, revision = from_version)
+    to_oda.id = None
+
+    options = to_oda.binary.options
+    options.id = None
+    options.save()
+
+    binary = to_oda.binary
+    binary.id = None
+    binary.options = options
+    binary.save()
+
+    to_oda.binary = binary
+    to_oda.short_name = to_id
+    to_oda.revision = 0
+    to_oda.save()

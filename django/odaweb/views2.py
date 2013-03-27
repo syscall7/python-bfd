@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment, InstDoc
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from disassembler import Disassembler, JsonChunkProcessor, examples, get_supported_archs
+from disassembler import Disassembler, JsonChunkProcessor, examples, get_supported_archs, copy_disassembly
 from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseServerError
 from django.utils import simplejson
@@ -19,7 +19,7 @@ def render_to_json(context):
 def index(request, disassembly_id):
 
     context = {}
-    oda_master = create_session(request, disassembly_id)
+    oda_master = create_session(request, disassembly_id, 0)
 
     if oda_master:
         d = Disassembler(oda_master.binary)
@@ -31,6 +31,8 @@ def index(request, disassembly_id):
         context['examples'] = examples
         context['supported_archs'] = get_supported_archs()
 
+    #from pprint import pprint
+    #print(pprint(context))
     return render(request, 'refactor/index.djhtml', context)
 
 
@@ -40,35 +42,40 @@ def save(request):
     return redirect('/odaweb/' + user_id)
 
 
-def create_session(request, disassembly_id):
+def create_session(request, to_copy_id, to_copy_version):
 
-    if not disassembly_id:
+    request.session['files'] = []
 
-        # use default
-        disassembly_id = "strcpy_x86"
+    if not to_copy_id:
+        to_copy_id = 'strcpy_x86'
+        to_copy_version =  0
 
-        #They've arrived at odaweb/
-        user_id = id_generator()
-        print 'New user_id is ', user_id
-        request.session["user_id"] = user_id
+    request.session["disassembly_token"] = {
+        'id': id_generator(),
+        'version': 0
+    }
 
-    request.session["disassembly_id"] = disassembly_id
-    user_id = request.session.get('user_id')
+    print '#####' + request.session["disassembly_token"]['id']
+    copy_disassembly(to_copy_id, to_copy_version,
+                     request.session["disassembly_token"]['id'])
 
-    if not user_id:
-        #TODO They've not been here before, copy the disassembly_id into they session
-        pass
-
-    return OdaMaster.objects.get(short_name = disassembly_id)
-
-
+    return OdaMaster.objects.get(
+        short_name=request.session["disassembly_token"]['id'],
+        revision=request.session["disassembly_token"]['version'])
 
 def get_session(request):
+    o_id = request.session["disassembly_token"]['id']
+    version = request.session["disassembly_token"]['version']
 
-    user_id = request.session.get('user_id')
-    disassembly_id = request.session.get('disassembly_id')
-    print("Loading short_name = %s" %(disassembly_id))
-    return OdaMaster.objects.get(short_name = disassembly_id)
+    print("LOADING #### " + o_id + " " + str(version))
+    o = OdaMaster.objects.get(short_name = o_id, revision = version)
+    print ("FOUND $$$$ " + str(o))
+    return o
+
+   # user_id = request.session.get('user_id')
+    #disassembly_id = request.session.get('disassembly_id')
+    #print("Loading short_name = %s" %(disassembly_id))
+
 
 def set(request):
 
@@ -309,8 +316,11 @@ def comment(request):
 
 
 def owned_files(request):
-    user_id = request.session.get('user_id')
-    files = OdaMaster.objects.filter(owner=user_id)
+
+    files = [OdaMaster.objects.filter(short_name=short_name) for short_name in request.session['files']]
+
+   # user_id = request.session.get('user_id')
+   # files = OdaMaster.objects.filter(owner=user_id)
 
     owned_files = [{'name': f.binary.name, 'short_name': f.short_name} for f in files]
 

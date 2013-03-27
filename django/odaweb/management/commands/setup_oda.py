@@ -31,7 +31,7 @@ def load_examples():
             binary.options = options
             binary.save()
 
-        oda_master = OdaMaster(owner='system', short_name = short_name, binary = binary)
+        oda_master = OdaMaster(short_name = short_name, binary = binary)
         oda_master.save()
 
         disassembler = Disassembler(binary)
