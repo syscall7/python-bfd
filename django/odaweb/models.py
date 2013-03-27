@@ -156,6 +156,9 @@ class BinaryString(Binary):
     def is_live_mode(self):
         return True
 
+    def binary_string_display(self):
+        return " ".join(self.binary_string[i:i+2] for i in range(0, len(self.binary_string), 2))
+
 class Comment(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
