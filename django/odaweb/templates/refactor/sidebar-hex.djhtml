@@ -22,7 +22,7 @@
                         <select class="platformSelect" id="select-live-architecture" name="select-live-architecture">
                             {% for a in supported_archs %}
                                 <option
-                                        {% if a == arch %}selected="selected"{% endif %}>
+                                        {% if a == binary.options.architecture %}selected="selected"{% endif %}>
                                     {{a}}</option>
                             {% endfor %}
                         </select>
