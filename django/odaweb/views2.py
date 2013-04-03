@@ -30,13 +30,16 @@ def index(request, disassembly_id):
         context['share_url'] =  request.build_absolute_uri()
         context['examples'] = examples
         context['supported_archs'] = get_supported_archs()
+        context['saved'] = request.session['saved']
 
+    request.session['saved'] = False
     #from pprint import pprint
     #print(pprint(context))
     return render(request, 'refactor/index.djhtml', context)
 
 
 def save(request):
+    request.session['saved'] = True
     o_id = request.session["disassembly_token"]['id']
     return redirect('/odaweb/' + o_id)
 
@@ -52,7 +55,7 @@ def create_session(request, to_copy_id, to_copy_version):
     request.session["disassembly_token"] = {
         'id': id_generator(),
         'version': 0
-    }
+        }
 
     print '#####' + request.session["disassembly_token"]['id']
     copy_disassembly(to_copy_id, to_copy_version,
