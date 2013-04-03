@@ -362,6 +362,7 @@ class JsonChunkProcessor(object):
         # Build a primitive object containing the list of chunk data to pass back to the client
         chunk_list = []
         for superchunk in superchunks:
+            superchunk.attach_comments(self.binary)
             chunk_list.append ({
                 'startOffset': superchunk.start,
                 'endOffset': superchunk.end,

@@ -107,6 +107,15 @@ class BinaryDisassemblySuperChunk(models.Model):
             superchunk_id = self.id )
         return list(chunks_temp)
 
+    def attach_comments(self, binary):
+        comments = Comment.get_for_binary(binary)
+        if len(comments) == 0:
+            return
+        for iu in self.instUnits:
+            comments_for_address = filter( lambda c: c.offset == iu.offset, comments )
+            if (len(comments_for_address) > 0):
+                iu.comment = comments_for_address[0].comment
+
     @staticmethod
     def get_for_binary(binary):
         ctype = ContentType.objects.get_for_model(binary)
@@ -122,14 +131,6 @@ class BinaryDisassemblyChunk(models.Model):
     class Meta:
         ordering = ['start']
         
-    def attach_comments(self, binary):
-        comments = Comment.get_for_binary(binary)
-        if len(comments) == 0:
-            return
-        for iu in self.instUnits:
-            comments_for_address = filter( lambda c: c.offset == iu.offset, comments )
-            if (len(comments_for_address) > 0):
-                iu.comment = comments_for_address[0].comment
 
 # TODO: Used by views.py. Delete when views.py is obsoleted
 class DisassemblyComment(models.Model):
