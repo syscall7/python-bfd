@@ -71,10 +71,6 @@ def get_session(request):
     print ("FOUND $$$$ " + str(o))
     return o
 
-   # user_id = request.session.get('user_id')
-    #disassembly_id = request.session.get('disassembly_id')
-    #print("Loading short_name = %s" %(disassembly_id))
-
 
 def set(request):
 
@@ -221,8 +217,6 @@ class UploadFileForm(forms.Form):
 def upload(request):
     form = UploadFileForm(request.POST, request.FILES)
     if form.is_valid():
-        user_id = request.session["user_id"]
-
         #platform_options = engine.platform_options(binary_file)
         #if options can't be determined, we need to display another dialog to get user input on
         #possible options
@@ -232,7 +226,7 @@ def upload(request):
         binary_file = BinaryFile.create(request.FILES['filedata'], options)
         binary_file.save()
 
-        oda_master = OdaMaster(owner = user_id, short_name = id_generator(), binary = binary_file)
+        oda_master = OdaMaster(short_name = id_generator(), binary = binary_file)
         oda_master.save()
         request.session["disassembly_id"] = oda_master.short_name
 
@@ -317,9 +311,6 @@ def comment(request):
 def owned_files(request):
 
     files = [OdaMaster.objects.filter(short_name=short_name) for short_name in request.session['files']]
-
-   # user_id = request.session.get('user_id')
-   # files = OdaMaster.objects.filter(owner=user_id)
 
     owned_files = [{'name': f.binary.name, 'short_name': f.short_name} for f in files]
 
