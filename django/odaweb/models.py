@@ -107,6 +107,11 @@ class BinaryDisassemblySuperChunk(models.Model):
             superchunk_id = self.id )
         return list(chunks_temp)
 
+    @staticmethod
+    def get_for_binary(binary):
+        ctype = ContentType.objects.get_for_model(binary)
+        return BinaryDisassemblySuperChunk.objects.filter(content_type=ctype.id, object_id = binary.id)
+
 
 class BinaryDisassemblyChunk(models.Model):
     superchunk = models.ForeignKey(BinaryDisassemblySuperChunk)
