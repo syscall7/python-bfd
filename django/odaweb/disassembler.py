@@ -380,11 +380,12 @@ examples = (
         'data' : '55 31 D2 89 E5 8B 45 08 56 8B 75 0C 53 8D 58 FF 0F B6 0C 16 88 4C 13 01 83 C2 01 84 C9 75 F1 5B 5E 5D C3 ',
         'options' : OdaOptions(target="binary", architecture="i386"),
         'comments' : (
-                (0x09, 'src'),
-                (0x0d, 'dst'),
-                (0x10, 'c = src[i]'),
+                (0x09, 'char* src = arg[1]'),
+                (0x0d, 'char* dst = arg[0]'),
+                (0x10, 'char c = src[i]'),
                 (0x14, 'dst[i] = c'),
                 (0x18, 'i++'),
+                (0x1b, 'while (c != 0)'),
         )
     },
     {
