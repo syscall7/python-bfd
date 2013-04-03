@@ -30,7 +30,7 @@ def index(request, disassembly_id):
         context['share_url'] =  request.build_absolute_uri()
         context['examples'] = examples
         context['supported_archs'] = get_supported_archs()
-        context['saved'] = request.session,get('saved', False)
+        context['saved'] = request.session.get('saved', False)
 
     request.session['saved'] = False
     #from pprint import pprint
