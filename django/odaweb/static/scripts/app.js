@@ -337,7 +337,7 @@ function InitializeComments() {
             $(this).html("");
         } else {
             // remove the "; "
-            $(this).html($(this).html().substr(2));
+            $(this).html($(this).text().substr(2));
         }
     });
 
