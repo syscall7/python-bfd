@@ -52,7 +52,7 @@ var Sidebar = Backbone.Model.extend({
         {
             // Hex Dump has a help banner.
             //  TODO: Calculate this programatically
-            new_offset += 68;
+            new_offset += 120;
         }
         else
         {
@@ -225,7 +225,11 @@ function SetupSectionFlagPopovers(sectionFlags) {
         */
 }
 
-function Load(binary) {
+function Load(binary, show_loading) {
+
+    if (arguments.length == 1) {
+        show_loading = true;
+    }
 
     window.DisChunkInfo = Backbone.Model.extend({});
     window.DisChunkList = Backbone.Collection.extend({
@@ -246,7 +250,7 @@ function Load(binary) {
     }
     
     console.debug("Load, refreshDisassembly addr= 0x%s",addr.toString(16));    
-    refreshDisassembly(addr);
+    refreshDisassembly(addr,  show_loading);
     
     $.post('_symbols', {id: binary.id}).done(function(data){
         $('#symbol-content').append(data.symbols_html);

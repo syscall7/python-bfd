@@ -11,7 +11,7 @@ window.LiveHex = function(binary) {
         $.post('/odaweb/_set', data)
             .done(function() {
             $('#hex-alert').hide();
-            Load(binary);
+            Load(binary, false);
             refreshing = false;
         }).fail(function(){
             $('#hex-alert').show();

@@ -173,10 +173,13 @@ function loadPopovers()
 
 
 // Load an entire new page of disassembly
-function refreshDisassembly(offset)
+function refreshDisassembly(offset, show_loading)
 {
 	console.debug("refreshDisassembly, start");
-    $('#loading-panel').show();
+
+    if ( show_loading) {
+        $('#loading-panel').show();
+    }
     $('#assembly-scroll').hide();
 
     $.post('_refresh', {id: window.disId, addr:offset}).done(function(data){
