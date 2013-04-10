@@ -377,3 +377,13 @@ dislineerr {
     text-align:left;
 }
 
+
+
+/** Overrides for platform options **/
+#platform-options .control-label {
+    width: 100px;
+    float:left;
+    text-align:right;
+    padding-right:5px;
+}
+

@@ -79,6 +79,29 @@ def get_supported_endians():
 
     return endians
 
+
+def get_platform_options(platform):
+    djhtmlOpts = []
+    analyzer = analyzerFactory(platform)
+    if analyzer == None:
+        analyzer = analyzerFactory('defaultAnalyzer')
+
+    #print "Checking if"
+    if analyzer.options:
+        #print "ANalyzer",analyzer.options
+        for opt in analyzer.options:
+        # Form the name of the widget by stripping out options
+            widgetName = opt[0].replace(' ', '')
+            widgetType = ''
+            if opt[2] == 'CHOICE' or opt[2] == 'BOOL':
+                widgetType = 'select'
+                widgetName += widgetType
+
+            # Build the Modal
+            djhtmlOpts.append((widgetName,widgetType) + opt)
+            #print 'DHTML',djhtmlOpts
+    return djhtmlOpts
+
 class Disassembler(object):
 
     def __init__(self, binary):

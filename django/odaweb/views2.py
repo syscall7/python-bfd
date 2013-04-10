@@ -3,7 +3,9 @@ from django.shortcuts import render, redirect
 from odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment, InstDoc
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from disassembler import Disassembler, JsonChunkProcessor, examples, get_supported_archs, copy_disassembly, get_supported_endians
+from disassembler import Disassembler, JsonChunkProcessor, examples, get_supported_archs, \
+    copy_disassembly, get_supported_endians, get_platform_options
+
 from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseServerError
 from django.utils import simplejson
@@ -32,9 +34,13 @@ def index(request, disassembly_id):
         context['supported_archs'] = get_supported_archs()
         context['saved'] = request.session.get('saved', False)
 
+        context['supported_endians'] = get_supported_endians()
+        context['options'] = get_platform_options(oda_master.binary.options.architecture)
+        context['defaults'] = []
+
     request.session['saved'] = False
-    #from pprint import pprint
-    #print(pprint(context))
+    from pprint import pprint
+    print(pprint(context))
     return render(request, 'refactor/index.djhtml', context)
 
 
@@ -116,7 +122,6 @@ class ShowOptionsForm(forms.Form):
     options = forms.CharField(required=False)
 
 def show_options(request):
-    from odaweb.disassembler import analyzerFactory
     form = ShowOptionsForm(request.POST) # A form bound to the POST data
     if form.is_valid():
         #print "Show_options"
@@ -130,28 +135,9 @@ def show_options(request):
 
         #print opts_defaults
 
-        djhtmlOpts = []
-        analyzer = analyzerFactory(platform)
-        if analyzer == None:
-            analyzer = analyzerFactory('defaultAnalyzer')
-
-        #print "Checking if"
-        if analyzer.options:
-            #print "ANalyzer",analyzer.options
-            for opt in analyzer.options:
-            # Form the name of the widget by stripping out options
-                widgetName = opt[0].replace(' ', '')
-                widgetType = ''
-                if opt[2] == 'CHOICE' or opt[2] == 'BOOL':
-                    widgetType = 'select'
-                    widgetName += widgetType
-
-                # Build the Modal
-                djhtmlOpts.append((widgetName,widgetType) + opt)
-            #print 'DHTML',djhtmlOpts
         return render(request, 'show_options.djhtml',{
             'supported_endians': get_supported_endians,
-            'options' : djhtmlOpts,
+            'options' : get_platform_options(platform),
             'defaults' : opts_defaults
         })
 
