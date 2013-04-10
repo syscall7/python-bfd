@@ -31,13 +31,26 @@ window.LiveHex = function(binary) {
         }
     });
 
+    var LoadOptions = function(arch) {
+        $.post('/odaweb/_options', {platformId : arch})
+            .done(function(){
+                alert('here');
+            });
+    };
+
     $('#select-live-architecture').change(function(){
-        var arch = $('#select-live-architecture').val()
+        var arch = $('#select-live-architecture').val();
+
+        LoadOptions(arch);
+
         Reload({
             arch : arch
         });
 
         $('.platform-option').text(arch);
+
     });
+
+
 
 };

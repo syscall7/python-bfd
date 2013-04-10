@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment, InstDoc
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from disassembler import Disassembler, JsonChunkProcessor, examples, get_supported_archs, copy_disassembly
+from disassembler import Disassembler, JsonChunkProcessor, examples, get_supported_archs, copy_disassembly, get_supported_endians
 from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseServerError
 from django.utils import simplejson
@@ -110,6 +110,51 @@ def set(request):
         disassembler.process_chunks()
 
         return render_to_json({"status" : "ok"})
+
+class ShowOptionsForm(forms.Form):
+    platformId = forms.CharField()
+    options = forms.CharField(required=False)
+
+def show_options(request):
+    from odaweb.disassembler import analyzerFactory
+    form = ShowOptionsForm(request.POST) # A form bound to the POST data
+    if form.is_valid():
+        #print "Show_options"
+        platform = form.cleaned_data['platformId']
+        options = form.cleaned_data['options']
+        opts_defaults = []
+        if options:
+            for str_pair in options.split('---'):
+                pairs = str_pair.split('--')
+                opts_defaults.append((pairs[0],pairs[1]))
+
+        #print opts_defaults
+
+        djhtmlOpts = []
+        analyzer = analyzerFactory(platform)
+        if analyzer == None:
+            analyzer = analyzerFactory('defaultAnalyzer')
+
+        #print "Checking if"
+        if analyzer.options:
+            #print "ANalyzer",analyzer.options
+            for opt in analyzer.options:
+            # Form the name of the widget by stripping out options
+                widgetName = opt[0].replace(' ', '')
+                widgetType = ''
+                if opt[2] == 'CHOICE' or opt[2] == 'BOOL':
+                    widgetType = 'select'
+                    widgetName += widgetType
+
+                # Build the Modal
+                djhtmlOpts.append((widgetName,widgetType) + opt)
+            #print 'DHTML',djhtmlOpts
+        return render(request, 'show_options.djhtml',{
+            'supported_endians': get_supported_endians,
+            'options' : djhtmlOpts,
+            'defaults' : opts_defaults
+        })
+
 
 def hex(request):
     pass

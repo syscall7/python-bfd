@@ -43,5 +43,6 @@ urlpatterns = patterns('',
     url(r'^odaweb/_fileinfo$', 'odaweb.views2.fileinfo'),
     url(r'^odaweb/_instdoc$', 'odaweb.views2.instdoc'),
     url(r'^odaweb/_set', 'odaweb.views2.set'),
+    url(r'^odaweb/_options', 'odaweb.views2.show_options'),
     url(r'^odaweb/(?P<disassembly_id>\w{0,16})$$', 'odaweb.views2.index'),
 )

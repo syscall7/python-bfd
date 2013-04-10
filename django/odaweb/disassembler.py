@@ -69,6 +69,16 @@ def get_supported_archs():
 
     return supportedArchs
 
+def get_supported_endians():
+
+    endians = {
+        'DEFAULT' : bfd.ENDIAN_DEFAULT,
+        'LITTLE'  : bfd.ENDIAN_LITTLE,
+        'BIG'     : bfd.ENDIAN_BIG
+    }
+
+    return endians
+
 class Disassembler(object):
 
     def __init__(self, binary):
