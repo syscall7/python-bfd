@@ -10,7 +10,7 @@
     {% if widget == "select" %}
         <div style="clear:both;">
             <label class="control-label upload-form-control" for={{widgetName}}>{{title}}</label>
-            <select class="span2" id={{widgetName}} name="normalSelect">
+            <select class="span2  platform-option-select" id={{widgetName}} name="normalSelect">
             {% for opt in opts %}
                 <option value="{{opt}}">{{opt}}</option>
             {% endfor %}

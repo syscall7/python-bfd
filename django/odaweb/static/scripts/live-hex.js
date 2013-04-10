@@ -38,6 +38,19 @@ window.LiveHex = function(binary) {
             });
     };
 
+    $('.platform-option-select').on('change', function(){
+        var values = $.map(
+            $('.platform-option-select'), function(v) {return $(v).val();}
+        );
+
+        values = $.grep(values, function(e) { return e != "DEFAULT"});
+
+        Reload({
+            options : values
+        });
+
+    });
+
     $('#select-live-architecture').change(function(){
         var arch = $('#select-live-architecture').val();
 
