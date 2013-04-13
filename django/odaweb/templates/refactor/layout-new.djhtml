@@ -17,6 +17,7 @@
     <script type="text/javascript" src="{{ STATIC_URL }}scripts/lib/scroll-startstop.events.jquery.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}scripts/fixed-table.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}scripts/history.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}scripts/lib/jquery.form.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}scripts/app.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}scripts/live-hex.js"></script>
     {%  endcompress %}
@@ -48,7 +49,7 @@
                         <ul class="dropdown-menu">
                             <li class="dropdown-submenu"><a href="#" tab-index="-1"><i class="icon-file"></i>&nbsp;New</a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#open-modal" data-toggle="modal"><i class="icon-upload"></i>&nbsp;Upload File...</a></li>
+                                    <li><a id="open-btn" href="_upload" data-toggle="modal"><i class="icon-upload"></i>&nbsp;Upload File...</a></li>
                                     <li><a href="#">Live Mode</a></li>
                                 </ul>
                             </li>
@@ -113,7 +114,7 @@
     </div>
 </div>
 
-{% include "modal-open.djhtml" %}
+<div id="open-modal" class="modal hide fade"></div>
 
 {% include "modal-share.djhtml" %}
 

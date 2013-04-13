@@ -1,23 +1,39 @@
-<div id="open-modal" class="modal hide fade">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h3>Open File</h3>
-    </div>
-    <div class="modal-body">
-        <form id="upload-form" class="sidebar-content form-inline"
-              enctype="multipart/form-data"
-              action="_upload" method="post">
-            <fieldset>
-                <label>File:</label>
-                <input id="filename" type="text" class="input disabled" name="filename" readonly>
-                <input type="file" id="file" name="filedata" style="display: none;">
-                <a id="fileselectbutton" class="btn">Choose...</a>
-            </fieldset>
-        </form>
+<script>
+    $(document).ready(function() {
+        //debugger;
+        FileUploadForm();
+    });
+</script>
 
-    </div>
-    <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal">Cancel</a>
-        <a id="upload-submit-btn" href="#" class="btn btn-primary">Upload</a>
-    </div>
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h3>Open File</h3>
+</div>
+<div class="modal-body">
+    <form id="upload-form" class="sidebar-content form-inline"
+          enctype="multipart/form-data"
+          action="_upload" method="post">
+        <fieldset>
+            <label>File:</label>
+            <input id="filename" type="text" class="input disabled" name="filename" readonly>
+            <input type="file" id="file" name="filedata" style="display: none;">
+            <a id="fileselectbutton" class="btn">Choose...</a>
+        </fieldset>
+    </form>
+
+    {% if form.errors %}
+        <div class="alert alert-error" id="open-alert">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <ul>
+                {% for field,error in form.errors.items %}
+                    <li>{{ field }}: {{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+</div>
+<div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Cancel</a>
+    <a id="upload-submit-btn" href="#" class="btn btn-primary">Upload</a>
 </div>

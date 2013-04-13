@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect
-
 from odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment, InstDoc
 from django import forms
 from django.contrib.contenttypes.models import ContentType
@@ -245,11 +244,23 @@ def strings(request):
     return HttpResponse(simplejson.dumps({'strings' : strings })  , mimetype='application/json')
 
 class UploadFileForm(forms.Form):
+    MAX_UPLOAD_SIZE_MB = 2
     filedata = forms.FileField()
     #filename = forms.CharField()
 
+    def clean_filedata(self):
+        if self.cleaned_data['filedata'].size > self.MAX_UPLOAD_SIZE_MB*1024*1024:
+            print 'Size is %d' % self.cleaned_data['filedata'].size
+            print self.errors
+            raise forms.ValidationError("File must be less than %d MB!" % self.MAX_UPLOAD_SIZE_MB)
+
+        # always return the cleaned data, whether you have changed it or not
+        return self.cleaned_data['filedata']
+
 def upload(request):
     form = UploadFileForm(request.POST, request.FILES)
+    html = ''
+    redirect = ''
     if form.is_valid():
         #platform_options = engine.platform_options(binary_file)
         #if options can't be determined, we need to display another dialog to get user input on
@@ -268,12 +279,21 @@ def upload(request):
         #then the client can spin until we're done
         disassembler = Disassembler(binary_file)
         disassembler.process_chunks()
-
-        return redirect('/odaweb/' + oda_master.short_name)
-        #return redirect('/odaweb/_refresh')
+        html = ''
+        redirect = '/odaweb/' + oda_master.short_name
     else:
-        raise Exception("error" )
+        # if this is the request for the form, not a submission, then start with an unbound form
+        if request.method == 'GET':
+            form = UploadFileForm()
 
+        html = render_to_string('modal-open.djhtml', {
+            'form': form,
+            })
+
+    return HttpResponse(simplejson.dumps({
+        'html' : html,
+        'redirect' : redirect
+        }), mimetype='application/json')
 
 def refresh_disassembly(request):
     oda_master = get_session(request)

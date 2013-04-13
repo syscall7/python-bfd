@@ -82,7 +82,15 @@ var Sidebar = Backbone.Model.extend({
 
 var sidebar = new Sidebar();
 
-function FileUploadTab() {
+function FileUploadForm() {
+
+    $('#open-btn').click(function(e) {
+        // dynamically populate the upload form
+        $.get(this.href, {}, function(data){
+            $('#open-modal').html(data.html).modal('show');
+        });
+    });
+
     $('#fileselectbutton').click(function(e){
         $('#file').trigger('click');
     });
@@ -95,8 +103,27 @@ function FileUploadTab() {
         $('#filename').val(file[file.length-1]);
     });
 
+    // called when upload form is submitted
     $('#upload-submit-btn').click(function(e){
-        $('#upload-form').submit();
+
+        // use handy plugin for ajax submissions of file uploads
+        $('#upload-form').ajaxSubmit({
+            dataType: 'json',
+            success: function(data) {
+
+                // if we successfully processed the file upload
+                if (data.redirect != '')
+                {
+                    $('#open-modal').hide();
+                    document.location = data.redirect;
+                }
+                // else, refresh the form with error messages
+                else
+                {
+                    $('#open-modal').html(data.html);
+                }
+            }
+        });
     });
 }
 
@@ -368,7 +395,7 @@ function OdaApplication(binary) {
 
     sidebar.initialize(binary.get('liveMode'));
 
-    FileUploadTab();
+    FileUploadForm();
 
     ResizeHandler();
 
