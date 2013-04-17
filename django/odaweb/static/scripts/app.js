@@ -109,6 +109,8 @@ function FileUploadOptionsForm() {
     });
 
     $('#upload-options-submit-btn').click(function(e) {
+        //TODO: Call _set with options and specify ID
+
         window.location = "/odaweb/" + $('#modal-platform-options-short-name').val();
         e.preventDefault();
     });
