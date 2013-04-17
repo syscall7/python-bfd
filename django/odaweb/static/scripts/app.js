@@ -137,8 +137,11 @@ function FileUploadForm() {
             dataType: 'json',
             success: function(data) {
 
+                $('#modal-upload-form').modal('hide');
+                $('#modal-platform-options').modal();
+
                 // if we successfully processed the file upload
-                if (data.redirect != '')
+              /*  if (data.redirect != '')
                 {
                     $('#open-modal').hide();
                     document.location = data.redirect;
@@ -147,7 +150,7 @@ function FileUploadForm() {
                 else
                 {
                     $('#open-modal').html(data.html);
-                }
+                }*/
             }
         });
     });

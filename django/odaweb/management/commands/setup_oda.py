@@ -40,6 +40,7 @@ def load_examples():
             for offset,msg in example['comments']:
                 comment = Comment(content_type=ctype, object_id=binary.id, comment = msg, offset = offset)
                 comment.save()
+                print "Adding Comment %s To %s" % (comment.comment, binary.id)
 
         disassembler = Disassembler(binary)
         disassembler.process_chunks()
