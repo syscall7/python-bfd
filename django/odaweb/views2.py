@@ -109,7 +109,9 @@ def set(request):
             oda_master.binary.options.architecture = form.cleaned_data['arch']
             oda_master.binary.options.save()
 
-
+        options = request.POST.getlist('options[]')
+        oda_master.binary.options.set_extra_options(options)
+        oda_master.binary.options.save()
 
         disassembler = Disassembler(oda_master.binary)
         disassembler.process_chunks()

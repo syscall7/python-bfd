@@ -141,14 +141,18 @@ class Disassembler(object):
             if set(flags).issubset(sec_flags):
                 yield sec
 
-    def disassemble(self, name, start=None, stop=None, numLines=None, endian=bfd.ENDIAN_DEFAULT, options=''):
+    def disassemble(self, name, start=None, stop=None, numLines=None, endian=bfd.ENDIAN_DEFAULT):
         sec = self.bfd.sections[name]
 
-        # this is to force the i386 strcpy example to use intel syntax...need a better solution
-        if self.bfd.arch.startswith('i386') and options == '':
-            options = 'intel-mnemonic'
+        options = self.binary.options.get_extra_options()
 
-        dis = self.bfd.disassemble(sec, start, stop, numLines, funcFmtAddr, funcFmtLine, endian, options)
+        # this is to force the i386 strcpy example to use intel syntax...need a better solution
+        if self.bfd.arch.startswith('i386') and len(options) == 0:
+            options = ['intel-mnemonic']
+
+        options_string = ",".join(options)
+
+        dis = self.bfd.disassemble(sec, start, stop, numLines, funcFmtAddr, funcFmtLine, endian, options_string)
         return dis
 
     def symbol(self, lookup):

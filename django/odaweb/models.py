@@ -64,6 +64,16 @@ class DisassemblyChunk(models.Model):
 class OdaOptions(models.Model):
     target = models.CharField(max_length=128)
     architecture = models.CharField(max_length=128)
+    extra_options = models.CharField(max_length=256, default='[]')
+
+    def get_extra_options(self):
+        import json
+        return json.loads(self.extra_options)
+
+    def set_extra_options(self, options):
+        import json
+        self.extra_options = json.dumps(options)
+
 
 class Binary(models.Model):
     options = models.OneToOneField(OdaOptions, null=True)
