@@ -107,6 +107,7 @@ def set(request):
 
         if form.cleaned_data['arch']:
             oda_master.binary.options.architecture = form.cleaned_data['arch']
+            oda_master.binary.options.reset_extra_options()
             oda_master.binary.options.save()
 
         options = request.POST.getlist('options[]')

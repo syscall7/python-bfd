@@ -11,6 +11,7 @@ from utils import sha1_hash
 import uuid
 import tempfile
 import hashlib
+import json
 import subprocess
 
 fs = FileSystemStorage(location='/tmp/odaweb')
@@ -67,12 +68,13 @@ class OdaOptions(models.Model):
     extra_options = models.CharField(max_length=256, default='[]')
 
     def get_extra_options(self):
-        import json
         return json.loads(self.extra_options)
 
     def set_extra_options(self, options):
-        import json
         self.extra_options = json.dumps(options)
+
+    def reset_extra_options(self):
+        self.set_extra_options([])
 
 
 class Binary(models.Model):
