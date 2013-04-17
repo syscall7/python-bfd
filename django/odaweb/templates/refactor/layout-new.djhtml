@@ -118,6 +118,10 @@
 
 {% include "modal-share.djhtml" %}
 
+{% include "modal-platform-options.djhtml" %}
+
+{% include "modal-open.djhtml" %}
+
 {% include "refactor/popover-inst-doc.djhtml" %}
 
 <div id="main-display">

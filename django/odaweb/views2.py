@@ -290,21 +290,7 @@ def upload(request):
             redirect = '/odaweb/' + oda_master.short_name
 
         except bfd.BfdFileFormatException:
-            html = render_to_string('modal-platform-options.djhtml',{
-                'supported_archs' : get_supported_archs(),
-                'supported_endians': get_supported_endians,
-                'options' : get_platform_options('i386'),
-            })
-
-
-    else:
-        # if this is the request for the form, not a submission, then start with an unbound form
-        if request.method == 'GET':
-            form = UploadFileForm()
-
-        html = render_to_string('modal-open.djhtml', {
-            'form': form,
-            })
+            pass
 
     return HttpResponse(simplejson.dumps({
         'html' : html,

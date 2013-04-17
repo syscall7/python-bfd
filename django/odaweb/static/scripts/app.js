@@ -114,10 +114,7 @@ function FileUploadForm() {
     FileUploadOptionsForm();
 
     $('#open-btn').click(function(e) {
-        // dynamically populate the upload form
-        $.get(this.href, {}, function(data){
-            $('#open-modal').html(data.html).modal('show');
-        });
+        $('#modal-upload-form').modal();
     });
 
     $('#fileselectbutton').click(function(e){
