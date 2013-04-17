@@ -107,6 +107,11 @@ function FileUploadOptionsForm() {
         //$('.platform-option').text(arch);
 
     });
+
+    $('#upload-options-submit-btn').click(function(e) {
+        window.location = "/odaweb/" + $('#modal-platform-options-short-name').val();
+        e.preventDefault();
+    });
 }
 
 function FileUploadForm() {
@@ -138,19 +143,13 @@ function FileUploadForm() {
             success: function(data) {
 
                 $('#modal-upload-form').modal('hide');
+
+                $('#select-open-architecture').val(data.arch);
+                $('#select-open-architecture').change();
+                $('#modal-platform-options-short-name').val(data.id);
                 $('#modal-platform-options').modal();
 
-                // if we successfully processed the file upload
-              /*  if (data.redirect != '')
-                {
-                    $('#open-modal').hide();
-                    document.location = data.redirect;
-                }
-                // else, refresh the form with error messages
-                else
-                {
-                    $('#open-modal').html(data.html);
-                }*/
+
             }
         });
     });

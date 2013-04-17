@@ -25,6 +25,7 @@
             {% include 'show_options.djhtml' %}
         </div>
 
+        <input type="hidden" id="modal-platform-options-short-name" name="id" />
     </form>
 
     {% if form.errors %}
