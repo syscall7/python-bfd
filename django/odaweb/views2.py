@@ -9,6 +9,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseServerError
 from django.utils import simplejson
 import dns.resolver
+import bfd
 
 from utils import id_generator
 
@@ -278,12 +279,24 @@ def upload(request):
         oda_master.save()
         request.session["disassembly_id"] = oda_master.short_name
 
-        #we can farm this out to a background thread and return before complete
-        #then the client can spin until we're done
-        disassembler = Disassembler(binary_file)
-        disassembler.process_chunks()
-        html = ''
-        redirect = '/odaweb/' + oda_master.short_name
+
+        try:
+            disassembler = Disassembler(binary_file)
+
+            #we can farm this out to a background thread and return before complete
+            #then the client can spin until we're done
+            disassembler.process_chunks()
+            html = ''
+            redirect = '/odaweb/' + oda_master.short_name
+
+        except bfd.BfdFileFormatException:
+            html = render_to_string('modal-platform-options.djhtml',{
+                'supported_archs' : get_supported_archs(),
+                'supported_endians': get_supported_endians,
+                'options' : get_platform_options('i386'),
+            })
+
+
     else:
         # if this is the request for the form, not a submission, then start with an unbound form
         if request.method == 'GET':

@@ -259,6 +259,9 @@ class BfdErr(Exception):
     def __str__(self):
         return repr(self.value)
 
+class BfdFileFormatException(BfdErr):
+    pass
+
 # ------------------------------------------------------------------------------
 # CLASS Symbol
 # ------------------------------------------------------------------------------
@@ -606,7 +609,7 @@ cdef class Bfd:
                     self.abfd.arch_info = inf 
                                     
             else:        
-                raise BfdErr('Unable to identify target format')
+                raise BfdFileFormatException('Unable to identify target format')
 
         if bfd_get_flavour(self.abfd) == bfd_target_unknown_flavour:
             # we do not want to raise an exception, as the BFD is

@@ -82,7 +82,36 @@ var Sidebar = Backbone.Model.extend({
 
 var sidebar = new Sidebar();
 
+function FileUploadOptionsForm() {
+
+    var LoadOptions = function(arch) {
+        $.post('/odaweb/_options', {platformId : arch})
+            .done(function(data){
+                $('#open-platform-options').html(data);
+            });
+    };
+
+    $('.platform-option-select').on('change', function(){
+        var values = $.map(
+            $('.platform-option-select'), function(v) {return $(v).val();}
+        );
+
+        values = $.grep(values, function(e) { return e != "DEFAULT"});
+    });
+
+    $('#select-open-architecture').change(function(){
+        var arch = $('#select-open-architecture').val();
+
+        LoadOptions(arch);
+
+        //$('.platform-option').text(arch);
+
+    });
+}
+
 function FileUploadForm() {
+
+    FileUploadOptionsForm();
 
     $('#open-btn').click(function(e) {
         // dynamically populate the upload form
@@ -103,7 +132,7 @@ function FileUploadForm() {
         $('#filename').val(file[file.length-1]);
     });
 
-    // called when upload form is submitted
+    // called when upload form button is clicked
     $('#upload-submit-btn').click(function(e){
 
         // use handy plugin for ajax submissions of file uploads
