@@ -3,7 +3,7 @@ from odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment, InstDoc
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from disassembler import Disassembler, JsonChunkProcessor, examples, get_supported_archs, \
-    copy_disassembly, get_supported_endians, get_platform_options
+    copy_disassembly, get_supported_endians, get_platform_options, guess_bfd_arch
 
 from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseServerError
@@ -263,13 +263,11 @@ class UploadFileForm(forms.Form):
 
 def upload(request):
     form = UploadFileForm(request.POST, request.FILES)
-    html = ''
-    redirect = ''
+    arch = ''
+    target = ''
     if form.is_valid():
-        #platform_options = engine.platform_options(binary_file)
-        #if options can't be determined, we need to display another dialog to get user input on
-        #possible options
-        options = OdaOptions(target='elf32-i386', architecture='i386')
+
+        options = OdaOptions(target='', architecture='')
         options.save()
 
         binary_file = BinaryFile.create(request.FILES['filedata'], options)
@@ -277,25 +275,15 @@ def upload(request):
 
         oda_master = OdaMaster(short_name = id_generator(), binary = binary_file)
         oda_master.save()
+
         request.session["disassembly_id"] = oda_master.short_name
 
-
-        try:
-            disassembler = Disassembler(binary_file)
-
-            #we can farm this out to a background thread and return before complete
-            #then the client can spin until we're done
-            disassembler.process_chunks()
-            html = ''
-            redirect = '/odaweb/' + oda_master.short_name
-
-        except bfd.BfdFileFormatException:
-            pass
+        arch, target = guess_bfd_arch(binary_file.file_handle().name)
 
     return HttpResponse(simplejson.dumps({
-        'arch': 'i386',
-        'platform': 'elf32-i386',
-        'message': 'We Determined Is elf386',
+        'arch': arch,
+        'target': target,
+        'id': oda_master.short_name
         }), mimetype='application/json')
 
 def refresh_disassembly(request):

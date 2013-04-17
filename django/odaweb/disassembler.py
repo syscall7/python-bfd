@@ -102,6 +102,22 @@ def get_platform_options(platform):
             #print 'DHTML',djhtmlOpts
     return djhtmlOpts
 
+def guess_bfd_arch(filename):
+    arch = ''
+    target = ''
+    try:
+        abfd = bfd.Bfd(filename)
+        # TODO: Handle when arch comes back as "UNKNOWN!"
+        arch = abfd.arch
+        target = abfd.target
+    except bfd.BfdFileFormatException, e:
+        pass
+    except Exception, e:
+        pass
+
+    return arch, target
+
+
 class Disassembler(object):
 
     def __init__(self, binary):
