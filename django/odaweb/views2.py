@@ -293,8 +293,9 @@ def upload(request):
             pass
 
     return HttpResponse(simplejson.dumps({
-        'html' : html,
-        'redirect' : redirect
+        'arch': 'i386',
+        'platform': 'elf32-i386',
+        'message': 'We Determined Is elf386',
         }), mimetype='application/json')
 
 def refresh_disassembly(request):
