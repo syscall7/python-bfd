@@ -162,7 +162,7 @@ class Disassembler(object):
 
         options = self.binary.options.get_extra_options()
 
-        # this is to force the i386 strcpy example to use intel syntax...need a better solution
+        # force intel syntax as default for i386 arch
         if self.bfd.arch.startswith('i386') and len(options) == 0:
             options = ['intel-mnemonic']
 

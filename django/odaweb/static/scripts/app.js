@@ -109,9 +109,19 @@ function FileUploadOptionsForm() {
     });
 
     $('#upload-options-submit-btn').click(function(e) {
-        //TODO: Call _set with options and specify ID
+        var arch = $('#select-open-architecture').val();
+        var values = $.map(
+            $('.platform-option-select'), function(v) {return $(v).val();}
+        );
 
-        window.location = "/odaweb/" + $('#modal-platform-options-short-name').val();
+        values = $.grep(values, function(e) { return e != "DEFAULT"});
+
+        $.post('/odaweb/_set', {arch: arch, options: values})
+            .done(function() {
+                window.location = "/odaweb/" + $('#modal-platform-options-short-name').val();
+            }).fail(function(){
+            });
+
         e.preventDefault();
     });
 }
@@ -145,7 +155,6 @@ function FileUploadForm() {
             success: function(data) {
 
                 $('#modal-upload-form').modal('hide');
-
                 $('#select-open-architecture').val(data.arch);
                 $('#select-open-architecture').change();
                 $('#modal-platform-options-short-name').val(data.id);

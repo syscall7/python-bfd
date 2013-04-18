@@ -277,6 +277,8 @@ def upload(request):
         oda_master.save()
 
         request.session["disassembly_id"] = oda_master.short_name
+        request.session["disassembly_token"]['id'] = oda_master.short_name
+        request.session["disassembly_token"]['version'] = 0
 
         arch, target = guess_bfd_arch(binary_file.file_handle().name)
 

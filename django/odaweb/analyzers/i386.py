@@ -56,7 +56,7 @@ class i386(defaultAnalyzer):
                                "callq" : instructionType.call
                               }
         self.options = [
-            ('Syntax Style', 'Switch between AT&T and Intel syntax', 'CHOICE', ('intel-mnemonic', 'att-mnemonic')),
+            ('Syntax Style', 'Switch between AT&T and Intel syntax', 'CHOICE', ('DEFAULT', 'intel-mnemonic', 'att-mnemonic')),
             ('Suffix', 'Always display instruction suffix in AT&T syntax', 'BOOL', ('DEFAULT','suffix', '')),
             ('Mode', 'Disassemble in 16bit mode, 32bit mode, or 64bit mode', 'CHOICE', ('DEFAULT','i8086', 'i386', 'x86-64')),
             ('Address Size', 'Assume 16bit, 32bit, or 64bit address size', 'CHOICE', ('DEFAULT','addr16', 'addr32', 'addr64')),
