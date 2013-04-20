@@ -182,7 +182,7 @@ def instdoc(request):
     form = InstDocForm(request.POST, request.FILES)
 
     if form.is_valid():
-        instdoc_html = 'Invalid instruction'
+        instdoc_html = 'Help not available'
 
         mnemonic = form.cleaned_data['mnemonic']
         print 'Getting instruction documentation for "%s"' % (mnemonic)
@@ -254,8 +254,6 @@ class UploadFileForm(forms.Form):
 
     def clean_filedata(self):
         if self.cleaned_data['filedata'].size > self.MAX_UPLOAD_SIZE_MB*1024*1024:
-            print 'Size is %d' % self.cleaned_data['filedata'].size
-            print self.errors
             raise forms.ValidationError("File must be less than %d MB!" % self.MAX_UPLOAD_SIZE_MB)
 
         # always return the cleaned data, whether you have changed it or not
@@ -265,6 +263,8 @@ def upload(request):
     form = UploadFileForm(request.POST, request.FILES)
     arch = ''
     target = ''
+    html = ''
+    id = ''
     if form.is_valid():
 
         options = OdaOptions(target='', architecture='')
@@ -281,11 +281,17 @@ def upload(request):
         request.session["disassembly_token"]['version'] = 0
 
         arch, target = guess_bfd_arch(binary_file.file_handle().name)
+        id = oda_master.short_name
+    else:
+        html = render_to_string('modal-open.djhtml', {
+                    'form': form
+        })
 
     return HttpResponse(simplejson.dumps({
+        'html': html,
         'arch': arch,
         'target': target,
-        'id': oda_master.short_name
+        'id': id,
         }), mimetype='application/json')
 
 def refresh_disassembly(request):

@@ -130,15 +130,15 @@ function FileUploadForm() {
 
     FileUploadOptionsForm();
 
-    $('#open-btn').click(function(e) {
+    $('#open-btn').on('click', function(e) {
         $('#modal-upload-form').modal();
     });
 
-    $('#fileselectbutton').click(function(e){
+    $('#modal-upload-form').on('click', '#fileselectbutton', function(e){
         $('#file').trigger('click');
     });
 
-    $('#file').change(function(e){
+    $('#modal-upload-form').on('change', '#file', '', function(e){
         var val = $(this).val();
 
         var file = val.split(/[\\/]/);
@@ -147,18 +147,25 @@ function FileUploadForm() {
     });
 
     // called when upload form button is clicked
-    $('#upload-submit-btn').click(function(e){
+    $('#modal-upload-form').on('click', '#upload-submit-btn', '', function(e){
 
         // use handy plugin for ajax submissions of file uploads
         $('#upload-form').ajaxSubmit({
             dataType: 'json',
             success: function(data) {
 
-                $('#modal-upload-form').modal('hide');
-                $('#select-open-architecture').val(data.arch);
-                $('#select-open-architecture').change();
-                $('#modal-platform-options-short-name').val(data.id);
-                $('#modal-platform-options').modal();
+                // if there were no errors in the form
+                if (data.html == '') {
+                    $('#modal-upload-form').modal('hide');
+                    $('#select-open-architecture').val(data.arch);
+                    $('#select-open-architecture').change();
+                    $('#modal-platform-options-short-name').val(data.id);
+                    $('#modal-platform-options').modal();
+                }
+                // else there were errors in the form
+                else {
+                    $('#modal-upload-form').html(data.html);
+                }
 
 
             }
