@@ -200,9 +200,45 @@ function InitializeSplitter() {
 
 function GoToAddressPrompt() {
 
-    var strAddr = prompt("Go to address:");
-    var addr = parseInt(strAddr, 16);
-    console.debug("Setting slider to 0x%s", addr.toString(16));
+    var addr;
+
+    var min = $("#slider").slider("option", "min");
+    var max = $("#slider").slider("option", "max");
+
+    // continue prompting until they get it right or give up
+    do {
+
+        var strAddr = prompt("Go to address:");
+
+        // if Cancel was not hit and the user actually entered something
+        if (strAddr) {
+
+            // prepend '0x'
+            if (strAddr.substring(0,2) != '0x')
+                strAddr = '0x' + strAddr;
+
+            addr = Number(strAddr);
+            // must be a number
+            if (isNaN(addr)) {
+                console.debug("Not a number!");
+                alert('Address must be hexadecimal in the form of "AABB..." or "0xAABB..."');
+                continue;
+            }
+            // must be within range
+            else if ((addr < min) || (addr > max)) {
+                addr = NaN;
+                alert('Address must be in the range 0x' + min.toString(16) + ' to  0x' + max.toString(16));
+                continue;
+            }
+
+        }
+        // else, Cancel was clicked
+        else {
+            return;
+        }
+    } while (isNaN(addr));
+
+    // update slider
     $("#slider").slider("value", addr );
 
     // Try to scroll to the address
@@ -210,14 +246,6 @@ function GoToAddressPrompt() {
     {
         // Isn't loaded. Try to load it
         scrollToAddr(addr);
-    }
-    else if (String.fromCharCode(event.which) == ';') {
-
-        if (selectedRow != null) {
-            //console.debug('here');
-            selectedRow.find('.comment').text('   ');
-            selectedRow.find('.comment').focus();
-        }
     }
 }
 
@@ -233,7 +261,7 @@ function InitializeMenus() {
 function InitializeSlider(min, max) {
 
     var selectedRow = null;
-    
+
     // remove border
     $(".ui-slider-horizontal").css('border', 0);
     $(".ui-slider-handle").removeClass('ui-corner-all');
@@ -292,6 +320,14 @@ function InitializeSlider(min, max) {
     $("html").keypress(function(event) {
         if (String.fromCharCode(event.which) == 'g') {
             GoToAddressPrompt();
+        }
+        else if (String.fromCharCode(event.which) == ';') {
+
+            if (selectedRow != null) {
+                //console.debug('here');
+                selectedRow.find('.comment').text('   ');
+                selectedRow.find('.comment').focus();
+            }
         }
     });
 

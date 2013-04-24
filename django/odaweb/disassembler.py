@@ -190,7 +190,7 @@ class Disassembler(object):
                 self.code_sections = code_sections
                 if len(code_sections):
                     self.start_addr = code_sections[0].vma
-                    self.stop_addr = code_sections[-1].vma + code_sections[-1].size
+                    self.stop_addr = code_sections[-1].vma + code_sections[-1].size - 1
                 else:
                     self.start_addr = 0
                     self.stop_addr = 0
