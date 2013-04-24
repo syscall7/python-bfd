@@ -286,6 +286,9 @@ def upload(request):
         request.session["disassembly_token"]['version'] = 0
 
         arch, target = guess_bfd_arch(binary_file.file_handle().name)
+        oda_master.binary.options.architecture = arch
+        oda_master.binary.options.target = target
+        oda_master.binary.options.save()
         id = oda_master.short_name
     else:
         html = render_to_string('modal-open.djhtml', {

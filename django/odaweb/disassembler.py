@@ -103,8 +103,10 @@ def get_platform_options(platform):
     return djhtmlOpts
 
 def guess_bfd_arch(filename):
-    arch = ''
-    target = ''
+
+    # use defaults these default when we can't detect the arch/target
+    arch = 'i386'
+    target = 'binary'
     try:
         abfd = bfd.Bfd(filename)
         # TODO: Handle when arch comes back as "UNKNOWN!"
@@ -231,6 +233,10 @@ class Disassembler(object):
 
                 # Disassemble a chunk
                 disassembly, next_addr, num_lines = self.disassemble(sec.name, sec_offset_addr, sec_offset_addr+disassemble_size)
+
+                # when disassembling binaries, weird things can happen...this is one of them
+                if next_addr <= sec_offset_addr:
+                    break
                 
                 # Update Size 
                 disassemble_size = next_addr - sec_offset_addr
