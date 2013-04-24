@@ -124,7 +124,7 @@
 {% include "modal-open.djhtml" %}
 </div>
 
-{% include "refactor/popover-inst-doc.djhtml" %}
+{% include "popover-inst-doc.djhtml" %}
 
 <div id="main-display">
     {% block content %}{% endblock %}

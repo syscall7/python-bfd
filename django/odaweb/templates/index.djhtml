@@ -1,4 +1,4 @@
-{% extends "refactor/layout-new.djhtml" %}
+{% extends "layout-new.djhtml" %}
 
 {% load tags %}
 
@@ -27,7 +27,7 @@
 
 
 
-    {% include "refactor/sidebar.djhtml" %}
+    {% include "sidebar.djhtml" %}
 
     <div id="view">
         <div id="view-container">
@@ -58,8 +58,8 @@
                 </li>-->
             </ul>
             <div class="tab-content" id="myTabContent">
-                {% include "refactor/tab-disassembly.djhtml" %}
-                {% include "refactor/tab-hexdump.djhtml" %}
+                {% include "tab-disassembly.djhtml" %}
+                {% include "tab-hexdump.djhtml" %}
                 <div id="tab-sections" class="tab-pane fade"></div>
                 <div id="tab-fileinfo" class="tab-pane fade"></div>
             </div>

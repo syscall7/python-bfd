@@ -41,7 +41,7 @@ def index(request, disassembly_id):
     request.session['saved'] = False
     from pprint import pprint
     print(pprint(context))
-    return render(request, 'refactor/index.djhtml', context)
+    return render(request, 'index.djhtml', context)
 
 
 def save(request):
@@ -195,7 +195,7 @@ def instdoc(request):
             oda_master = get_session(request)
             binary = oda_master.binary
 
-            instdoc_html = render_to_string('refactor/inst-doc-content.djhtml', {
+            instdoc_html = render_to_string('inst-doc-content.djhtml', {
                 'description': doc.short,
                 })
 

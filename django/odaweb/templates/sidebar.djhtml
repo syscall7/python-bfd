@@ -27,13 +27,13 @@
         </div>
 
         <div id="sidebarContent">
-            {% include 'refactor/sidebar-hex.djhtml' %}
+            {% include 'sidebar-hex.djhtml' %}
         
-            {% include "refactor/sidebar-strings.djhtml" %}
+            {% include "sidebar-strings.djhtml" %}
         
-            {% include "refactor/sidebar-platform-options.djhtml" %}
+            {% include "sidebar-platform-options.djhtml" %}
         
-            {% include "refactor/sidebar-symbols.djhtml" %}
+            {% include "sidebar-symbols.djhtml" %}
         </div>
     </div>
 </div>
