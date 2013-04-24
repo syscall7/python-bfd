@@ -65,16 +65,32 @@ class DisassemblyChunk(models.Model):
 class OdaOptions(models.Model):
     target = models.CharField(max_length=128)
     architecture = models.CharField(max_length=128)
-    extra_options = models.CharField(max_length=256, default='[]')
+    extra_options = models.CharField(max_length=256, default='{"flags" : [] }')
 
-    def get_extra_options(self):
+    def get_options_map(self):
         return json.loads(self.extra_options)
 
+    def get_extra_options(self):
+        return self.get_options_map()["flags"]
+
     def set_extra_options(self, options):
-        self.extra_options = json.dumps(options)
+        o = self.get_options_map()
+        o["flags"] = options
+        self.extra_options = json.dumps(o)
 
     def reset_extra_options(self):
-        self.set_extra_options([])
+        self.extra_options = '{ "flags" : [] }'
+
+    def get_endian(self):
+        if 'endian' in self.get_options_map():
+            return self.get_options_map()['endian']
+
+        return 'DEFAULT'
+
+    def set_endian(self, endian):
+        o = self.get_options_map()
+        o["endian"] = endian
+        self.extra_options = json.dumps(o)
 
 
 class Binary(models.Model):

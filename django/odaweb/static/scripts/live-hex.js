@@ -43,10 +43,14 @@ window.LiveHex = function(binary) {
             $('.platform-option-select'), function(v) {return $(v).val();}
         );
 
+        var endian = $('#hex-display .endian-select').val()
+
+
         values = $.grep(values, function(e) { return e != "DEFAULT"});
 
         Reload({
-            options : values
+            options : values,
+            endian : endian
         });
 
     });

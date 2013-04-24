@@ -157,10 +157,12 @@ class Disassembler(object):
             if set(flags).issubset(sec_flags):
                 yield sec
 
-    def disassemble(self, name, start=None, stop=None, numLines=None, endian=bfd.ENDIAN_DEFAULT):
+    def disassemble(self, name, start=None, stop=None, numLines=None):
         sec = self.bfd.sections[name]
 
         options = self.binary.options.get_extra_options()
+
+        endian = ({'BIG': 0, 'LITTLE': 1, 'DEFAULT': 2})[self.binary.options.get_endian()]
 
         # force intel syntax as default for i386 arch
         if self.bfd.arch.startswith('i386') and len(options) == 0:

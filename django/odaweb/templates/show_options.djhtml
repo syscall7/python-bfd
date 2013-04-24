@@ -1,8 +1,8 @@
 <div>
-    <label class="control-label upload-form-control" for="endianSelect">Endian</label>
-    <select class="span2 platform-option-select" id="endianSelect" name="normalSelect">
+    <label class="control-label upload-form-control" for="endian-select">Endian</label>
+    <select class="span2 platform-option-select endian-select" name="normalSelect">
         {% for k,v in supported_endians.iteritems %}
-            <option value="{{v}}">{{k}}</option>
+            <option value="{{k}}">{{k}}</option>
         {% endfor %}
     </select>
 </div>

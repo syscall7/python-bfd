@@ -113,6 +113,11 @@ def set(request):
 
         options = request.POST.getlist('options[]')
         oda_master.binary.options.set_extra_options(options)
+
+        endian = request.POST.get('endian')
+        if (endian):
+            oda_master.binary.options.set_endian(endian)
+
         oda_master.binary.options.save()
 
         disassembler = Disassembler(oda_master.binary)
