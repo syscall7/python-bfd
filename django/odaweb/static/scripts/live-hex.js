@@ -38,7 +38,7 @@ window.LiveHex = function(binary) {
             });
     };
 
-    $('.platform-option-select').on('change', function(){
+    $('#hex-display').on('change', '.platform-option-select', function(){
         var values = $.map(
             $('.platform-option-select'), function(v) {return $(v).val();}
         );
