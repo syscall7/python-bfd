@@ -16,20 +16,6 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
-    
-    url(r'^odaweb/run_hex$', 'odaweb.views.run_hex'),
-    url(r'^odaweb/run_hex/(?P<snippet_id>[\w-]+)$', 'odaweb.views.run_hex'),
-    url(r'^odaweb/file_upload', 'odaweb.views.file_upload'),
-    url(r'^odaweb/clear$', 'odaweb.views.clear'),
-    url(r'^odaweb/disassemble/uploadHex$', 'odaweb.views.upload_hex'),
-    url(r'^odaweb/disassemble/showOptions$', 'odaweb.views.show_options'),
-    url(r'^disassemble/uploadFile$', 'odaweb.views.upload_file'),
-    url(r'^disassemble/checkExisting', 'odaweb.views.check_existing'),
-    url(r'^odaweb/disassemble/(?P<file_id>[\w-]+)$', 'odaweb.views.disassemble'),
-    url(r'^odaweb/download/(?P<file_id>[\w-]+)$', 'odaweb.views.download'),
-    url(r'^odaweb/update_disassembly/(?P<file_id>[\w-]+)$', 'odaweb.views.update_disassembly'),
-    url(r'^odaweb/refresh_disassembly/(?P<file_id>[\w-]+)$', 'odaweb.views.refresh_disassembly'),
-    #url(r'^odaweb/comment/(?P<file_id>[\w-]+)/(?P<offset>[0-9A-Fa-f]{8})$', 'odaweb.views.comment'),
 
     url(r'^odaweb/_owned_files$', 'odaweb.views2.owned_files'),
     url(r'^odaweb/_save$', 'odaweb.views2.save'),
