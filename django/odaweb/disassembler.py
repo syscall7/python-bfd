@@ -162,7 +162,7 @@ class Disassembler(object):
 
         options = self.binary.options.get_extra_options()
 
-        endian = ({ 'BIG': bfd.ENDIAN_BIG,
+        endian = ({'BIG': bfd.ENDIAN_BIG,
                    'LITTLE': bfd.ENDIAN_LITTLE,
                    'DEFAULT': bfd.ENDIAN_DEFAULT})[self.binary.options.get_endian()]
 
