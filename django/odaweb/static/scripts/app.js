@@ -198,6 +198,35 @@ function InitializeSplitter() {
     $("#main-display").splitter({type: 'v'});    
 }
 
+function GoToAddressPrompt() {
+
+    var strAddr = prompt("Go to address:");
+    var addr = parseInt(strAddr, 16);
+    console.debug("Setting slider to 0x%s", addr.toString(16));
+    $("#slider").slider("value", addr );
+
+    // Try to scroll to the address
+    if ( !updateDisassembly(addr) )
+    {
+        // Isn't loaded. Try to load it
+        scrollToAddr(addr);
+    }
+    else if (String.fromCharCode(event.which) == ';') {
+
+        if (selectedRow != null) {
+            //console.debug('here');
+            selectedRow.find('.comment').text('   ');
+            selectedRow.find('.comment').focus();
+        }
+    }
+}
+
+function InitializeMenus() {
+    $('#menu-go-to-addr').click(function(e) {
+        GoToAddressPrompt();
+    });
+}
+
 /* ---------------------------------------------------------------------------------------------------------  *
  * ADDRESS SLIDER
  * ---------------------------------------------------------------------------------------------------------  */
@@ -262,23 +291,7 @@ function InitializeSlider(min, max) {
 
     $("html").keypress(function(event) {
         if (String.fromCharCode(event.which) == 'g') {
-            var strAddr = prompt("Go to address:");
-            var addr = parseInt(strAddr, 16);
-            console.debug("Setting slider to 0x%s", addr.toString(16));
-            $("#slider").slider("value", addr );
-
-            // Try to scroll to the address
-            if ( !updateDisassembly(addr) )
-            {
-                // Isn't loaded. Try to load it
-                scrollToAddr(addr);
-            }
-        } else if (String.fromCharCode(event.which) == ';') {
-            if (selectedRow != null) {
-                //console.debug('here');
-                selectedRow.find('.comment').text('   ');
-                selectedRow.find('.comment').focus();
-            }
+            GoToAddressPrompt();
         }
     });
 
@@ -450,6 +463,8 @@ function OdaApplication(binary) {
     InitializeComments();
 
     InitializeModalShare();
+
+    InitializeMenus();
 
     LiveHex(binary);
 
