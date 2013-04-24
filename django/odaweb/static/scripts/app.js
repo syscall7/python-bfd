@@ -392,7 +392,7 @@ function Load(binary, show_loading) {
 
     $.post('_sections', {id: binary.id}).done(function(data){
 
-        $('#tab-sections').append(data.sections_tab);
+        $('#tab-sections').html(data.sections_tab);
 
         SetupSectionFlagPopovers(data.section_flags);
 
@@ -402,7 +402,7 @@ function Load(binary, show_loading) {
 
     $.post('_fileinfo', {id: binary.id}).done(function(data){
 
-        $('#tab-fileinfo').append(data.fileinfo_tab);
+        $('#tab-fileinfo').html(data.fileinfo_tab);
 
     }).fail(function(){
         alert('file info failed to load');
