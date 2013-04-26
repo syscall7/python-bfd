@@ -156,11 +156,24 @@ function FileUploadForm() {
 
                 // if there were no errors in the form
                 if (data.html == '') {
+
                     $('#modal-upload-form').modal('hide');
                     $('#select-open-architecture').val(data.arch);
                     $('#select-open-architecture').change();
                     $('#modal-platform-options-short-name').val(data.id);
                     $('#modal-platform-options').modal();
+                    $('#modal-platform-msg').html(data.msg);
+
+                    // if we cannot detect the file format
+                    if (data.target == 'binary') {
+                        console.debug('File format not detected');
+                        $('#select-open-architecture').prop('disabled', false);
+                    }
+                    // else, we know the format (and should therefore already know the arch)
+                    else {
+                        $('#select-open-architecture').prop('disabled', true);
+                    }
+
                 }
                 // else there were errors in the form
                 else {

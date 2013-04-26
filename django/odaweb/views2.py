@@ -270,6 +270,7 @@ def upload(request):
     target = ''
     html = ''
     id = ''
+    msg = ''
     if form.is_valid():
 
         options = OdaOptions(target='', architecture='')
@@ -290,6 +291,12 @@ def upload(request):
         oda_master.binary.options.target = target
         oda_master.binary.options.save()
         id = oda_master.short_name
+        msg = render_to_string('alert-platform-options.djhtml', {
+            'arch': arch,
+            'target': target,
+            'file_format': oda_master.binary.desc()
+        })
+
     else:
         html = render_to_string('modal-open.djhtml', {
                     'form': form
@@ -300,6 +307,7 @@ def upload(request):
         'arch': arch,
         'target': target,
         'id': id,
+        'msg': msg
         }), mimetype='application/json')
 
 def refresh_disassembly(request):

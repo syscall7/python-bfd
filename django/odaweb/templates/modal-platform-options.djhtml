@@ -12,6 +12,12 @@
     <h3>Platform Options</h3>
 </div>
 <div class="modal-body">
+
+    <!-- Display an information message -->
+    <div id="modal-platform-msg">
+
+    </div>
+
     <form>
         <select class="platformSelect" id="select-open-architecture" name="select-open-architecture">
             {% for a in supported_archs %}

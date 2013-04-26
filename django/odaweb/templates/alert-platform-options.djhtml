@@ -1,0 +1,19 @@
+{% if target == 'binary' %}
+    <div class='alert alert-block'>
+        We cannot detect the object file format for this file.  To continue disassembling this file as a raw binary
+        image, please select from the platform options below.
+    </div>
+
+{% else %}
+    <div class="alert alert-success">
+        We have detected the object file format as:
+        <ul>
+        {% for f in file_format %}
+            <li>{{ f }}</li>
+        {% endfor %}
+        </ul>
+        <br>
+        Please select from the platform options below.
+    </div>
+
+{% endif %}
