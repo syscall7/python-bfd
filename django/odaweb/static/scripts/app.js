@@ -2,6 +2,8 @@ var Binary = Backbone.Model.extend({
 
 });
 
+var commentEditing = false;
+
 var Sidebar = Backbone.Model.extend({
     initialize : function(liveMode) {
 
@@ -331,7 +333,7 @@ function InitializeSlider(min, max) {
     });
 
     $("html").keypress(function(event) {
-        if (String.fromCharCode(event.which) == 'g') {
+        if (String.fromCharCode(event.which) == 'g' && !commentEditing) {
             GoToAddressPrompt();
         }
         else if (String.fromCharCode(event.which) == ';') {
@@ -434,7 +436,7 @@ function InitializeComments() {
 
     $(document).on("keypress", ".comment", function(e) {
 
-        console.debug("keypress " + e.which);
+        //console.debug("keypress " + e.which);
 
         if (e.which == 13)
         {
@@ -451,6 +453,7 @@ function InitializeComments() {
     });
 
     $(document).on("blur", ".comment", function(e) {
+        commentEditing = false;
 
         var comment = $(this).html();
         var offset = $(this).parent().parent().attr("addr");
@@ -470,6 +473,7 @@ function InitializeComments() {
     });
 
     $(document).on("focus", ".comment", function(e) {
+        commentEditing = true;
 
         // on focus, delete the space that firefox requires for contenteditable spans
         if ($(this).html() == "&nbsp;") {
