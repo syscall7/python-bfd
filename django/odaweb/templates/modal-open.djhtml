@@ -9,7 +9,7 @@
             <div class="control-group {% if form.errors.project_name %}error{% endif %}">
                 <label class="control-label" for="project_name">Project Name:</label>
                 <div class="controls">
-                    <input name="project_name" id="project_name" class="input-medium" placeholder="My Project" type="text" value="">
+                    <input name="project_name" id="project_name" class="input-medium" placeholder="My Project" type="text" value="{{ form.data.project_name }}">
                     {% if form.errors.project_name %}
                         <span class="help-inline">
                             {{ form.errors.project_name }}
