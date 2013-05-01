@@ -43,7 +43,7 @@
                     <td class="offset">{{inst.section_name}}:0x{{ inst.offset|stringformat:"08x" }}</td>
                     <td class="raw">{{ inst.rawBytes }}</td>
                     <td class="insn-col"><insn>{{ inst.instStr.strip|safe }}</insn></td>
-                    <td class="comment-col"><span class="comment" contenteditable="true">{% if inst.comment %};{% endif %}&nbsp;{{ inst.comment|safe }}</span></td>
+                    <td class="comment-col"><div class="comment" contenteditable="true">{% if inst.comment %};{% endif %}&nbsp;{{ inst.comment|safe }}</div ></td>
                 </tr>
 
     {%  endfor %}

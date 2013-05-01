@@ -24,8 +24,7 @@ body {
     src: url('/static/fonts/DejaVuSansMono.ttf') format('truetype');      
 }
 
-
-#main-display {
+    #main-display {
 }
 
 #vertSplitter {
@@ -371,10 +370,17 @@ dislineerr {
     color: crimson;
 }
 
+
+[contenteditable]:hover:not(:focus) {
+    outline: 1px dotted #CCCCCC;
+}
+
 .comment {
     color:blue;
     outline:none;
     text-align:left;
+    width: 100px;
+    cursor: text;
 }
 
 
