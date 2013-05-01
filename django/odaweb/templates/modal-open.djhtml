@@ -3,33 +3,35 @@
     <h3>Open File</h3>
 </div>
 <div class="modal-body">
-    <form id="upload-form" class="sidebar-content form-horizontal"
+    <form id="upload-form" class="form-horizontal"
           enctype="multipart/form-data"
           action="_upload" method="post">
-        <fieldset>
-            <div class="control-group">
+            <div class="control-group {% if form.errors.project_name %}error{% endif %}">
                 <label class="control-label" for="project_name">Project Name:</label>
-                <input name="project_name" id="project_name" class="input-medium" placeholder="My Project" type="text" value="">
-                {% if form.errors.project_name %}
-                    <div class="alert alert-error" id="open-alert">
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                        {{ form.errors.project_name }}
-                    </div>
-                {% endif %}
+                <div class="controls">
+                    <input name="project_name" id="project_name" class="input-medium" placeholder="My Project" type="text" value="">
+                    {% if form.errors.project_name %}
+                        <span class="help-inline">
+                            {{ form.errors.project_name }}
+                        </span>
+                    {% endif %}
+                </div>
             </div>
-            <div class="control-group">
+            <div class="control-group {% if form.errors.filedata %}error{% endif %}">
                 <label class="control-label" for="filename">File:</label>
-                <input id="filename" type="text" class="input disabled" name="filename" readonly>
-                <input type="file" id="file" name="filedata" style="display: none;">
-                <a id="fileselectbutton" class="btn">Choose...</a>
-                {% if form.errors.filedata %}
-                    <div class="alert alert-error" id="open-alert">
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                        {{ form.errors.filedata }}
+                <div class="controls">
+                    <div class="input-append">
+                        <input id="filename" type="text" class="input-medium disabled" name="filename" readonly>
+                        <input type="file" id="file" name="filedata" style="display: none;">
+                        <a id="fileselectbutton" class="btn add-on">Choose File...</a>
                     </div>
-                {% endif %}
+                    {% if form.errors.filedata %}
+                        <span class="help-inline">
+                            {{ form.errors.filedata }}
+                        </span>
+                    {% endif %}
+                </div>
             </div>
-        </fieldset>
     </form>
 </div>
 <div class="modal-footer">
