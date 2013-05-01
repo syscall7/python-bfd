@@ -28,6 +28,7 @@ def index(request, disassembly_id):
         section_info = d.get_code_sections()
         context['section_info'] = section_info
         context['binary'] = oda_master.binary
+        context['project_name'] = oda_master.project_name
         context['disassembly_id'] = disassembly_id
         context['share_url'] =  request.build_absolute_uri()
         context['examples'] = examples
@@ -255,7 +256,7 @@ def strings(request):
 class UploadFileForm(forms.Form):
     MAX_UPLOAD_SIZE_MB = 2
     filedata = forms.FileField()
-    #filename = forms.CharField()
+    project_name = forms.CharField(max_length=64)
 
     def clean_filedata(self):
         if self.cleaned_data['filedata'].size > self.MAX_UPLOAD_SIZE_MB*1024*1024:
@@ -273,13 +274,14 @@ def upload(request):
     msg = ''
     if form.is_valid():
 
+        project_name = form.cleaned_data['project_name']
         options = OdaOptions(target='', architecture='')
         options.save()
 
         binary_file = BinaryFile.create(request.FILES['filedata'], options)
         binary_file.save()
 
-        oda_master = OdaMaster(short_name = id_generator(), binary = binary_file)
+        oda_master = OdaMaster(short_name = id_generator(), project_name=project_name, binary = binary_file)
         oda_master.save()
 
         request.session["disassembly_id"] = oda_master.short_name

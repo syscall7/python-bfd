@@ -32,7 +32,7 @@ def load_examples():
             binary.options = options
             binary.save()
 
-        oda_master = OdaMaster(short_name = short_name, binary = binary)
+        oda_master = OdaMaster(short_name = short_name, project_name = example['project_name'], binary = binary)
         oda_master.save()
 
         ctype = ContentType.objects.get_for_model(binary)

@@ -3,28 +3,34 @@
     <h3>Open File</h3>
 </div>
 <div class="modal-body">
-    <form id="upload-form" class="sidebar-content form-inline"
+    <form id="upload-form" class="sidebar-content form-horizontal"
           enctype="multipart/form-data"
           action="_upload" method="post">
         <fieldset>
-            <label>File:</label>
-            <input id="filename" type="text" class="input disabled" name="filename" readonly>
-            <input type="file" id="file" name="filedata" style="display: none;">
-            <a id="fileselectbutton" class="btn">Choose...</a>
+            <div class="control-group">
+                <label class="control-label" for="project_name">Project Name:</label>
+                <input name="project_name" id="project_name" class="input-medium" placeholder="My Project" type="text" value="">
+                {% if form.errors.project_name %}
+                    <div class="alert alert-error" id="open-alert">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        {{ form.errors.project_name }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="filename">File:</label>
+                <input id="filename" type="text" class="input disabled" name="filename" readonly>
+                <input type="file" id="file" name="filedata" style="display: none;">
+                <a id="fileselectbutton" class="btn">Choose...</a>
+                {% if form.errors.filedata %}
+                    <div class="alert alert-error" id="open-alert">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        {{ form.errors.filedata }}
+                    </div>
+                {% endif %}
+            </div>
         </fieldset>
     </form>
-
-    {% if form.errors %}
-        <div class="alert alert-error" id="open-alert">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <ul>
-                {% for field,error in form.errors.items %}
-                    <li>{{ field }}: {{ error }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
-
 </div>
 <div class="modal-footer">
     <a href="#" class="btn" data-dismiss="modal">Cancel</a>

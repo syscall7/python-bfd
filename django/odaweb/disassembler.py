@@ -437,7 +437,7 @@ class JsonChunkProcessor(object):
 
 examples = (
     {
-        'description' : 'strcpy (x86)',
+        'project_name' : 'strcpy (x86)',
         'short_name' : 'strcpy_x86',
         'binary_type' : 'string',
         'data' : '55 31 D2 89 E5 8B 45 08 56 8B 75 0C 53 8D 58 FF 0F B6 0C 16 88 4C 13 01 83 C2 01 84 C9 75 F1 5B 5E 5D C3 ',
@@ -452,21 +452,21 @@ examples = (
         )
     },
     {
-        'description' : 'strcpy (arm)',
+        'project_name' : 'strcpy (arm)',
         'short_name' : 'strcpy_arm',
         'binary_type' : 'string',
         'data' : '01 20 40 E2 02 20 61 E0 01 30 D1 E4 00 00 53 E3 02 30 C1 E7 FB FF FF 1A 1E FF 2F E1',
         'options' : OdaOptions(target="binary", architecture="arm"),
         },
     {
-        'description' : 'sha1sum (Linux)',
+        'project_name' : 'sha1sum (Linux)',
         'short_name' : 'sha1sum',
         'binary_type' : 'file',
         'file_name' : 'sha1sum',
         'options' : OdaOptions(target="elf32-i386", architecture="i386"),
         },
     {
-        'description' : 'Sasser Worm (Windows)',
+        'project_name' : 'Sasser Worm (Windows)',
         'short_name' : 'sasser',
         'binary_type' : 'file',
         'file_name' : 'net-worm.win32.sasser.a',

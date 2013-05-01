@@ -71,7 +71,7 @@
                 <td id="status-bar-left">
                 </td>
                 <td id="status-bar-right">
-                    <a href="#" class="platform-option"> {{ binary.options.architecture }}</a>  | {{ binary.size|filesizeformat }} | {{ binary.name }}
+                    <a href="#" class="platform-option"> {{ binary.options.architecture }}</a>  | {{ binary.size|filesizeformat }} | {{ project_name }}
                 </td>
         </table>
     </div>

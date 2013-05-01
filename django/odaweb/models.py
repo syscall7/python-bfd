@@ -240,6 +240,7 @@ class BinaryFile(Binary):
 class OdaMaster(models.Model):
 
     ipAddress = models.CharField(max_length=64, default='')
+    project_name = models.CharField(max_length=64, default='')
     short_name = models.CharField(max_length=12, db_index = True, unique = True)
     revision = models.IntegerField(default=0)
     #owner = models.CharField(max_length=128)
