@@ -50,7 +50,7 @@
                             <li class="dropdown-submenu"><a href="#" tab-index="-1"><i class="icon-file"></i>&nbsp;New</a>
                                 <ul class="dropdown-menu">
                                     <li><a id="open-btn" href="_upload" data-toggle="modal"><i class="icon-upload"></i>&nbsp;Upload File...</a></li>
-                                    <li><a href="#">Live Mode</a></li>
+                                    <li><a href="/odaweb">Live Mode</a></li>
                                 </ul>
                             </li>
                             <li class="dropdown-submenu"><a href="#" tab-index="-1"><i class="icon-folder-open"></i>&nbsp;Open Existing</a>
