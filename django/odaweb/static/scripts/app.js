@@ -507,7 +507,7 @@ function OdaApplication(options) {
 
     if (options.saved) {
         $('#menu-item-share').popover('show');
-        setTimeout(function(){$('#menu-item-share').popover('hide')}, 4000);
+        setTimeout(function(){$('#menu-item-share').popover('hide')}, 5000);
     }
 
     sidebar.initialize(options.binary.get('liveMode'));
