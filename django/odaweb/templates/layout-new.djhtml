@@ -2,7 +2,8 @@
 <html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
 <head>
 
-    <title></title>
+    <title>{%  block title %}ODA - The Online Disassembler{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ STATIC_URL }}images/oda.png" />
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}lib/bootstrap-2.2.2/css/bootstrap.min.css"/>
     <link rel="stylesheet" type="text/css" media="all" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/oda2.css" />
