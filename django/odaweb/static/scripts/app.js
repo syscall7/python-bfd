@@ -506,9 +506,22 @@ function InitializeModalShare() {
 function OdaApplication(options) {
 
     if (options.saved) {
-        $('#menu-item-share').popover('show');
-        setTimeout(function(){$('#menu-item-share').popover('hide')}, 5000);
+
+        // show the popover, but don't close it when clicked
+        $('#menu-item-share').popover('show').click(function(evt) {
+            evt.stopPropagation();
+            $(this).popover('show');
+        });
+
+        // close the popover when clicked anywhere outside the popover
+        setTimeout(function(){
+            $('html').click(function() {
+                $('#menu-item-share').popover('hide');
+            });
+        }, 500);
     }
+
+
 
     sidebar.initialize(options.binary.get('liveMode'));
 
