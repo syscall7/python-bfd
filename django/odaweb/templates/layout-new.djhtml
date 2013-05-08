@@ -44,7 +44,8 @@
                         <a href="/odaweb/_save"
                            data-placement="bottom"
                            data-title="You've Saved Your Project"
-                           data-content="You can distribute this url, your comments and settings will be shared with people who visit it. If you make more changes, hit save again to get a new link."
+                           data-html="true"
+                           data-content="<p>You can share this url.</p><p>If you make more changes, hit <strong>share</strong> again to get a new link.</p>"
                            id="menu-item-share"><i class="icon-share icon-white"></i>Share</a>
                     </li>
 
