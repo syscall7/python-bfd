@@ -16,8 +16,10 @@
             arch : '{{ arch }}'
         });
 
-        OdaApplication(binary);
-
+        OdaApplication({
+            binary : binary,
+            saved : {{ saved|jsonify }}
+        });
     });
     </script>
 

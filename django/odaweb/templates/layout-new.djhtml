@@ -40,7 +40,11 @@
                 <ul class="nav">
 
                     <li class="">
-                        <a href="/odaweb/_save"><i class="icon-share icon-white"></i>Share</a>
+                        <a href="/odaweb/_save"
+                           data-placement="bottom"
+                           data-title="You've Saved Your Project"
+                           data-content="You can distribute this url, your comments and settings will be shared with people who visit it. If you make more changes, hit save again to get a new link."
+                           id="menu-item-share"><i class="icon-share icon-white"></i>Share</a>
                     </li>
 
                     <!-- File Menu -->

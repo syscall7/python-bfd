@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from disassembler import Disassembler, JsonChunkProcessor, examples, get_supported_archs, \
     copy_disassembly, get_supported_endians, get_platform_options, guess_bfd_arch
-
+from django.contrib import messages
 from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseServerError
 from django.utils import simplejson
@@ -30,7 +30,7 @@ def index(request, disassembly_id):
         context['binary'] = oda_master.binary
         context['project_name'] = oda_master.project_name
         context['disassembly_id'] = disassembly_id
-        context['share_url'] =  request.build_absolute_uri()
+        context['share_url'] = request.build_absolute_uri()
         context['examples'] = examples
         context['supported_archs'] = get_supported_archs()
         context['saved'] = request.session.get('saved', False)

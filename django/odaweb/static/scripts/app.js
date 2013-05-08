@@ -503,9 +503,14 @@ function InitializeModalShare() {
     });
 }
 
-function OdaApplication(binary) {
+function OdaApplication(options) {
 
-    sidebar.initialize(binary.get('liveMode'));
+    if (options.saved) {
+        $('#menu-item-share').popover('show');
+        setTimeout(function(){$('#menu-item-share').popover('hide')}, 4000);
+    }
+
+    sidebar.initialize(options.binary.get('liveMode'));
 
     FileUploadForm();
 
@@ -519,7 +524,7 @@ function OdaApplication(binary) {
 
     InitializeMenus();
 
-    LiveHex(binary);
+    LiveHex(options.binary);
 
-    Load(binary);
+    Load(options.binary);
 }
