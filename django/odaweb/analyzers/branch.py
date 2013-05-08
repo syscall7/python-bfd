@@ -7,7 +7,7 @@ def BranchComparator(a, b):
     else:
         return 0
 
-class Branch:
+class Branch(object):
     
     def __init__(self, instr):
         self.srcAddr = instr.offset
@@ -17,8 +17,16 @@ class Branch:
         self.stopAddr = self.targetAddr if self.branchDown else self.srcAddr
         self.span = self.stopAddr - self.startAddr
         self.tag = None
-        self.isTargetAddrValid = instr.isTargetAddrValid
-    
+        self.instr = instr
+
+    def getTargetAddrValid(self):
+        return self.instr.isTargetAddrValid
+
+    def setTargetAddrValid(self, value):
+        self.instr.isTargetAddrValid = value
+
+    isTargetAddrValid = property(getTargetAddrValid, setTargetAddrValid)
+
     def overlaps(self, b):
         ret = False
         

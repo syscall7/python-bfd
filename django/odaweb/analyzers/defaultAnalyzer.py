@@ -105,14 +105,14 @@ class defaultAnalyzer(object):
                         inst.name = chunk.name
                         superchunk.instructions[inst.offset] = inst
                         
-        # set branches whose target addresses are not mapped to a valid range to invalid
+        # verify target address is at a valid instruction boundary (someday maybe we'll handle the odd case where it's not)
         for b in self.branches:
             b.isTargetAddrValid = False
-            for sec in self.bfd.sections:
-                # Check if the branch falls within a valid section range
-                if b.targetAddr > sec.vma and b.targetAddr < (sec.vma + sec.size):
+            for superchunk in self.superchunks:
+                if b.targetAddr in superchunk.instructions:
                     b.isTargetAddrValid = True
-                                    
+                    break
+
         # Make a second pass through the instructions to create the html
         self.convertToHtmlLine()
 
