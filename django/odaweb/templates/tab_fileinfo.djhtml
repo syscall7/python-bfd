@@ -1,3 +1,9 @@
+ <script type="text/javascript">
+    $(document).ready(function(){
+        $('#known-malware').popover().show();
+        debugger;
+    }
+</script>
 <div class="row">&nbsp;</div>
 
 <div class="row">
@@ -44,15 +50,27 @@
 
 <div class="row"><div class="span9">&nbsp;</div></div>
 
+<!--
+data-content="Lookup in the <a href='http://www.team-cymru.org/Services/MHR/'>Malware Hash Registry</a>">
+-->
 <div class="row">
 
     <div class="span3 group">
         <table class="table-file-props">
-            <tr><td class="prop-label">Known Malware: {{ malware|yesno }}</td></tr>
-            <tr><td class="prop-label">Known Benign: {{ benign|yesno }}</td></tr>
+            <tr><td id="known-malware"
+                    class="prop-label"
+                    data-placement="bottom"
+                    data-title="Malware Lookup"
+                    data-html="true"
+                    data-trigger="hover"
+                    data-content="Lookup in the <a href='http://www.team-cymru.org/Services/MHR/'>Malware Hash Registry</a>">
+                Known Malware: {{ malware|yesno }}
+            </td></tr>
+            <tr><td id="known-benign" class="prop-label">Known Benign: {{ benign|yesno }}</td></tr>
         </table>
     </div>
 
+    <!--
     <div class="span6 group">
         <table class="table-file-props">
             <tr>
@@ -73,4 +91,5 @@
             </tr>
         <br>
     </div>
+    -->
 </div>
