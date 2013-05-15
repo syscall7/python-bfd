@@ -184,9 +184,9 @@ tbody.scrollContent {
     width: 100%;
 }
 
-#listing tr:hover { background-color: #f4ffe8; }
+#listing tr:hover { background-color: #D9EDF7; }
 
-#listing tr.selected { background-color: #44daff; }
+#listing tr.selected { background-color: #FFFC89; }
 
 #listing tr {
     white-space: nowrap;
