@@ -45,7 +45,7 @@
                            data-placement="bottom"
                            data-title="You've Saved Your Project"
                            data-html="true"
-                           data-content="<p>You can share this url:</p>{{ share_url }}<p><p>If you make more changes, hit <strong>share</strong> again to get a new link.</p>"
+                           data-content="<p>You can share this url:</p><a href='{{ share_url }}'>{{ share_url }}</a><p><p>If you make more changes, hit <strong>share</strong> again to get a new link.</p>"
                            id="menu-item-share"><i class="icon-share icon-white"></i>Share</a>
                     </li>
 
