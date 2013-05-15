@@ -392,3 +392,6 @@ dislineerr {
     padding-right:5px;
 }
 
+.share-btn .popover {
+    width:350px;
+}
