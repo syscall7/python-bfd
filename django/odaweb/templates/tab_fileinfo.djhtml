@@ -1,9 +1,3 @@
- <script type="text/javascript">
-    $(document).ready(function(){
-        $('#known-malware').popover().show();
-        debugger;
-    }
-</script>
 <div class="row">&nbsp;</div>
 
 <div class="row">
@@ -59,14 +53,24 @@ data-content="Lookup in the <a href='http://www.team-cymru.org/Services/MHR/'>Ma
         <table class="table-file-props">
             <tr><td id="known-malware"
                     class="prop-label"
-                    data-placement="bottom"
+                    data-placement="right"
                     data-title="Malware Lookup"
                     data-html="true"
                     data-trigger="hover"
-                    data-content="Lookup in the <a href='http://www.team-cymru.org/Services/MHR/'>Malware Hash Registry</a>">
+                    data-delay='{"show":100,"hide":2000}'
+                    data-content="If 'yes', this binary is known malware based on Cymru's <a href='http://www.team-cymru.org/Services/MHR/'>Malware Hash Registry</a>.  If 'no', it might still be malware.  Good luck determining that on your own!">
                 Known Malware: {{ malware|yesno }}
             </td></tr>
-            <tr><td id="known-benign" class="prop-label">Known Benign: {{ benign|yesno }}</td></tr>
+            <tr><td id="known-benign"
+                    class="prop-label"
+                    data-placement="right"
+                    data-title="Benign Lookup"
+                    data-html="true"
+                    data-trigger="hover"
+                    data-delay='{"show":100,"hide":2000}'
+                    data-content="If 'yes', this binary is known to be harmless based on the <a href='http://www.nsrl.nist.gov/'>National Software Reference Library</a>.  If 'no', it still might be harmless.  Good luck determining that on your own!">
+                    Known Benign: {{ benign|yesno }}
+            </td></tr>
         </table>
     </div>
 

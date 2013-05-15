@@ -418,6 +418,8 @@ function Load(binary, show_loading) {
     $.post('_fileinfo', {id: binary.id}).done(function(data){
 
         $('#tab-fileinfo').html(data.fileinfo_tab);
+        $('#known-malware').popover();
+        $('#known-benign').popover();
 
     }).fail(function(){
         alert('file info failed to load');

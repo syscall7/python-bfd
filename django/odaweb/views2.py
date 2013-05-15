@@ -10,6 +10,7 @@ from django.http import HttpResponse, HttpResponseServerError
 from django.utils import simplejson
 import dns.resolver
 import bfd
+import socket
 
 from utils import id_generator
 
@@ -162,6 +163,7 @@ def fileinfo(request):
 
     malware = False
 
+    # lookup in malware hash registry
     try:
         [cymru_record,] = dns.resolver.query('%s.malware.hash.cymru.com' % binary.md5(), 'TXT')
         malware = True
@@ -169,9 +171,25 @@ def fileinfo(request):
     except dns.resolver.NXDOMAIN:
         pass
 
+    # lookup in national software reference library
+    benign = False
+    try:
+        sock = socket.create_connection(('nsrl.kyr.us', 9120), timeout=0.5)
+        sock.send('Version: 2.0\n')
+        ack_ver = sock.recv(4096)
+        sock.send('query %s\n' % binary.md5())
+        ack_sum = sock.recv(4096)
+        sock.send('BYE\n')
+        if ack_ver.startswith('OK') and ack_sum.startswith('OK 1'):
+            benign = True
+        sock.close()
+    except Exception:
+        pass
+
     fileinfo_tab = render_to_string('tab_fileinfo.djhtml', {
         'binary': binary,
         'malware': malware,
+        'benign': benign,
         })
 
     # Return the new disassembly
