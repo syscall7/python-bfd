@@ -523,7 +523,13 @@ function OdaApplication(options) {
         }, 500);
     }
 
+    $('#whats-oda-btn').on('click', function(e) {
+        $('#modal-whats-oda').modal();
+    });
 
+    $('#about-oda-btn').on('click', function(e) {
+        $('#modal-about').modal();
+    });
 
     sidebar.initialize(options.binary.get('liveMode'));
 
