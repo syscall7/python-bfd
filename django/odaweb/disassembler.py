@@ -322,18 +322,38 @@ class Disassembler(object):
             return hex
 
         for superchunk in superchunks:
+            superchunk.hex_lines = []
             for chunk in superchunk.chunks():
-                # TODO: Deal with sections whose start address is not LINE_WIDTH aligned
-                rounded_start = chunk.start & ~(LINE_WIDTH-1)
-                rounded_end = chunk.end & ~(LINE_WIDTH-1)
-                rounded_size = rounded_end - rounded_start
+                alignment = self.bfd.sections[chunk.name].vma % LINE_WIDTH
+                print "ALIGN: %d" % (alignment) 
+                # Determine if the chunk is the start of a section
+                if self.bfd.sections[chunk.name].vma == chunk.start:
+                    rounded_start = chunk.start
+                else:
+                    # Align on the start of the section and chop off
+                    #  the unaligned bytes
+                    chunk_alignment = chunk.start % LINE_WIDTH
+                    if chunk_alignment > alignment:
+                        rounded_start = chunk.start + LINE_WIDTH - (chunk_alignment - alignment)
+                    else:
+                        rounded_start = chunk.start + alignment - chunk_alignment
+                
+                rounded_size = chunk.end - rounded_start
+                print "START: 0x%08x SIZE: 0x%08x" % (rounded_start, rounded_size)
+                
                 
                 if rounded_size > 0:
                     raw = self.bfd.raw_data(self.bfd.sections[chunk.name], rounded_start, rounded_size)
                     raw_lines = [raw[i:i+LINE_WIDTH] for i in range(0,len(raw),LINE_WIDTH)]
                     addr = rounded_start
-                    superchunk.hex_lines = []
+                    
                     for line in raw_lines:
+                        if len(line)<LINE_WIDTH:
+                            sec = self.bfd.sections[chunk.name]
+                            if chunk.end != (sec.vma + sec.size):
+                                # Pad out the short line with bytes from the next chunk
+                                pad_size = LINE_WIDTH - len(line)
+                                line += self.bfd.raw_data(self.bfd.sections[chunk.name], chunk.end, pad_size)                                
                         ascii = toAscii(line)
                         hex = toHex(line)
                         name = chunk.name
@@ -388,14 +408,9 @@ class JsonChunkProcessor(object):
         #print "BEFORE: %d, AFTER %d" % (numBeforeChunks,numAfterChunks)         
         permachunks = beforeChunks + afterChunks[0:numAfterChunks]    
 
-        architecture = self.binary.options.architecture
-
-        analyzer = analyzerFactory(architecture)
-
-        return self.process_chunks(analyzer, permachunks)
+        return permachunks
 
     def get_chunks_from_chunk(self, start, end, direction, num_chunks):
-        analyzer = analyzerFactory( self.binary.options.architecture )
 
         ctype = ContentType.objects.get_for_model(self.binary)
 
@@ -412,28 +427,38 @@ class JsonChunkProcessor(object):
             permachunks = list(permachunksReversed)
             permachunks.reverse()
         
-        return self.process_chunks(analyzer, permachunks)
+        return permachunks
 
-    def process_chunks(self, analyzer, superchunks):
-
-        dasm = Disassembler(self.binary)
-        analyzer.analyze( dasm, superchunks )
-        
-        dasm.mk_hex_lines(superchunks)
-        #superchunk.hex_lines = '<>'
-        hex_lines = '<>'
+    def get_chunk_list(self, superchunks):
         # Build a primitive object containing the list of chunk data to pass back to the client
         chunk_list = []
         for superchunk in superchunks:
-            superchunk.attach_comments(self.binary)
             chunk_list.append ({
                 'startOffset': superchunk.start,
                 'endOffset': superchunk.end,
                 'isBoundary': superchunk.is_boundary,
                 #'hex_lines' : hex_lines #chunk.hex_lines
             })
+            
+        return chunk_list
 
-        return analyzer.superchunks, chunk_list
+    def process_chunks_disassembly(self, superchunks):
+
+        architecture = self.binary.options.architecture
+
+        analyzer = analyzerFactory(architecture)
+
+        dasm = Disassembler(self.binary)
+        analyzer.analyze( dasm, superchunks )
+
+        for superchunk in superchunks:
+            superchunk.attach_comments(self.binary)
+        
+    def process_chunks_hex(self, superchunks):
+        print "process_chunks_hex"
+        dasm = Disassembler(self.binary)
+        print "got dasm"        
+        dasm.mk_hex_lines(superchunks)
 
 examples = (
     {

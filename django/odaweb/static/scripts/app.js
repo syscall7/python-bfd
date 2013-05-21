@@ -21,7 +21,7 @@ var Sidebar = Backbone.Model.extend({
             console.debug("WindowActivetab %s %s",window.activeTab,window.lastAddr.toString(16));
             $(this).tab('show');
             var jtab = $(this);
-            if ( window.activeTab == "tab-assembly" )
+            if ( isScrollableTab(window.activeTab) )
             {
                 router.navigate("view/"+ window.activeTab + "/offset/" + intToHexStr(window.lastAddr), {trigger: true});
             } 
@@ -257,7 +257,7 @@ function GoToAddressPrompt() {
     $("#slider").slider("value", addr );
 
     // Try to scroll to the address
-    if ( !updateDisassembly(addr) )
+    if ( !updateDisplayedFileContent(addr,false) )
     {
         // Isn't loaded. Try to load it
         scrollToAddr(addr);
@@ -302,7 +302,7 @@ function InitializeSlider(min, max) {
         {
             // Isn't loaded. Try to load it
             //window.topDisplayAddr = addr;
-            updateDisassembly(addr);
+            updateDisplayedFileContent(addr,false);
             scrollToAddr(addr);
         }
     }
@@ -374,6 +374,8 @@ function Load(binary, show_loading) {
     });
 
     window.disChunks = new window.DisChunkList([]);
+    window.hexChunks = new window.DisChunkList([]);
+
     window.disId = binary.id;
 
     var addr = 0;
@@ -388,6 +390,7 @@ function Load(binary, show_loading) {
     
     console.debug("Load, refreshDisassembly addr= 0x%s",addr.toString(16));    
     refreshDisassembly(addr,  show_loading);
+    refreshHex(addr,false);
     
     $.post('_symbols', {id: binary.id}).done(function(data){
         $('#symbol-content').append(data.symbols_html);

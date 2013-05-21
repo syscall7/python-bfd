@@ -82,6 +82,10 @@ def get_session(request):
     print ("FOUND $$$$ " + str(o))
     return o
 
+   # user_id = request.session.get('user_id')
+    #disassembly_id = request.session.get('disassembly_id')
+    #print("Loading short_name = %s" %(disassembly_id))
+
 
 def set(request):
 
@@ -330,6 +334,26 @@ def upload(request):
         'msg': msg
         }), mimetype='application/json')
 
+
+def refresh_hex(request):
+    oda_master = get_session(request)
+
+    binary = oda_master.binary
+
+    addr = int(request.POST.get('addr','0'))
+    print "TotalRefreshHex: 0x%08x" % (addr)
+
+    jcp = JsonChunkProcessor(binary)
+
+    superchunks = jcp.get_chunks_from_addr(addr, 3)
+    jcp.process_chunks_hex(superchunks)
+    chunk_list = jcp.get_chunk_list(superchunks)
+
+    hex = render_to_string('hex_listing.djhtml', { 'chunks' : superchunks } )
+
+    return HttpResponse(simplejson.dumps({'hex_dump' : hex,
+                                          'chunks' : chunk_list })  , mimetype='application/json')
+
 def refresh_disassembly(request):
     oda_master = get_session(request)
 
@@ -338,15 +362,47 @@ def refresh_disassembly(request):
     addr = int(request.POST.get('addr','0'))
     print "TotalRefresh: addr",addr
 
-    superchunks, chunk_list = JsonChunkProcessor(binary).get_chunks_from_addr(addr, 3)
+    jcp = JsonChunkProcessor(binary)
 
+    superchunks = jcp.get_chunks_from_addr(addr, 3)
+    jcp.process_chunks_disassembly(superchunks)
+    chunk_list = jcp.get_chunk_list(superchunks)
+    
     dis = render_to_string('listing.djhtml', { 'chunks' : superchunks, 'functions' : [] } )
-    hex = render_to_string('hex_listing.djhtml', { 'chunks' : superchunks } )
 
     # Return the new disassembly
     return HttpResponse(simplejson.dumps({'disassembly' : dis,
-                                          'hex_dump' : hex,
                                           'chunks' : chunk_list })  , mimetype='application/json')
+
+def partial_refresh_hex(request):
+    oda_master = get_session(request)
+
+    binary = oda_master.binary
+
+    start =int(request.POST.get('start','0'))
+    end=int(request.POST.get('end', '0'))
+    count=int(request.POST.get('count', '0'))
+    direction=int(request.POST.get('dir', '0'))
+
+    print "PartialRefreshHex: START 0x%08x COUNT %d DIR %d" % (start,count,direction)
+
+    jcp = JsonChunkProcessor(binary)
+
+    superchunks = jcp.get_chunks_from_chunk(start, end, direction, count)
+    jcp.process_chunks_hex(superchunks)
+    chunk_list = jcp.get_chunk_list(superchunks)
+
+    hex = render_to_string('hex_listing.djhtml', { 'chunks' : superchunks } )
+
+    print "PartialRefreshHex: Disassembly", hex[:128]
+
+    for chunk in chunk_list:
+        print "CHUNK: ADDR=0x%08x BOUNDARY=%d" % (chunk['startOffset'], chunk['isBoundary'])
+
+    # Return the new disassembly
+    return HttpResponse(simplejson.dumps({'hex_dump' : hex,
+                                          'chunks' : chunk_list })  , mimetype='application/json')
+    
 
 def partial_refresh_disassembly(request):
     oda_master = get_session(request)
@@ -360,10 +416,13 @@ def partial_refresh_disassembly(request):
 
     print "PartialRefresh: START 0x%08x COUNT %d DIR %d" % (start,count,direction)
 
-    superchunks, chunk_list = JsonChunkProcessor(binary).get_chunks_from_chunk(start, end, direction, count)
+    jcp = JsonChunkProcessor(binary)
+
+    superchunks = jcp.get_chunks_from_chunk(start, end, direction, count)
+    jcp.process_chunks_disassembly(superchunks)
+    chunk_list = jcp.get_chunk_list(superchunks)
 
     dis = render_to_string('listing.djhtml', { 'chunks' : superchunks, 'functions' : [] } )
-    hex = render_to_string('hex_listing.djhtml', { 'chunks' : superchunks } )
 
     print "PartialRefresh: Disassembly", dis[:128]
 
@@ -372,7 +431,6 @@ def partial_refresh_disassembly(request):
 
     # Return the new disassembly
     return HttpResponse(simplejson.dumps({'disassembly' : dis,
-                                          'hex_dump' : hex,
                                           'chunks' : chunk_list })  , mimetype='application/json')
     
 

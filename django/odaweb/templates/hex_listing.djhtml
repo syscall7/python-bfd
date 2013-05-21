@@ -2,7 +2,7 @@
 {% for chunk in chunks %}
     <tbody>
     {% for name, addr, bytes, ascii in chunk.hex_lines %}
-        <tr class="{% cycle 'row_even' 'row_odd' %}">
+        <tr addr={{ addr|stringformat:"08x" }}>
 
             {# section #}
             <td class="hex-cell-sec">{{ name }}:</td>

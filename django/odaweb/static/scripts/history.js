@@ -12,7 +12,7 @@ $(document).ready(function() {
         generic_tab : function(tab) {
             window.activeTab = tab;
             console.debug("genericTab: WindowActivetab %s",tab);
-            if ( tab == 'tab-assembly')
+            if ( tab == 'tab-assembly' || tab == 'tab-hexdump' )
             {
                 scrollToAddr(window.lastAddr);
             }
@@ -24,7 +24,7 @@ $(document).ready(function() {
             var tabselector = '[data-toggle="tab"][href="#' + tab + '"]'; 
             $(tabselector).tab('show');
 		    console.debug("WindowActivetab %s",tab);
-			if ( tab == 'tab-assembly')
+			if ( tab == 'tab-assembly' || tab == 'tab-hexdump' )
 			{
 			    // Only process tabs for existing sessions
 			    //   In other words, you can't navigate to an address
@@ -46,8 +46,8 @@ $(document).ready(function() {
     				
     				// Check if the target offset is currently loaded in the browser
     				var intOffset = parseInt(offset,16);
-    				console.debug("tab, updateDisassembly offset %s", intOffset.toString(16));
-                    if ( !updateDisassembly(intOffset,false) )
+    				console.debug("tab, updateDisplayedFileContent offset %s", intOffset.toString(16));
+                    if ( !updateDisplayedFileContent(intOffset,false) )
                     {
                         // Need to handle the scroll if the window isn't changing
                         scrollToAddr(intOffset);                    
@@ -66,12 +66,12 @@ $(document).ready(function() {
 	Backbone.history.start();
 	
 
-	$('#myTabContent').bind('scrollstop', assemblyScrollStopHandler);
+	$('#myTabContent').bind('scrollstop', scrollStopHandler);
     $('#myTabContent').bind('scroll', function(event) {
             if ( window.scrollTimer == null )
             {
                 //console.debug("Set timer for 100ms latency\n");
-                window.scrollTimer = setTimeout(assemblyScrollHandler, 100);                
+                window.scrollTimer = setTimeout(scrollHandler, 100);                
             }
         });
         
@@ -108,7 +108,7 @@ function scrollToAddr(offset)
         var hexStr = intToHexStr(offset);
 
         // Scroll to the proper offset in the disassembly
-        var offsetselector = 'tr[addr=' + hexStr + ']';
+        var offsetselector = '#' + window.activeTab + ' tr[addr=' + hexStr + ']';
         var offset_element = $(offsetselector);
 
         // Check if element exists
@@ -193,54 +193,32 @@ function refreshDisassembly(offset, show_loading)
         if ( data.chunks.length > 0 )
         {
             // Remove old chunks from the display
-            console.timeStamp("Refresh: Start Remove\n");
-            console.debug("refreshDisassembly, remove old listing");
+            //console.timeStamp("Refresh: Start Remove\n");
+            //console.debug("refreshDisassembly, remove old listing");
             $('#listing').find("tbody").remove();
-            console.timeStamp("Refresh: Finish Remove\n");
+            //console.timeStamp("Refresh: Finish Remove\n");
     
             // Append the new listing
-            console.timeStamp("Refresh: Start Append\n");
-            console.debug("refreshDisassembly, append new listing");
+            //console.timeStamp("Refresh: Start Append\n");
+            //console.debug("refreshDisassembly, append new listing");
             $('#listing').find("colgroup").after(data.disassembly);
-            console.timeStamp("Refresh: Finish Append\n");
-
-            // Remove old chunks from the display
-            console.debug("refreshDisassembly, remove old hex");
-            $('#hex-dump-table').find("tbody").remove();
-
-            // Append the new listing
-            console.debug("refreshDisassembly, append new hex");
-            $('#hex-dump-table').append(data.hex_dump);
+            //console.timeStamp("Refresh: Finish Append\n");
 
             // Clear the collection
             window.disChunks.reset();
                
             // Append the new chunks to the end of the list
             console.debug("refreshDisassembly, append new chunks %d",data.chunks.length);
-            for (var i = 0; i < data.chunks.length; i++) 
-            {
-                var chunk = new DisChunkInfo({ 
-                    startOffset : data.chunks[i].startOffset,
-                    endOffset : data.chunks[i].endOffset,
-                    isBoundary : data.chunks[i].isBoundary
-                });
-                window.disChunks.push(chunk);    
-            }
-            
-            console.timeStamp("Refresh: Dischunk processing\n");
+            appendChunks(window.disChunks, data.chunks);
 
         }
         $('#assembly-scroll').show();
         $('#loading-panel').hide();
         
         // Recenter the Scrollbar
-        console.timeStamp("Refresh: Start ScrollTo\n");
         scrollToAddr(offset);
-        console.timeStamp("Refresh: ScrollTo Return\n");
 
-        console.timeStamp("Refresh: Start load Popovers\n");     
         loadPopovers();
-        console.timeStamp("Refresh: Start loadPopovers return\n");     
         
         window.scrollTimer = null;
         window.ignoreScrollEvents = false;                    
@@ -254,21 +232,36 @@ function refreshDisassembly(offset, show_loading)
                     
 }
 
-function updateDisassembly(offset,isScroll)
+function updateDisplayedFileContent(offset,isScroll)
 {
-    console.debug("updateDisassembly, start");
+    console.debug("updateDisplayedFileContent, start");
 
-    var chunks = window.disChunks;
+    // Get the proper chunks depending on which tab is displayed
+    if ( window.activeTab == 'tab-hexdump')
+    {
+        var chunks = window.hexChunks;        
+    }
+    else
+    {
+        var chunks = window.disChunks;
+    }
 
     // Map the offset to a chunk
-    var index = getChunkIndex(offset);
-    console.debug("updateDisassembly, got chunk index %d", index);
+    var index = getChunkIndex(offset,chunks);
+    console.debug("updateDisplayedFileContent, got chunk index %d", index);
 
     if ( index == -1 )
     {
-        // Need to load all new disassembly
-        console.debug("updateDisassembly, refresh entire page");
-        refreshDisassembly(offset);
+        // Need to load all new content
+        console.debug("updateDisplayedFileContent, refresh entire page");
+        if ( window.activeTab == 'tab-hexdump')
+        {
+            refreshHex(offset,true);        
+        }
+        else
+        {
+            refreshDisassembly(offset);
+        }
         return true;
     }
     else
@@ -279,16 +272,31 @@ function updateDisassembly(offset,isScroll)
         if ( index > mid_index )
         {
             // Partial load
-            console.debug("updateDisassembly, partial load forward");
+            console.debug("updateDisplayedFileContent, partial load forward");
             var requested_chunks = index-mid_index;
-            return requestMoreDisassembly(1,requested_chunks,offset,isScroll);
+            if ( window.activeTab == 'tab-hexdump')
+            {
+                return loadPartialHex(1,requested_chunks,offset,isScroll);        
+            }
+            else
+            {
+                return requestMoreDisassembly(1,requested_chunks,offset,isScroll);
+            }
+            
         }
         else if ( index < mid_index )
         {
             // Partial load
-            console.debug("updateDisassembly, partial load reverse");
+            console.debug("updateDisplayedFileContent, partial load reverse");
             var requested_chunks = mid_index - index;
-            return requestMoreDisassembly(0,requested_chunks,offset,isScroll);        
+            if ( window.activeTab == 'tab-hexdump')
+            {
+                return loadPartialHex(0,requested_chunks,offset,isScroll);        
+            }
+            else
+            {
+                return requestMoreDisassembly(0,requested_chunks,offset,isScroll);        
+            }
         }
     }
     
@@ -296,12 +304,11 @@ function updateDisassembly(offset,isScroll)
 }
 
 
-function getChunkIndex(offset)
+function getChunkIndex(offset,chunks)
 {
     // Find the chunk that contains the address
     if ( "disChunks" in window )
     {
-        var chunks = window.disChunks;
         for (var i = 0; i < chunks.length; i++) 
         {
             var start = chunks.models[i].get('startOffset');
@@ -315,28 +322,71 @@ function getChunkIndex(offset)
     
     // Chunk not found or address not on the page
     return -1;
-    
 }
 
-function debugChunks()
+
+function prependChunks(chunks,newChunks)
 {
-    for (var i = 0; i < window.disChunks.length; i++) 
+    // Remove the chunks with the highest address
+    for (var i = 0; i < newChunks.length; i++) 
+    {
+        chunks.pop();    
+    }   
+
+    // Prepend the new chunks
+    var i = newChunks.length;
+    while (i > 0)
+    {
+        var chunk = new DisChunkInfo({ 
+            startOffset : newChunks[i-1].startOffset,
+            endOffset : newChunks[i-1].endOffset,
+            isBoundary : newChunks[i-1].isBoundary
+        });
+        chunks.unshift(chunk);    
+        i = i-1;
+    }            
+}
+
+
+function appendChunks(chunks,newChunks)
+{
+    // Remove the chunks with the lowest address
+    for (var i = 0; i < newChunks.length; i++) 
+    {
+        chunks.shift();    
+    }   
+    
+    // Append the new chunks
+    for (var i = 0; i < newChunks.length; i++) 
+    {
+        var chunk = new DisChunkInfo({ 
+            startOffset : newChunks[i].startOffset,
+            endOffset : newChunks[i].endOffset,
+            isBoundary : newChunks[i].isBoundary
+        });
+        chunks.push(chunk);    
+    }
+}
+
+function debugChunks(chunks)
+{
+    for (var i = 0; i < chunks.length; i++) 
     {
         console.debug("Chunk %d: S=0x%s E=0x%s B=%d",
                         i,
-                        window.disChunks.models[i].get('startOffset').toString(16),
-                        window.disChunks.models[i].get('endOffset').toString(16),
-                        window.disChunks.models[i].get('isBoundary'));
+                        chunks.models[i].get('startOffset').toString(16),
+                        chunks.models[i].get('endOffset').toString(16),
+                        chunks.models[i].get('isBoundary'));
     }   
     
 }
 
 function requestMoreDisassembly(dir,chunk_count,offset,isScroll)
 {
-    if ( chunk_count < window.disChunks.length )
+    var chunks = window.disChunks;
+    if ( chunk_count < chunks.length )
     {
         // Keeping some of the existing window
-        var chunks = window.disChunks;
         var index = 0;
         
         if ( dir == 1 )
@@ -388,28 +438,14 @@ function requestMoreDisassembly(dir,chunk_count,offset,isScroll)
                                         
                     // Scroll back to the original address
                     scrollToAddr(scrollAddr);                            
-                    
-                    // Remove the lowest chunks from the chunk list
-                    for (var i = 0; i < data.chunks.length; i++) 
-                    {
-                        window.disChunks.shift();    
-                    }   
-                    
+                                        
                     // Append the new chunks to the end of the list
-                    for (var i = 0; i < data.chunks.length; i++) 
-                    {
-                        var chunk = new DisChunkInfo({ 
-                            startOffset : data.chunks[i].startOffset,
-                            endOffset : data.chunks[i].endOffset,
-                            isBoundary : data.chunks[i].isBoundary
-                        });
-                        window.disChunks.push(chunk);    
-                    }
+                    appendChunks(chunks, data.chunks);
                 }
                 if ( dir == 0 && data.chunks.length > 0 )
                 {                    
                     // Remove higher address chunks from the display
-                    var chunks_len = window.disChunks.length-data.chunks.length;
+                    var chunks_len = chunks.length-data.chunks.length;
                     $('#listing').find("tbody:gt(" + (chunks_len-1) + ")").remove();
 
                     // Prepend the new listing
@@ -417,25 +453,9 @@ function requestMoreDisassembly(dir,chunk_count,offset,isScroll)
 
                     // Scroll back to the original topmost address
                     scrollToAddr(scrollAddr);                            
-                    
-                    // Remove the highest chunks from the chunk list
-                    for (var i = 0; i < data.chunks.length; i++) 
-                    {
-                        window.disChunks.pop();    
-                    }   
-                    
+                                        
                     // Append the new chunks to the beginning of the list
-                    var i = data.chunks.length;
-                    while (i > 0)
-                    {
-                        var chunk = new DisChunkInfo({ 
-                            startOffset : data.chunks[i-1].startOffset,
-                            endOffset : data.chunks[i-1].endOffset,
-                            isBoundary : data.chunks[i-1].isBoundary
-                        });
-                        window.disChunks.unshift(chunk);    
-                        i = i-1;
-                    }        
+                    prependChunks(chunks, data.chunks);
                 }   
 
                 loadPopovers();
@@ -526,21 +546,35 @@ function getTopVisibleAssemblyAddr()
     return intOffset;
 }
 
-
-function assemblyScrollHandler() 
+function isScrollableTab(tab)
 {
-    console.debug("assemblyScrollHandler: start");
+    if ( tab == 'tab-assembly' )
+    {
+        return true;
+    }
+    else if (tab == 'tab-hexdump' )
+    {
+        return true;
+    }
+    
+    return false;
+}
+
+
+function scrollHandler() 
+{
+    console.debug("scrollHandler: start");
     if (window.ignoreScrollEvents) 
     {
         window.scrollTimer=null;
-        console.debug("assemblyScrollHandler: ignoring scroll events");
+        console.debug("scrollHandler: ignoring scroll events");
         return;
     }
 
-    if ( window.activeTab != 'tab-assembly')
+    if ( !isScrollableTab(window.activeTab) )
     {
         window.scrollTimer=null;
-        console.debug("assemblyScrollHandler: assembly tab not active (%s)",window.activeTab);
+        console.debug("scrollHandler: tab not handled (%s)",window.activeTab);
         return;        
     }
 
@@ -550,35 +584,35 @@ function assemblyScrollHandler()
     if (elem) { 
         var intOffset = parseInt(elem.getAttribute("addr"),16);
 
-        console.debug("assemblyScrollHandler: updating slider to 0x%s", elem.getAttribute("addr"));
+        console.debug("scrollHandler: updating slider to 0x%s", elem.getAttribute("addr"));
         updateSlider(intOffset);
 
         // Load Code if necessary
-        if ( !updateDisassembly(intOffset,true) )
+        if ( !updateDisplayedFileContent(intOffset,true) )
         {
             window.scrollTimer=null;
         }
     } 
     else
     {
-        console.debug("ScrollHandler: No addr in row")
+        console.debug("scrollHandler: No addr in row")
         window.scrollTimer=null;        
     }
 }
 
-function assemblyScrollStopHandler() 
+function scrollStopHandler() 
 {
-    console.debug("assemblyScrollStopHandler: start");
+    console.debug("scrollStopHandler: start %s",window.activeTab);
 
     if (window.ignoreScrollEvents) 
     {
-        console.debug("assemblyScrollStopHandler: ignoring scroll events");
+        console.debug("scrollStopHandler: ignoring scroll events");
         return;
     }
     
-    if ( window.activeTab != 'tab-assembly')
+    if ( !isScrollableTab(window.activeTab) )
     {
-        console.debug("assemblyScrollStopHandler: assembly tab not active");
+        console.debug("scrollStopHandler: tab not handled");
         return;        
     }
 
@@ -587,11 +621,11 @@ function assemblyScrollStopHandler()
 	if (elem) { 
         var url_hash_params = {};
         var offsetStr = elem.getAttribute("addr");
-        url_hash_params.tab = "tab-assembly";
+        url_hash_params.tab = window.activeTab;
 		url_hash_params.offset = offsetStr;
 
         var intOffset = parseInt(offsetStr,16);
-        console.debug("assemblyScrollStopHandler, updating slider to 0x%s", offsetStr.toString(16));
+        console.debug("scrollStopHandler, updating slider to 0x%s", offsetStr.toString(16));
         updateSlider(intOffset);
         window.lastAddr = intOffset;
 

@@ -18,7 +18,8 @@
     <script type="text/javascript" src="{{ STATIC_URL }}scripts/lib/scroll-startstop.events.jquery.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}scripts/fixed-table.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}scripts/history.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}scripts/lib/jquery.form.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}scripts/hex-handler.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}scripts/lib/jquery.form.js"></script>    
     <script type="text/javascript" src="{{ STATIC_URL }}scripts/app.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}scripts/live-hex.js"></script>
     {%  endcompress %}
