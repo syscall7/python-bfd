@@ -276,13 +276,13 @@ def strings(request):
     return HttpResponse(simplejson.dumps({'strings' : strings })  , mimetype='application/json')
 
 class UploadFileForm(forms.Form):
-    MAX_UPLOAD_SIZE_MB = 2
+    MAX_UPLOAD_SIZE_KB = 200
     filedata = forms.FileField()
     project_name = forms.CharField(max_length=64)
 
     def clean_filedata(self):
-        if self.cleaned_data['filedata'].size > self.MAX_UPLOAD_SIZE_MB*1024*1024:
-            raise forms.ValidationError("File must be less than %d MB!" % self.MAX_UPLOAD_SIZE_MB)
+        if self.cleaned_data['filedata'].size > self.MAX_UPLOAD_SIZE_KB*1024:
+            raise forms.ValidationError("File must be less than %d KB!" % self.MAX_UPLOAD_SIZE_KB)
 
         # always return the cleaned data, whether you have changed it or not
         return self.cleaned_data['filedata']
