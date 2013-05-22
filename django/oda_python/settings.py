@@ -15,7 +15,7 @@ DATABASES = {
         #'NAME': '/var/www/oda/odaweb.db',                      # Or path to database file if using sqlite3.
         #'NAME': 'odaweb.db',                      # Or path to database file if using sqlite3.
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'odapython'    ,
+        'NAME': 'odapython2'    ,
         'USER': 'root',                      # Not used with sqlite3.
         'PASSWORD': 'password',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
