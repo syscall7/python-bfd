@@ -14,7 +14,7 @@ import hashlib
 import json
 import subprocess
 
-fs = FileSystemStorage(location='/tmp/odaweb')
+fs = FileSystemStorage(location='/tmp/odaweb2')
 
 # Create your models here.
 class OdaFile(models.Model):
