@@ -204,7 +204,7 @@ class Disassembler(object):
             addr_range = property(lambda self: self.stop_addr - self.start_addr)
 
         def filter_sec_code(sec):
-            return {'SEC_CODE'}.issubset([f.name for f in sec.flags])
+            return set(['SEC_CODE']).issubset([f.name for f in sec.flags])
 
         # HACK: if there's only one section, it's the .data section for raw binaries, so let's include it
         if len(self.sections) == 1 and self.sections[0].name == '.data':
