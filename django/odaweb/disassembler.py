@@ -482,6 +482,34 @@ examples = (
         'binary_type' : 'string',
         'data' : '01 20 40 E2 02 20 61 E0 01 30 D1 E4 00 00 53 E3 02 30 C1 E7 FB FF FF 1A 1E FF 2F E1',
         'options' : OdaOptions(target="binary", architecture="arm"),
+    },
+    {
+        'project_name' : 'whoami (Linux)',
+        'short_name' : 'whoami',
+        'binary_type' : 'file',
+        'file_name' : 'whoami',
+        'options' : OdaOptions(target="elf32-i386", architecture="i386"),
+    },
+    {
+        'project_name' : 'mkdir (Linux)',
+        'short_name' : 'mkdir',
+        'binary_type' : 'file',
+        'file_name' : 'mkdir',
+        'options' : OdaOptions(target="elf32-i386", architecture="i386"),
+        },
+    {
+        'project_name' : 'cat (Linux)',
+        'short_name' : 'cat',
+        'binary_type' : 'file',
+        'file_name' : 'cat',
+        'options' : OdaOptions(target="elf32-i386", architecture="i386"),
+        },
+    {
+        'project_name' : 'chown (Linux)',
+        'short_name' : 'chown',
+        'binary_type' : 'file',
+        'file_name' : 'chown',
+        'options' : OdaOptions(target="elf32-i386", architecture="i386"),
         },
     {
         'project_name' : 'sha1sum (Linux)',
@@ -489,7 +517,7 @@ examples = (
         'binary_type' : 'file',
         'file_name' : 'sha1sum',
         'options' : OdaOptions(target="elf32-i386", architecture="i386"),
-        },
+    },
     {
         'project_name' : 'Sasser Worm (Windows)',
         'short_name' : 'sasser',
