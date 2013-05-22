@@ -7,7 +7,7 @@
         <img src="/static/images/oda.png" style="float:left"/>
         <b>ODA</b> stands for <b>O</b>nline <b>D</b>is<b>A</b>ssembler.  <b>ODA</b> is a general purpose machine code disassembler
         that supports a myriad of machine architectures.  Built on the shoulders of libbfd and libopcodes (part of
-        binutils), <b>ODA</b> allows you to explore an executable by dissecting its section properties, strings,
+        binutils), <b>ODA</b> allows you to explore an executable by dissecting its sections, strings,
         symbols, raw hex, and machine level instructions.
 
         <p><p>You can use it for a variety of purposes such as:
@@ -26,6 +26,9 @@
         <p><p><b>ODA</b> is a BETA release that is limited by the resource constraints of the server on which it is
         hosted and the spare time of its creators.  If you find <b>ODA</b></b> useful, have a feature request, or want to
         comment in any way, please <a href="mailto:admin@onlinedisassembler.com">drop us a line!</a>
+
+    <h4>Supported Architectures</h4>
+    {% for a in supported_archs %}{{a}}<br>{% endfor %}
 
     </div>
     <div class="modal-footer">
