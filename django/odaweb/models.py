@@ -12,7 +12,7 @@ import uuid
 import tempfile
 import hashlib
 import json
-import subprocess
+import commands
 
 fs = FileSystemStorage(location='/tmp/odaweb2')
 
@@ -112,7 +112,7 @@ class Binary(models.Model):
         if os.name == 'nt':
             line = ''
         else:
-            line = subprocess.check_output('file -b %s' % self.file_handle().name, shell=True)
+            line = commands.getoutput('file -b %s' % self.file_handle().name, shell=True)
         return line.split(', ')
 
     class Meta:
