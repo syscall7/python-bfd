@@ -23,6 +23,8 @@
             <li>Satisying your own intellectual curiosity (Does there exist some sequence of bytes that disassembles to the same logical operation for two separate platforms?)</li>
         </ul>
 
+        <p><p>See the <a href="http://onlinedisassembler.com/blog/?p=44">tutorial</a> for an overview of <b>ODA</b>'s features.
+
         <p><p><b>ODA</b> is a BETA release that is limited by the resource constraints of the server on which it is
         hosted and the spare time of its creators.  If you find <b>ODA</b></b> useful, have a feature request, or want to
         comment in any way, please <a href="mailto:admin@onlinedisassembler.com">drop us a line!</a>
