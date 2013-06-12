@@ -450,6 +450,7 @@ class JsonChunkProcessor(object):
 
         dasm = Disassembler(self.binary)
         analyzer.analyze( dasm, superchunks )
+        analyzer.convertToHtmlLine()
 
         for superchunk in superchunks:
             superchunk.attach_comments(self.binary)

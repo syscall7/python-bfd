@@ -114,10 +114,6 @@ class defaultAnalyzer(object):
                     b.isTargetAddrValid = True
                     break
 
-        # Make a second pass through the instructions to create the html
-        self.convertToHtmlLine()
-
-    
     def parseDisassemblyLine(self,listing):
         
         # Perform the match
@@ -184,6 +180,7 @@ class defaultAnalyzer(object):
         else:
             return '%s_%0.8x' % (prefix,addr)
 
+    # Make a second pass through the instructions to create the html
     def convertToHtmlLine(self):
 
         # weed out invalid branches
