@@ -260,7 +260,7 @@ function updateDisplayedFileContent(offset,isScroll)
         }
         else
         {
-            refreshDisassembly(offset);
+            refreshDisassembly(offset,true);
         }
         return true;
     }
