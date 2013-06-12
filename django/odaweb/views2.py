@@ -3,8 +3,9 @@ from odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment, InstDoc
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from disassembler import Disassembler, JsonChunkProcessor, examples, get_supported_archs, \
-    copy_disassembly, get_supported_endians, get_platform_options, guess_bfd_arch
+    copy_disassembly, get_supported_endians, get_platform_options, guess_bfd_arch, analyzerFactory
 from django.contrib import messages
+from odaweb.models import BinaryDisassemblySuperChunk
 from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseServerError
 from django.utils import simplejson
@@ -255,8 +256,17 @@ def symbols(request):
     binary = oda_master.binary
     dasm = Disassembler(binary)
 
+    ctype = ContentType.objects.get_for_model(binary)
+
+    superchunks = BinaryDisassemblySuperChunk.objects.filter(
+            content_type=ctype.id, object_id = binary.id)[:]
+
+    architecture = binary.options.architecture
+    analyzer = analyzerFactory(architecture)
+    analyzer.analyze(dasm, superchunks)
+
     syms = render_to_string('symbols.djhtml', {
-        'symbols' : dasm.symbols(),
+        'symbols' : analyzer.functions.values,
     })
 
     # Return the new disassembly

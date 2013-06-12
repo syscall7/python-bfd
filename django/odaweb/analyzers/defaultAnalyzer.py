@@ -21,10 +21,11 @@ class InstUnit(object):
         self.labelName = labelName
 
 class Function(object):
-    def __init__(self, offset, name, xrefs):
+    def __init__(self, offset, name, type, xrefs):
         self.offset = offset
         self.xrefs = xrefs
         self.name = name
+        self.type = type
 
 
 class defaultAnalyzer(object):
@@ -80,7 +81,7 @@ class defaultAnalyzer(object):
         # Add preidentified symbols to the labels and functions list
         for sym in self.symbols:
             if sym.type == 'T' or sym.type == 't':
-                self.functions[sym.value] = Function(sym.value, sym.name, set())
+                self.functions[sym.value] = Function(sym.value, sym.name, sym.type, set())
                 
         # Make a first pass at parsing for organizing the instructions
         self.superchunks = superchunks
@@ -159,7 +160,7 @@ class defaultAnalyzer(object):
                             self.labels.append(inst.targetAddr)
                         elif inst.instType == instructionType.call:
                             if inst.targetAddr not in self.functions:
-                                self.functions[inst.targetAddr] = Function(inst.targetAddr, 'func_%0.8x' % (inst.targetAddr), set([inst.offset]))
+                                self.functions[inst.targetAddr] = Function(inst.targetAddr, 'func_%0.8x' % (inst.targetAddr), 't', set([inst.offset]))
                             else:
                                 # Add new cross reference to set
                                 self.functions[inst.targetAddr].xrefs.update([inst.offset])
