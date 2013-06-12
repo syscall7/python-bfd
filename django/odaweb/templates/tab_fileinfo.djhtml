@@ -4,7 +4,11 @@
     <div class="span9 group">
         <table class="table-file-props">
             <tr>
-                <td class="prop-label">Name:</td>
+                <td class="prop-label">Project:</td>
+                <td>{{ project_name }}</td>
+            </tr>
+            <tr>
+                <td class="prop-label">File:</td>
                 <td>{{ binary.name }}</td>
             </tr>
             <tr>

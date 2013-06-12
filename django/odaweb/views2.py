@@ -195,6 +195,7 @@ def fileinfo(request):
         'binary': binary,
         'malware': malware,
         'benign': benign,
+        'project_name' : oda_master.project_name,
         })
 
     # Return the new disassembly

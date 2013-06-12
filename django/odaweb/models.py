@@ -182,7 +182,7 @@ class BinaryString(Binary):
         return File(t)
 
     def name(self):
-        return 'hex string'
+        return 'Live Mode'
 
     def size(self):
         return len(self.binary_string) / 2
