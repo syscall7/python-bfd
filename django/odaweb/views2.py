@@ -267,7 +267,7 @@ def symbols(request):
     analyzer.analyze(dasm, superchunks)
 
     syms = render_to_string('symbols.djhtml', {
-        'symbols' : analyzer.functions.values,
+        'symbols' : sorted(analyzer.functions.values(), key=lambda t: t.offset)
     })
 
     # Return the new disassembly
