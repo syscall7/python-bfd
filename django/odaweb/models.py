@@ -112,7 +112,8 @@ class Binary(models.Model):
         if os.name == 'nt':
             line = ''
         else:
-            line = commands.getoutput('file -b %s' % self.file_handle().name, shell=True)
+            #line = subprocess.check_output('file -b %s' % self.file_handle().name, shell=True)
+            line = commands.getoutput('file -b %s' % self.file_handle().name)
         return line.split(', ')
 
     class Meta:
