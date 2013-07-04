@@ -448,12 +448,18 @@ class JsonChunkProcessor(object):
 
         analyzer = analyzerFactory(architecture)
 
-        dasm = Disassembler(self.binary)
-        analyzer.analyze( dasm, superchunks )
-        analyzer.convertToHtmlLine()
+        ctype = ContentType.objects.get_for_model(self.binary)
+        all_superchunks = BinaryDisassemblySuperChunk.objects.filter(
+            content_type=ctype.id, object_id = self.binary.id)[:]
 
-        for superchunk in superchunks:
+        dasm = Disassembler(self.binary)
+        analyzer.analyze( dasm, all_superchunks )
+        s = filter(lambda x: x.start in [i.start for i in superchunks], all_superchunks)
+        analyzer.convertToHtmlLine(s)
+
+        for superchunk in s:
             superchunk.attach_comments(self.binary)
+        return s
         
     def process_chunks_hex(self, superchunks):
         print "process_chunks_hex"
@@ -519,13 +525,13 @@ examples = (
         'file_name' : 'sha1sum',
         'options' : OdaOptions(target="elf32-i386", architecture="i386"),
     },
-    {
-        'project_name' : 'Sasser Worm (Windows)',
-        'short_name' : 'sasser',
-        'binary_type' : 'file',
-        'file_name' : 'net-worm.win32.sasser.a',
-        'options' : OdaOptions(target="elf32-i386", architecture="i386"),
-        },
+    #{
+    #    'project_name' : 'Sasser Worm (Windows)',
+    #    'short_name' : 'sasser',
+    #    'binary_type' : 'file',
+    #    'file_name' : 'net-worm.win32.sasser.a',
+    #    'options' : OdaOptions(target="elf32-i386", architecture="i386"),
+    #    },
 )
 
 
