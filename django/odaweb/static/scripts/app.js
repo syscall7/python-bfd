@@ -18,7 +18,6 @@ var Sidebar = Backbone.Model.extend({
         $('#myTab a').click(function (e) {
             e.preventDefault();
             window.activeTab = e.target.hash.split('#')[1];
-            console.debug("WindowActivetab %s %s",window.activeTab,window.lastAddr.toString(16));
             $(this).tab('show');
             var jtab = $(this);
             if ( isScrollableTab(window.activeTab) )
@@ -168,7 +167,6 @@ function FileUploadForm() {
 
                     // if we cannot detect the file format
                     if (data.target == 'binary') {
-                        console.debug('File format not detected');
                         $('#select-open-architecture').prop('disabled', false);
                     }
                     // else, we know the format (and should therefore already know the arch)
@@ -235,7 +233,6 @@ function GoToAddressPrompt() {
             addr = Number(strAddr);
             // must be a number
             if (isNaN(addr)) {
-                console.debug("Not a number!");
                 alert('Address must be hexadecimal in the form of "AABB..." or "0xAABB..."');
                 continue;
             }
@@ -286,7 +283,6 @@ function InitializeSlider(min, max) {
     function updateAddrDisplay(addr) {
         window.topDisplayAddr = addr;
         addrStr = addr.toString(16).toUpperCase();
-        //console.debug("updateAddrDisplay to %s", addrStr);
         while (addrStr.length < 8) addrStr = "0" + addrStr;
         $("#slider-address").text("0x" + addrStr);
     }
@@ -309,9 +305,9 @@ function InitializeSlider(min, max) {
 
     // setup slider
     $( "#slider" ).slider({
-        change: function( event, ui ) { console.debug("slider change event"); updateAddrDisplay(ui.value); },
-        slide: function( event, ui ) { console.debug("slider slide event"); updateAddrDisplay(ui.value); },
-        stop: function( event, ui )  { console.debug("slider stop event"); sliderHandler(ui.value); },
+        change: function( event, ui ) { updateAddrDisplay(ui.value); },
+        slide: function( event, ui ) { updateAddrDisplay(ui.value); },
+        stop: function( event, ui )  { sliderHandler(ui.value); },
         animate: true,
         min: min,
         max: max,
@@ -323,7 +319,6 @@ function InitializeSlider(min, max) {
     updateAddrDisplay($("#slider").slider("value"));
 
     $(document).on("click", "#listing tr", function(){
-        console.debug("selected row: " + $(this).attr('addr'));
         selectedRow = $(this);
         $('tr.selected').removeClass('selected');
         $(this).addClass('selected');
@@ -339,7 +334,6 @@ function InitializeSlider(min, max) {
         else if (String.fromCharCode(event.which) == ';') {
 
             if (selectedRow != null) {
-                //console.debug('here');
                 selectedRow.find('.comment').text('   ');
                 selectedRow.find('.comment').focus();
             }
@@ -388,7 +382,6 @@ function Load(binary, show_loading) {
         addr = window.initialOffset;
     }
     
-    console.debug("Load, refreshDisassembly addr= 0x%s",addr.toString(16));    
     refreshDisassembly(addr,  show_loading);
     refreshHex(addr,false);
     
@@ -437,11 +430,7 @@ function Load(binary, show_loading) {
 
 function InitializeComments() {
 
-    console.debug('intializing comments...');
-
     $(document).on("keypress", ".comment", function(e) {
-
-        //console.debug("keypress " + e.which);
 
         if (e.which == 13)
         {
@@ -467,7 +456,6 @@ function InitializeComments() {
         if (comment == "" || comment == "<br>" ) {
             comment = "&nbsp;";
         } else {
-            console.debug("adding comment at offset %s: \"%s\"", offset, comment);
             $.post("/odaweb/comment", { comment: comment, offset: offset } );
 
             // add "; "

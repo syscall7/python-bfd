@@ -2,11 +2,7 @@
 // Load an entire new page of hex
 function refreshHex(offset,scrollto)
 {
-    console.debug("refreshHexDump, start");
-
     $.post('_refreshHex', {id: window.disId, addr:offset}).done(function(data){
-
-        console.timeStamp("RefreshHex: Received Response\n");
 
         // Update the chunk list
         if ( data.chunks.length > 0 )
@@ -22,9 +18,6 @@ function refreshHex(offset,scrollto)
                
             // Append the new chunks to the end of the list
             appendChunks(window.hexChunks,data.chunks);
-            
-            console.timeStamp("refreshHexDump: Dischunk processing\n");
-
         }
                 
         // TODO: Port to Hex display
@@ -40,8 +33,6 @@ function refreshHex(offset,scrollto)
         window.scrollTimer = null;
         window.ignoreScrollEvents = false;                    
 
-        console.timeStamp("refreshHexDump: Done Processing\n");
-          
     }).fail(function(){
         alert('fail');
     });
@@ -71,8 +62,6 @@ function loadPartialHex(dir,chunk_count,offset,isScroll)
         var ch_start = chunks.models[index].get('startOffset');
         var ch_end = chunks.models[index].get('endOffset');
 
-        console.debug("loadPartialHex: start 0x%s\n",ch_start.toString(16));
-
         // Check if we can request more chunks
         if ( chunks.models[index].get('isBoundary') == false )
         {
@@ -81,8 +70,6 @@ function loadPartialHex(dir,chunk_count,offset,isScroll)
                         
             $.post('_partial_refreshHex', {id: window.disId, start:ch_start, end:ch_end, count:chunk_count, dir:dir}).done(function(data){
                 
-                console.timeStamp("loadPartialHex: Received Response\n");
-
                 if ( isScroll )
                 {
                     // Scroll to the top most visible address after load
@@ -99,7 +86,6 @@ function loadPartialHex(dir,chunk_count,offset,isScroll)
                 {                                                                              
                     // Remove lower address chunks from the display
                     $('#hex-dump-table').find("tbody:lt(" + data.chunks.length + ")").remove();
-                    console.timeStamp("loadPartialHex: Remove %d low addr chunks\n",data.chunks.length);
 
                     // Append the new listing
                     $('#hex-dump-table tbody:last').after(data.hex_dump);
@@ -126,8 +112,6 @@ function loadPartialHex(dir,chunk_count,offset,isScroll)
                     prependChunks(chunks, data.chunks);
                 }   
                                 
-                console.timeStamp("loadPartialHex: Done Processing\n");
-                
                 window.scrollTimer = null;
                 window.ignoreScrollEvents = false;                    
                   
@@ -137,8 +121,6 @@ function loadPartialHex(dir,chunk_count,offset,isScroll)
         }
         else
         {
-            console.debug("loadPartialHex: ignore, boundary\n");
-            
         }
     }
     
