@@ -448,18 +448,12 @@ class JsonChunkProcessor(object):
 
         analyzer = analyzerFactory(architecture)
 
-        ctype = ContentType.objects.get_for_model(self.binary)
-        all_superchunks = BinaryDisassemblySuperChunk.objects.filter(
-            content_type=ctype.id, object_id = self.binary.id)[:]
-
         dasm = Disassembler(self.binary)
-        analyzer.analyze( dasm, all_superchunks )
-        s = filter(lambda x: x.start in [i.start for i in superchunks], all_superchunks)
-        analyzer.convertToHtmlLine(s)
+        analyzer.analyze( dasm, superchunks )
+        analyzer.convertToHtmlLine()
 
-        for superchunk in s:
+        for superchunk in superchunks:
             superchunk.attach_comments(self.binary)
-        return s
         
     def process_chunks_hex(self, superchunks):
         print "process_chunks_hex"
