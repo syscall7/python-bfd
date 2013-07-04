@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     # url(r'^$', 'oda_python.views.home', name='home'),
     # url(r'^oda_python/', include('oda_python.foo.urls')),
     (r'^$', lambda x: HttpResponseRedirect('/odaweb/')),
+    (r'^odaweb/run_hex.*$', lambda x: HttpResponseRedirect('/odaweb/')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
