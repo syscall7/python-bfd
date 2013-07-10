@@ -34,7 +34,7 @@
 
 <div class='notifications top-right'></div>
 
-<img src="{{ STATIC_URL }}images/oda.png" width=40 height=40 style="position:absolute; padding-top: 4px; padding-left: 2px"/>
+<img src="{{ STATIC_URL }}images/oda.png"  style="width:40px; position:absolute; padding-top: 4px; padding-left: 2px"/>
 <div class="brand" style="color:#999; position:absolute; padding-top: 12px; padding-left: 45px">BETA</div>
 <div class="navbar navbar-inverse navbar-static-top" >
     <div class="navbar-inner">
