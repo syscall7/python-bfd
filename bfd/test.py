@@ -40,7 +40,7 @@ def main():
     if len(sys.argv) > 1:
         exe = sys.argv[1]
 
-    length = 32 #os.path.getsize(exe)
+    length = os.path.getsize(exe)
     
     if len(sys.argv) > 2:
         length = int(sys.argv[2])
@@ -71,7 +71,7 @@ def main():
     print '\nDisassembly of %s:\n' % sec_name
     sec = b.sections[sec_name]
     start = sec.vma
-    numLines = 30
+    numLines = 3000000
     (dis,nextAddr, lineCnt) = b.disassemble(sec, start, None, numLines, funcFmtAddr, funcFmtLine, endian=bfd.ENDIAN_LITTLE)
     print 'disassembly is %s' % dis
     print 'Next address to disassemble is: 0x%08x' % nextAddr
