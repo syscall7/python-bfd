@@ -1,3 +1,5 @@
+var oda = oda || {};
+
 var check=false;
 var isRelative=true;
 
@@ -203,7 +205,7 @@ function refreshDisassembly(offset, show_loading)
         window.ignoreScrollEvents = false;                    
 
     }).fail(function(){
-        alert('fail');
+        oda.alert('refresh failed');
     });
                     
 }

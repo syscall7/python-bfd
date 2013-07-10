@@ -2,6 +2,14 @@ var Binary = Backbone.Model.extend({
 
 });
 
+var oda = oda || {};
+
+oda.alert = function(message) {
+    $('.top-right').notify({
+        message: { text: message }
+    }).show();
+};
+
 var commentEditing = false;
 
 var Sidebar = Backbone.Model.extend({
@@ -233,13 +241,13 @@ function GoToAddressPrompt() {
             addr = Number(strAddr);
             // must be a number
             if (isNaN(addr)) {
-                alert('Address must be hexadecimal in the form of "AABB..." or "0xAABB..."');
+                oda.alert('Address must be hexadecimal in the form of "AABB..." or "0xAABB..."');
                 continue;
             }
             // must be within range
             else if ((addr < min) || (addr > max)) {
                 addr = NaN;
-                alert('Address must be in the range 0x' + min.toString(16) + ' to  0x' + max.toString(16));
+                oda.alert('Address must be in the range 0x' + min.toString(16) + ' to  0x' + max.toString(16));
                 continue;
             }
 
@@ -390,7 +398,7 @@ function Load(binary, show_loading) {
         scrolify($('#symbol-table')); // 160 is height
         ResizeHandler();
     }).fail(function(){
-        alert('symbols fail to load');
+        oda.alert('symbols fail to load');
     });
 
     $.post('_strings', {id: binary.id}).done(function(data){
@@ -398,7 +406,7 @@ function Load(binary, show_loading) {
         scrolify($('#strings-table')); // 160 is height
         ResizeHandler();
     }).fail(function(){
-            alert('strings fail to load');
+            oda.alert('strings fail to load');
     });
 
     $.post('_sections', {id: binary.id}).done(function(data){
@@ -408,7 +416,7 @@ function Load(binary, show_loading) {
         SetupSectionFlagPopovers(data.section_flags);
 
     }).fail(function(){
-        alert('sections failed to load');
+        oda.alert('sections failed to load');
     });
 
     $.post('_fileinfo', {id: binary.id}).done(function(data){
@@ -418,13 +426,13 @@ function Load(binary, show_loading) {
         $('#known-benign').popover();
 
     }).fail(function(){
-        alert('file info failed to load');
+        oda.alert('file info failed to load');
     });
 
     $.post('_owned_files', {id: binary.id}).done(function(data){
         $('#open-existing-list').html(data.file_list_html)
     }).fail(function(){
-        alert('failed to load owned files');
+        oda.alert('failed to load owned files');
     });
 }
 

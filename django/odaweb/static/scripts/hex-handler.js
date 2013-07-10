@@ -1,3 +1,4 @@
+var oda = oda || {};
 
 // Load an entire new page of hex
 function refreshHex(offset,scrollto)
@@ -34,7 +35,7 @@ function refreshHex(offset,scrollto)
         window.ignoreScrollEvents = false;                    
 
     }).fail(function(){
-        alert('fail');
+        oda.alert('refresh hex failed');
     });
                     
 }
