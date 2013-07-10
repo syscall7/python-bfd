@@ -5,7 +5,8 @@ if sys.version_info < (2, 7):
     from ordereddict import OrderedDict
 else:
     from collections import OrderedDict
-
+    
+    
 # ------------------------------------------------------------------------------
 # PROTOTYPES
 # ------------------------------------------------------------------------------
@@ -531,16 +532,6 @@ ENDIAN_DEFAULT=BFD_ENDIAN_UNKNOWN
 ENDIAN_LITTLE=BFD_ENDIAN_LITTLE
 ENDIAN_BIG=BFD_ENDIAN_BIG
 
-# use an internal function for formatting for now, we can change this later
-def funcFmtLineInternal(addr, rawData, instr, abfd):
-    from cStringIO import StringIO
-    file_str = StringIO()
-    if abfd.syms_by_addr.has_key(addr):
-        file_str.write('\n0%08x <%s>:\n' % (addr, abfd.syms_by_addr[addr].name))
-
-    file_str.write(' %08x %-32s %s\n' % (addr, rawData, instr))
-    return file_str.getvalue()
-
 # ------------------------------------------------------------------------------
 # CLASS Bfd
 # ------------------------------------------------------------------------------
@@ -761,8 +752,7 @@ cdef class Bfd:
         xvec_new = NULL
         xvec_orig = self.abfd.xvec
 
-        # put temp file in memory-based file system to avoid hitting disk
-        iostream = tempfile.TemporaryFile(dir='/dev/shm')
+        iostream = tempfile.TemporaryFile()
         if hasattr(iostream, 'file'):
             stream = PyFile_AsFile(iostream.file)
         else:
@@ -857,13 +847,17 @@ cdef class Bfd:
         
         while addr < endAddr and lineCnt < numLines:
             instrSize = disassemble_fn(addr, &disasm_info)
-            
-            # if we failed to decode the next instruction
-            if instrSize < 1:
-                break
-
+            iostream.seek(0)
+            iostream.flush()
+            line = iostream.read()
+            iostream.seek(0)
+            iostream.truncate(0)
+            rawData = []
             offset = addr - sec.vma
-            rawData = map(ord, buf[offset:offset+instrSize])
+
+            # TODO: Let cython convert this to a python string
+            for 0 <= i < instrSize:
+                rawData.append( buf[offset+i])
 
             # if we have not initialized bpc this time 'round
             if not self.bpc:
@@ -872,25 +866,15 @@ cdef class Bfd:
                 else:
                     self.bpc = 1
 
-            if self.bpc > 1 and (self.endian is ENDIAN_LITTLE or self.endian is ENDIAN_DEFAULT):
-                rawData = ''.join(['%02x ' % i for i in reversed(rawData)])
+            if funcFmtLine != None:
+                line = funcFmtLine(addr, rawData, line, self)
             else:
-                rawData = ''.join(['%02x ' % i for i in rawData])
-
-            iostream.write('||%d||%s\n' % (addr, rawData))
+                line += '\n'
+            output.write(line)
             lineCnt += 1
             addr += instrSize
-
-        iostream.seek(0)
-        iostream.flush()
-        for line in iostream:
-            parts = line.strip().split('||')
-            if len(parts) != 3:
+            if instrSize < 1:
                 break
-            asm, addr, raw = parts
-            addr=int(addr)
-            line = funcFmtLineInternal(addr, raw, asm, self)
-            output.write(line)
 
         iostream.close()
         free(buf)
