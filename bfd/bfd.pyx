@@ -838,8 +838,7 @@ cdef class Bfd:
         addr = startAddr
 
         lineCnt = 0
-        from StringIO import StringIO
-        output = StringIO()
+        output = []
         
         # bytes per instruction, set by some architectures
         self.bpc = None
@@ -870,7 +869,7 @@ cdef class Bfd:
                 line = funcFmtLine(addr, rawData, line, self)
             else:
                 line += '\n'
-            output.write(line)
+            output.append(line)
             lineCnt += 1
             addr += instrSize
             if instrSize < 1:
@@ -881,7 +880,7 @@ cdef class Bfd:
         if xvec_new != NULL:
             free(xvec_new)
         self.abfd.xvec = xvec_orig    
-        return (output.getvalue(), addr, lineCnt)
+        return (''.join(output), addr, lineCnt)
 
     def print_dis_options(self):
         cdef FILE* stream
