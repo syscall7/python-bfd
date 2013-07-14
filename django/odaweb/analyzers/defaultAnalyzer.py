@@ -7,6 +7,7 @@ Created on Jun 12, 2012
 from instruction import *
 import re
 import branch
+import bfd
 
 class InstUnit(object):
     def __init__(self, section_name, offset, rawBytes, instStr, branch, branch_label):
