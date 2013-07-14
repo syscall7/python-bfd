@@ -9,27 +9,6 @@ from django.contrib.contenttypes.models import ContentType
 from odaweb.models import (BinaryDisassemblySuperChunk, Binary, BinaryString,
                            BinaryFile, OdaMaster, OdaOptions, Comment,
                            BinaryDisassemblyChunk)
-from itertools import chain
-
-
-def funcFmtAddr(bfd, addr):
-    addrStr = '0x%08x' % addr
-    if bfd.syms_by_addr.has_key(addr):
-        addrStr += ' <%s>' % bfd.syms_by_addr[addr].name
-    return addrStr
-
-def funcFmtLine(addr, rawData, instr, abfd):
-    from cStringIO import StringIO
-    file_str = StringIO()
-    if abfd.syms_by_addr.has_key(addr):
-        file_str.write('\n0%08x <%s>:\n' % (addr, abfd.syms_by_addr[addr].name))
-    if abfd.bpc > 1 and (abfd.endian is bfd.ENDIAN_LITTLE or abfd.endian is bfd.ENDIAN_DEFAULT):
-        bytes = ''.join(['%02x ' % i for i in reversed(rawData)])
-    else:
-        bytes = ''.join(['%02x ' % i for i in rawData])
-
-    file_str.write(' %08x %-32s %s\n' % (addr, bytes, instr))
-    return file_str.getvalue()
 
 def analyzerFactory(arch):
 
@@ -159,7 +138,7 @@ class Disassembler(object):
             if set(flags).issubset(sec_flags):
                 yield sec
 
-    def disassemble(self, name, start=None, stop=None, numLines=None):
+    def disassemble(self, name, start=None, stop=None, numLines=None, funcFmtLine=None, funcFmtLineArgs=None):
         sec = self.bfd.sections[name]
 
         options = self.binary.options.get_extra_options()
@@ -174,7 +153,7 @@ class Disassembler(object):
 
         options_string = ",".join(options)
 
-        dis = self.bfd.disassemble(sec, start, stop, numLines, funcFmtAddr, funcFmtLine, endian, options_string)
+        dis = self.bfd.disassemble(sec, start, stop, numLines, None, funcFmtLine, funcFmtLineArgs, endian, options_string)
         return dis
 
     def symbol(self, lookup):

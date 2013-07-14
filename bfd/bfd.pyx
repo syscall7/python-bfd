@@ -1,3 +1,4 @@
+# cython: profile=True
 import tempfile
 import sys
 
@@ -532,6 +533,12 @@ ENDIAN_DEFAULT=BFD_ENDIAN_UNKNOWN
 ENDIAN_LITTLE=BFD_ENDIAN_LITTLE
 ENDIAN_BIG=BFD_ENDIAN_BIG
 
+cdef internalFuncFmtAddr(bfd, addr):
+    addrStr = '0x%08x' % addr
+    if bfd.syms_by_addr.has_key(addr):
+        addrStr += ' <%s>' % bfd.syms_by_addr[addr].name
+    return addrStr
+
 # ------------------------------------------------------------------------------
 # CLASS Bfd
 # ------------------------------------------------------------------------------
@@ -719,7 +726,7 @@ cdef class Bfd:
 
         return raw
 
-    def disassemble(self, section, startAddr=None, endAddr=None, numLines=None, funcFmtAddr=None, funcFmtLine=None, endian=ENDIAN_DEFAULT, options=''):
+    def disassemble(self, section, startAddr=None, endAddr=None, numLines=None, funcFmtAddr=None, funcFmtLine=None, funcFmtLineArgs=None, endian=ENDIAN_DEFAULT, options=''):
         '''Disassemble the given section
 
            section - String specifying the name of the section to disassemble
@@ -843,33 +850,35 @@ cdef class Bfd:
         # bytes per instruction, set by some architectures
         self.bpc = None
         self.endian = endian
+
+        foffs = 0
         
         while addr < endAddr and lineCnt < numLines:
             instrSize = disassemble_fn(addr, &disasm_info)
-            iostream.seek(0)
-            iostream.flush()
-            line = iostream.read()
-            iostream.seek(0)
-            iostream.truncate(0)
-            rawData = []
-            offset = addr - sec.vma
-
-            # TODO: Let cython convert this to a python string
-            for 0 <= i < instrSize:
-                rawData.append( buf[offset+i])
-
-            # if we have not initialized bpc this time 'round
-            if not self.bpc:
-                if disasm_info.bytes_per_chunk > 0:
-                    self.bpc = disasm_info.bytes_per_chunk
-                else:
-                    self.bpc = 1
-
+            
             if funcFmtLine != None:
-                line = funcFmtLine(addr, rawData, line, self)
-            else:
-                line += '\n'
-            output.append(line)
+                iostream.flush()
+                iostream.seek(foffs)
+                line = iostream.read()
+                foffs = iostream.tell()
+                rawData = []
+                offset = addr - sec.vma
+
+                # TODO: Let cython convert this to a python string
+                for 0 <= i < instrSize:
+                    rawData.append( buf[offset+i])
+
+                # if we have not initialized bpc this time 'round
+                if not self.bpc:
+                    if disasm_info.bytes_per_chunk > 0:
+                        self.bpc = disasm_info.bytes_per_chunk
+                    else:
+                        self.bpc = 1
+
+                line = funcFmtLine(addr, rawData, line, self, **funcFmtLineArgs)
+                if line is not None:
+                    output.append(line)
+
             lineCnt += 1
             addr += instrSize
             if instrSize < 1:
@@ -908,10 +917,29 @@ cdef add_sections_callback(bfd* abfd, asection* section, object bfd):
 cdef void print_address_func(bfd_vma addr, disassemble_info *dinfo):
     cdef Bfd bfd
     bfd = <Bfd> dinfo.application_data
-    addrStr = bfd.funcFmtAddr(bfd, addr)
+    addrStr = internalFuncFmtAddr(bfd, addr)
     dinfo.fprintf_func(dinfo.stream, addrStr)
 
 cdef int symbol_at_address_func(bfd_vma addr, disassemble_info *dinfo):
     return 0
+
+profile_code='''
+import bfd
+b = bfd.Bfd('/bin/ls')
+sec = b.sections['.text']
+start = sec.vma
+print 'about to disassemble'
+(dis,nextAddr, lineCnt) = b.disassemble(sec, sec.vma, None, 3000000000, funcFmtAddr, funcFmtLine, funcFmtLineArgs, endian=bfd.ENDIAN_LITTLE)
+with open('out', 'w') as f:
+    f.write('Next Address: 0x%08x,\t' % nextAddr)
+    f.write('Line Count: 0x%08x,\t' % lineCnt)
+    f.write('Disassembly:%s' % dis)
+'''
+
+def profile(funcFmtAddr, funcFmtLine, funcFmtLineArgs):
+    import cProfile
+    print 'starting profiler'
+    cProfile.runctx(profile_code, globals(), locals())
+    print 'done profiling'
 
 

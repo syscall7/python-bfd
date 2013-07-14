@@ -42,8 +42,8 @@ def index(request, disassembly_id):
         context['defaults'] = []
 
     request.session['saved'] = False
-    from pprint import pprint
-    print(pprint(context))
+    #from pprint import pprint
+    #print(pprint(context))
     return render(request, 'index.djhtml', context)
 
 

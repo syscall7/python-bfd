@@ -27,6 +27,54 @@ class Function(object):
         self.name = name
         self.type = type
 
+def parseDisassemblyLine(addr, rawData, instr, abfd, self, superchunk, chunk_name):
+
+    inst = instruction()
+
+    # Separate out the address
+    inst.offset = addr
+
+    # Separate out the raw bytes
+    if abfd.bpc > 1 and (abfd.endian is bfd.ENDIAN_LITTLE or abfd.endian is bfd.ENDIAN_DEFAULT):
+        inst.rawBytes = ''.join(['%02x ' % i for i in reversed(rawData)])
+    else:
+        inst.rawBytes = ''.join(['%02x ' % i for i in rawData])
+
+    # Separate out the instruction and check for errors
+    inst.listing = instr
+    matchObj = self.errorInstRegEx.match(instr)
+    if matchObj:
+        inst.isError = True
+
+    # Get the Opcode
+    if not inst.isError:
+        matchObj = self.opcodeRegEx.match(instr)
+        if matchObj:
+            inst.opcode = matchObj.group(1)
+            inst.instType = self.getInstructionType(inst.opcode)
+            inst.operands = matchObj.group(2)
+            self.computeTargetAddr(inst)
+
+            # save all branches
+            if inst.instType == instructionType.branch:
+                self.branches.append(branch.Branch(inst))
+
+            # Check if we need to create a label or function
+            if inst.isTargetAddrValid:
+
+                # Create a new label for branch instructions
+                if inst.targetAddr not in self.labels and inst.instType == instructionType.branch:
+                    self.labels.append(inst.targetAddr)
+                elif inst.instType == instructionType.call:
+                    if inst.targetAddr not in self.functions:
+                        self.functions[inst.targetAddr] = Function(inst.targetAddr, 'func_%0.8x' % (inst.targetAddr), 't', set([inst.offset]))
+                    else:
+                        # Add new cross reference to set
+                        self.functions[inst.targetAddr].xrefs.update([inst.offset])
+
+        inst.name = chunk_name
+        superchunk.instructions[inst.offset] = inst
+
 
 class defaultAnalyzer(object):
     '''
@@ -92,20 +140,15 @@ class defaultAnalyzer(object):
                 print "CHUNK START: 0x%08x" % (chunk.start)
                 
                 # Convert the chunk to disassembly
-                from cStringIO import StringIO
-                file_str = StringIO()
                 # TODO: Fix sec name
-                file_str.write( bfd.disassemble(chunk.name, chunk.start, chunk.end)[0] )
-                rawDisassembly = file_str.getvalue()
-                    
-                # Parse each disassembly line in the chunk
-                
-                for line in rawDisassembly.split('\n'):
-                    inst = self.parseDisassemblyLine(line)
-                    if inst:
-                        inst.name = chunk.name
-                        superchunk.instructions[inst.offset] = inst
-                        
+                bfd.disassemble(chunk.name, chunk.start, chunk.end,
+                                funcFmtLine=parseDisassemblyLine,
+                                funcFmtLineArgs={
+                                    'self': self,
+                                    'superchunk': superchunk,
+                                    'chunk_name': chunk.name,
+                                })
+
         # verify target address is at a valid instruction boundary (someday maybe we'll handle the odd case where it's not)
         for b in self.branches:
             b.isTargetAddrValid = False
@@ -114,57 +157,6 @@ class defaultAnalyzer(object):
                     b.isTargetAddrValid = True
                     break
 
-    def parseDisassemblyLine(self,listing):
-        
-        # Perform the match
-        matchObj = self.instParserRegEx.match(listing)
-        
-        if matchObj:
-            
-            inst = instruction()
-             
-            # Separate out the address 
-            inst.offset = int(matchObj.group(1),16)
-        
-            # Separate out the raw bytes
-            inst.rawBytes = matchObj.group(2)
-            
-            # Separate out the instruction and check for errors
-            inst.listing = matchObj.group(3)
-            matchObj = self.errorInstRegEx.match(inst.listing)
-            if matchObj:
-                inst.isError = True 
-
-            # Get the Opcode
-            if not inst.isError:
-                matchObj = self.opcodeRegEx.match(inst.listing)
-                if matchObj:
-                    inst.opcode = matchObj.group(1)
-                    inst.instType = self.getInstructionType(inst.opcode)
-                    inst.operands = matchObj.group(2)
-                    self.computeTargetAddr(inst)
-                    
-                    # save all branches
-                    if inst.instType == instructionType.branch:
-                        self.branches.append(branch.Branch(inst))
-                        
-                    # Check if we need to create a label or function
-                    if inst.isTargetAddrValid:
-                        
-                        # Create a new label for branch instructions
-                        if inst.targetAddr not in self.labels and inst.instType == instructionType.branch:
-                            self.labels.append(inst.targetAddr)
-                        elif inst.instType == instructionType.call:
-                            if inst.targetAddr not in self.functions:
-                                self.functions[inst.targetAddr] = Function(inst.targetAddr, 'func_%0.8x' % (inst.targetAddr), 't', set([inst.offset]))
-                            else:
-                                # Add new cross reference to set
-                                self.functions[inst.targetAddr].xrefs.update([inst.offset])
-                                   
-
-            return inst 
-        return None        
-                                
     def getInstructionType(self,opcode):
         if opcode in self.opcodeTypes:
             return self.opcodeTypes[opcode]
