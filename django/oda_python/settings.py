@@ -186,18 +186,15 @@ LOGGING = {
         },
     },
     'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True
+        },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
-        },
-        'odaweb.views': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
-        'odaweb.engine': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
+        }
     }
 }

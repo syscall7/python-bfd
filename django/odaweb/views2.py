@@ -12,6 +12,9 @@ from django.utils import simplejson
 import dns.resolver
 import bfd
 import socket
+import logging
+
+logger = logging.getLogger(__name__)
 
 from utils import id_generator
 
@@ -21,9 +24,13 @@ def render_to_json(context):
 
 
 def index(request, disassembly_id):
+    logger.info('create session')
 
     context = {}
-    oda_master = create_session(request, disassembly_id, 0)
+    try:
+        oda_master = create_session(request, disassembly_id, 0)
+    except Exception:
+        return redirect('/odaweb/')
 
     if oda_master:
         d = Disassembler(oda_master.binary)
@@ -78,9 +85,9 @@ def get_session(request):
     o_id = request.session["disassembly_token"]['id']
     version = request.session["disassembly_token"]['version']
 
-    print("LOADING #### " + o_id + " " + str(version))
+    logger.info("LOADING #### " + o_id + " " + str(version))
     o = OdaMaster.objects.get(short_name = o_id, revision = version)
-    print ("FOUND $$$$ " + str(o))
+    logger.info("FOUND $$$$ " + str(o))
     return o
 
    # user_id = request.session.get('user_id')
@@ -172,7 +179,7 @@ def fileinfo(request):
     try:
         [cymru_record,] = dns.resolver.query('%s.malware.hash.cymru.com' % binary.md5(), 'TXT')
         malware = True
-        print 'cymru is %s' % cymru_record
+        logger.info('cymru is %s' % cymru_record)
     except dns.resolver.NXDOMAIN:
         pass
 
@@ -215,7 +222,7 @@ def instdoc(request):
         instdoc_html = 'Help not available'
 
         mnemonic = form.cleaned_data['mnemonic']
-        print 'Getting instruction documentation for "%s"' % (mnemonic)
+        logger.info('Getting instruction documentation for "%s"' % (mnemonic))
 
         # TODO: Get the actual platform
         result = InstDoc.objects.filter(platform = 'i386', mnemonic = mnemonic.upper())
@@ -352,7 +359,7 @@ def refresh_hex(request):
     binary = oda_master.binary
 
     addr = int(request.POST.get('addr','0'))
-    print "TotalRefreshHex: 0x%08x" % (addr)
+    logger.info("TotalRefreshHex: 0x%08x" % (addr))
 
     jcp = JsonChunkProcessor(binary)
 
@@ -395,7 +402,7 @@ def partial_refresh_hex(request):
     count=int(request.POST.get('count', '0'))
     direction=int(request.POST.get('dir', '0'))
 
-    print "PartialRefreshHex: START 0x%08x COUNT %d DIR %d" % (start,count,direction)
+    logger.info("PartialRefreshHex: START 0x%08x COUNT %d DIR %d" % (start,count,direction))
 
     jcp = JsonChunkProcessor(binary)
 
@@ -405,10 +412,10 @@ def partial_refresh_hex(request):
 
     hex = render_to_string('hex_listing.djhtml', { 'chunks' : superchunks } )
 
-    print "PartialRefreshHex: Disassembly", hex[:128]
+    logger.info("PartialRefreshHex: Disassembly", hex[:128])
 
     for chunk in chunk_list:
-        print "CHUNK: ADDR=0x%08x BOUNDARY=%d" % (chunk['startOffset'], chunk['isBoundary'])
+        logger.info("CHUNK: ADDR=0x%08x BOUNDARY=%d" % (chunk['startOffset'], chunk['isBoundary']))
 
     # Return the new disassembly
     return HttpResponse(simplejson.dumps({'hex_dump' : hex,
@@ -425,7 +432,7 @@ def partial_refresh_disassembly(request):
     count=int(request.POST.get('count', '0'))
     direction=int(request.POST.get('dir', '0'))
 
-    print "PartialRefresh: START 0x%08x COUNT %d DIR %d" % (start,count,direction)
+    logger.info("PartialRefresh: START 0x%08x COUNT %d DIR %d" % (start,count,direction))
 
     jcp = JsonChunkProcessor(binary)
 
@@ -435,10 +442,10 @@ def partial_refresh_disassembly(request):
 
     dis = render_to_string('listing.djhtml', { 'chunks' : superchunks, 'functions' : [] } )
 
-    print "PartialRefresh: Disassembly", dis[:128]
+    logger.info("PartialRefresh: Disassembly", dis[:128])
 
     for chunk in chunk_list:
-        print "CHUNK: ADDR=0x%08x BOUNDARY=%d" % (chunk['startOffset'], chunk['isBoundary'])
+        logger.info("CHUNK: ADDR=0x%08x BOUNDARY=%d" % (chunk['startOffset'], chunk['isBoundary']))
 
     # Return the new disassembly
     return HttpResponse(simplejson.dumps({'disassembly' : dis,
@@ -454,7 +461,7 @@ def comment(request):
     form = CommentForm(request.POST, request.FILES)
 
     if form.is_valid():
-        print 'Adding comment at offset %s: %s' % (form.cleaned_data['offset'], form.cleaned_data['comment'])
+        logger.info('Adding comment at offset %s: %s' % (form.cleaned_data['offset'], form.cleaned_data['comment']))
 
         oda_master = get_session(request)
         binary = oda_master.binary
