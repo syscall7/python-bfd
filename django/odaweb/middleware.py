@@ -11,7 +11,7 @@ class LoggingMiddleware(object):
     def process_request(self, request):
         request.timer = time()
         request.requestNum = int(self.requestNum.next())
-        self.logger.info("%5d|%s", request.requestNum, request.get_full_path())
+        self.logger.info("%5d/%s|%s", request.requestNum, request.META.get('REMOTE_ADDR'), request.get_full_path())
         return None
 
     def process_response(self, request, response):
