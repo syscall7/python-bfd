@@ -76,7 +76,7 @@ def create_session(request, to_copy_id, to_copy_version):
 
     logger.info('#####' + request.session["disassembly_token"]['id'])
     copy_disassembly(to_copy_id, to_copy_version,
-                     request.session["disassembly_token"]['id'])
+                     request.session["disassembly_token"]['id'], request.META.get('REMOTE_ADDR'))
 
     return OdaMaster.objects.get(
         short_name=request.session["disassembly_token"]['id'],
@@ -324,7 +324,8 @@ def upload(request):
         binary_file = BinaryFile.create(request.FILES['filedata'], options)
         binary_file.save()
 
-        oda_master = OdaMaster(short_name = id_generator(), project_name=project_name, binary = binary_file)
+        oda_master = OdaMaster(short_name = id_generator(), project_name=project_name,
+                               binary=binary_file, ipAddress=request.META.get('REMOTE_ADDR'))
         oda_master.save()
 
         request.session["disassembly_id"] = oda_master.short_name

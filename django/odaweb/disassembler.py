@@ -512,11 +512,12 @@ examples = (
 )
 
 
-def copy_disassembly(from_id, from_version, to_id):
+def copy_disassembly(from_id, from_version, to_id, ip_address):
     to_oda = OdaMaster.objects.get(short_name = from_id, revision = from_version)
     comments = Comment.get_for_binary(to_oda.binary)
 
     to_oda.id = None
+    to_oda.ipAddress = ip_address
 
     options = to_oda.binary.options
     options.id = None
