@@ -251,12 +251,19 @@ class Disassembler(object):
         # Disassemble the entire file, one section at a time, dividing it into disassembly chunks
         if self.binary.options.target == 'binary':
             super_chunks = self.get_chunks_from_file(self.sections)
+            if not super_chunks:
+                # TODO: What shoud we do if there is nothing for us to disassemble? Is this file empty?
+                logger.warn("Unable to obtain data from binary file")
         else:
             super_chunks = self.get_chunks_from_file(self.sections_iter(['SEC_CODE']))
+            if not super_chunks:
+                # No code section, but there could still be strings, etc.
+                logger.warn('No code sections found to disassemble')
 
         # Note the boundary chunks
-        super_chunks[0].is_boundary = True
-        super_chunks[len(super_chunks)-1].is_boundary = True
+        if super_chunks:
+            super_chunks[0].is_boundary = True
+            super_chunks[len(super_chunks)-1].is_boundary = True
 
         #i = 0
         for super_chunk in super_chunks:
