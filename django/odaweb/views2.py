@@ -108,14 +108,16 @@ def set(request):
 
         if form.cleaned_data['hex_val']:
             hex_string = form.cleaned_data['hex_val']
-            try:
-                cleaned_hex_string = ''.join(hex_string.split())
-                byte_array = cleaned_hex_string.decode("hex")
-            except TypeError,e:
-                if (e.args[0]=='Non-hexadecimal digit found'):
-                    return HttpResponseServerError('<div>NON HEX DIGIT</div>')
-                else:
-                    cleaned_hex_string = (cleaned_hex_string + '0')
+            cleaned_hex_string = ''.join(hex_string.split())
+            while True:
+                try:
+                    cleaned_hex_string.decode("hex")
+                    break
+                except TypeError, e:
+                    if e.args[0] == 'Non-hexadecimal digit found':
+                        return HttpResponseServerError('<div>NON HEX DIGIT</div>')
+                    else:
+                        cleaned_hex_string = (cleaned_hex_string + '0')
 
             oda_master.binary.binary_string = cleaned_hex_string
             oda_master.binary.save()

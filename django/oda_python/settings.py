@@ -175,7 +175,7 @@ LOGGING = {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
         'simple': {
-            'format': '%(asctime)s|%(levelname)s|(%(module)14s@%(lineno)3d) %(message)s'
+            'format': 'oda|%(asctime)s|%(levelname)s|(%(module)14s@%(lineno)3d) %(message)s'
         },
     },
     'filters': {
