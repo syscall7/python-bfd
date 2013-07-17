@@ -73,7 +73,7 @@ def create_session(request, to_copy_id, to_copy_version):
         'version': 0
         }
 
-    print '#####' + request.session["disassembly_token"]['id']
+    logger.info('#####' + request.session["disassembly_token"]['id'])
     copy_disassembly(to_copy_id, to_copy_version,
                      request.session["disassembly_token"]['id'])
 
