@@ -85,7 +85,7 @@ def get_session(request):
     o_id = request.session["disassembly_token"]['id']
     version = request.session["disassembly_token"]['version']
 
-    logger.info("LOADING #### " + o_id + " " + str(version))
+    logger.info("LOADING %s %s",o_id, str(version))
     o = OdaMaster.objects.get(short_name = o_id, revision = version)
     logger.info("FOUND $$$$ " + str(o))
     return o
@@ -378,7 +378,7 @@ def refresh_disassembly(request):
     binary = oda_master.binary
 
     addr = int(request.POST.get('addr','0'))
-    print "TotalRefresh: addr",addr
+    logger.info("TotalRefresh: addr %s",addr)
 
     jcp = JsonChunkProcessor(binary)
 

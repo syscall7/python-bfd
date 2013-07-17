@@ -8,6 +8,9 @@ from instruction import *
 import re
 import branch
 import bfd
+import logging
+
+logger = logging.getLogger(__name__)
 
 class InstUnit(object):
     def __init__(self, section_name, offset, rawBytes, instStr, branch, branch_label):
@@ -138,7 +141,7 @@ class defaultAnalyzer(object):
             superchunk.instructions = {}
             for chunk in superchunk.chunks():
                 
-                print "CHUNK START: 0x%08x" % (chunk.start)
+                logger.debug("CHUNK START: 0x%08x" % (chunk.start))
                 
                 # Convert the chunk to disassembly
                 # TODO: Fix sec name

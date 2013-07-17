@@ -10,6 +10,10 @@ from odaweb.models import (BinaryDisassemblySuperChunk, Binary, BinaryString,
                            BinaryFile, OdaMaster, OdaOptions, Comment,
                            BinaryDisassemblyChunk)
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 def analyzerFactory(arch):
 
     # for now, ignore everything after the colon
@@ -304,7 +308,7 @@ class Disassembler(object):
             superchunk.hex_lines = []
             for chunk in superchunk.chunks():
                 alignment = self.bfd.sections[chunk.name].vma % LINE_WIDTH
-                print "ALIGN: %d" % (alignment) 
+                logger.info("ALIGN: %d" % (alignment))
                 # Determine if the chunk is the start of a section
                 if self.bfd.sections[chunk.name].vma == chunk.start:
                     rounded_start = chunk.start
@@ -318,7 +322,7 @@ class Disassembler(object):
                         rounded_start = chunk.start + alignment - chunk_alignment
                 
                 rounded_size = chunk.end - rounded_start
-                print "START: 0x%08x SIZE: 0x%08x" % (rounded_start, rounded_size)
+                logger.info("START: 0x%08x SIZE: 0x%08x" % (rounded_start, rounded_size))
                 
                 
                 if rounded_size > 0:
@@ -435,9 +439,9 @@ class JsonChunkProcessor(object):
             superchunk.attach_comments(self.binary)
         
     def process_chunks_hex(self, superchunks):
-        print "process_chunks_hex"
+        logger.info("process_chunks_hex")
         dasm = Disassembler(self.binary)
-        print "got dasm"        
+        logger.info("got dasm")
         dasm.mk_hex_lines(superchunks)
 
 examples = (
