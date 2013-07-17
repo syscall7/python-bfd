@@ -116,6 +116,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'odaweb.middleware.LoggingMiddleware'
 )
 
 ROOT_URLCONF = 'oda_python.urls'
