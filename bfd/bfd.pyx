@@ -861,6 +861,9 @@ cdef class Bfd:
                 iostream.seek(foffs)
                 line = iostream.read()
                 foffs = iostream.tell()
+                if hasattr(iostream, 'file'):
+                    # Keep Windows happy
+                    iostream.seek(foffs) 
                 rawData = []
                 offset = addr - sec.vma
 
