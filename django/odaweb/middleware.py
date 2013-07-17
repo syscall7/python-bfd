@@ -11,12 +11,12 @@ class LoggingMiddleware(object):
         request.timer = time()
         request.requestNum = self.requestNum
         self.requestNum+=1
-        self.logger.info("%5d/%s", self.requestNum, request.get_full_path())
+        self.logger.info("%5d|%s", self.requestNum, request.get_full_path())
         return None
 
     def process_response(self, request, response):
         self.logger.info(
-            '%5d/%s [%s] (%.1fs)',
+            '%5d|%s [%s] (%.1fs)',
             self.requestNum,
             request.get_full_path(),
             response.status_code,
