@@ -175,7 +175,7 @@ LOGGING = {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
         'simple': {
-            'format': 'oda|%(asctime)s|%(levelname)s|(%(module)14s@%(lineno)3d) %(message)s'
+            'format': 'oda|%(process)5d|%(asctime)s|%(levelname)s|(%(module)14s@%(lineno)3d) %(message)s'
         },
     },
     'filters': {
@@ -200,10 +200,19 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
+        'file': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'level': 'INFO',
+            'formatter': 'simple',
+            'filename': '/tmp/oda.log',
+            'mode': 'a',
+            'maxBytes': 10485760,
+            'backupCount': 5,
+        },
     },
     'loggers': {
         '': {
-            'handlers': ['console'],
+            'handlers': ['console','file'],
             'level': 'INFO',
             'propagate': True
         },
