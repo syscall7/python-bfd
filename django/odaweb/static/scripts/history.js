@@ -193,6 +193,10 @@ function refreshDisassembly(offset, show_loading)
             appendChunks(window.disChunks, data.chunks);
 
         }
+        else
+        {
+            oda.alert('No code found to disassemble');
+        }
         $('#assembly-scroll').show();
         $('#loading-panel').hide();
         
