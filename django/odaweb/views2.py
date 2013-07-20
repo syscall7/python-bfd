@@ -114,7 +114,7 @@ def set(request):
                 try:
                     cleaned_hex_string.decode("hex")
                     break
-                except TypeError, e:
+                except (TypeError, UnicodeEncodeError) as e:
                     if e.args[0] == 'Non-hexadecimal digit found':
                         return HttpResponseServerError('<div>NON HEX DIGIT</div>')
                     else:

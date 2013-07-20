@@ -13,6 +13,10 @@ import tempfile
 import hashlib
 import json
 import commands
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 fs = FileSystemStorage(location='/tmp/odaweb2')
 
@@ -176,7 +180,12 @@ class BinaryString(Binary):
 
         if len(self.binary_string) % 2 == 1:
             self.binary_string += '0'
-        byte_array = self.binary_string.decode("hex")
+
+        try:
+            byte_array = self.binary_string.decode("hex")
+        except TypeError:
+            logger.exception("Failed to decode hex")
+
         t = tempfile.NamedTemporaryFile(bufsize = 0, delete = False)
         t.write(byte_array)
 
