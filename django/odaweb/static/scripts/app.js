@@ -429,11 +429,13 @@ function Load(binary, show_loading) {
         oda.alert('file info failed to load');
     });
 
+    /* This was used to display the user's existing file
     $.post('_owned_files', {id: binary.id}).done(function(data){
         $('#open-existing-list').html(data.file_list_html)
     }).fail(function(){
         oda.alert('failed to load owned files');
     });
+    */
 }
 
 function InitializeComments() {
