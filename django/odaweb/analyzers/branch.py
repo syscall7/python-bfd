@@ -272,6 +272,7 @@ class BranchLineHtmlFormatter:
         return self.flagsToHtml(flags)
     
     def flagsToHtml(self, flags):
+        html = BLANK
         
         toHtml = {
             BLANK: "&#x2001;",
@@ -285,6 +286,7 @@ class BranchLineHtmlFormatter:
             VPASSTHRU|HPASSTHRU:                     "&#x254B;",
             UPPERJOIN|LOWERJOIN|HPASSTHRU:           "&#x254B;",
             VPASSTHRU|HPASSTHRU|UPPERJOIN:           "&#x254B;",
+            VPASSTHRU|HPASSTHRU|LOWERJOIN:           "&#x254B;",
             VPASSTHRU|HPASSTHRU|UPPERJOIN|LOWERJOIN: "&#x254B;",
             
             VPASSTHRU|UPPERJOIN:            "&#x2523;",
@@ -295,6 +297,9 @@ class BranchLineHtmlFormatter:
             HPASSTHRU|UPPERJOIN: "&#x253B;",
             HPASSTHRU|LOWERJOIN: "&#x2533;",
         }
-        
-        return toHtml[flags]
+
+        if flags in toHtml:
+            html = toHtml[flags]
+
+        return html
 
