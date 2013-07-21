@@ -15,11 +15,18 @@ class LoggingMiddleware(object):
         return None
 
     def process_response(self, request, response):
+        requestNum = -1
+        requestTime = -1
+        if hasattr(request, 'requestNum'):
+            requestNum = request.requestNum
+        if hasattr(request, 'timer'):
+            requestTime = time() - request.timer
+
         self.logger.info(
             '%5d|%s [%s] (%.1fs)',
-            self.requestNum,
+            requestNum,
             request.get_full_path(),
             response.status_code,
-            time() - request.timer
+            requestTime
         )
         return response
