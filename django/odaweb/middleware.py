@@ -17,7 +17,7 @@ class LoggingMiddleware(object):
     def process_response(self, request, response):
         self.logger.info(
             '%5d|%s [%s] (%.1fs)',
-            request.requestNum,
+            self.requestNum,
             request.get_full_path(),
             response.status_code,
             time() - request.timer
