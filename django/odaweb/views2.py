@@ -57,7 +57,12 @@ def index(request, disassembly_id):
 
 def save(request):
     request.session['saved'] = True
-    o_id = request.session["disassembly_token"]['id']
+    try:
+        o_id = request.session["disassembly_token"]['id']
+    except:
+        logger.warn("Save Called With Missing disassembly_token")
+        return redirect('/odaweb/')
+
     return redirect('/odaweb/' + o_id)
 
 
