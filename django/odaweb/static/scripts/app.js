@@ -11,6 +11,7 @@ oda.alert = function(message) {
 };
 
 var commentEditing = false;
+var dialogOpen = false;
 
 var Sidebar = Backbone.Model.extend({
     initialize : function(liveMode) {
@@ -140,12 +141,17 @@ function FileUploadForm() {
     FileUploadOptionsForm();
 
     $('#open-btn').on('click', function(e) {
+        dialogOpen = true;
         $('#modal-upload-form').modal();
     });
 
     $('#modal-upload-form').on('click', '#fileselectbutton', function(e){
         $('#file').trigger('click');
     });
+    
+    $('#modal-upload-form').on('hidden', function () {
+        dialogOpen = false;
+    })
 
     $('#modal-upload-form').on('change', '#file', '', function(e){
         var val = $(this).val();
@@ -157,6 +163,7 @@ function FileUploadForm() {
 
     // called when upload form button is clicked
     $('#modal-upload-form').on('click', '#upload-submit-btn', '', function(e){
+        dialogOpen = false;
 
         // use handy plugin for ajax submissions of file uploads
         $('#upload-form').ajaxSubmit({
@@ -336,7 +343,7 @@ function InitializeSlider(min, max) {
     });
 
     $("html").keypress(function(event) {
-        if (String.fromCharCode(event.which) == 'g' && !commentEditing) {
+        if (String.fromCharCode(event.which) == 'g' && !commentEditing && !dialogOpen) {
             GoToAddressPrompt();
         }
         else if (String.fromCharCode(event.which) == ';') {
