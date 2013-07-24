@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head>
+ <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}lib/bootstrap-2.2.2/css/bootstrap.min.css"/>
+    </head>
+
+<body>
+
+
+
+</body>
+</html>
