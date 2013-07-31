@@ -4,7 +4,9 @@
 
 <div class="container">
 
-<form class="form-horizontal" method="POST">
+<form class="form-signin" method="POST">
+    <img src="{{ STATIC_URL }}images/oda_logo4.png"/>
+
    <div class="control-group">
     <label class="control-label" for="username">Username</label>
     <div class="controls">
@@ -31,7 +33,7 @@
   </div>
   <div class="control-group">
     <div class="controls">
-      <button type="submit" class="btn">Sign in</button>
+      <button type="submit" class="btn">Create Account</button>
     </div>
   </div>
 </form>

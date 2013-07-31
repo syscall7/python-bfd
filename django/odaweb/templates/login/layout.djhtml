@@ -2,6 +2,26 @@
 <html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
 <head>
  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}lib/bootstrap-2.2.2/css/bootstrap.min.css"/>
+
+    <style type="text/css">
+
+
+        body {
+            background-color: #F5F5F5;
+            padding-bottom: 40px;
+            padding-top: 20px;
+        }
+
+        .form-signin {
+            background-color: #FFFFFF;
+            border: 1px solid #E5E5E5;
+            border-radius: 5px 5px 5px 5px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            margin: 0 auto 20px;
+            max-width: 300px;
+            padding: 19px 29px 29px;
+        }
+    </style>
     </head>
 
 <body>
