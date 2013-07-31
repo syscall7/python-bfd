@@ -55,5 +55,10 @@ def create_user(request):
             logger.info("Creating User %s" % form.cleaned_data['username'])
 
             from django.contrib.auth.models import User
-            user = User.objects.create_user(form.cleaned_data['username'], form.cleaned_data['email'], form.cleaned_data['password'])
-            return HttpResponse(serializers.serialize('json', [user]), mimetype='application/json')
+            user_model = User.objects.create_user(form.cleaned_data['username'], form.cleaned_data['email'], form.cleaned_data['password'])
+            user = authenticate(username=form.cleaned_data['username'],
+                                password=form.cleaned_data['password'])
+            logger.info("Loggin In User %s" % form.cleaned_data['username'])
+            django.contrib.auth.login(request, user)
+            return redirect('/odaweb/')
+            #return HttpResponse(serializers.serialize('json', [user]), mimetype='application/json')
