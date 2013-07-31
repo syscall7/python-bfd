@@ -24,7 +24,7 @@ def render_to_json(context):
 
 
 def index(request, disassembly_id):
-    logger.info('create session')
+    logger.info('create session, user=' + str(request.user))
 
     context = {}
     try:
@@ -48,6 +48,7 @@ def index(request, disassembly_id):
         context['supported_endians'] = get_supported_endians()
         context['options'] = get_platform_options(oda_master.binary.options.architecture)
         context['defaults'] = []
+        context['user'] = request.user
 
     request.session['saved'] = False
     #from pprint import pprint
@@ -491,4 +492,3 @@ def owned_files(request):
     file_list =  render_to_string('open-existing-list.djhtml', {'files' : owned_files})
 
     return HttpResponse(simplejson.dumps({'file_list_html' : file_list}), mimetype='application/json')
-

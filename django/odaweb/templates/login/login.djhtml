@@ -1,12 +1,33 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
-<head>
- <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}lib/bootstrap-2.2.2/css/bootstrap.min.css"/>
-    </head>
+{% extends "login/layout.djhtml" %}
 
-<body>
+{% block content %}
+
+<div class="container">
+
+<form class="form-horizontal" method="POST">
+   <div class="control-group">
+    <label class="control-label" for="username">Username</label>
+    <div class="controls">
+      <input type="text" id="username" placeholder="username" name="username">
+    </div>
+  </div>
+  <div class="control-group">
+    <label class="control-label" for="inputPassword">Password</label>
+    <div class="controls">
+      <input type="password" id="inputPassword" placeholder="Password" name="password">
+    </div>
+  </div>
+  <div class="control-group">
+    <div class="controls">
+      <label class="checkbox">
+        <input type="checkbox"> Remember me
+      </label>
+      <button type="submit" class="btn">Sign in</button>
+    </div>
+  </div>
+</form>
+
+</div>
 
 
-
-</body>
-</html>
+{% endblock %}

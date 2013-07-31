@@ -1,26 +1,47 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseServerError
-from django.utils import simplejson
-import dns.resolver
-import bfd
-import socket
+from django.core import serializers
+from django import forms
 import logging
-
+from django.contrib.auth import authenticate
+import django.contrib.auth
+from django.core.urlresolvers import reverse
 logger = logging.getLogger(__name__)
 
+class UserForm(forms.Form):
+    username = forms.CharField(max_length=100, required=True)
+    password = forms.CharField(max_length=32, required=True)
+
+class CreateUser(UserForm):
+    email = forms.EmailField(required=True)
+
+def logout(request):
+    logger.debug('Logging Out %s' % request.user.username)
+    django.contrib.auth.logout(request)
+    return redirect('/odaweb/')
+
 def login(request):
-    logger.info("Loggin In User")
-    from django.contrib.auth import authenticate, login
-    user = authenticate(username='john', password='johnpassword')
-    if user is not None:
-        if user.is_active:
-            login(request, user)
-            return HttpResponse()
-        else:
-            # Return a 'disabled account' error message
-            raise Exception('User Has Disabled Account')
+    if request.method == 'GET':
+        #render creeate user
+        context = {}
+
+        return render(request, 'login/login.djhtml', context)
     else:
-        raise Exception("Invalid Login")
+        form = UserForm(request.POST)
+        if form.is_valid(): # All validation rules pass
+
+            user = authenticate(username=form.cleaned_data['username'],
+                                password=form.cleaned_data['password'])
+            if user is not None:
+                if user.is_active:
+                    logger.info("Loggin In User %s" % form.cleaned_data['username'])
+                    django.contrib.auth.login(request, user)
+                    return redirect('/odaweb/')
+                else:
+                    # Return a 'disabled account' error message
+                    raise Exception('User Has Disabled Account')
+            else:
+                raise Exception("Invalid Login")
 
 
 def create_user(request):
@@ -29,8 +50,10 @@ def create_user(request):
         context = {}
         return render(request, 'login/create_user.djhtml', context)
     else:
-        #process user form
-        pass
-    from django.contrib.auth.models import User
-    user = User.objects.create_user('john', 'lennon@thebeatles.com', 'johnpassword')
-    return HttpResponse(simplejson.dumps(user), mimetype='application/json')
+        form = CreateUser(request.POST)
+        if form.is_valid(): # All validation rules pass
+            logger.info("Creating User %s" % form.cleaned_data['username'])
+
+            from django.contrib.auth.models import User
+            user = User.objects.create_user(form.cleaned_data['username'], form.cleaned_data['email'], form.cleaned_data['password'])
+            return HttpResponse(serializers.serialize('json', [user]), mimetype='application/json')
