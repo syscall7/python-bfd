@@ -30,4 +30,62 @@ class powerpc(defaultAnalyzer):
                  'vle', 'vsx'), ''),
         ]
 
+        self.opcodeTypes = {   
+                               "b" : instructionType.branch,
+                               "ba" : instructionType.branch,                                
+                               "bc" : instructionType.branch,
+                               "bca" : instructionType.branch,
+                               "bcl" : instructionType.call,
+                               "bcla" : instructionType.call,
+                               "bclr" : instructionType.call,
+                               "bclrl" : instructionType.call,
+                               "bcctr" : instructionType.branch,
+                               "bcctrl" : instructionType.call,
+                               "bl" : instructionType.call,
+                               "bla" : instructionType.call,
+                               
+                               "blt" : instructionType.branch,
+                               "ble" : instructionType.branch,
+                               "beq" : instructionType.branch,
+                               "bge" : instructionType.branch,
+                               "bgt" : instructionType.branch,
+                               "bnl" : instructionType.branch,
+                               "bne" : instructionType.branch,
+                               "bng" : instructionType.branch,
+                               "bso" : instructionType.branch,
+                               "bns" : instructionType.branch,
+                               "bun" : instructionType.branch,
+                               "bnu" : instructionType.branch,                               
+                              }
+        self.opcodeRegExStr = "^([-\w\+]+)\s+([^<]+)"
+
+    def getInstructionType(self,opcode):
+        if opcode[-1] == '-' or opcode[-1] == '+':
+            opcode = opcode[:-1]
+        if opcode in self.opcodeTypes:
+            return self.opcodeTypes[opcode]
+        return instructionType.normal
+
+    def makeInstrBranch(self, inst, labelName):
+        operands = inst.operands.split(',')
+        operands[-1] = "<a href=\"#view/tab-assembly/offset/%08x\">%s</a>" % (inst.targetAddr,labelName)
+        operands_str = ",".join(operands)
+        return "%-8s%s" % (inst.opcode, operands_str)
+
+    def computeTargetAddr(self,inst):       
+        
+        # Simple targets
+        if (( inst.instType == instructionType.call or \
+              inst.instType == instructionType.branch) and \
+              len(inst.operands)>0 ):
+            inst.isTargetAddrValid = False
+            operands = inst.operands.split(',')
+            try: 
+                # The last operand is the immediate
+                inst.targetAddr = int(operands[-1],16)
+                inst.callType = callType.direct
+                inst.isTargetAddrValid = True
+            except: 
+                inst.callType = callType.indirect
+
           

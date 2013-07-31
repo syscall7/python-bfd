@@ -210,6 +210,8 @@ class defaultAnalyzer(object):
                     #chunk.lines += 1
                 superchunk.instUnits.append(unit)
 
+    def makeInstrBranch(self, inst, labelName):
+        return "%-7s<a href=\"#view/tab-assembly/offset/%08x\">%s</a>" % (inst.opcode, inst.targetAddr, labelName)
 
     def makeInstr(self, inst):
         instStr = ""
@@ -233,7 +235,7 @@ class defaultAnalyzer(object):
                         labelName = self.functions[inst.targetAddr].name
                     else:
                         labelName = self.mkLabelName(inst.targetAddr,'loc')
-                    instStr += "%-7s<a href=\"#view/tab-assembly/offset/%08x\">%s</a>" % (inst.opcode, inst.targetAddr, labelName)
+                    instStr += self.makeInstrBranch(inst, labelName)
             else:
                 instStr += rawInstrStr
         else:

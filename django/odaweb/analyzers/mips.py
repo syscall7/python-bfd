@@ -28,5 +28,46 @@ class mips(defaultAnalyzer):
                  'loongson2e', 'loongson2f', 'loongson3a', 'octeon', 
                  'octeon+', 'octeon2', 'xlr', 'xlp'), ''),
         ]
+        
+        self.opcodeTypes = {   
+                               "b" : instructionType.branch,
+                               "bal" : instructionType.branch,                                
+                               "beq" : instructionType.branch,
+                               "beqz" : instructionType.branch,
+                               "bgez" : instructionType.branch,
+                               "bgezal" : instructionType.branch,
+                               "bgtz" : instructionType.branch,
+                               "blez" : instructionType.branch,
+                               "bltz" : instructionType.branch,
+                               "bltzal" : instructionType.branch,
+                               "bne" : instructionType.branch,
+                               "bnez" : instructionType.branch,
+                               "j" : instructionType.branch,
+                               "jal" : instructionType.call,
+                               "jalr" : instructionType.call,
+                               "jr" : instructionType.call,                     
+                              }
+        
+    def makeInstrBranch(self, inst, labelName):
+        operands = inst.operands.split(',')
+        operands[-1] = "<a href=\"#view/tab-assembly/offset/%08x\">%s</a>" % (inst.targetAddr,labelName)
+        operands_str = ",".join(operands)
+        return "%-8s%s" % (inst.opcode, operands_str)
+
+    def computeTargetAddr(self,inst):       
+        
+        # Simple targets
+        if (( inst.instType == instructionType.call or \
+              inst.instType == instructionType.branch) and \
+              len(inst.operands)>0 ):
+            inst.isTargetAddrValid = False
+            operands = inst.operands.split(',')
+            try: 
+                # The last operand is the immediate
+                inst.targetAddr = int(operands[-1],16)
+                inst.callType = callType.direct
+                inst.isTargetAddrValid = True
+            except: 
+                inst.callType = callType.indirect
 
           
