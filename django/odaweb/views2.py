@@ -298,6 +298,8 @@ def symbols(request):
 
 def strings(request):
     oda_master = get_session(request)
+    if not oda_master:
+        return HttpResponse("Session Not Initialized", status=400)
 
     binary = oda_master.binary
     dasm = Disassembler(binary)
