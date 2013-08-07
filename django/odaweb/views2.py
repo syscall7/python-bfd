@@ -470,7 +470,7 @@ def partial_refresh_disassembly(request):
 
     dis = render_to_string('listing.djhtml', { 'chunks' : superchunks, 'functions' : [] } )
 
-    logger.info("PartialRefresh: Disassembly", dis[:128])
+    #logger.info("PartialRefresh: Disassembly", dis[:128])
 
     for chunk in chunk_list:
         logger.info("CHUNK: ADDR=0x%08x BOUNDARY=%d" % (chunk['startOffset'], chunk['isBoundary']))
