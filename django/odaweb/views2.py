@@ -89,18 +89,17 @@ def create_session(request, to_copy_id, to_copy_version):
         revision=request.session["disassembly_token"]['version'])
 
 def get_session(request):
-    o_id = request.session["disassembly_token"]['id']
-    version = request.session["disassembly_token"]['version']
+    try:
+        o_id = request.session["disassembly_token"]['id']
+        version = request.session["disassembly_token"]['version']
 
-    logger.info("LOADING %s %s",o_id, str(version))
-    o = OdaMaster.objects.get(short_name = o_id, revision = version)
-    logger.info("FOUND $$$$ " + str(o))
-    return o
-
-   # user_id = request.session.get('user_id')
-    #disassembly_id = request.session.get('disassembly_id')
-    #print("Loading short_name = %s" %(disassembly_id))
-
+        logger.info("LOADING %s %s",o_id, str(version))
+        o = OdaMaster.objects.get(short_name = o_id, revision = version)
+        logger.info("FOUND $$$$ " + str(o))
+        return o
+    except KeyError:
+        logger.warn("disassembly_token isn't set")
+        return None
 
 def set(request):
 
@@ -180,6 +179,8 @@ def hex(request):
 
 def fileinfo(request):
     oda_master = get_session(request)
+    if not oda_master:
+        return HttpResponse("Session Not Initialized", status=400)
 
     binary = oda_master.binary
     dasm = Disassembler(binary)
@@ -253,6 +254,8 @@ def instdoc(request):
 
 def sections(request):
     oda_master = get_session(request)
+    if not oda_master:
+        return HttpResponse("Session Not Initialized", status=400)
 
     binary = oda_master.binary
     dasm = Disassembler(binary)
@@ -271,6 +274,8 @@ def sections(request):
 
 def symbols(request):
     oda_master = get_session(request)
+    if not oda_master:
+        return HttpResponse("Session Not Initialized", status=400)
 
     binary = oda_master.binary
     dasm = Disassembler(binary)
@@ -367,6 +372,8 @@ def upload(request):
 
 def refresh_hex(request):
     oda_master = get_session(request)
+    if not oda_master:
+        return HttpResponse("Session Not Initialized", status=400)
 
     binary = oda_master.binary
 
@@ -406,6 +413,8 @@ def refresh_disassembly(request):
 
 def partial_refresh_hex(request):
     oda_master = get_session(request)
+    if not oda_master:
+        return HttpResponse("Session Not Initialized", status=400)
 
     binary = oda_master.binary
 
@@ -436,6 +445,8 @@ def partial_refresh_hex(request):
 
 def partial_refresh_disassembly(request):
     oda_master = get_session(request)
+    if not oda_master:
+        return HttpResponse("Session Not Initialized", status=400)
 
     binary = oda_master.binary
 
@@ -476,6 +487,9 @@ def comment(request):
         logger.info('Adding comment at offset %s: %s' % (form.cleaned_data['offset'], form.cleaned_data['comment']))
 
         oda_master = get_session(request)
+        if not oda_master:
+            return HttpResponse("Session Not Initialized", status=400)
+
         binary = oda_master.binary
         ctype = ContentType.objects.get_for_model(binary)
 
@@ -483,6 +497,8 @@ def comment(request):
         comment.save()
         #return render_to_json({"status" : "ok"})
         return HttpResponse()
+    else:
+        return HttpResponse("Session Not Initialized", status=400)
 
 
 def owned_files(request):
