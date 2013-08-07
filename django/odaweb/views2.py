@@ -172,6 +172,8 @@ def show_options(request):
             'defaults' : opts_defaults
         })
 
+    return HttpResponse(status=400)
+
 
 def hex(request):
     pass
