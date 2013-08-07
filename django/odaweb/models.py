@@ -2,6 +2,7 @@ from os import stat
 from django.db import models
 from django.core.files.storage import FileSystemStorage
 from django.core.files import File
+from django.contrib.auth.models import User
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 
@@ -253,7 +254,7 @@ class OdaMaster(models.Model):
     project_name = models.CharField(max_length=64, default='')
     short_name = models.CharField(max_length=12, db_index = True, unique = True)
     revision = models.IntegerField(default=0)
-    #owner = models.CharField(max_length=128)
+    owner = models.ForeignKey(User, null=True)
     creation_date = models.DateTimeField(auto_now_add = True)
     copy = models.ForeignKey('OdaMaster', null=True)
     content_type = models.ForeignKey(ContentType)

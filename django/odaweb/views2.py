@@ -29,8 +29,8 @@ def index(request, disassembly_id):
     context = {}
     try:
         oda_master = create_session(request, disassembly_id, 0)
-    except Exception:
-        logger.warn("Failed to create_session %s", disassembly_id)
+    except Exception as e:
+        logger.warn("Failed to create_session [%s] [%s]", e.args, disassembly_id)
         return redirect('/odaweb/')
 
     if oda_master:
@@ -341,6 +341,9 @@ def upload(request):
 
         oda_master = OdaMaster(short_name = id_generator(), project_name=project_name,
                                binary=binary_file, ipAddress=request.META.get('REMOTE_ADDR'))
+        if request.user.is_authenticated:
+            oda_master.owner = request.user
+
         oda_master.save()
 
         request.session["disassembly_id"] = oda_master.short_name

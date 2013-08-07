@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseServerError
 from django.core import serializers
 from django import forms
+from django.db import IntegrityError
 import logging
 from django.contrib.auth import authenticate
 import django.contrib.auth
@@ -41,7 +42,7 @@ def login(request):
                     # Return a 'disabled account' error message
                     raise Exception('User Has Disabled Account')
             else:
-                raise Exception("Invalid Login")
+                return render(request, 'login/login.djhtml', {'error': 'Invalid Username/Password'})
 
 
 def create_user(request):
@@ -55,7 +56,10 @@ def create_user(request):
             logger.info("Creating User %s" % form.cleaned_data['username'])
 
             from django.contrib.auth.models import User
-            user_model = User.objects.create_user(form.cleaned_data['username'], form.cleaned_data['email'], form.cleaned_data['password'])
+            try:
+                user_model = User.objects.create_user(form.cleaned_data['username'], form.cleaned_data['email'], form.cleaned_data['password'])
+            except IntegrityError:
+                return render(request, 'login/create_user.djhtml', {'error': "Username already taken"})
             user = authenticate(username=form.cleaned_data['username'],
                                 password=form.cleaned_data['password'])
             logger.info("Loggin In User %s" % form.cleaned_data['username'])

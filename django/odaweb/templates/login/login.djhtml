@@ -6,7 +6,7 @@
 
 <form class="form-signin" method="POST">
     <img src="{{ STATIC_URL }}images/oda_logo4.png"/>
-
+   {%  if error  %}<div class="alert alert-error">{{ error }}</div> {% endif %}
    <div class="control-group">
     <label class="control-label" for="username">Username</label>
     <div class="controls">
