@@ -539,6 +539,45 @@ cdef internalFuncFmtAddr(bfd, addr):
         addrStr += ' <%s>' % bfd.syms_by_addr[addr].name
     return addrStr
 
+def guess_target_arch(path):
+
+    cdef char **matching
+    cdef bfd_arch_info_type* inf
+    matches = []
+    targets = []
+
+    print 'guessing target'
+    # open BFD file
+    abfd = bfd_openr(path, NULL)
+    if (NULL == abfd):
+        raise BfdErr('Unable to open file %s' % path)
+
+    # check if we have an object file
+    if bfd_check_format_matches(abfd, bfd_object, &matching) == 0:
+
+        # if we failed to match, check for ambiguous match
+        if bfd_get_error() == bfd_error_file_ambiguously_recognized:
+
+            # for each potential match
+            i = 0
+            while matching[i] != NULL:
+                matches.append(matching[i])
+                i = i+1
+                
+            free(matching)    
+    else:
+        print 'guessed target %s' % matches
+        matches.append(bfd_get_target(abfd))
+
+    # for each target, weed out ones with UNKNOWN architectures (i.e., the generic elf32-little)
+    for match in matches:
+        abfd = bfd_openr(path, match)
+        if bfd_check_format(abfd, bfd_object) and (0 != bfd_get_arch(abfd)):
+            arch = bfd_printable_arch_mach(bfd_get_arch(abfd), bfd_get_mach(abfd))
+            targets.append((match, arch))
+ 
+    return targets
+
 # ------------------------------------------------------------------------------
 # CLASS Bfd
 # ------------------------------------------------------------------------------
@@ -583,40 +622,10 @@ cdef class Bfd:
             inf = bfd_scan_arch(machine)
             self.abfd.arch_info = inf 
 
-        # verify that we have an object file
-        if bfd_check_format_matches(self.abfd, bfd_object, &matching) == 0:
-            # if we failed to match, check for ambiguous match
+        # if we failed to match
+        if bfd_check_format(self.abfd, bfd_object) == 0:
             print "Failed to get match"
-            if bfd_get_error() == bfd_error_file_ambiguously_recognized:
-                # Use the first matching target
-                #i = 0
-                tgt = matching[0]
-                #while matching[i] != NULL:
-                #    if len(matching[i]) < len(tgt):
-                #        tgt = matching[i] 
-                #    print matching[i]
-                #    i += 1
-                
-                print "Retry with ", tgt
-                self.abfd = bfd_openr(path, tgt)
-                if (NULL == self.abfd):
-                    free(matching)
-                    raise BfdErr('Unable to open file %s' % path)
-                free(matching)
-
-                if bfd_check_format_matches(self.abfd, bfd_object, &matching) == 0:
-                    # if we failed to match, check for ambiguous match
-                    free(matching)
-                    raise BfdErr('Ambiguous Match with %s' % tgt)
-                    
-                free(matching)    
-
-                # set machine
-                if machine:
-                    self.abfd.arch_info = inf 
-                                    
-            else:        
-                raise BfdFileFormatException('Unable to identify target format')
+            raise BfdFileFormatException('Unable to identify target format')
 
         if bfd_get_flavour(self.abfd) == bfd_target_unknown_flavour:
             # we do not want to raise an exception, as the BFD is
@@ -624,11 +633,11 @@ cdef class Bfd:
             #print '[BFD] Warning: unknown BFD flavour'
             pass
 
-        cdef asection* sec
-        sec = self.abfd.sections
-        while sec != NULL:
-            #print sec.name, sec.alignment_power
-            sec = sec.next
+        #cdef asection* sec
+        #sec = self.abfd.sections
+        #while sec != NULL:
+        #    #print sec.name, sec.alignment_power
+        #    sec = sec.next
 
         # set target machine architecture
         self.archId = bfd_get_arch(self.abfd)
