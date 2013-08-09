@@ -33,23 +33,14 @@ def dump_sec(abfd, sec_name, offset, size):
     dump = abfd.raw_data(text, text.vma + offset, size)
     print binascii.hexlify(dump)
 
-def main():
+def dump(path, target, numLines):
 
-    exe = '/bin/ls'
+    b=bfd.Bfd(path, target)
 
-    if len(sys.argv) > 1:
-        exe = sys.argv[1]
-
-    length = os.path.getsize(exe)
-    
-    if len(sys.argv) > 2:
-        length = int(sys.argv[2])
-
-    #b=bfd.Bfd(exe, 'binary', 'mips')
-    b=bfd.Bfd(exe)
-
-    print '\nFile: %s' % exe
+    print '\nFile: %s' % path
+    print 'Arch ID: %d' % b.archId
     print 'Architecture: %s' % b.arch
+    print 'Machine: %s' % b.mach
     print 'Target: %s' % b.target
 
     print '\nSections:\n'
@@ -61,18 +52,19 @@ def main():
         i += 1
 
     print '\nSymbols:\n'
-    for sym in b.syms_by_name.values():
+    for sym in b.syms_by_name.values()[0:10]:
         print '  0x%08x %s %s' % (sym.value, sym.type, sym.name)
 
     if '.text' in b.sections:
         sec_name = '.text'
+    elif '.app_text' in b.sections:
+        sec_name = '.app_text'
     elif '.data' in b.sections:
         sec_name = '.data'
     print '\nDisassembly of %s:\n' % sec_name
     sec = b.sections[sec_name]
     start = sec.vma
-    numLines = 3000000
-    (dis,nextAddr, lineCnt) = b.disassemble(sec, start, None, numLines, funcFmtAddr, funcFmtLine, endian=bfd.ENDIAN_LITTLE)
+    (dis,nextAddr, lineCnt) = b.disassemble(sec, start, None, numLines, funcFmtAddr, funcFmtLine, {}, endian=bfd.ENDIAN_LITTLE)
     print 'disassembly is %s' % dis
     print 'Next address to disassemble is: 0x%08x' % nextAddr
     #print b.disassemble(sec, start, stop, funcFmtAddr, funcFmtLine, endian=bfd.ENDIAN_BIG)
@@ -82,6 +74,25 @@ def main():
 
     print '\nSupported Targets:\n'
     print ' '.join(bfd.list_targets())
+
+
+def main():
+
+    exe = '/bin/ls'
+
+    if len(sys.argv) > 1:
+        exe = sys.argv[1]
+
+    numLines = 10
+    
+    if len(sys.argv) > 2:
+        numLines = int(sys.argv[2])
+
+    target_archs = bfd.guess_target_arch(exe)
+    print 'guessed targets: %s' % target_archs
+
+    for target,arch in target_archs:
+        dump(exe, target, numLines)
 
 if __name__ == '__main__':
     main()

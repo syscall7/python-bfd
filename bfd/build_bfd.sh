@@ -6,15 +6,46 @@
 # 
 # ------------------------------------------------------------------------------
 
-BINUTILS_FULL=binutils-2.22.tar.bz2
-BINUTILS_DIR=binutils-2.22
+BINUTILS_FULL=binutils-2.23.1.tar.bz2
+BINUTILS_DIR=binutils-2.23.1
 PREFIX=/usr/local/oda
+
+patch_bfd()
+{
+    patch --verbose -u -p0 << HERE_DOC
+diff -ur binutils-2.23.1/bfd/format.c binutils-2.23.1-patched/bfd/format.c
+--- binutils-2.23.1/bfd/format.c    2011-06-05 21:26:01.000000000 -0400
++++ binutils-2.23.1-patched/bfd/format.c    2013-08-06 22:18:05.935550856 -0400
+@@ -278,6 +278,7 @@
+    }
+     }
+
++#if 0
+   if (match_count > 1)
+     {
+       const bfd_target * const *assoc = bfd_associated_vector;
+@@ -297,6 +298,7 @@
+        }
+    }
+     }
++#endif
+
+   if (match_count == 1)
+     {
+HERE_DOC
+
+    if [[ $? -ne 0 ]]; then
+        echo "Failed to apply patch"
+        exit 1
+    fi
+}
+
 
 build()
 {
 
-    mkdir -p "./build"
-    cd "./build"
+    mkdir -p "./build-$BINUTILS_FULL"
+    cd "./build-$BINUTILS_FULL"
 
     export CPPFLAGS="-fPIC"
 
@@ -64,6 +95,9 @@ get_src()
 if [ ! -d "$BINUTILS_DIR" ]; then
     get_src
 fi
+
+echo "Patching $BINUTILS_FULL"
+patch_bfd
 
 # launch each build in background for a parallel build
 build

@@ -91,10 +91,10 @@ def guess_bfd_arch(filename):
     arch = 'i386'
     target = 'binary'
     try:
-        abfd = bfd.Bfd(filename)
-        # TODO: Handle when arch comes back as "UNKNOWN!"
-        arch = abfd.arch
-        target = abfd.target
+        target_archs = bfd.guess_target_arch(filename)
+        if target_archs:
+            # TODO: Present these options to the user and let them pick from all matching target/archs
+            (target, arch) = target_archs[0]
     except bfd.BfdFileFormatException, e:
         pass
     except Exception, e:
