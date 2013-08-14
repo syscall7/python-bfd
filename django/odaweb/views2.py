@@ -192,7 +192,12 @@ def fileinfo(request):
         [cymru_record,] = dns.resolver.query('%s.malware.hash.cymru.com' % binary.md5(), 'TXT')
         malware = True
         logger.info('cymru is %s' % cymru_record)
+    # if the name does not exist, this binary is not recognized as malware
     except dns.resolver.NXDOMAIN:
+        pass
+    # Timeout should not ever happen, but sometimes it does
+    # TODO: Indicate to the user, that it is unknown
+    except dns.resolver.Timeout:
         pass
 
     # lookup in national software reference library
