@@ -10,11 +10,21 @@ from django.core.urlresolvers import reverse
 logger = logging.getLogger(__name__)
 
 class UserForm(forms.Form):
-    username = forms.CharField(max_length=100, required=True)
-    password = forms.CharField(max_length=32, required=True)
+    username = forms.CharField(max_length=32, min_length=4, required=True)
+    password = forms.CharField(max_length=32, min_length=6, required=True)
 
 class CreateUser(UserForm):
     email = forms.EmailField(required=True)
+    password2 = forms.CharField(max_length=32, min_length=6, required=True)
+
+    def clean(self):
+        password = self.cleaned_data.get('password')
+        password2 = self.cleaned_data.get('password2')
+
+        if password and password2 and password != password2:
+            raise forms.ValidationError("Passwords don't match")
+
+        return self.cleaned_data
 
 def logout(request):
     logger.debug('Logging Out %s' % request.user.username)
@@ -41,8 +51,9 @@ def login(request):
                 else:
                     # Return a 'disabled account' error message
                     raise Exception('User Has Disabled Account')
-            else:
-                return render(request, 'login/login.djhtml', {'error': 'Invalid Username/Password'})
+
+    return render(request, 'login/login.djhtml', {'error': 'Invalid Username/Password'})
+
 
 
 def create_user(request):
@@ -66,3 +77,5 @@ def create_user(request):
             django.contrib.auth.login(request, user)
             return redirect('/odaweb/')
             #return HttpResponse(serializers.serialize('json', [user]), mimetype='application/json')
+        else:
+            return render(request, 'login/create_user.djhtml', {'form': form})

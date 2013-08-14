@@ -6,21 +6,35 @@
 
 <form class="form-signin" method="POST">
     <img src="{{ STATIC_URL }}images/oda_logo4.png"/>
-{%  if error  %}<div class="alert alert-error">{{ error }}</div> {% endif %}
+
+
+{%  if error  %}
+    <div class="alert alert-error">{{ error }}</div>
+{% endif %}
+    {{ form.non_field_errors }}
    <div class="control-group">
-    <label class="control-label" for="username">Username</label>
+    <label class="control-label" for="username">
+        Username
+        {% if form.username.errors  %}<div class="alert alert-error">{{ form.username.errors }}</div>{% endif %}
+    </label>
     <div class="controls">
-      <input type="text" id="username" placeholder="username" name="username">
+      <input type="text" id="username" placeholder="username" name="username" value="{{ form.username.value }}"></input>
     </div>
   </div>
   <div class="control-group">
-    <label class="control-label" for="inputEmail">Email</label>
+    <label class="control-label" for="inputEmail">
+        Email
+        {% if form.email.errors  %}<div class="alert alert-error">{{ form.email.errors }}</div>{% endif %}
+    </label>
     <div class="controls">
-      <input type="text" id="inputEmail" placeholder="Email" name="email">
+      <input type="text" id="inputEmail" placeholder="Email" name="email" value="{{ form.email.value }}"></input>
     </div>
   </div>
   <div class="control-group">
-    <label class="control-label" for="inputPassword">Password</label>
+    <label class="control-label" for="inputPassword">
+        Password
+         {% if form.password.errors  %}<div class="alert alert-error">{{ form.password.errors }}</div>{% endif %}
+    </label>
     <div class="controls">
       <input type="password" id="inputPassword" placeholder="Password" name="password">
     </div>
@@ -28,7 +42,7 @@
   <div class="control-group">
     <label class="control-label" for="inputPassword">Confirm Password</label>
     <div class="controls">
-      <input type="password" id="inputPassword" placeholder="Password">
+      <input type="password" name="password2" id="inputPassword" placeholder="Password">
     </div>
   </div>
   <div class="control-group">

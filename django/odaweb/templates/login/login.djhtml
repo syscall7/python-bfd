@@ -19,11 +19,11 @@
       <input type="password" id="inputPassword" placeholder="Password" name="password">
     </div>
   </div>
-  <div class="control-group">
+   <div class="control-group">
     <div class="controls">
-      <label class="checkbox">
+      <!--<label class="checkbox">
         <input type="checkbox"> Remember me
-      </label>
+      </label> -->
       <button type="submit" class="btn">Sign in</button>
     </div>
   </div>

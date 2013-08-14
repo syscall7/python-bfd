@@ -6,7 +6,8 @@ var oda = oda || {};
 
 oda.alert = function(message) {
     $('.top-right').notify({
-        message: { text: message }
+        message: { text: message },
+        fadeOut: { enabled : false }
     }).show();
 };
 
