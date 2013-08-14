@@ -89,15 +89,15 @@ get_src()
 
     echo "Extracting $BINUTILS_FULL"
     tar -xjf $BINUTILS_FULL
+
+    echo "Patching $BINUTILS_FULL"
+    patch_bfd
 }
 
 # if the source directory doesn't exist, assume we need to download it
 if [ ! -d "$BINUTILS_DIR" ]; then
     get_src
 fi
-
-echo "Patching $BINUTILS_FULL"
-patch_bfd
 
 # launch each build in background for a parallel build
 build
