@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/var/www/oda2/env/bin/python
 # -----------------------------------------------------------------------------
 # File: uploadReport.py
 # Description: Generate a report of what was uploaded in a given day
@@ -20,8 +20,53 @@ import smtplib
 # import the email modules we'll need
 from email.mime.text import MIMEText
 
+from collections import namedtuple
+from django.template import Template, Context
+from django.conf import settings
+settings.configure() # We have to do this to use django templates standalone - see
+# http://stackoverflow.com/questions/98135/how-do-i-use-django-templates-without-the-rest-of-django
+
+# our template (could just as easily be stored in a separate file)
+template = """
+<html>
+<head>
+<title>ODA Activity Report</title>
+<link rel="stylesheet" type="text/css" href="http://www.onlinedisassembler.com/static2/css/oda2.css" />
+</head>
+<body>
+<h3>ODA Activity Report</h3>
+<table cellpadding="3" style="border-collapse: collapse; border-spacing: 0;">
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>File Name</th>
+            <th>File Size</th>
+            <th>File Description</th>
+            <th>File MD5</th>
+            <th>Short Name</th>
+            <th>IP Address</th>
+        </tr>
+    </thead>
+    <tbody class="scrollContent">
+        {% for upload in uploads %}
+        <tr style="background-color:{% cycle '#B2CEBB' '#FFFFFF' %}">
+            <td>{{ upload.date }}</td>
+            <td><b>{{ upload.filename }}</b></td>
+            <td>{{ upload.size|filesizeformat }}</td>
+            <td>{{ upload.desc }}</td>
+            <td>{{ upload.md5 }}</td>
+            <td>{{ upload.shortname }}</td>
+            <td>{{ upload.ip }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>
+"""
+
 # pointer to upload directory
-UPLOAD_DIR = '/var/log/oda'
+UPLOAD_DIR = '/tmp/odaweb2/uploads'
 
 # email addresses of sender and receivers
 SENDER = 'admin@onlinedisassembler.com'
@@ -31,142 +76,47 @@ RECEIVERS = [
     'davis@onlinedisassembler.com'
 ]
 
-class UploadDesc:
-    def __init__(self, filename):
-
-        # run the program 'file' on it
-        self.typeStr = Popen(['file', '-b', filename], stdout=PIPE).communicate()[0]
-
-        # extract the timestamp from the name
-        timestamp = time.strptime(os.path.basename(filename), '%Y%m%d-%H%M%S')
-        hit = (filename, datetime.fromtimestamp(time.mktime(timestamp)))
-        self.hits = [hit]
-
-        # size of upload
-        self.size = os.stat(filename).st_size
-
-        # md5
-        self.md5 = hashlib.md5(open(filename, 'r').read()).hexdigest()
-
 def genUploadReport(day):
 
     conn = MySQLdb.connect(host = 'localhost', user = 'root', passwd = 'password', db = 'odapython2')
     cursor = conn.cursor ()
-    #cursor.execute('select dateUploaded,originalFilename,remoteAddr from odaweb_odamaster where creation_date >= "%s"' % day.strftime('%y-%m-%d'))
-    cursor.execute('select m.creation_date, m.short_name, b.filename, m.ipAddress from odaweb_odamaster m inner join odaweb_binaryfile b where m.object_id=b.id and m.creation_date >= "%s"' % day.strftime('%y-%m-%d'))
+    cursor.execute(
+        'select m.creation_date, m.short_name, b.filename, m.ipAddress ' +
+        'from odaweb_odamaster m inner join odaweb_binaryfile b ' + 
+        'where m.object_id=b.id and m.creation_date >= "%s"' % 
+        day.strftime('%y-%m-%d'))
+
     rows = cursor.fetchall()
 
-    DATE_WID = 19
-    SHORT_WID = 10
-    FILE_WID = 50
-    IP_WID = 15
-
-    output = 'ODA Upload Report for %s\n\n' % day.strftime('%A, %B %d, %Y')
-    output += 'Total Files: %d\n' % len(rows)
-    #output += 'Unique Files: %d\n' % len(uploads)
-    #output += 'Total Size: %d\n' % totalSize
-    #output += 'Smallest File: %d\n' % smallest
-    #output += 'Largest File: %d\n' % largest
-
-    output += '\n'
-
-    output += '+' + '-'*(DATE_WID + 2) + '+' + '-'*(SHORT_WID+2) + '+' + '-'*(FILE_WID+2) + '+' + '-'*(IP_WID+2) + '+\n'
-    output += '| %-*s | %-*s | %-*s | %-*s |\n' % (DATE_WID, 'Date Uploaded', SHORT_WID, 'Short Name', FILE_WID, 'Original Filename', IP_WID, 'Remote Address')
-    output += '+' + '-'*(DATE_WID + 2) + '+' + '-'*(SHORT_WID+2) + '+' + '-'*(FILE_WID+2) + '+' + '-'*(IP_WID+2) + '+\n'
+    uploads = []
+    Upload = namedtuple('Upload', 'date shortname filename ip desc size md5')
     for row in rows:
-        output += '| %-*s | %-*s | %-*s | %-*s |\n' % (DATE_WID, row[0], SHORT_WID, row[1], FILE_WID, row[2], IP_WID, row[3])
-    output += '+' + '-'*(DATE_WID + 2) + '+' + '-'*(SHORT_WID+2) + '+' + '-'*(FILE_WID+2) + '+' + '-'*(IP_WID+2) + '+\n'
-    cursor.close ()
-    conn.close ()
+        filename = os.path.join(UPLOAD_DIR, row[2])
 
-    html = "<html><body style='white-space:pre; font-size:medium; font-family:monospace;'>%s</body></html>" % (output)
+        if os.path.exists(filename):
+            # run the program 'file' on it
+            desc = Popen(['file', '-b', filename], stdout=PIPE).communicate()[0]
+            desc = desc[0:32]
 
-    return html
+            # size of upload
+            size = os.stat(filename).st_size
 
-def genUploadReport_v2(day):
-
-    conn = MySQLdb.connect(host = 'localhost', user = 'root', passwd = 'password', db = 'oda')
-    cursor = conn.cursor ()
-    cursor.execute('select dateUploaded,originalFilename,remoteAddr from disassembled_file where dateUploaded >= "%s"' % day.strftime('%y-%m-%d'))
-    rows = cursor.fetchall()
-
-    DATE_WID = 19
-    FILE_WID = 50
-    IP_WID = 15
-
-    output = 'ODA Upload Report for %s\n\n' % day.strftime('%A, %B %d, %Y')
-    output += 'Total Files: %d\n' % len(rows)
-    #output += 'Unique Files: %d\n' % len(uploads)
-    #output += 'Total Size: %d\n' % totalSize
-    #output += 'Smallest File: %d\n' % smallest
-    #output += 'Largest File: %d\n' % largest
-
-    output += '\n'
-
-    output += '+' + '-'*(DATE_WID + 2) + '+' + '-'*(FILE_WID+2) + '+' + '-'*(IP_WID+2) + '+\n'
-    output += '| %-*s | %-*s | %-*s |\n' % (DATE_WID, 'Date Uploaded', FILE_WID, 'Original Filename', IP_WID, 'Remote Address')
-    output += '+' + '-'*(DATE_WID + 2) + '+' + '-'*(FILE_WID+2) + '+' + '-'*(IP_WID+2) + '+\n'
-    for row in rows:
-        output += '| %-*s | %-*s | %-*s |\n' % (DATE_WID, row[0], FILE_WID, row[1], IP_WID, row[2])
-    output += '+' + '-'*(DATE_WID + 2) + '+' + '-'*(FILE_WID+2) + '+' + '-'*(IP_WID+2) + '+\n'
-    cursor.close ()
-    conn.close ()
-
-    html = "<html><body style='white-space:pre; font-size:medium; font-family:monospace;'>%s</body></html>" % (output)
-
-    return html
-
-
-# function to collect file uploads for a given date
-def genUploadReport_v1(day):
-    uploads = {}
-    dayPattern = day.strftime('%Y%m%d') + '*'
-    cnt = 0
-    totalSize = 0
-    smallest = sys.maxint
-    largest = 0
-
-    # for each uploaded file for the given day
-    for upload in glob.iglob(os.path.join(UPLOAD_DIR,dayPattern)):
-        cnt += 1
-
-        # create upload descriptor
-        ud = UploadDesc(upload)
-
-        if ud.size < smallest:
-            smallest = ud.size
-
-        if ud.size > largest:
-            largest = ud.size
-
-        totalSize += ud.size
-
-        # if we've already seen this exact file
-        if ud.md5 in uploads:
-            uploads[ud.md5].hits.extend(ud.hits)
-        # else, it's new
+            # md5
+            md5 = hashlib.md5(open(filename, 'r').read()).hexdigest()
         else:
-            uploads[ud.md5] = ud
+            desc = 'File not found'
+            size = 0
+            md5 = 'File not found'
 
-    output = 'ODA Upload Report for %s\n\n' % day.strftime('%A, %B %d, %Y')
+        date = row[0].strftime('%I:%M:%S %p')
+        (short, fn, ip) = row[1:]
+        u = Upload(date, short, fn, ip, desc=desc, size=size, md5=md5)
+        uploads.append(u)
 
-    output += 'Total Files: %d\n' % cnt
-    output += 'Unique Files: %d\n' % len(uploads)
-    output += 'Total Size: %d\n' % totalSize
-    output += 'Smallest File: %d\n' % smallest
-    output += 'Largest File: %d\n' % largest
+    t = Template(template)
+    c = Context({'uploads': uploads})
+    return t.render(c)
 
-    output += '\n\n'
-
-    # sort based on timestamp of first hit
-    for md5, ud in sorted(uploads.iteritems(), key=lambda (k,v): v.hits[0][0]):
-        output += 'MD5: %s, Size: %d, Type: %s\n' % (ud.md5, ud.size, ud.typeStr)
-        for hit in ud.hits:
-            output += '\t%s %s\n' % (hit[1].strftime('%X'), hit[0])
-        output += '\n'
-    
-    return output
-    
 
 # Create a text/plain message
 yesterday=date.today() - timedelta(1)
