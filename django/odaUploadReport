@@ -74,8 +74,8 @@ UPLOAD_DIR = '/tmp/odaweb2/uploads'
 SENDER = 'admin@onlinedisassembler.com'
 RECEIVERS = [
     'anthony@onlinedisassembler.com',
-#    'tom@onlinedisassembler.com',
-#    'davis@onlinedisassembler.com'
+    'tom@onlinedisassembler.com',
+    'davis@onlinedisassembler.com'
 ]
 
 def genUploadReport(day):
