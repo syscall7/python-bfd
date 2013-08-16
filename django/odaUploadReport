@@ -30,37 +30,39 @@ settings.configure() # We have to do this to use django templates standalone - s
 template = """
 <html>
 <head>
-<title>ODA Activity Report</title>
+<title>ODA Upload Report {{ date }}</title>
 <link rel="stylesheet" type="text/css" href="http://www.onlinedisassembler.com/static2/css/oda2.css" />
 </head>
 <body>
-<h3>ODA Activity Report</h3>
-<table cellpadding="3" style="border-collapse: collapse; border-spacing: 0;">
+<h3>{{ date }}</h3>
+<div style="border:3px solid #6B7C70; border-radius: 6px; float:left">
+<table cellpadding="3" style="border:0px solid #6B7C70; border-spacing: 0;">
     <thead>
-        <tr>
-            <th>Time</th>
-            <th>File Name</th>
+        <tr style="background-color:#6B7C70;color:white;font-weight:bold; padding: 5px">
+            <!--<th align="left" style="padding: 2px 15px; -moz-border-radius: 6px 0 0 0; -webkit-border-radius: 6px 0 0 0;border-radius: 6px 0 0 0;">File Name</th>-->
+            <th align="left" style="padding: 2px 15px;">File Name</th>
             <th>File Size</th>
             <th>File Description</th>
             <th>File MD5</th>
-            <th>Short Name</th>
             <th>IP Address</th>
+            <!--<th style="-moz-border-radius: 0 6px 0 0; -webkit-border-radius: 0 6px 0 0;border-radius: 0 6px 0 0;">Time</th>-->
+            <th>Time</th>
         </tr>
     </thead>
-    <tbody class="scrollContent">
+    <tbody>
         {% for upload in uploads %}
         <tr style="background-color:{% cycle '#B2CEBB' '#FFFFFF' %}">
-            <td>{{ upload.date }}</td>
-            <td><b>{{ upload.filename }}</b></td>
-            <td>{{ upload.size|filesizeformat }}</td>
-            <td>{{ upload.desc }}</td>
-            <td>{{ upload.md5 }}</td>
-            <td>{{ upload.shortname }}</td>
-            <td>{{ upload.ip }}</td>
+            <td style="padding: 2px 15px;"><a href=http://www.onlinedisassembler.com/odaweb/{{ upload.shortname }}>{{ upload.filename }}</a></td>
+            <td style="padding: 2px 15px;">{{ upload.size|filesizeformat }}</td>
+            <td style="padding: 2px 15px;">{{ upload.desc }}</td>
+            <td style="padding: 2px 15px; font-family:monospace">{{ upload.md5 }}</td>
+            <td style="padding: 2px 15px;">{{ upload.ip }}</td>
+            <td style="padding: 2px 15px;">{{ upload.date }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+</div>
 </body>
 </html>
 """
@@ -72,8 +74,8 @@ UPLOAD_DIR = '/tmp/odaweb2/uploads'
 SENDER = 'admin@onlinedisassembler.com'
 RECEIVERS = [
     'anthony@onlinedisassembler.com',
-    'tom@onlinedisassembler.com',
-    'davis@onlinedisassembler.com'
+#    'tom@onlinedisassembler.com',
+#    'davis@onlinedisassembler.com'
 ]
 
 def genUploadReport(day):
@@ -96,13 +98,14 @@ def genUploadReport(day):
         if os.path.exists(filename):
             # run the program 'file' on it
             desc = Popen(['file', '-b', filename], stdout=PIPE).communicate()[0]
-            desc = desc[0:32]
+            desc = desc[0:48]
 
             # size of upload
             size = os.stat(filename).st_size
 
-            # md5
+            # md5 (abbreviated)
             md5 = hashlib.md5(open(filename, 'r').read()).hexdigest()
+            md5 = "%s...%s" % (md5[0:6], md5[-6:])
         else:
             desc = 'File not found'
             size = 0
@@ -114,7 +117,8 @@ def genUploadReport(day):
         uploads.append(u)
 
     t = Template(template)
-    c = Context({'uploads': uploads})
+    c = Context({'uploads': uploads,
+                 'date': day.strftime('%A, %B %d, %Y')})
     return t.render(c)
 
 
