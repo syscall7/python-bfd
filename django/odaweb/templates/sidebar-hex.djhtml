@@ -10,30 +10,26 @@
 
 
     <div class="accordion" id="accordion2">
-        <div class="accordion-group">
-            <div class="accordion-heading">
-                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
-                    Platform Options: <span class="platform-option">{{ binary.options.architecture }}</span>
-                </a>
-            </div>
-            <div id="collapseTwo" class="accordion-body collapse">
-                <div class="accordion-inner">
-                    <form>
+        <button type="button" class="btn btn-danger" data-toggle="collapse" data-target="#collapseTwo">
+            Platform Options: <span class="platform-option">{{ binary.options.architecture }}</span>
+        </button>
+        <div id="collapseTwo" class="accordion-body collapse">
+            <div class="accordion-inner" style="border: 1px solid #e5e5e5; border-radius: 5px; margin-top: 10px;">
+                <form>
 
-                        <select class="platformSelect" id="select-live-architecture" name="select-live-architecture">
-                            {% for a in supported_archs %}
-                                <option
-                                        {% if a == binary.options.architecture %}selected="selected"{% endif %}>
-                                    {{a}}</option>
-                            {% endfor %}
-                        </select>
+                    <select class="platformSelect" id="select-live-architecture" name="select-live-architecture">
+                        {% for a in supported_archs %}
+                            <option
+                                    {% if a == binary.options.architecture %}selected="selected"{% endif %}>
+                                {{a}}</option>
+                        {% endfor %}
+                    </select>
 
-                        <div id="platform-options">
-                            {% include 'show_options.djhtml' %}
-                        </div>
+                    <div id="platform-options">
+                        {% include 'show_options.djhtml' %}
+                    </div>
 
-                    </form>
-                </div>
+                </form>
             </div>
         </div>
     </div>
