@@ -489,29 +489,28 @@ examples = (
         'short_name' : 'whoami',
         'binary_type' : 'file',
         'file_name' : 'whoami',
-        'options' : OdaOptions(target="elf32-i386", architecture="i386"),
+        'options' : OdaOptions(target="elf64-x86-64", architecture="i386:x86-64"),
     },
     {
         'project_name' : 'mkdir (Linux)',
         'short_name' : 'mkdir',
         'binary_type' : 'file',
         'file_name' : 'mkdir',
-        'options' : OdaOptions(target="elf32-i386", architecture="i386"),
+        'options' : OdaOptions(target="elf64-x86-64", architecture="i386:x86-64"),
         },
     {
         'project_name' : 'cat (Linux)',
         'short_name' : 'cat',
         'binary_type' : 'file',
         'file_name' : 'cat',
-        'options' : OdaOptions(target="elf32-i386", architecture="i386"),
+        'options' : OdaOptions(target="elf64-x86-64", architecture="i386:x86-64"),
         },
     {
         'project_name' : 'chown (Linux)',
         'short_name' : 'chown',
         'binary_type' : 'file',
         'file_name' : 'chown',
-        'options' : OdaOptions(target="elf32-i386", architecture="i386"),
-        },
+        'options' : OdaOptions(target="elf64-x86-64", architecture="i386:x86-64"),        },
     {
         'project_name' : 'sha1sum (Linux)',
         'short_name' : 'sha1sum',
@@ -527,11 +526,6 @@ examples = (
     #    'options' : OdaOptions(target="elf32-i386", architecture="i386"),
     #    },
 )
-
-if os.name == 'nt':
-    for example in examples:
-        if example['options'].target == "elf32-i386":
-            example['options'] = OdaOptions(target='elf64-x86-64', architecture="i386:x86-64")
 
 def copy_disassembly(from_id, from_version, to_id, ip_address):
     to_oda = OdaMaster.objects.get(short_name = from_id, revision = from_version)
