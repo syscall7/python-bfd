@@ -1,5 +1,5 @@
 <div id="sidebar">
-    <div id="sidebar-container">
+    <div id="sidebar-container" style="padding-left: 10px; padding-top: 5px;">
         <div id="sidebar-tools" class="btn-toolbar pull-right">
             <div class="btn-group">
                 <a class="btn nav-btn"

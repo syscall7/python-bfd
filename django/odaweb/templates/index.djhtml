@@ -27,15 +27,13 @@
 
 {% block content %}
 
-
-
     {% include "sidebar.djhtml" %}
 
     <div id="view">
         <div id="view-container">
             <!--div id="slider-container"-->
-                <div id="slider" style="margin-bottom: 15px; margin-top: 5px; border: 0px">
-                    <table id="slider-sections">
+                <div id="slider" style="margin-bottom: 20px; margin-top: 15px; border: 0px">
+                    <table id="slider-sections"2
                         <tr>
                             {% for s in section_info.code_sections %}
                                 <td bgcolor="{%  sectioncolor forloop.counter0 %}"
@@ -46,7 +44,7 @@
                 </div>
                 <div id="slider-address" style="color:gray; font-family:monospace; float:right">0</div>
             <!--/div-->
-            <ul class="nav nav-tabs" id="myTab" style="margin-bottom: 0px;">
+            <ul class="nav nav-pills" id="myTab" style="margin-bottom: 15px;">
                 <li class="active"><a data-toggle="tab" href="#tab-assembly">Disassembly</a></li>
                 <li class=""><a data-toggle="tab" href="#tab-hexdump">Hex Dump</a></li>
                 <li class=""><a data-toggle="tab" href="#tab-sections">Sections</a></li>

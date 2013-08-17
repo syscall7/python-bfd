@@ -31,7 +31,7 @@ body {
     height: 200px;
     left: 400px;
     /*width: 500px;*/
-    border: 2px solid #aaa;
+    /* border: 2px solid #aaa; */
     z-index: 100;
     cursor: e-resize;
     position: absolute;
@@ -44,7 +44,7 @@ body {
 
 .vsplitbar {
     width: 4px;
-    background: #ddd;
+    /* background: #ddd; */
 }
 
 #sidebar {
@@ -92,7 +92,7 @@ body {
     right: 0;
     top: 42px;
     z-index: 1;
-    border-left:#ddd 2px solid;
+    /* border-left:#ddd 2px solid; */
 }
 
 .navbar-inner {
