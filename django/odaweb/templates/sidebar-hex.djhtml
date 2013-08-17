@@ -4,7 +4,8 @@
     <div class="sidebar-legend">Live View</div>
 
     <div class="alert alert-info">
-        Change the settings below to modify the disassembly.
+        First, set the platform options below.  Then, watch the disassembly window update as you type hex bytes in the
+        text area.  You can also upload an ELF, PE, COFF, Mach-O, or other executable file from the <em>File</em> menu.
     </div>
 
 
