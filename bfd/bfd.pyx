@@ -155,6 +155,7 @@ cdef extern from "bfd.h":
     char** bfd_arch_list()
     char** bfd_target_list()
     bfd* bfd_openr(char *filename, char *target)
+    bfd_boolean bfd_close(bfd *abfd)
     bfd_boolean bfd_check_format(bfd *abfd, bfd_format fmt)
     bfd_boolean bfd_check_format_matches(bfd *abfd, bfd_format fmt, char ***matching)
     bfd_error_type bfd_get_error()
@@ -657,7 +658,10 @@ cdef class Bfd:
     def __dealloc__(self):
         # do free()s on anything we've allocated
         pass
-
+    
+    def close(self):
+        bfd_close(self.abfd)
+        
     cdef _add_syms(self, asymbol** asym, long num, object dynamic):
         # must declare C type first
         cdef Symbol s

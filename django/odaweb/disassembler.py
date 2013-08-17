@@ -4,6 +4,8 @@ import re
 import string
 import bfd
 import dischunk
+import time
+import os
 from django.contrib.contenttypes.models import ContentType
 
 from odaweb.models import (BinaryDisassemblySuperChunk, Binary, BinaryString,
@@ -109,11 +111,10 @@ class Disassembler(object):
 
         self.binary = binary
 
-        self.file_handle = binary.file_handle()
+        self.bfd_file_handle = binary.file_handle()
+        filename = self.bfd_file_handle.name
 
-        self.filename = self.file_handle.name
-
-        self.bfd = bfd.Bfd(self.filename, binary.options.target, binary.options.architecture)
+        self.bfd = bfd.Bfd(filename, binary.options.target, binary.options.architecture)
 
         self.sections = list(self.bfd.sections.values())
 
@@ -123,16 +124,25 @@ class Disassembler(object):
                     setattr(self, f.name, True) # i.e, section.SEC_ALLOC = True
                 else:
                     setattr(self, f.name, False) # i.e, section.SEC_ALLOC = False
-
+    def __del__(self):
+        if hasattr(self, 'bfd'):
+            self.bfd.close()
+            self.bfd_file_handle.close()
+            self.bfd_file_handle.done()
 
     def sectionFlagsInfo(self):
         return bfd.FLAGS
 
     def strings(self):
         strs = []
-        bin = open(self.filename, "rb").read()
+        # Create temporary file handle to retrieve strings
+        f = self.binary.file_handle()
+        f.open("rb")
+        bin = f.read()
         for m in re.finditer("([\t\x20-\x7e]{4,})", bin):
             strs.append((m.start(), m.group(1)))
+        f.close()
+        f.done()
         return strs
 
     def sections_iter(self, flags=[]):
@@ -518,6 +528,10 @@ examples = (
     #    },
 )
 
+if os.name == 'nt':
+    for example in examples:
+        if example['options'].target == "elf32-i386":
+            example['options'] = OdaOptions(target='elf64-x86-64', architecture="i386:x86-64")
 
 def copy_disassembly(from_id, from_version, to_id, ip_address):
     to_oda = OdaMaster.objects.get(short_name = from_id, revision = from_version)

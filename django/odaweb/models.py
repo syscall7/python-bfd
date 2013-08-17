@@ -1,4 +1,4 @@
-from os import stat
+from os import stat, unlink
 from django.db import models
 from django.core.files.storage import FileSystemStorage
 from django.core.files import File
@@ -15,6 +15,7 @@ import hashlib
 import json
 import commands
 import logging
+import types
 
 logger = logging.getLogger(__name__)
 
@@ -55,17 +56,17 @@ class OdaFile(models.Model):
     create = staticmethod(create)
 
 
-# TODO: Used by views.py. Delete when views.py is obsoleted
-class DisassemblyChunk(models.Model):
-    odafile = models.ForeignKey(OdaFile)
-
-    # TODO: Is this length too much? Not enough?    
-    #sec_name = models.CharField(max_length=128)
-    start = models.IntegerField()
-    end = models.IntegerField()
-    is_boundary = models.BooleanField()
-    class Meta:
-        ordering = ['start']
+## TODO: Used by views.py. Delete when views.py is obsoleted
+#class DisassemblyChunk(models.Model):
+#    odafile = models.ForeignKey(OdaFile)
+#
+#    # TODO: Is this length too much? Not enough?    
+#    #sec_name = models.CharField(max_length=128)
+#    start = models.IntegerField()
+#    end = models.IntegerField()
+#    is_boundary = models.BooleanField()
+#    class Meta:
+#        ordering = ['start']
 
 class OdaOptions(models.Model):
     target = models.CharField(max_length=128)
@@ -102,15 +103,19 @@ class Binary(models.Model):
     options = models.OneToOneField(OdaOptions, null=True)
 
     def md5(self):
-        f = open(self.file_handle().name,'rb')
+        f = self.file_handle() 
+        f.open('rb')
         md5 = hashlib.md5(f.read()).hexdigest()
         f.close()
+        f.done()
         return md5
 
     def sha1(self):
-        f = open(self.file_handle().name,'rb')
+        f = self.file_handle() 
+        f.open('rb')
         md5 = hashlib.sha1(f.read()).hexdigest()
         f.close()
+        f.done()
         return md5
 
     def desc(self):
@@ -167,18 +172,16 @@ class BinaryDisassemblyChunk(models.Model):
         
 
 # TODO: Used by views.py. Delete when views.py is obsoleted
-class DisassemblyComment(models.Model):
-    chunk = models.ForeignKey(DisassemblyChunk)
-    comment_str = models.CharField(max_length=128)
-    offset = models.IntegerField()
-    class Meta:
-        ordering = ['offset']
-
+#class DisassemblyComment(models.Model):
+#    chunk = models.ForeignKey(DisassemblyChunk)
+#    comment_str = models.CharField(max_length=128)
+#    offset = models.IntegerField()
+#    class Meta:
+#        ordering = ['offset']
 class BinaryString(Binary):
     binary_string = models.TextField()
-
+    
     def file_handle(self):
-
         if len(self.binary_string) % 2 == 1:
             self.binary_string += '0'
 
@@ -186,11 +189,25 @@ class BinaryString(Binary):
             byte_array = self.binary_string.decode("hex")
         except TypeError:
             logger.exception("Failed to decode hex")
-
+        
+        # Create a file containing the BinaryString for passing to BFD
+        #  Must use delete=False because bfd expects a file name
         t = tempfile.NamedTemporaryFile(bufsize = 0, delete = False)
         t.write(byte_array)
+        
+        # Dynamic function that deletes the temp file when we are done with it
+        def done(self):
+            # Close the file in case it isn't already closed
+            self.close()
+            
+            # Delete the temporary file permanently
+            unlink(self.name)
+                
+        # Add the done function dynamically to the File instance
+        f = File(t)
+        f.done = types.MethodType(done, f)
 
-        return File(t)
+        return f
 
     def name(self):
         return 'Live Mode'
@@ -224,6 +241,13 @@ class BinaryFile(Binary):
     hash = models.CharField(max_length=128)
 
     def file_handle(self):
+        
+        # Add done function to the BinaryFile file object
+        def done(self):
+            # BinaryFiles need to exist indefinitely. Nothing to do here
+            pass
+
+        self.the_file.file.done = types.MethodType(done, self.the_file.file)
         return self.the_file.file
 
     def name(self):
