@@ -26,6 +26,17 @@ from django.conf import settings
 settings.configure() # We have to do this to use django templates standalone - see
 # http://stackoverflow.com/questions/98135/how-do-i-use-django-templates-without-the-rest-of-django
 
+# pointer to upload directory
+UPLOAD_DIR = '/tmp/odaweb2/uploads'
+
+# email addresses of sender and receivers
+SENDER = 'admin@onlinedisassembler.com'
+RECEIVERS = [
+    'anthony@onlinedisassembler.com',
+    'tom@onlinedisassembler.com',
+    'davis@onlinedisassembler.com'
+]
+
 # our template (could just as easily be stored in a separate file)
 template = """
 <html>
@@ -67,17 +78,6 @@ template = """
 </html>
 """
 
-# pointer to upload directory
-UPLOAD_DIR = '/tmp/odaweb2/uploads'
-
-# email addresses of sender and receivers
-SENDER = 'admin@onlinedisassembler.com'
-RECEIVERS = [
-    'anthony@onlinedisassembler.com',
-    'tom@onlinedisassembler.com',
-    'davis@onlinedisassembler.com'
-]
-
 def genUploadReport(day):
 
     conn = MySQLdb.connect(host = 'localhost', user = 'root', passwd = 'password', db = 'odapython2')
@@ -85,8 +85,8 @@ def genUploadReport(day):
     cursor.execute(
         'select m.creation_date, m.short_name, b.filename, m.ipAddress ' +
         'from odaweb_odamaster m inner join odaweb_binaryfile b ' + 
-        'where m.object_id=b.id and m.creation_date >= "%s"' % 
-        day.strftime('%y-%m-%d'))
+        'where m.object_id=b.id and m.creation_date >= "%s" and ' % day.strftime('%y-%m-%d') +
+        'm.creation_date < "%s"' % date.today().strftime('%y-%m-%d'))
 
     rows = cursor.fetchall()
 
@@ -111,9 +111,9 @@ def genUploadReport(day):
             size = 0
             md5 = 'File not found'
 
-        date = row[0].strftime('%I:%M:%S %p')
+        timestamp = row[0].strftime('%I:%M:%S %p')
         (short, fn, ip) = row[1:]
-        u = Upload(date, short, fn, ip, desc=desc, size=size, md5=md5)
+        u = Upload(timestamp, short, fn, ip, desc=desc, size=size, md5=md5)
         uploads.append(u)
 
     t = Template(template)
