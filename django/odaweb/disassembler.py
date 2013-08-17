@@ -507,7 +507,7 @@ examples = (
         'short_name' : 'sha1sum',
         'binary_type' : 'file',
         'file_name' : 'sha1sum',
-        'options' : OdaOptions(target="elf32-i386", architecture="i386"),
+        'options' : OdaOptions(target="elf64-x86-64", architecture="i386:x86-64"),
     },
     #{
     #    'project_name' : 'Sasser Worm (Windows)',
