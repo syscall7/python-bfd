@@ -4,14 +4,14 @@
     <div class="sidebar-legend">Live View</div>
 
     <div class="alert alert-info">
-        First, set the platform options below.  Then, watch the disassembly window update as you type hex bytes in the
+        Set the platform below.  Then watch the disassembly window update as you type hex bytes in the
         text area.  You can also upload an ELF, PE, COFF, Mach-O, or other executable file from the <em>File</em> menu.
     </div>
 
 
     <div class="accordion" id="accordion2">
-        <button type="button" class="btn btn-danger" data-toggle="collapse" data-target="#collapseTwo">
-            Platform Options: <span class="platform-option">{{ binary.options.architecture }}</span>
+        <button type="button" class="btn btn-small btn-danger" data-toggle="collapse" data-target="#collapseTwo">
+            Platform: <span class="platform-option">{{ binary.options.architecture }}</span>
         </button>
         <div id="collapseTwo" class="accordion-body collapse">
             <div class="accordion-inner" style="border: 1px solid #e5e5e5; border-radius: 5px; margin-top: 10px;">
