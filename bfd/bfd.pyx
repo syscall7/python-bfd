@@ -540,6 +540,7 @@ cdef internalFuncFmtAddr(bfd, addr):
         addrStr += ' <%s>' % bfd.syms_by_addr[addr].name
     return addrStr
 
+# returns a tuple of all matching (target,arch) pairs, even with ones with unknown arch
 def guess_target_arch(path):
 
     cdef char **matching
@@ -567,13 +568,14 @@ def guess_target_arch(path):
                 
             free(matching)    
     else:
-        print 'guessed target %s' % matches
         matches.append(bfd_get_target(abfd))
+        print 'guessed target %s' % matches
 
-    # for each target, weed out ones with UNKNOWN architectures (i.e., the generic elf32-little)
+    # for each target, retrieve identified arch if known
     for match in matches:
         abfd = bfd_openr(path, match)
-        if bfd_check_format(abfd, bfd_object) and (0 != bfd_get_arch(abfd)):
+        if bfd_check_format(abfd, bfd_object):
+            # NOTE the rest of our code depends on bfd returning the exact string 'UNKNOWN!' when arch is unknown
             arch = bfd_printable_arch_mach(bfd_get_arch(abfd), bfd_get_mach(abfd))
             targets.append((match, arch))
  
@@ -610,6 +612,7 @@ cdef class Bfd:
 
         if target:
             tgt = target
+            print 'target is %s' % tgt
         else:
             tgt = NULL
 

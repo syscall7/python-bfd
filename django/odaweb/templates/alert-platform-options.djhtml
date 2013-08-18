@@ -4,9 +4,15 @@
         image, please select from the platform options below.
     </div>
 
+{% elif arch == 'UNKNOWN!'%}
+    <div class='alert alert-success'>
+        We detected the object file format for this file as {{ target }}, but we cannot determine the architecture.
+        To continue disassembling this file, please select from the platform options below.
+    </div>
+
 {% else %}
     <div class="alert alert-success">
-        We have detected the object file format as:
+        We have detected the object file format as {{ target }}:
         <ul>
         {% for f in file_format %}
             <li>{{ f }}</li>

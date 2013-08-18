@@ -174,19 +174,31 @@ function FileUploadForm() {
                 // if there were no errors in the form
                 if (data.html == '') {
 
+                    // default to i386 for unknown arch
+                    default_arch = 'i386';
+
+                    // if we do know the arch...
+                    if (data.arch != 'UNKNOWN!') {
+                        default_arch = data.arch;
+                    }
+
                     $('#modal-upload-form').modal('hide');
-                    $('#select-open-architecture').val(data.arch);
+                    $('#select-open-architecture').val(default_arch);
                     $('#select-open-architecture').change();
                     $('#modal-platform-options-short-name').val(data.id);
                     $('#modal-platform-options').modal();
                     $('#modal-platform-msg').html(data.msg);
 
                     // if we cannot detect the file format
-                    if (data.target == 'binary') {
+                    if (data.arch == 'UNKNOWN!') {
+
+                        // let the user select the arch AND options
                         $('#select-open-architecture').prop('disabled', false);
                     }
                     // else, we know the format (and should therefore already know the arch)
                     else {
+
+                        // let the user select only select the options
                         $('#select-open-architecture').prop('disabled', true);
                     }
 

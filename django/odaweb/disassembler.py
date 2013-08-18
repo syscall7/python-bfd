@@ -87,16 +87,26 @@ def get_platform_options(platform):
             #print 'DHTML',djhtmlOpts
     return djhtmlOpts
 
+# Returns our best guess at target (file format) and architecture
 def guess_bfd_arch(filename):
 
     # use defaults these default when we can't detect the arch/target
-    arch = 'i386'
+    arch = 'UNKNOWN!'
     target = 'binary'
     try:
         target_archs = bfd.guess_target_arch(filename)
-        if target_archs:
-            # TODO: Present these options to the user and let them pick from all matching target/archs
-            (target, arch) = target_archs[0]
+
+        # TODO: Present these options to the user and let them pick from all matching target/archs
+
+        # for each detected target/arch
+        for (t, a) in target_archs:
+
+            # we'll set the target here even in cases where we cannot detect arch (i.e., ihex, srec)
+            target = t
+            if a != "UNKNOWN!":
+                arch = a
+                break
+
     except bfd.BfdFileFormatException, e:
         pass
     except Exception, e:
@@ -255,11 +265,12 @@ class Disassembler(object):
         return super_chunks
 
     def process_chunks(self):
+        TARGETS_WITHOUT_CODE_SECTIONS = ['binary', 'ihex', 'srec']
         ctype = ContentType.objects.get_for_model(self.binary)
         BinaryDisassemblySuperChunk.objects.filter(content_type=ctype.id, object_id=self.binary.id).delete()
 
         # Disassemble the entire file, one section at a time, dividing it into disassembly chunks
-        if self.binary.options.target == 'binary':
+        if self.binary.options.target in TARGETS_WITHOUT_CODE_SECTIONS:
             super_chunks = self.get_chunks_from_file(self.sections)
             if not super_chunks:
                 # TODO: What shoud we do if there is nothing for us to disassemble? Is this file empty?
