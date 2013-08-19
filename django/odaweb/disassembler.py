@@ -169,9 +169,13 @@ class Disassembler(object):
 
         options = self.binary.options.get_extra_options()
 
-        endian = ({'BIG': bfd.ENDIAN_BIG,
-                   'LITTLE': bfd.ENDIAN_LITTLE,
-                   'DEFAULT': bfd.ENDIAN_DEFAULT})[self.binary.options.get_endian()]
+        # determine endianness
+        if 'LITTLE' in options:
+            endian = bfd.ENDIAN_LITTLE
+        elif 'BIG' in options:
+            endian = bfd.ENDIAN_BIG
+        else:
+            endian = bfd.ENDIAN_DEFAULT
 
         # force intel syntax as default for i386 arch
         if self.bfd.arch.startswith('i386') and len(options) == 0:
