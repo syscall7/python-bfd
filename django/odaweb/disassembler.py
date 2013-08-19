@@ -16,6 +16,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+TARGETS_WITHOUT_CODE_SECTIONS = ['binary', 'ihex', 'srec']
+
 def analyzerFactory(arch):
 
     # for now, ignore everything after the colon
@@ -209,8 +211,8 @@ class Disassembler(object):
         def filter_sec_code(sec):
             return set(['SEC_CODE']).issubset([f.name for f in sec.flags])
 
-        # HACK: if there's only one section, it's the .data section for raw binaries, so let's include it
-        if len(self.sections) == 1 and self.sections[0].name == '.data':
+        # treat all sections as code for targets without code sections
+        if self.bfd.target in TARGETS_WITHOUT_CODE_SECTIONS:
             code_sections = self.sections
         # else, only get the code sections
         else:
@@ -265,7 +267,6 @@ class Disassembler(object):
         return super_chunks
 
     def process_chunks(self):
-        TARGETS_WITHOUT_CODE_SECTIONS = ['binary', 'ihex', 'srec']
         ctype = ContentType.objects.get_for_model(self.binary)
         BinaryDisassemblySuperChunk.objects.filter(content_type=ctype.id, object_id=self.binary.id).delete()
 
