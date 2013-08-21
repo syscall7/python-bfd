@@ -88,10 +88,14 @@ class OdaOptions(models.Model):
         self.extra_options = '{ "flags" : [] }'
 
     def get_endian(self):
-        if 'endian' in self.get_options_map():
-            return self.get_options_map()['endian']
+        options = self.get_extra_options()
+        endian = 'DEFAULT'
+        if 'LITTLE' in options:
+            endian = 'LITTLE'
+        elif 'BIG' in options:
+            endian = 'BIG'
 
-        return 'DEFAULT'
+        return endian
 
     def set_endian(self, endian):
         o = self.get_options_map()
