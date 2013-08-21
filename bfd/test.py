@@ -33,9 +33,9 @@ def dump_sec(abfd, sec_name, offset, size):
     dump = abfd.raw_data(text, text.vma + offset, size)
     print binascii.hexlify(dump)
 
-def dump(path, target, numLines):
+def dump(path, target, arch, numLines):
 
-    b=bfd.Bfd(path, target)
+    b=bfd.Bfd(path, target, arch)
 
     print '\nFile: %s' % path
     print 'Arch ID: %d' % b.archId
@@ -64,7 +64,7 @@ def dump(path, target, numLines):
     print '\nDisassembly of %s:\n' % sec_name
     sec = b.sections[sec_name]
     start = sec.vma
-    (dis,nextAddr, lineCnt) = b.disassemble(sec, start, None, numLines, funcFmtAddr, funcFmtLine, {}, endian=bfd.ENDIAN_LITTLE)
+    (dis,nextAddr, lineCnt) = b.disassemble(sec, start, None, numLines, funcFmtAddr, funcFmtLine, {}, endian=bfd.ENDIAN_LITTLE, options='LITTLE')
     print 'disassembly is %s' % dis
     print 'Next address to disassemble is: 0x%08x' % nextAddr
     #print b.disassemble(sec, start, stop, funcFmtAddr, funcFmtLine, endian=bfd.ENDIAN_BIG)
@@ -92,7 +92,7 @@ def main():
     print 'guessed targets: %s' % target_archs
 
     for target,arch in target_archs:
-        dump(exe, target, numLines)
+        dump(exe, target, arch, numLines)
 
 if __name__ == '__main__':
     main()
