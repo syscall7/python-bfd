@@ -54,24 +54,28 @@ var Sidebar = Backbone.Model.extend({
     resize : function(elem) {
         var new_offset = $("#sidebarContent").offset().top;
         var accum_margins = 15; //Not captured by jquery
+        var new_height;
         if ( $(elem).find('table').length )
         {
             // Table header height
             new_offset += 36;
+            new_offset += $("#sidebar").offset().top + accum_margins;
+            new_height = $(window).height()-new_offset;            
         }
         else if ( $(elem)[0].type == 'textarea' )
         {
-            // Hex Dump has a help banner.
-            //  TODO: Calculate this programatically
-            new_offset += 120;
+            // Live View 
+            var hexOffset = $("#hex-sidebar-scroll").offset().top;
+            new_height = $(window).height() - hexOffset - accum_margins;
         }
         else
         {
             // Margins and Padding
             new_offset += 15;
+            new_offset += $("#sidebar").offset().top + accum_margins;
+            new_height = $(window).height()-new_offset;
         }
-        new_offset += $("#sidebar").offset().top + accum_margins;
-        return $(window).height()-new_offset;  //237;
+        return new_height;  //237;
     },
 
     close : function() {
@@ -221,7 +225,7 @@ function ResizeHandler() {
         $('#vertSplitter').height($(window).height()-47);
         
         // TODO: Hardcoded Height incluees footer, banner, and tabs
-        $('#myTabContent').height($(window).height()-132);
+        $('#myTabContent').height($(window).height()-157);
              
         $('.sidebar-scroll-container').each( function (i,elem) {
             $(elem).height( sidebar.resize($(elem)) );} );
@@ -229,7 +233,7 @@ function ResizeHandler() {
     });
     //$('#view-container').height($(window).height()-74);
     $('#vertSplitter').height($(window).height()-47);
-    $('#myTabContent').height($(window).height()-132);
+    $('#myTabContent').height($(window).height()-157);
     $('.sidebar-scroll-container').each( function (i,elem) {
         $(elem).height( sidebar.resize($(elem)) );} );
 
