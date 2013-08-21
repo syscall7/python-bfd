@@ -30,7 +30,7 @@
 
     <div style="padding-top:46px;">
         <p>
-        Forgot your <a href="#">username/password?</a>
+        Forgot your <a href="{% url 'django.contrib.auth.views.password_reset' %}">username/password?</a>
         </p>
     </div>
 </form>
