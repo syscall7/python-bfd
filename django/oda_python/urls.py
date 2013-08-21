@@ -3,6 +3,9 @@ from django.http import HttpResponseRedirect
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
+from django.contrib.auth.views import password_reset, password_reset_done, password_reset_confirm, password_reset_complete
+from django.core.urlresolvers import reverse
+
 admin.autodiscover()
 
 urlpatterns = patterns('',
@@ -34,8 +37,25 @@ urlpatterns = patterns('',
     url(r'^odaweb/_instdoc$', 'odaweb.views2.instdoc'),
     url(r'^odaweb/_set', 'odaweb.views2.set'),
     url(r'^odaweb/_options', 'odaweb.views2.show_options'),
+
+
+    #User Dealing with URL
     url(r'^odaweb/login', 'odaweb.views_login.login'),
     url(r'^odaweb/logout', 'odaweb.views_login.logout'),
+
+    url(r'^accounts/password/reset$', password_reset, {
+        'template_name': 'login/password_reset.djhtml'
+    }),
+    url(r'^accounts/password/reset/confirm/(?P<uidb36>[-\w]+)/(?P<token>[-\w]+)$', password_reset_confirm,
+        {'template_name': 'login/password_reset_confirm.djhtml'}),
+    url(r'^accounts/password/reset/complete$', password_reset_complete,
+        {'template_name': 'login/password_reset_complete.djhtml'}),
+    url(r'^accounts/password/reset_done$', password_reset_done,
+        {'template_name': 'login/password_reset_done.djhtml'}),
+
     url(r'^odaweb/createuser', 'odaweb.views_login.create_user'),
+
+
+
     url(r'^odaweb/(?P<disassembly_id>\w{0,16})$$', 'odaweb.views2.index')
 )
