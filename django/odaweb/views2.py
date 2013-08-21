@@ -346,7 +346,7 @@ def upload(request):
 
         oda_master = OdaMaster(short_name = id_generator(), project_name=project_name,
                                binary=binary_file, ipAddress=request.META.get('REMOTE_ADDR'))
-        if request.user.is_authenticated()  :
+        if request.user.is_authenticated():
             oda_master.owner = request.user
 
         oda_master.save()

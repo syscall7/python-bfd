@@ -27,9 +27,16 @@
       <button type="submit" class="btn">Sign in</button>
     </div>
   </div>
+
+    <div style="padding-top:46px;">
+        <p>
+        Forgot your <a href="#">username/password?</a>
+        </p>
+    </div>
 </form>
 
 </div>
+
 
 
 {% endblock %}
