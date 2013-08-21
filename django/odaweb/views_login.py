@@ -6,7 +6,7 @@ from django.db import IntegrityError
 import logging
 from django.contrib.auth import authenticate
 import django.contrib.auth
-from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 logger = logging.getLogger(__name__)
 
 class UserForm(forms.Form):
@@ -23,6 +23,11 @@ class CreateUser(UserForm):
 
         if password and password2 and password != password2:
             raise forms.ValidationError("Passwords don't match")
+
+        email = self.cleaned_data.get('email')
+        username = self.cleaned_data.get('username')
+        if email and User.objects.filter(email=email).exclude(username=username).count():
+            raise forms.ValidationError(u'Email already registered.')
 
         return self.cleaned_data
 
@@ -66,7 +71,6 @@ def create_user(request):
         if form.is_valid(): # All validation rules pass
             logger.info("Creating User %s" % form.cleaned_data['username'])
 
-            from django.contrib.auth.models import User
             try:
                 user_model = User.objects.create_user(form.cleaned_data['username'], form.cleaned_data['email'], form.cleaned_data['password'])
             except IntegrityError:
