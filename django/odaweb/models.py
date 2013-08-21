@@ -126,8 +126,10 @@ class Binary(models.Model):
         if os.name == 'nt':
             line = ''
         else:
-            #line = subprocess.check_output('file -b %s' % self.file_handle().name, shell=True)
-            line = commands.getoutput('file -b %s' % self.file_handle().name)
+            f = self.file_handle()
+            line = commands.getoutput('file -b %s' % f.name)
+            f.close()
+            f.done()
         return line.split(', ')
 
     class Meta:
@@ -203,7 +205,7 @@ class BinaryString(Binary):
         def done(self):
             # Close the file in case it isn't already closed
             self.close()
-            
+
             # Delete the temporary file permanently
             unlink(self.name)
                 
