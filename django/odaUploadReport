@@ -46,6 +46,13 @@ template = """
 </head>
 <body>
 <h3>{{ date }}</h3>
+
+Total File Uploads: {{ total_uploads }}<br>
+Total Bytes Uploaded: {{ total_bytes|filesizeformat }}<br>
+Unique Files: {{ unique_files }}<br>
+Unique IPs: {{ unique_ips }}<br>
+<br>
+
 <div style="border:3px solid #6B7C70; border-radius: 6px; float:left">
 <table cellpadding="3" style="border:0px solid #6B7C70; border-spacing: 0;">
     <thead>
@@ -89,7 +96,10 @@ def genUploadReport(day):
         'm.creation_date < "%s"' % date.today().strftime('%y-%m-%d'))
 
     rows = cursor.fetchall()
-
+    
+    unique_ips = []
+    unique_md5s = []
+    total_bytes = 0
     uploads = []
     Upload = namedtuple('Upload', 'date shortname filename ip desc size md5')
     for row in rows:
@@ -102,9 +112,12 @@ def genUploadReport(day):
 
             # size of upload
             size = os.stat(filename).st_size
+            total_bytes += size
 
             # md5 (abbreviated)
             md5 = hashlib.md5(open(filename, 'r').read()).hexdigest()
+            if md5 not in unique_md5s:
+                unique_md5s.append(md5)
             md5 = "%s...%s" % (md5[0:6], md5[-6:])
         else:
             desc = 'File not found'
@@ -113,12 +126,23 @@ def genUploadReport(day):
 
         timestamp = row[0].strftime('%I:%M:%S %p')
         (short, fn, ip) = row[1:]
+
+        if ip not in unique_ips:
+            unique_ips.append(ip)
+
         u = Upload(timestamp, short, fn, ip, desc=desc, size=size, md5=md5)
         uploads.append(u)
 
     t = Template(template)
-    c = Context({'uploads': uploads,
-                 'date': day.strftime('%A, %B %d, %Y')})
+    c = Context({
+            'uploads': uploads,
+            'date': day.strftime('%A, %B %d, %Y'),
+            'total_uploads': len(rows),
+            'total_bytes': total_bytes,
+            'unique_files': len(unique_md5s),
+            'unique_ips': len(unique_ips),
+    })
+
     return t.render(c)
 
 
