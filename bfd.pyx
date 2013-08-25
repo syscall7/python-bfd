@@ -110,6 +110,7 @@ cdef extern from "bfd.h":
         unsigned int alignment_power
         char* name
         asection* next
+        bfd_vma vma
     ctypedef struct bfd_arch_info
     ctypedef bfd_arch_info bfd_arch_info_type
     ctypedef struct bfd_target:
@@ -753,6 +754,7 @@ cdef class Bfd:
            funcFmtLine - Called to format entire lines of disassembly
            endian - Endian to use when disassembling
            options - Machine specific disassembly options
+           baseAddr - Amount to adjust VMA (startAddr is always given without taking baseAddr into affect)
     
            returns a tuple containing (1. the disassembly text, 2. the next address at which disassembly should continue, 3. number of lines returned)
         '''
@@ -767,9 +769,14 @@ cdef class Bfd:
         cdef bfd_target* xvec_new
         cdef bfd_target* xvec_orig
 
+        # this assignment is necessary to translate between C and Cython
         sec = section
+
+        sec_vma = sec.vma
         if baseAddr:
-            sec.vma = baseAddr
+            sec_vma += baseAddr
+        else:
+            baseAddr = 0
 
         # make sure right away that we can disassemble this bfd
         disassemble_fn = <disassembler_ftype> disassembler(self.abfd)
@@ -846,16 +853,16 @@ cdef class Bfd:
         sec.get_section_contents(buf)
 
         disasm_info.buffer = buf
-        disasm_info.buffer_vma = sec.vma
+        disasm_info.buffer_vma = sec_vma
         disasm_info.buffer_length = bufSize
 
         # start address of None means from beginning of section
         if startAddr is None:
-            startAddr = sec.vma
+            startAddr = sec_vma
 
         # end address of None means everything in the section
         if endAddr is None:
-            endAddr = sec.vma + sec.size
+            endAddr = sec_vma + sec.size
 
         # numLines of None means all available in the section
         if numLines is None:
@@ -884,7 +891,7 @@ cdef class Bfd:
                     # Keep Windows happy
                     iostream.seek(foffs) 
                 rawData = []
-                offset = addr - sec.vma
+                offset = addr - sec_vma
 
                 # TODO: Let cython convert this to a python string
                 for 0 <= i < instrSize:
@@ -910,8 +917,10 @@ cdef class Bfd:
         free(buf)
         if xvec_new != NULL:
             free(xvec_new)
-        self.abfd.xvec = xvec_orig    
-        return (''.join(output), addr, lineCnt)
+        self.abfd.xvec = xvec_orig
+
+        # next address is returned without taking baseAddr into affect
+        return (''.join(output), addr - baseAddr, lineCnt)
 
     def print_dis_options(self):
         cdef FILE* stream
