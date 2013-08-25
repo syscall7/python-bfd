@@ -72,6 +72,7 @@ class OdaOptions(models.Model):
     target = models.CharField(max_length=128)
     architecture = models.CharField(max_length=128)
     extra_options = models.CharField(max_length=256, default='{"flags" : [] }')
+    base_address = models.CharField(max_length=18)
 
     def get_options_map(self):
         return json.loads(self.extra_options)

@@ -166,9 +166,12 @@ class Disassembler(object):
 
     def disassemble(self, name, start=None, stop=None, numLines=None, funcFmtLine=None, funcFmtLineArgs=None):
         sec = self.bfd.sections[name]
-
+        baseAddr = self.binary.options.base_address
         options = self.binary.options.get_extra_options()
-
+        if baseAddr:
+            baseAddr = int(baseAddr, 16)
+            start += baseAddr
+            stop += baseAddr
         # determine endianness
         endian = ({'BIG': bfd.ENDIAN_BIG,
                     'LITTLE': bfd.ENDIAN_LITTLE,
@@ -180,7 +183,7 @@ class Disassembler(object):
 
         options_string = ",".join(options)
 
-        dis = self.bfd.disassemble(sec, start, stop, numLines, None, funcFmtLine, funcFmtLineArgs, endian, options_string)
+        dis = self.bfd.disassemble(sec, start, stop, numLines, None, funcFmtLine, funcFmtLineArgs, endian, options_string, baseAddr)
         return dis
 
     def symbol(self, lookup):

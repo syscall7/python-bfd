@@ -125,13 +125,14 @@ function FileUploadOptionsForm() {
 
     $('#upload-options-submit-btn').click(function(e) {
         var arch = $('#select-open-architecture').val();
+        var base_address = $('#set-base-address').val();
         var values = $.map(
             $('.platform-option-select'), function(v) {return $(v).val();}
         );
 
         values = $.grep(values, function(e) { return e != "DEFAULT"});
 
-        $.post('/odaweb/_set', {arch: arch, options: values})
+        $.post('/odaweb/_set', {arch: arch, base_address: base_address, options: values})
             .done(function() {
                 window.location = "/odaweb/" + $('#modal-platform-options-short-name').val();
             }).fail(function(){
@@ -198,12 +199,14 @@ function FileUploadForm() {
 
                         // let the user select the arch AND options
                         $('#select-open-architecture').prop('disabled', false);
+                        $('#set-base-address').prop('disabled', false);
                     }
                     // else, we know the format (and should therefore already know the arch)
                     else {
 
                         // let the user select only select the options
                         $('#select-open-architecture').prop('disabled', true);
+                        $('#set-base-address').prop('disabled', true);
                     }
 
                 }

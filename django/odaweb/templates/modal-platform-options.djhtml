@@ -27,6 +27,13 @@
             {% endfor %}
         </select>
 
+        <div>
+            <label class="control-label">Base Address</label>
+            <div class="controls">
+                <input id="set-base-address" name="base_address" type="text" placeholder="0x00000000" class="input-small">
+            </div>
+        </div>
+
         <div id="open-platform-options">
             {% include 'show_options.djhtml' %}
         </div>

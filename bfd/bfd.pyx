@@ -742,7 +742,7 @@ cdef class Bfd:
 
         return raw
 
-    def disassemble(self, section, startAddr=None, endAddr=None, numLines=None, funcFmtAddr=None, funcFmtLine=None, funcFmtLineArgs=None, endian=ENDIAN_DEFAULT, options=''):
+    def disassemble(self, section, startAddr=None, endAddr=None, numLines=None, funcFmtAddr=None, funcFmtLine=None, funcFmtLineArgs=None, endian=ENDIAN_DEFAULT, options='', baseAddr=None):
         '''Disassemble the given section
 
            section - String specifying the name of the section to disassemble
@@ -767,6 +767,10 @@ cdef class Bfd:
         cdef bfd_target* xvec_new
         cdef bfd_target* xvec_orig
 
+        sec = section
+        if baseAddr:
+            sec.vma = baseAddr
+
         # make sure right away that we can disassemble this bfd
         disassemble_fn = <disassembler_ftype> disassembler(self.abfd)
         if NULL == disassemble_fn:  
@@ -781,7 +785,6 @@ cdef class Bfd:
         else:
             stream = PyFile_AsFile(iostream)
         
-        sec = section
 
         self.funcFmtAddr = funcFmtAddr
         
@@ -924,9 +927,9 @@ cdef class Bfd:
         iostream.flush()
         options = iostream.read()
         print options
-        
 
-# helper callback function used to interate over each section
+
+ # helper callback function used to interate over each section
 cdef add_sections_callback(bfd* abfd, asection* section, object bfd):
         cdef Section sec
         sec = Section()

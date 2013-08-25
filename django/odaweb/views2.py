@@ -106,6 +106,7 @@ def set(request):
     class HexUploadForm(forms.Form):
         hex_val = forms.CharField(required=False)
         arch = forms.CharField(required=False)
+        base_address = forms.CharField(required=False)
 
     form = HexUploadForm(request.POST) # A form bound to the POST data
     if form.is_valid():
@@ -131,6 +132,10 @@ def set(request):
         if form.cleaned_data['arch']:
             oda_master.binary.options.architecture = form.cleaned_data['arch']
             oda_master.binary.options.reset_extra_options()
+            oda_master.binary.options.save()
+
+        if form.cleaned_data['base_address']:
+            oda_master.binary.options.base_address = form.cleaned_data['base_address']
             oda_master.binary.options.save()
 
         options = request.POST.getlist('options[]')

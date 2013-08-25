@@ -1,5 +1,3 @@
-
-
 window.LiveHex = function(binary) {
     var lastText = null;
     var refreshing = false;
@@ -34,7 +32,7 @@ window.LiveHex = function(binary) {
     var LoadOptions = function(arch) {
         $.post('/odaweb/_options', {platformId : arch})
             .done(function(data){
-                $('#platform-options').html(data);
+                $('#arch-specific-options').html(data);
             });
     };
 
@@ -68,6 +66,13 @@ window.LiveHex = function(binary) {
 
     });
 
+    $('#set-live-base-address').change(function(){
+        var base = $('#set-live-base-address').val();
+
+        Reload({
+            base_address : base
+        });
+    });
 
 
 };
