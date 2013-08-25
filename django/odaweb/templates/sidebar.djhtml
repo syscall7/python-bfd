@@ -31,8 +31,6 @@
         
             {% include "sidebar-strings.djhtml" %}
         
-            {% include "sidebar-platform-options.djhtml" %}
-        
             {% include "sidebar-symbols.djhtml" %}
         </div>
     </div>
