@@ -134,9 +134,13 @@ def set(request):
             oda_master.binary.options.reset_extra_options()
             oda_master.binary.options.save()
 
+        # if no base address is specified, default to 0
+        baseAddr = "0x0"
         if form.cleaned_data['base_address']:
-            oda_master.binary.options.base_address = form.cleaned_data['base_address']
-            oda_master.binary.options.save()
+            baseAddr = form.cleaned_data['base_address']
+
+        oda_master.binary.options.base_address = baseAddr
+        oda_master.binary.options.save()
 
         options = request.POST.getlist('options[]')
         oda_master.binary.options.set_extra_options(options)

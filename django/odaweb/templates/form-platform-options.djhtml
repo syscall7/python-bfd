@@ -1,0 +1,25 @@
+<form id="form-platform-options">
+    <div id="platform-options">
+
+        <div>
+            <label class="control-label upload-form-control" for="select-live-architecture">Arch</label>
+            <select class="platformSelect input-small" id="select-live-architecture" name="select-live-architecture">
+                {% for a in supported_archs %}
+                    <option
+                        {% if a == binary.options.architecture %}selected="selected"{% endif %}>
+                    {{a}}</option>
+              {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label class="control-label upload-form-control" for="set-live-base-address">Base Address</label>
+            <input id="set-live-base-address" name="base_address" type="text" placeholder="0x00000000" class="input-small">
+        </div>
+
+        <div id="arch-specific-options">
+            {% include 'show_options.djhtml' %}
+        </div>
+    </div>
+
+</form>

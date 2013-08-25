@@ -53,6 +53,15 @@ window.LiveHex = function(binary) {
 
     });
 
+    /* catch ENTER key and reload with new base address */
+    $('#set-live-base-address').bind("keypress", function(e) {
+        console.debug(e.keyCode);
+        if (e.keyCode == 13) {
+            event.preventDefault();
+            $('#set-live-base-address').blur();
+        }
+    });
+
     $('#select-live-architecture').change(function(){
         var arch = $('#select-live-architecture').val();
 
