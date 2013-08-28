@@ -20,7 +20,7 @@ urlpatterns = patterns('',
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
-    #url(r'^admin/', include(admin.site.urls)),
+    url(r'^superadmin/', include(admin.site.urls)),
 
     url(r'^odaweb/_owned_files$', 'odaweb.views2.owned_files'),
     url(r'^odaweb/_save$', 'odaweb.views2.save'),
@@ -40,11 +40,14 @@ urlpatterns = patterns('',
 
 
     #User Dealing with URL
+    (r'^accounts/', include('allauth.urls')),
+
     url(r'^odaweb/login', 'odaweb.views_login.login'),
     url(r'^odaweb/logout', 'odaweb.views_login.logout'),
 
     url(r'^accounts/password/reset$', password_reset, {
-        'template_name': 'login/password_reset.djhtml'
+        'template_name': 'login/password_reset.djhtml',
+        'email_template_name': 'login//password_reset_email.html'
     }),
     url(r'^accounts/password/reset/confirm/(?P<uidb36>[-\w]+)/(?P<token>[-\w]+)$', password_reset_confirm,
         {'template_name': 'login/password_reset_confirm.djhtml'}),
