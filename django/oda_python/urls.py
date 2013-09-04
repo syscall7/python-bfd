@@ -5,6 +5,8 @@ from django.http import HttpResponseRedirect
 from django.contrib import admin
 from django.contrib.auth.views import password_reset, password_reset_done, password_reset_confirm, password_reset_complete
 from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse_lazy
+from django.views.generic.base import RedirectView
 
 admin.autodiscover()
 
@@ -41,6 +43,8 @@ urlpatterns = patterns('',
 
     #User Dealing with URL
     (r'^accounts/', include('allauth.urls')),
+
+    url(r'^accounts/profile/$', lambda x: HttpResponseRedirect('/odaweb/')),
 
     url(r'^odaweb/login', 'odaweb.views_login.login'),
     url(r'^odaweb/logout', 'odaweb.views_login.logout'),
