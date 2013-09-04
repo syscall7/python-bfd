@@ -132,6 +132,7 @@ function FileUploadOptionsForm() {
 
         values = $.grep(values, function(e) { return e != "DEFAULT"});
 
+        /* TODO: catch form errors and redisplay form here */
         $.post('/odaweb/_set', {arch: arch, base_address: base_address, options: values})
             .done(function() {
                 window.location = "/odaweb/" + $('#modal-platform-options-short-name').val();

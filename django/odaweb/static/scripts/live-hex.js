@@ -1,60 +1,52 @@
 window.LiveHex = function(binary) {
     var lastText = null;
-    var refreshing = false;
+    var idleTimer = undefined;
 
-    var Reload = function(data) {
+    var Reload = function() {
 
-        refreshing = true;
+        idleTimer = undefined;
 
-        $.post('/odaweb/_set', data)
-            .done(function() {
+        var opts = $.map(
+            $('.platform-option-select'), function(v) {return $(v).val();}
+        );
+
+        opts = $.grep(opts, function(e) { return e != "DEFAULT"});
+
+        form_data = {
+            options: opts,
+            arch : $('#select-live-architecture').val(),
+            base_address : $('#set-live-base-address').val(),
+            hex_val : $('#hex').val(),
+            endian : $('#hex-display .endian-select').val()
+        };
+
+        $.post('/odaweb/_set', form_data)
+            .done(function(response) {
             $('#hex-alert').hide();
-            Load(binary, false);
-            refreshing = false;
-        }).fail(function(){
+            $('#live-mode-platform-options-form').html(response.form_html);
+            Load(binary, true);
+        }).fail(function(response){
             $('#hex-alert').show();
-            refreshing = false;
         });
 
     };
 
     $('#hex').bind("keyup", function(e) {
         var newText = $('#hex').val();
-        if (newText != lastText & !refreshing) {
+        if (newText != lastText) {
             lastText = newText;
-
-            Reload({
-                hex_val : newText
-            })
+            if (idleTimer != undefined)
+                clearTimeout(idleTimer);
+            idleTimer = setTimeout(Reload, 1000);
         }
     });
 
-    var LoadOptions = function(arch) {
-        $.post('/odaweb/_options', {platformId : arch})
-            .done(function(data){
-                $('#arch-specific-options').html(data);
-            });
-    };
-
     $('#hex-display').on('change', '.platform-option-select', function(){
-        var values = $.map(
-            $('.platform-option-select'), function(v) {return $(v).val();}
-        );
-
-        var endian = $('#hex-display .endian-select').val()
-
-
-        values = $.grep(values, function(e) { return e != "DEFAULT"});
-
-        Reload({
-            options : values,
-            endian : endian
-        });
-
+        Reload();
     });
 
     /* catch ENTER key and reload with new base address */
-    $('#set-live-base-address').bind("keypress", function(e) {
+    $('#set-live-base-address').live("keypress", function(e) {
         console.debug(e.keyCode);
         if (e.keyCode == 13) {
             event.preventDefault();
@@ -62,26 +54,17 @@ window.LiveHex = function(binary) {
         }
     });
 
-    $('#select-live-architecture').change(function(){
+    $('#select-live-architecture').live("change", (function(){
         var arch = $('#select-live-architecture').val();
-
-        LoadOptions(arch);
-
-        Reload({
-            arch : arch
-        });
-
+        /* update arch in bottom right hand corner */
         $('.platform-option').text(arch);
+        Reload();
 
-    });
+    }));
 
-    $('#set-live-base-address').change(function(){
-        var base = $('#set-live-base-address').val();
-
-        Reload({
-            base_address : base
-        });
-    });
+    $('#set-live-base-address').live("change", (function(){
+        Reload();
+    }));
 
 
 };

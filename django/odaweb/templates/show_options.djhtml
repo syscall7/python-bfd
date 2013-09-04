@@ -1,18 +1,18 @@
-<div>
+<div class="control-group">
     <label class="control-label upload-form-control" for="endian-select">Endian</label>
     <select class="span2 platform-option-select endian-select" name="normalSelect">
         {% for k,v in supported_endians.iteritems %}
-            <option value="{{k}}">{{k}}</option>
+            <option value="{{k}}" {% if k in selected_opts %} selected {% endif %}>{{k}}</option>
         {% endfor %}
     </select>
 </div>
 {% for widgetName, widget, title, desc, unused, opts in options %}
     {% if widget == "select" %}
-        <div style="clear:both;">
+        <div class="control-group" style="clear:both;">
             <label class="control-label upload-form-control" for={{widgetName}}>{{title}}</label>
             <select class="span2  platform-option-select" id={{widgetName}} name="normalSelect">
             {% for opt in opts %}
-                <option value="{{opt}}">{{opt}}</option>
+                <option value="{{opt}}" {% if opt in selected_opts %} selected {% endif %} >{{opt}}</option>
             {% endfor %}
             </select>
         </div>

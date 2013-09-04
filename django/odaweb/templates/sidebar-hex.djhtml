@@ -15,7 +15,9 @@
         </button>
         <div id="collapseTwo" class="accordion-body collapse">
             <div class="accordion-inner" style="border: 1px solid #e5e5e5; border-radius: 5px; margin-top: 10px;">
+                <div id="live-mode-platform-options-form">
                 {% include 'form-platform-options.djhtml' %}
+                </div>
             </div>
         </div>
     </div>

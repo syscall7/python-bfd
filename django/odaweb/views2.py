@@ -43,6 +43,7 @@ def index(request, disassembly_id):
         context['share_url'] = request.build_absolute_uri()
         context['examples'] = examples
         context['supported_archs'] = get_supported_archs()
+        context['arch'] = oda_master.binary.options.architecture
         context['saved'] = request.session.get('saved', False)
 
         context['supported_endians'] = get_supported_endians()
@@ -107,8 +108,25 @@ def set(request):
         hex_val = forms.CharField(required=False)
         arch = forms.CharField(required=False)
         base_address = forms.CharField(required=False)
+        endian = forms.CharField(required=False)
+        def clean_base_address(self):
+            baseAddr = self.cleaned_data['base_address']
+            try:
+                if baseAddr:
+                    baseAddr = int(baseAddr, 16)
+            except:
+                raise forms.ValidationError("Address must be in the form 0x12345678")
+
+            # always return the cleaned data, whether you have changed it or not
+            return self.cleaned_data['base_address']
 
     form = HexUploadForm(request.POST) # A form bound to the POST data
+
+    # initialize base_address with whatever was in the form data, even if it is invalid
+    baseAddr = form.data['base_address']
+    selected_opts = []
+    arch = 'i386'
+
     if form.is_valid():
 
         oda_master = get_session(request)
@@ -130,20 +148,19 @@ def set(request):
             oda_master.binary.save()
 
         if form.cleaned_data['arch']:
-            oda_master.binary.options.architecture = form.cleaned_data['arch']
+            arch = form.cleaned_data['arch']
+            oda_master.binary.options.architecture = arch
             oda_master.binary.options.reset_extra_options()
             oda_master.binary.options.save()
 
-        # if no base address is specified, default to 0
-        baseAddr = "0x0"
         if form.cleaned_data['base_address']:
             baseAddr = form.cleaned_data['base_address']
 
         oda_master.binary.options.base_address = baseAddr
         oda_master.binary.options.save()
 
-        options = request.POST.getlist('options[]')
-        oda_master.binary.options.set_extra_options(options)
+        selected_opts = request.POST.getlist('options[]')
+        oda_master.binary.options.set_extra_options(selected_opts)
 
         endian = request.POST.get('endian')
         if (endian):
@@ -154,17 +171,29 @@ def set(request):
         disassembler = Disassembler(oda_master.binary)
         disassembler.process_chunks()
 
-        return render_to_json({"status" : "ok"})
+    form_html = render_to_string('form-platform-options.djhtml', {
+                    'arch' : arch,
+                    'supported_archs' : get_supported_archs(),
+                    'supported_endians': get_supported_endians(),
+                    'options' : get_platform_options(arch),
+                    'base_address' : baseAddr,
+                    'selected_opts' : selected_opts,
+                    'form': form,
+    })
+
+    return HttpResponse(simplejson.dumps({
+        'form_html': form_html,
+    }), mimetype='application/json')
 
 class ShowOptionsForm(forms.Form):
-    platformId = forms.CharField()
+    arch = forms.CharField()
     options = forms.CharField(required=False)
 
 def show_options(request):
     form = ShowOptionsForm(request.POST) # A form bound to the POST data
     if form.is_valid():
         #print "Show_options"
-        platform = form.cleaned_data['platformId']
+        platform = form.cleaned_data['arch']
         options = form.cleaned_data['options']
         opts_defaults = []
         if options:
