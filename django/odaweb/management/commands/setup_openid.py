@@ -9,26 +9,28 @@ class Command(BaseCommand):
 
         site = Site.objects.get(id=1)
 
-        try:
-            SocialApp.objects.get(provider='google')
-            self.stdout.write('Google Already Installed')
-        except SocialApp.DoesNotExist:
-            self.stdout.write('Installing provider=google')
-            google = SocialApp(provider='google', name='google',
-                           client_id=os.environ.get('ODA_OPENID_GOOGLE_CLIENT_ID'), secret=os.environ.get('ODA_OPENID_GOOGLE_SECRET'))
-            google.save()
+        locations = [
+        {
+              'name': 'google',
+              'client_id': os.environ.get('ODA_OPENID_GOOGLE_CLIENT_ID'),
+              'secret': os.environ.get('ODA_OPENID_GOOGLE_SECRET')
+        },{
+              'name': 'facebook',
+              'client_id': os.environ.get('ODA_OPENID_FACEBOOK_CLIENT_ID'),
+              'secret': os.environ.get('ODA_OPENID_FACEBOOK_SECRET')
+        }
+        ]
 
-            google.sites.add(site)
+        for location in locations:
+            try:
+                SocialApp.objects.get(provider=location['name'])
+                self.stdout.write('%s Already Installed' % (location['name']))
+            except SocialApp.DoesNotExist:
+                self.stdout.write('Installing provider=%s' % (location['name']))
+                sa = SocialApp(provider=location['name'], name=location['name'],
+                           client_id=location['client_id'], secret=location['secret'])
+                sa.save()
 
-            google.save()
+                sa.sites.add(site)
 
-        try:
-            SocialApp.objects.get(provider='github')
-            self.stdout.write('Github Already Installed')
-        except SocialApp.DoesNotExist:
-            self.stdout.write('Installing provider=github')
-            github = SocialApp(provider='github', name='github',
-                           client_id=os.environ.get('ODA_OPENID_GITHUB_CLIENT_ID'), secret='3ed667c126d07d15d552a5914e4e0916cfbbaf1b1')
-            github.save()
-            github.sites.add(site)
-            github.save()
+                sa.save()

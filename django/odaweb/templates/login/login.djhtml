@@ -1,5 +1,6 @@
 {% extends "login/layout.djhtml" %}
 {% load static from staticfiles %}
+{% load socialaccount %}
 
 {% block content %}
 
@@ -11,9 +12,8 @@
     <img src="{{ STATIC_URL }}images/oda_logo4.png"/>
 
     <p>Login using your existing account:</p>
-    <a href="/accounts/google/login/"><span class="btn btn-primary"><img width="24" src="{% static "images/social-google-box-icon.png" %}" alt="Hi!" /> Login With Google</span></a>
-    <a href="/accounts/github/login/"><span class="btn btn-primary"><img width="24" src="{% static "images/Logos-Github-icon.png" %}" alt="Hi!" /> Login With Github</span></a>
-
+    <a href="{% provider_login_url "google" %}"><span class="btn btn-primary"><img width="24" src="{% static "images/social-google-box-icon.png" %}" alt="Hi!" /> Login With Google</span></a>
+    <a href="{% provider_login_url "facebook" method="oauth2" %}"><span class="btn btn-primary"><img width="24" src="{% static "images/social_facebook_box_blue.png" %}" alt="Hi!" /> Login with Facebook</span></a>
 
     <hr/>
 
