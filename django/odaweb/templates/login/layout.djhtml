@@ -21,7 +21,7 @@
             border-radius: 5px 5px 5px 5px;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
             margin: 0 auto 20px;
-            max-width: 500px;
+            max-width: 600px;
             padding: 19px 29px 29px;
         }
     </style>
@@ -45,7 +45,10 @@
     {% if auth_providers %}
     <p>Login using your existing account:</p>
     {%  for provider in auth_providers %}
-         <a href="{% provider_login_url provider %}"><span class="btn btn-primary"><img width="24" src="{% static "images/icons/login_"|add:provider|add:".png" %}" alt="{{ provider }}" /> Login With {{ provider }}</span></a>
+        <a href="{% provider_login_url provider %}">
+            <span class="btn btn-primary" style="margin-top:10px;">
+            <img width="24" src="{% static "images/icons/login_"|add:provider|add:".png" %}" alt="{{ provider }}" /> Login With {{ provider }}
+            </span></a>
     {% endfor %}
 
     <hr/>

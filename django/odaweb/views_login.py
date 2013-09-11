@@ -33,7 +33,7 @@ class CreateUser(UserForm):
 
 def create_context():
     return {
-        'auth_providers': ['google', 'facebook']
+        'auth_providers': ['google', 'facebook', 'twitter']
     }
 
 def logout(request):

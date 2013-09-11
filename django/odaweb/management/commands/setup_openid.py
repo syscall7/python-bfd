@@ -18,6 +18,10 @@ class Command(BaseCommand):
               'name': 'facebook',
               'client_id': os.environ.get('ODA_OPENID_FACEBOOK_CLIENT_ID'),
               'secret': os.environ.get('ODA_OPENID_FACEBOOK_SECRET')
+        },{
+            'name': 'twitter',
+            'client_id': os.environ.get('ODA_OPENID_TWITTER_CLIENT_ID'),
+            'secret': os.environ.get('ODA_OPENID_TWITTER_SECRET')
         }
         ]
 
