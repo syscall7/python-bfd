@@ -7,6 +7,7 @@ from django.contrib.auth.views import password_reset, password_reset_done, passw
 from django.core.urlresolvers import reverse
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic.base import RedirectView
+from odaweb import views_user
 
 admin.autodiscover()
 
@@ -61,6 +62,8 @@ urlpatterns = patterns('',
         {'template_name': 'login/password_reset_done.djhtml'}),
 
     url(r'^odaweb/createuser', 'odaweb.views_login.create_user'),
+
+    url(r'^odaweb/user', include(views_user.urlpatterns)),
 
 
 
