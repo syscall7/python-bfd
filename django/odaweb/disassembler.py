@@ -177,6 +177,9 @@ class Disassembler(object):
                     'LITTLE': bfd.ENDIAN_LITTLE,
                     'DEFAULT': bfd.ENDIAN_DEFAULT})[self.binary.options.get_endian()]
 
+        analyzer = analyzerFactory(self.binary.options.architecture)
+        options = analyzer.processOptions(options)
+
         # force intel syntax as default for i386 arch
         if self.bfd.arch.startswith('i386') and len(options) == 0:
             options = ['intel-mnemonic']

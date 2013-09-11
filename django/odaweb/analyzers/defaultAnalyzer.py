@@ -109,6 +109,10 @@ class defaultAnalyzer(object):
         # don't include "<symbol_name>" as part of operands
         self.opcodeRegExStr = "^(\w+)\s+([^<]+)"
 
+    # override this in the subclass if you need to (i.e., mips)
+    def processOptions(self, options):
+        return options
+
     def analyze(self, bfd, superchunks=None):
         
         self.bfd = bfd
