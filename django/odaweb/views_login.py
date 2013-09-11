@@ -31,6 +31,11 @@ class CreateUser(UserForm):
 
         return self.cleaned_data
 
+def create_context():
+    return {
+        'auth_providers': ['google', 'facebook']
+    }
+
 def logout(request):
     logger.debug('Logging Out %s' % request.user.username)
     django.contrib.auth.logout(request)
@@ -39,7 +44,7 @@ def logout(request):
 def login(request):
     if request.method == 'GET':
         #render creeate user
-        context = {}
+        context = create_context()
 
         return render(request, 'login/login.djhtml', context)
     else:
@@ -64,7 +69,7 @@ def login(request):
 def create_user(request):
     if request.method == 'GET':
         #render creeate user
-        context = {}
+        context = create_context()
         return render(request, 'login/create_user.djhtml', context)
     else:
         form = CreateUser(request.POST)
