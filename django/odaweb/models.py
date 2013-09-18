@@ -42,7 +42,8 @@ class OdaFile(models.Model):
         self.hash = sha1_hash(self.the_file)
         self.creation_date = datetime.now()
         self.uuid = str(uuid.uuid4())
-        
+
+    @staticmethod
     def create(f, ip_address=''):
         u = OdaFile()
         u.ipAddress = ip_address
@@ -53,7 +54,9 @@ class OdaFile(models.Model):
     def file_handle(self):
         return self.the_file.file
 
-    create = staticmethod(create)
+    @staticmethod
+    def get_by_user(user):
+        return OdaMaster.objects.filter(owner=user)
 
 
 ## TODO: Used by views.py. Delete when views.py is obsoleted
