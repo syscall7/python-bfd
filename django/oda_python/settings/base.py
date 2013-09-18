@@ -1,31 +1,16 @@
 # Django settings for oda_python project.
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
+COMPRESS_ENABLED = True
 
 ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
+    ('Anthony', 'anthony@onlinedisassembler.com'),
+    ('Davis', 'davis@onlinedisassembler.com'),
+    ('Tom', 'tom@onlinedisassembler.com'),
 )
 
-SITE_ID = 1
-
 MANAGERS = ADMINS
-
-DATABASES = {
-    'default': {
-        #'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        #'NAME': '/var/www/oda/odaweb.db',                      # Or path to database file if using sqlite3.
-        #'NAME': 'odaweb.db',                      # Or path to database file if using sqlite3.
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'odapython2'    ,
-        'USER': 'root',                      # Not used with sqlite3.
-        'PASSWORD': 'password',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-    }
-}
-
-INTERNAL_IPS = ('127.0.0.1',)
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -41,6 +26,8 @@ TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
 
 SITE_ID = 1
+
+INTERNAL_IPS = ('127.0.0.1',)
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -62,15 +49,9 @@ MEDIA_ROOT = ''
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 MEDIA_URL = ''
 
-# Absolute path to the directory static files should be collected to.
-# Don't put anything in this directory yourself; store your static files
-# in apps' "static/" subdirectories and in STATICFILES_DIRS.
-# Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
-
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = '/static/'
+STATIC_URL = '/static2/'
 
 import os.path
 PROJECT_DIR = os.path.dirname(__file__) # this is not Django setting.
@@ -141,19 +122,6 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
-AUTHENTICATION_BACKENDS = (
-
-    # Needed to login by username in Django admin, regardless of `allauth`
-    "django.contrib.auth.backends.ModelBackend",
-
-    # `allauth` specific authentication methods, such as login by e-mail
-    "allauth.account.auth_backends.AuthenticationBackend",
-
-)
-
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_EMAIL_REQUIRED = True
-
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -176,7 +144,7 @@ INSTALLED_APPS = (
     'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.twitter',
-    
+
     'odaweb'
 )
 
