@@ -1,12 +1,12 @@
+import logging
+
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseServerError
-from django.core import serializers
 from django import forms
 from django.db import IntegrityError
-import logging
 from django.contrib.auth import authenticate
 import django.contrib.auth
 from django.contrib.auth.models import User
+
 logger = logging.getLogger(__name__)
 
 class UserForm(forms.Form):
