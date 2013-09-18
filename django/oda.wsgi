@@ -12,7 +12,7 @@ path = '/var/www/oda2/webapp'
 if path not in sys.path:
     sys.path.append(path)
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'oda_python.settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'oda_python.settings.production'
 
 # Activate your virtual env
 activate_env=os.path.expanduser("/var/www/oda2/env/bin/activate_this.py")
