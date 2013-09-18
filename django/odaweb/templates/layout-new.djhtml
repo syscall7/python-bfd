@@ -122,6 +122,7 @@
                         <a href=mailto:admin@onlinedisassembler.com>Contact Us!</a>
                     </li>
                 </ul>
+                <!--
                 <p class="navbar-text pull-right">
                   {% if not user.is_authenticated %}
                   <a href="login">login</a> or <a href="createuser">register</a>
@@ -130,6 +131,7 @@
                   {%  endif %}
 
                 </p>
+                -->
             </div>
         </div>
     </div>
