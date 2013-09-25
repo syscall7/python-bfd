@@ -59,6 +59,7 @@ Unique IPs: {{ unique_ips }}<br>
         <tr style="background-color:#6B7C70;color:white;font-weight:bold; padding: 5px">
             <!--<th align="left" style="padding: 2px 15px; -moz-border-radius: 6px 0 0 0; -webkit-border-radius: 6px 0 0 0;border-radius: 6px 0 0 0;">File Name</th>-->
             <th align="left" style="padding: 2px 15px;">File Name</th>
+            <th>Project Name</th>
             <th>File Size</th>
             <th>File Description</th>
             <th>File MD5</th>
@@ -71,6 +72,7 @@ Unique IPs: {{ unique_ips }}<br>
         {% for upload in uploads %}
         <tr style="background-color:{% cycle '#B2CEBB' '#FFFFFF' %}">
             <td style="padding: 2px 15px;"><a href=http://www.onlinedisassembler.com/odaweb/{{ upload.shortname }}>{{ upload.filename }}</a></td>
+            <td style="padding: 2px 15px;">{{ upload.project }}</a></td>
             <td style="padding: 2px 15px;">{{ upload.size|filesizeformat }}</td>
             <td style="padding: 2px 15px;">{{ upload.desc }}</td>
             <td style="padding: 2px 15px; font-family:monospace">{{ upload.md5 }}</td>
@@ -90,7 +92,7 @@ def genUploadReport(day):
     conn = MySQLdb.connect(host = 'localhost', user = 'root', passwd = 'password', db = 'odapython2')
     cursor = conn.cursor ()
     cursor.execute(
-        'select m.creation_date, m.short_name, b.filename, m.ipAddress ' +
+        'select m.creation_date, m.short_name, b.filename, m.ipAddress, m.project_name ' +
         'from odaweb_odamaster m inner join odaweb_binaryfile b ' + 
         'where m.object_id=b.id and m.creation_date >= "%s" and ' % day.strftime('%y-%m-%d') +
         'm.creation_date < "%s"' % date.today().strftime('%y-%m-%d'))
@@ -101,7 +103,7 @@ def genUploadReport(day):
     unique_md5s = []
     total_bytes = 0
     uploads = []
-    Upload = namedtuple('Upload', 'date shortname filename ip desc size md5')
+    Upload = namedtuple('Upload', 'date shortname filename ip project desc size md5')
     for row in rows:
         filename = os.path.join(UPLOAD_DIR, row[2])
 
@@ -125,12 +127,12 @@ def genUploadReport(day):
             md5 = 'File not found'
 
         timestamp = row[0].strftime('%I:%M:%S %p')
-        (short, fn, ip) = row[1:]
+        (short, fn, ip, project) = row[1:]
 
         if ip not in unique_ips:
             unique_ips.append(ip)
 
-        u = Upload(timestamp, short, fn, ip, desc=desc, size=size, md5=md5)
+        u = Upload(timestamp, short, fn, ip, project, desc, size, md5)
         uploads.append(u)
 
     t = Template(template)
