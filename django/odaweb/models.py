@@ -145,8 +145,8 @@ class BinaryDisassemblySuperChunk(models.Model):
     binary = generic.GenericForeignKey()
 
     # TODO: Is this length too much? Not enough?
-    start = models.IntegerField()
-    end = models.IntegerField()
+    start = models.BigIntegerField()
+    end = models.BigIntegerField()
     is_boundary = models.BooleanField()
     class Meta:
         ordering = ['start']
@@ -175,8 +175,8 @@ class BinaryDisassemblyChunk(models.Model):
     superchunk = models.ForeignKey(BinaryDisassemblySuperChunk)
     
     name = models.CharField(max_length=128)
-    start = models.IntegerField()
-    end = models.IntegerField()
+    start = models.BigIntegerField()
+    end = models.BigIntegerField()
     class Meta:
         ordering = ['start']
         
@@ -236,7 +236,7 @@ class Comment(models.Model):
     object_id = models.PositiveIntegerField()
     binary = generic.GenericForeignKey()
     comment = models.CharField(max_length=255)
-    offset = models.IntegerField()
+    offset = models.BigIntegerField()
 
     @staticmethod
     def get_for_binary(binary):
@@ -247,7 +247,7 @@ class Comment(models.Model):
 class BinaryFile(Binary):
     the_file = models.FileField(storage=fs, upload_to="uploads")
     filename = models.CharField(max_length=255)
-    filesize = models.IntegerField()
+    filesize = models.BigIntegerField()
     hash = models.CharField(max_length=128)
 
     def file_handle(self):
@@ -287,7 +287,7 @@ class OdaMaster(models.Model):
     ipAddress = models.CharField(max_length=64, default='')
     project_name = models.CharField(max_length=64, default='')
     short_name = models.CharField(max_length=12, db_index = True, unique = True)
-    revision = models.IntegerField(default=0)
+    revision = models.BigIntegerField(default=0)
     owner = models.ForeignKey(User, null=True)
     creation_date = models.DateTimeField(auto_now_add = True)
     copy = models.ForeignKey('OdaMaster', null=True)
