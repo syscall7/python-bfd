@@ -247,7 +247,7 @@ class Comment(models.Model):
 class BinaryFile(Binary):
     the_file = models.FileField(storage=fs, upload_to="uploads")
     filename = models.CharField(max_length=255)
-    filesize = models.BigIntegerField()
+    filesize = models.IntegerField()
     hash = models.CharField(max_length=128)
 
     def file_handle(self):
@@ -287,7 +287,7 @@ class OdaMaster(models.Model):
     ipAddress = models.CharField(max_length=64, default='')
     project_name = models.CharField(max_length=64, default='')
     short_name = models.CharField(max_length=12, db_index = True, unique = True)
-    revision = models.BigIntegerField(default=0)
+    revision = models.IntegerField(default=0)
     owner = models.ForeignKey(User, null=True)
     creation_date = models.DateTimeField(auto_now_add = True)
     copy = models.ForeignKey('OdaMaster', null=True)
