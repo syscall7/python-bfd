@@ -139,10 +139,10 @@ def set(request):
                     cleaned_hex_string.decode("hex")
                     break
                 except (TypeError, UnicodeEncodeError) as e:
-                    if e.args[0] == 'Non-hexadecimal digit found':
+                    #if e.args[0] == 'Non-hexadecimal digit found':
                         return HttpResponseServerError('<div>NON HEX DIGIT</div>')
-                    else:
-                        cleaned_hex_string = (cleaned_hex_string + '0')
+                    #else:
+                    #    cleaned_hex_string = (cleaned_hex_string + '0')
 
             oda_master.binary.binary_string = cleaned_hex_string
             oda_master.binary.save()
