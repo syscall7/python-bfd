@@ -109,6 +109,18 @@ def set(request):
         arch = forms.CharField(required=False)
         base_address = forms.CharField(required=False)
         endian = forms.CharField(required=False)
+
+        def clean_hex_val(self):
+            # strip whitespace
+            cleaned_hex_string = ''.join(self.cleaned_data['hex_val'].split())
+
+            # ensure strings have an even length
+            if len(cleaned_hex_string) % 2:
+                cleaned_hex_string += '0'
+
+            self.cleaned_data['hex_val'] = cleaned_hex_string
+            return self.cleaned_data['hex_val']
+
         def clean_base_address(self):
             baseAddr = self.cleaned_data['base_address']
             try:
@@ -132,17 +144,11 @@ def set(request):
         oda_master = get_session(request)
 
         if form.cleaned_data['hex_val']:
-            hex_string = form.cleaned_data['hex_val']
-            cleaned_hex_string = ''.join(hex_string.split())
-            while True:
-                try:
-                    cleaned_hex_string.decode("hex")
-                    break
-                except (TypeError, UnicodeEncodeError) as e:
-                    #if e.args[0] == 'Non-hexadecimal digit found':
-                        return HttpResponseServerError('<div>NON HEX DIGIT</div>')
-                    #else:
-                    #    cleaned_hex_string = (cleaned_hex_string + '0')
+            cleaned_hex_string = form.cleaned_data['hex_val']
+            try:
+                cleaned_hex_string.decode("hex")
+            except (TypeError, UnicodeEncodeError) as e:
+                    return HttpResponseServerError('<div>NON HEX DIGIT</div>')
 
             oda_master.binary.binary_string = cleaned_hex_string
             oda_master.binary.save()
