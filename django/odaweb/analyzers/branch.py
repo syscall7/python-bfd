@@ -1,4 +1,6 @@
 
+MAX_COLUMNS = 32
+
 def BranchComparator(a, b):        
     if (a.span < b.span):
         return -1
@@ -29,12 +31,10 @@ class Branch(object):
 
     def overlaps(self, b):
         ret = False
-        
-        if ((b.stopAddr >= self.startAddr) and (b.stopAddr <= self.stopAddr)):
+
+        if (self.stopAddr > b.startAddr) and (self.startAddr < b.stopAddr):
             ret = True
-        elif ((self.stopAddr >= b.startAddr) and (self.stopAddr <= b.stopAddr)):
-            ret = True
-                
+
         return ret
     
     def isSibling(self, b):
@@ -101,7 +101,7 @@ class BranchLineHtmlFormatter:
         # list of branches that share a target addr with this branch
         siblingBranches = []
 
-        freeColumn = -1
+        freeColumn = None
         
         # for all the other branches
         for c in self.branchArray:
@@ -126,16 +126,36 @@ class BranchLineHtmlFormatter:
                     usedColumn = c.getTag()
 
                     if usedColumn not in columnsUsed:
-                            columnsUsed.append(usedColumn)
+                        columnsUsed.append(usedColumn)
+
+        # if we already have been assigned a column and we have siblings
+        if b.getTag() is not None and siblingBranches:
+
+            # get unique list of siblings' columns
+            sibCols = list(set([sib.getTag() for sib in siblingBranches]))
+
+            # if they all agree with each other and with us, there's nothing to do
+            if len(sibCols) == 1 and sibCols[0] == b.getTag():
+                return
 
         # if we didn't find a sibling match or the sibling column is in the used list
-        if ((freeColumn < 0) or (freeColumn in columnsUsed)):
+        if ((freeColumn is None) or (freeColumn in columnsUsed)):
 
-            for freeColumn in range(len(columnsUsed)+1):
+            # TODO: Limit the number of columns displayed?
+
+            # assign to next column
+            freeColumn = self.maxColAssigned+1
+
+            # check if there are any free columns in the address range of the branch span
+            for col in range(self.maxColAssigned+1):
                 # if we found a free column
-                if freeColumn not in columnsUsed:
+                if col not in columnsUsed:
+                    freeColumn = col
                     break
-            
+
+            # must set tag before updating siblings
+            b.setTag(freeColumn)
+
             # update all siblings
             for sib in siblingBranches:
                 # recursively resolve column conflicts among siblings
@@ -144,7 +164,6 @@ class BranchLineHtmlFormatter:
         self.maxColAssigned = max(self.maxColAssigned, freeColumn)
         b.setTag(freeColumn)
 
-    
     def buildHtmlRow(self, colFlags, isTarget):
 
         htmlRow = ""
@@ -188,9 +207,9 @@ class BranchLineHtmlFormatter:
         # for all branches
         for b in self.branchArray:
 
-            if b.spans(addr):
+            assignedCol = b.getTag()
+            if b.spans(addr) and (assignedCol is not None):
 
-                assignedCol = b.getTag()
                 if b.isTarget(addr):
                     isTarget = True
                     
@@ -208,7 +227,7 @@ class BranchLineHtmlFormatter:
                     else:
                         upperJoinCols.append(assignedCol)
                 else:
-                    passThruCols.append(b.getTag())
+                    passThruCols.append(assignedCol)
         
         # highest of either type of join
         maxJoinCol = 0
