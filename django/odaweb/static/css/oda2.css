@@ -18,10 +18,10 @@ body {
     font-family: 'DejaVuSansMono';
     
     /* EOT file for old IE */
-    src: url('/static/fonts/DejaVuSansMono.eot'); 
+    src: url('../fonts/DejaVuSansMono.eot');
     
     /* TTF file for CSS3 browsers */
-    src: url('/static/fonts/DejaVuSansMono.ttf') format('truetype');      
+    src: url('../fonts/DejaVuSansMono.ttf') format('truetype');
 }
 
     #main-display {
@@ -263,7 +263,7 @@ dislineerr {
 }
 
 .ui-slider-horizontal .ui-state-default {
-    background: url('/static/images/handle.png');
+    background: url('../images/handle.png');
     width:21px;
     height:27px;
     border: 0;

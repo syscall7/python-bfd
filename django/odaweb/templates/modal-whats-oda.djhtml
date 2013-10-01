@@ -1,10 +1,12 @@
+{% load staticfiles %}
+
 <div id="modal-whats-oda" class="modal hide fade">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h3>What's ODA?</h3>
     </div>
     <div class="modal-body">
-        <img src="/static/images/oda.png" style="float:left"/>
+        <img src="{% static 'images/oda.png' %}" style="float:left"/>
         <b>ODA</b> stands for <b>O</b>nline <b>D</b>is<b>A</b>ssembler.  <b>ODA</b> is a general purpose machine code disassembler
         that supports a myriad of machine architectures.  Built on the shoulders of libbfd and libopcodes (part of
         binutils), <b>ODA</b> allows you to explore an executable by dissecting its sections, strings,

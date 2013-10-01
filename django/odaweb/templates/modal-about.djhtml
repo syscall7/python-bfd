@@ -1,10 +1,12 @@
+{% load staticfiles %}
+
 <div id="modal-about" class="modal hide fade">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h3>About ODA</h3>
     </div>
     <div class="modal-body">
-        <img src="/static/images/oda.png" style="float:left"/>
+        <img src="{% static 'images/oda.png' %}" style="float:left"/>
         Version 0.2.0, Released 21 May 2013
 
         <p><p><b>ODA</b> is the creation of Anthony DeRosa, Tom Keeley, and Bill Davis
