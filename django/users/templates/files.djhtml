@@ -1,0 +1,10 @@
+{% extends "layout-new.djhtml" %}
+
+{% block content %}
+
+    {{ masters|length }}
+    {% for master in masters %}
+        {{ master }}
+    {% endfor %}
+
+{%  endblock %}
