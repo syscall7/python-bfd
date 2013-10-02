@@ -565,6 +565,7 @@ def copy_disassembly(from_id, from_version, to_id, ip_address):
     to_oda.binary = binary
     to_oda.short_name = to_id
     to_oda.revision = 0
+    to_oda.copy = OdaMaster.objects.get(short_name = from_id, revision = from_version)
     to_oda.save()
 
     Disassembler(to_oda.binary).process_chunks()

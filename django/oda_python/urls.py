@@ -4,10 +4,8 @@ from django.http import HttpResponseRedirect
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 from django.contrib.auth.views import password_reset, password_reset_done, password_reset_confirm, password_reset_complete
-from django.core.urlresolvers import reverse
-from django.core.urlresolvers import reverse_lazy
-from django.views.generic.base import RedirectView
-from odaweb import views_user
+
+from users import urls
 
 admin.autodiscover()
 
@@ -63,9 +61,7 @@ urlpatterns = patterns('',
 
     url(r'^odaweb/createuser', 'odaweb.views_login.create_user'),
 
-    url(r'^odaweb/user', include(views_user.urlpatterns)),
-
-
+    url(r'^odaweb/user', include(urls.urlpatterns)),
 
     url(r'^odaweb/(?P<disassembly_id>\w{0,16})$$', 'odaweb.views2.index')
 )
