@@ -2,9 +2,30 @@
 
 {% block content %}
 
-    {{ masters|length }}
-    {% for master in masters %}
-        {{ master }}
-    {% endfor %}
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span2"></div>
+        <div class="span8">
+            <h2>{{  user.name }} Files ({{ masters|length }})</h2>
+
+            <table class="table table-striped">
+            <thead>
+                <th>Project</th>
+                <th>Filename</th>
+                <th>Date</th>
+            </thead>
+            <tbody>
+            {% for master in masters %}
+                <tr>
+                    <td><a href="{% url 'odaweb.views2.index' master.short_name %}">{{ master.project_name }}</a></td>
+                    <td>{{ master.binary.filename }}</td>
+                    <td>{{ master.creation_date }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 {%  endblock %}
