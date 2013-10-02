@@ -159,6 +159,14 @@ def skip_suspicious_operations(record):
             return False
     return True
 
+# Purpose is to block the annoying emails we get when someone aborts a post by closing the browser, etc.
+from django.http import UnreadablePostError
+def skip_unreadable_post_errors(record):
+    if record.exc_info:
+        exc_value = record.exc_info[1]
+        if isinstance(exc_value, UnreadablePostError):
+            return False
+    return True
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -185,12 +193,15 @@ LOGGING = {
             '()': 'django.utils.log.CallbackFilter',
             'callback': skip_suspicious_operations,
         },
-
+        'skip_unreadable_post_errors': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': skip_unreadable_post_errors,
+        },
     },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
-            'filters': ['require_debug_false', 'skip_suspicious_operations'],
+            'filters': ['require_debug_false', 'skip_suspicious_operations', 'skip_unreadable_post_errors'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
         'console':{
