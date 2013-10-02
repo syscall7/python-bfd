@@ -3,8 +3,8 @@
 
         <div>
             <div class="control-group">
-                <label class="control-label upload-form-control" for="select-live-architecture">Arch</label>
-                <select class="platformSelect input-small" id="select-live-architecture" name="select-live-architecture">
+                <label class="control-label upload-form-control" for="select-{{ form_type }}-architecture">Arch</label>
+                <select class="platformSelect input-small" id="select-{{ form_type }}-architecture" name="select-{{ form_type }}-architecture">
                     {% for a in supported_archs %}
                         <option
                             {% if a == arch %}selected="selected"{% endif %}>
@@ -17,8 +17,8 @@
         <div>
             <div class="control-group {% if form.errors.base_address %}error{% endif %}">
                 <label class="control-label upload-form-control"
-                       for="set-live-base-address">Base Address</label>
-                <input id="set-live-base-address" name="base_address" type="text" placeholder="0x00000000" class="input-small" value="{{ base_address }}">
+                       for="set-{{ form_type }}-base-address">Base Address</label>
+                <input id="set-{{ form_type }}-base-address" name="base_address" type="text" placeholder="0x00000000" class="input-small" value="{{ base_address }}">
                 {% if form.errors.base_address %}
                     <span class="help-inline">
                         {{ form.errors.base_address }}
@@ -32,4 +32,5 @@
         </div>
     </div>
 
+    <input type="hidden" id="modal-{{ form_type }}-platform-options-short-name" name="id" />
 </form>

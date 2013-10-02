@@ -18,7 +18,7 @@
 
     </div>
 
-    <form>
+    <form id="modal-platform-options-form">
         <select class="platformSelect" id="select-open-architecture" name="select-open-architecture">
             {% for a in supported_archs %}
                 <option
@@ -38,7 +38,6 @@
             {% include 'show_options.djhtml' %}
         </div>
 
-        <input type="hidden" id="modal-platform-options-short-name" name="id" />
     </form>
 
     {% if form.errors %}

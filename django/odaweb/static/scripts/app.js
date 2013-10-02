@@ -125,7 +125,7 @@ function FileUploadOptionsForm() {
 
     $('#upload-options-submit-btn').click(function(e) {
         var arch = $('#select-open-architecture').val();
-        var base_address = $('#set-base-address').val();
+        var base_address = $('#set-open-base-address').val();
         var values = $.map(
             $('.platform-option-select'), function(v) {return $(v).val();}
         );
@@ -135,7 +135,8 @@ function FileUploadOptionsForm() {
         /* TODO: catch form errors and redisplay form here */
         $.post('/odaweb/_set', {arch: arch, base_address: base_address, options: values})
             .done(function() {
-                window.location = "/odaweb/" + $('#modal-platform-options-short-name').val();
+                var foobar = $('#modal-open-platform-options-short-name').val();
+                window.location = "/odaweb/" + $('#modal-open-platform-options-short-name').val();
             }).fail(function(){
             });
 
@@ -189,26 +190,40 @@ function FileUploadForm() {
                     }
 
                     $('#modal-upload-form').modal('hide');
-                    $('#select-open-architecture').val(default_arch);
-                    $('#select-open-architecture').change();
-                    $('#modal-platform-options-short-name').val(data.id);
-                    $('#modal-platform-options').modal();
-                    $('#modal-platform-msg').html(data.msg);
 
-                    // if we cannot detect the file format
-                    if (data.arch == 'UNKNOWN!') {
+                    form_data = {
+                        arch : default_arch,
+                        base_address : ""
+                    };
 
-                        // let the user select the arch AND options
-                        $('#select-open-architecture').prop('disabled', false);
-                        $('#set-base-address').prop('disabled', false);
-                    }
-                    // else, we know the format (and should therefore already know the arch)
-                    else {
+                    $.post('/odaweb/_set', form_data)
+                        .done(function(response) {
 
-                        // let the user select only select the options
-                        $('#select-open-architecture').prop('disabled', true);
-                        $('#set-base-address').prop('disabled', true);
-                    }
+                            $('#select-open-architecture').val(default_arch);
+                            $('#select-open-architecture').change();
+                            $('#modal-platform-msg').html(data.msg);
+                            $('#modal-platform-options-form').html(response.form_html);
+                            $('#modal-open-platform-options-short-name').val(data.id);
+                            $('#modal-platform-options').modal();
+
+                            // if we cannot detect the file format
+                            if (data.arch == 'UNKNOWN!') {
+
+                                // let the user select the arch AND options
+                                $('#select-open-architecture').prop('disabled', false);
+                                $('#set-open-base-address').prop('disabled', false);
+                            }
+                            // else, we know the format (and should therefore already know the arch)
+                            else {
+
+                                // let the user select only select the options
+                                $('#select-open-architecture').prop('disabled', true);
+                                $('#set-open-base-address').prop('disabled', true);
+                            }
+
+                        }).fail(function(response){
+                            $('#modal-upload-form').html(data.html);
+                        });
 
                 }
                 // else there were errors in the form

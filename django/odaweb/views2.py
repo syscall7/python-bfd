@@ -50,6 +50,7 @@ def index(request, disassembly_id):
         context['options'] = get_platform_options(oda_master.binary.options.architecture)
         context['defaults'] = []
         context['user'] = request.user
+        context['form_type'] = 'live'
 
     request.session['saved'] = False
     #from pprint import pprint
@@ -152,6 +153,9 @@ def set(request):
 
             oda_master.binary.binary_string = cleaned_hex_string
             oda_master.binary.save()
+            formType = "live"
+        else:
+            formType = "open"
 
         if form.cleaned_data['arch']:
             arch = form.cleaned_data['arch']
@@ -174,8 +178,9 @@ def set(request):
 
         oda_master.binary.options.save()
 
-        disassembler = Disassembler(oda_master.binary)
-        disassembler.process_chunks()
+        if formType == "live":
+            disassembler = Disassembler(oda_master.binary)
+            disassembler.process_chunks()
 
     form_html = render_to_string('form-platform-options.djhtml', {
                     'arch' : arch,
@@ -185,6 +190,7 @@ def set(request):
                     'base_address' : baseAddr,
                     'selected_opts' : selected_opts,
                     'form': form,
+                    'form_type': formType
     })
 
     return HttpResponse(simplejson.dumps({
