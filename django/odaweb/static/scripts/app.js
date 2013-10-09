@@ -4,6 +4,10 @@ var Binary = Backbone.Model.extend({
 
 var oda = oda || {};
 
+oda.url = function(url) {
+    return '/odaweb/' + url;
+};
+
 oda.alert = function(message) {
     $('.top-right').notify({
         message: { text: message },
@@ -436,7 +440,7 @@ function Load(binary, show_loading) {
     refreshDisassembly(addr,  show_loading);
     refreshHex(addr,false);
     
-    $.post('_symbols', {id: binary.id}).done(function(data){
+    $.post(oda.url('_symbols'), {id: binary.id}).done(function(data){
         $('#symbol-content').append(data.symbols_html);
         scrolify($('#symbol-table')); // 160 is height
         ResizeHandler();
@@ -444,7 +448,7 @@ function Load(binary, show_loading) {
         oda.alert('symbols fail to load');
     });
 
-    $.post('_strings', {id: binary.id}).done(function(data){
+    $.post(oda.url('_strings'), {id: binary.id}).done(function(data){
         $('#strings-content').append(data.strings);
         scrolify($('#strings-table')); // 160 is height
         ResizeHandler();
@@ -452,7 +456,7 @@ function Load(binary, show_loading) {
             oda.alert('strings fail to load');
     });
 
-    $.post('_sections', {id: binary.id}).done(function(data){
+    $.post(oda.url('_sections'), {id: binary.id}).done(function(data){
 
         $('#tab-sections').html(data.sections_tab);
 
@@ -462,7 +466,7 @@ function Load(binary, show_loading) {
         oda.alert('sections failed to load');
     });
 
-    $.post('_fileinfo', {id: binary.id}).done(function(data){
+    $.post(oda.url('_fileinfo'), {id: binary.id}).done(function(data){
 
         $('#tab-fileinfo').html(data.fileinfo_tab);
         $('#known-malware').popover();

@@ -8,7 +8,7 @@
     $(document).ready(function(){
 
         // set the address range for the slider
-        InitializeSlider({{ section_info.start_addr  }}, {{ section_info.stop_addr }})
+        //InitializeSlider({{ section_info.start_addr  }}, {{ section_info.stop_addr }})
 
         var binary = new Binary({
             id : '{{ binary.id }}',

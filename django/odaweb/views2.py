@@ -23,12 +23,15 @@ def render_to_json(context):
     return HttpResponse(simplejson.dumps(context), mimetype='application/json')
 
 
-def index(request, disassembly_id):
+def index(request, disassembly_id, version=0):
     logger.info('create session, user=' + str(request.user))
 
     context = {}
+
+    saved = request.session.get('saved', False)
+
     try:
-        oda_master = create_session(request, disassembly_id, 0)
+        oda_master = create_session(request, disassembly_id, version)
     except Exception as e:
         logger.warn("Failed to create_session [%s] [%s]", e.args, disassembly_id)
         return redirect('/odaweb/')
@@ -39,12 +42,12 @@ def index(request, disassembly_id):
         context['section_info'] = section_info
         context['binary'] = oda_master.binary
         context['project_name'] = oda_master.project_name
-        context['disassembly_id'] = disassembly_id
+        context['disassembly_id'] = oda_master.short_name
         context['share_url'] = request.build_absolute_uri()
         context['examples'] = examples
         context['supported_archs'] = get_supported_archs()
         context['arch'] = oda_master.binary.options.architecture
-        context['saved'] = request.session.get('saved', False)
+        context['saved'] = saved
 
         context['supported_endians'] = get_supported_endians()
         context['options'] = get_platform_options(oda_master.binary.options.architecture)
@@ -62,11 +65,12 @@ def save(request):
     request.session['saved'] = True
     try:
         o_id = request.session["disassembly_token"]['id']
+        o_revision = request.session['disassembly_token']['version']
     except:
         logger.warn("Save Called With Missing disassembly_token")
         return redirect('/odaweb/')
 
-    return redirect('/odaweb/' + o_id)
+    return redirect('/odaweb/' + o_id + '/' + str(o_revision))
 
 
 def create_session(request, to_copy_id, to_copy_version):
@@ -77,18 +81,16 @@ def create_session(request, to_copy_id, to_copy_version):
         to_copy_id = 'strcpy_x86'
         to_copy_version =  0
 
+
+    oda_master = copy_disassembly(to_copy_id, to_copy_version, request.user, request.META.get('REMOTE_ADDR'))
+
     request.session["disassembly_token"] = {
-        'id': id_generator(),
-        'version': 0
-        }
+        'id': oda_master.short_name,
+        'version': oda_master.revision
+    }
+    logger.info('%s(%d)' % (request.session["disassembly_token"]['id'], request.session['disassembly_token']['version']))
 
-    logger.info('#####' + request.session["disassembly_token"]['id'])
-    copy_disassembly(to_copy_id, to_copy_version,
-                     request.session["disassembly_token"]['id'], request.META.get('REMOTE_ADDR'))
-
-    return OdaMaster.objects.get(
-        short_name=request.session["disassembly_token"]['id'],
-        revision=request.session["disassembly_token"]['version'])
+    return oda_master
 
 def get_session(request):
     try:
@@ -464,7 +466,7 @@ def refresh_disassembly(request):
     superchunks = jcp.get_chunks_from_addr(addr, 3)
     jcp.process_chunks_disassembly(superchunks)
     chunk_list = jcp.get_chunk_list(superchunks)
-    
+
     dis = render_to_string('listing.djhtml', { 'chunks' : superchunks, 'functions' : [] } )
 
     # Return the new disassembly
@@ -501,7 +503,7 @@ def partial_refresh_hex(request):
     # Return the new disassembly
     return HttpResponse(simplejson.dumps({'hex_dump' : hex,
                                           'chunks' : chunk_list })  , mimetype='application/json')
-    
+
 
 def partial_refresh_disassembly(request):
     oda_master = get_session(request)
@@ -533,7 +535,7 @@ def partial_refresh_disassembly(request):
     # Return the new disassembly
     return HttpResponse(simplejson.dumps({'disassembly' : dis,
                                           'chunks' : chunk_list })  , mimetype='application/json')
-    
+
 
 def comment(request):
 

@@ -286,7 +286,7 @@ class OdaMaster(models.Model):
 
     ipAddress = models.CharField(max_length=64, default='')
     project_name = models.CharField(max_length=64, default='')
-    short_name = models.CharField(max_length=12, db_index = True, unique = True)
+    short_name = models.CharField(max_length=12, db_index = True)
     revision = models.IntegerField(default=0)
     owner = models.ForeignKey(User, null=True)
     creation_date = models.DateTimeField(auto_now_add = True)
@@ -297,6 +297,10 @@ class OdaMaster(models.Model):
 
     def file_handle(self):
         return self.content_object.file_handle()
+
+    def next_revision(self):
+        revisions = map(lambda m: m.revision, OdaMaster.objects.filter(short_name=self.short_name))
+        return max(revisions) + 1
 
 
 class InstDoc(models.Model):

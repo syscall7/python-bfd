@@ -63,5 +63,6 @@ urlpatterns = patterns('',
 
     url(r'^odaweb/user', include(urls.urlpatterns)),
 
-    url(r'^odaweb/(?P<disassembly_id>\w{0,16})$$', 'odaweb.views2.index')
+    url(r'^odaweb/(?P<disassembly_id>\w{0,16})$$', 'odaweb.views2.index'),
+    url(r'^odaweb/(?P<disassembly_id>\w{0,16})/(?P<version>\w{0,16})$$', 'odaweb.views2.index')
 )

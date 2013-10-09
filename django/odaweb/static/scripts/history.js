@@ -172,7 +172,7 @@ function refreshDisassembly(offset, show_loading)
     }
     $('#assembly-scroll').hide();
 
-    $.post('_refresh', {id: window.disId, addr:offset}).done(function(data){
+    $.post(oda.url('_refresh'), {id: window.disId, addr:offset}).done(function(data){
 
         // Append new chunks to the bottom
         window.ignoreScrollEvents = true;

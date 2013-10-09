@@ -1,3 +1,5 @@
+from odaweb.utils import id_generator
+
 __author__ = 'davis'
 
 import re
@@ -546,7 +548,10 @@ examples = (
     #    },
 )
 
-def copy_disassembly(from_id, from_version, to_id, ip_address):
+def copy_disassembly(from_id, from_version, owner, ip_address):
+
+    #to_oda gets copied by setting the id to None
+
     to_oda = OdaMaster.objects.get(short_name = from_id, revision = from_version)
     comments = Comment.get_for_binary(to_oda.binary)
 
@@ -563,9 +568,19 @@ def copy_disassembly(from_id, from_version, to_id, ip_address):
     binary.save()
 
     to_oda.binary = binary
-    to_oda.short_name = to_id
-    to_oda.revision = 0
+    to_oda.owner = owner
+
     to_oda.copy = OdaMaster.objects.get(short_name = from_id, revision = from_version)
+    if to_oda.copy is None:
+        to_oda.revision = 0
+        to_oda.short_name = id_generator()
+    else:
+        if to_oda.copy.owner == owner:
+            to_oda.revision = to_oda.next_revision()
+        else:
+            to_oda.revision = 0
+            to_oda.short_name = id_generator()
+
     to_oda.save()
 
     Disassembler(to_oda.binary).process_chunks()
@@ -574,4 +589,6 @@ def copy_disassembly(from_id, from_version, to_id, ip_address):
         comment.id = None
         comment.object_id = binary.id
         comment.save()
+
+    return to_oda
 

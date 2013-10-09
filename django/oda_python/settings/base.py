@@ -1,9 +1,5 @@
 # Django settings for oda_python project.
 
-DEBUG = False
-TEMPLATE_DEBUG = DEBUG
-COMPRESS_ENABLED = True
-
 ADMINS = (
     ('Anthony', 'anthony@onlinedisassembler.com'),
     ('Davis', 'davis@onlinedisassembler.com'),

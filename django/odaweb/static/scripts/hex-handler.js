@@ -3,7 +3,7 @@ var oda = oda || {};
 // Load an entire new page of hex
 function refreshHex(offset,scrollto)
 {
-    $.post('_refreshHex', {id: window.disId, addr:offset}).done(function(data){
+    $.post(oda.url('_refreshHex'), {id: window.disId, addr:offset}).done(function(data){
 
         // Update the chunk list
         if ( data.chunks.length > 0 )
