@@ -33,7 +33,7 @@ def index(request, disassembly_id, version=0):
     try:
         oda_master = create_session(request, disassembly_id, version)
     except Exception as e:
-        logger.warn("Failed to create_session [%s] [%s]", e.args, disassembly_id)
+        logger.exception("Failed to create_session [%s] [%s]", e.args, disassembly_id)
         return redirect('/odaweb/')
 
     if oda_master:
