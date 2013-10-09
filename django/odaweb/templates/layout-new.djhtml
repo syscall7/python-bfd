@@ -131,7 +131,7 @@
                   <a href="login">login</a> or <a href="createuser">register</a>
                    {% else %}
                       <strong><a href="{% url 'users.views.files' %}">{{ user.username }}</a></strong>
-                      <small> <a href="logout">logout</a></small>
+                      <small> <a href="{% url 'odaweb.views_login.logout' %}">logout</a></small>
                   {%  endif %}
 
                 </p>
