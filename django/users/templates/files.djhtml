@@ -34,7 +34,7 @@
                             <small>{{ master.latest_revision }} revisions</small>
                         {% endif %}
                     </h3>
-                    <p class="details">{{ master.creation_date }} {{ master.details }}</p>
+                    <p class="details">{{ master.creation_date|date:"SHORT_DATE_FORMAT" }} {{ master.details }}</p>
 
                 </li>
                 {% endfor %}
