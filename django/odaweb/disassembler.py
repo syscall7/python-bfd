@@ -568,7 +568,10 @@ def copy_disassembly(from_id, from_version, owner, ip_address):
     binary.save()
 
     to_oda.binary = binary
-    to_oda.owner = owner
+
+    if owner.is_authenticated():
+        to_oda.owner = owner
+
 
     to_oda.copy = OdaMaster.objects.get(short_name = from_id, revision = from_version)
     if to_oda.copy is None:
