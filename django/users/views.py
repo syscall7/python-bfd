@@ -9,6 +9,6 @@ def create_user_context(context={}):
 
 def files(request):
     context = {
-        'masters': OdaMaster.objects.filter(owner=request.user, copy = None)
+        'masters': OdaMaster.objects.filter(owner=request.user, copy=None).order_by('-creation_date')[:25]
     }
     return render(request, 'files.djhtml', create_user_context(context))

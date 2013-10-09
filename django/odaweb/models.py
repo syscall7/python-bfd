@@ -302,6 +302,13 @@ class OdaMaster(models.Model):
         revisions = map(lambda m: m.revision, OdaMaster.objects.filter(short_name=self.short_name))
         return max(revisions) + 1
 
+    def latest_revision(self):
+        revisions = map(lambda m: m.revision, OdaMaster.objects.filter(short_name=self.short_name))
+        return max(revisions)
+
+    def details(self):
+        return self.binary.options.target + " " + self.binary.options.architecture
+
 
 class InstDoc(models.Model):
     platform = models.TextField()
