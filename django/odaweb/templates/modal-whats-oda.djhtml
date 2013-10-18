@@ -15,13 +15,12 @@
         <p><p>You can use it for a variety of purposes such as:
 
         <ul>
+            <li>Malware analysis</li>
+            <li>Vulnerability research</li>
             <li>Visualizing the control flow of a group of instructions</li>
             <li>Disassembling a few bytes of an exception handler that is going off into the weeds</li>
             <li>Reversing the first few bytes of a Master Boot Record (MBR) that may be corrupt</li>
             <li>Debugging an embedded systems device driver</li>
-            <li>Malware analysis</li>
-            <li>Vulnerability research</li>
-            <li>Developing a jailbreak for the latest iPhone</li>
             <li>Satisying your own intellectual curiosity (Does there exist some sequence of bytes that disassembles to the same logical operation for two separate platforms?)</li>
         </ul>
 
