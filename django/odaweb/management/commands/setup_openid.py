@@ -8,6 +8,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         site = Site.objects.get(id=1)
+        site.domain="onlinedisassembler.com"
+        site.name='onlinedisassembler'
+        site.save()
 
         locations = [
         {
