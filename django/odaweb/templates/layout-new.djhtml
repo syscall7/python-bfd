@@ -7,7 +7,7 @@
     <title>{%  block title %}ODA - The Online Disassembler{% endblock %}</title>
     <link rel="icon" type="image/png" href="{% static 'images/oda.png' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'lib/bootstrap-2.2.2/css/bootstrap.min.css' %}"/>
-    <link rel="stylesheet" type="text/css" media="all" href="http://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
+    <link rel="stylesheet" type="text/css" media="all" href="https://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/oda2.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/bootstrap-notify/bootstrap-notify.css' %}" />
 
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="{% static 'scripts/app.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/live-hex.js' %}"></script>
     {%  endcompress %}
-    <script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
+    <script src="https://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
 
     {% block head %}{% endblock %}
 
