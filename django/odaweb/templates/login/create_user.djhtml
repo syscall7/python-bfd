@@ -2,7 +2,10 @@
 {% load static from staticfiles %}
 {% load socialaccount %}
 
+{% comment %}
+
 {% block content %}
+
 
 <div class="container">
 
@@ -53,3 +56,5 @@
 </div>
 
 {% endblock %}
+
+{% endcomment %}

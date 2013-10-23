@@ -369,7 +369,7 @@ def strings(request):
     return HttpResponse(simplejson.dumps({'strings' : strings })  , mimetype='application/json')
 
 class UploadFileForm(forms.Form):
-    MAX_UPLOAD_SIZE_KB = 500
+    MAX_UPLOAD_SIZE_KB = 2500
     filedata = forms.FileField()
     project_name = forms.CharField(max_length=64)
 

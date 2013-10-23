@@ -1,5 +1,7 @@
 {% extends "login/layout.djhtml" %}
 
+{% comment %}
+
 {% block content %}
 
    {%  if error  %}<div class="alert alert-error">{{ error }}</div> {% endif %}
@@ -31,3 +33,5 @@
     </div>
 
 {% endblock %}
+
+{% endcomment %}
