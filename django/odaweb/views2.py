@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment, InstDoc
+from odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment, InstDoc, Label
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from disassembler import Disassembler, JsonChunkProcessor, examples, get_supported_archs, \
@@ -562,6 +562,30 @@ def comment(request):
     else:
         return HttpResponse("Session Not Initialized", status=400)
 
+def relabel(request):
+
+    class RelabelForm(forms.Form):
+        label = forms.CharField()
+        offset = forms.CharField()
+
+    form = RelabelForm(request.POST, request.FILES)
+
+    if form.is_valid():
+        logger.info('Adding label at offset %s: %s' % (form.cleaned_data['offset'], form.cleaned_data['label']))
+
+        oda_master = get_session(request)
+        if not oda_master:
+            return HttpResponse("Session Not Initialized", status=400)
+
+        binary = oda_master.binary
+        ctype = ContentType.objects.get_for_model(binary)
+
+        label = Label(content_type=ctype, object_id=binary.id, label = form.cleaned_data['label'], offset = int(form.cleaned_data['offset'],16))
+        label.save()
+
+        return HttpResponse()
+    else:
+        return HttpResponse("Session Not Initialized", status=400)
 
 def owned_files(request):
 

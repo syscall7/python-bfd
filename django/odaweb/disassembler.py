@@ -11,7 +11,7 @@ import os
 from django.contrib.contenttypes.models import ContentType
 
 from odaweb.models import (BinaryDisassemblySuperChunk, Binary, BinaryString,
-                           BinaryFile, OdaMaster, OdaOptions, Comment,
+                           BinaryFile, OdaMaster, OdaOptions, Comment, Label,
                            BinaryDisassemblyChunk)
 
 import logging
@@ -554,6 +554,7 @@ def copy_disassembly(from_id, from_version, owner, ip_address):
 
     to_oda = OdaMaster.objects.get(short_name = from_id, revision = from_version)
     comments = Comment.get_for_binary(to_oda.binary)
+    labels = Label.get_for_binary(to_oda.binary)
 
     to_oda.id = None
     to_oda.ipAddress = ip_address
@@ -592,6 +593,11 @@ def copy_disassembly(from_id, from_version, owner, ip_address):
         comment.id = None
         comment.object_id = binary.id
         comment.save()
+
+    for label in labels:
+        label.id = None
+        label.object_id = binary.id
+        label.save()
 
     return to_oda
 

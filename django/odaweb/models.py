@@ -243,6 +243,18 @@ class Comment(models.Model):
         ctype = ContentType.objects.get_for_model(binary)
         return Comment.objects.filter(content_type=ctype.id, object_id = binary.id)
 
+class Label(models.Model):
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    binary = generic.GenericForeignKey()
+    label = models.CharField(max_length=255)
+    offset = models.BigIntegerField()
+    # TODO: Add a field for the type of label (i.e., func or local)
+
+    @staticmethod
+    def get_for_binary(binary):
+        ctype = ContentType.objects.get_for_model(binary)
+        return Label.objects.filter(content_type=ctype.id, object_id = binary.id)
 
 class BinaryFile(Binary):
     the_file = models.FileField(storage=fs, upload_to="uploads")

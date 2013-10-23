@@ -545,6 +545,39 @@ function InitializeComments() {
     */
 }
 
+function InitializeRelabeling() {
+
+    $(document).on("keypress", ".listing-label", function(e) {
+
+        if ((e.which == 13) || (e.which == 10))
+        {
+            $(this).blur()
+        }
+
+        return e.which != 13;
+    });
+
+    $(document).on("blur", ".listing-label", function(e) {
+        commentEditing = false;
+
+        var label = $(this).html();
+        var offset = $(this).parent().parent().attr("addr");
+
+        // firefox needs at least a space to keep it editable
+        if (label == "") {
+        } else {
+            $.post("/odaweb/relabel", { label: label, offset: offset } );
+        }
+
+        $(this).html(label);
+    });
+
+    $(document).on("focus", ".listing-label", function(e) {
+        commentEditing = true;
+        // TODO: Save off the original name in order to restore on ESC
+    });
+}
+
 function InitializeModalShare() {
 
     // select the link in the text box when the modal is shown
@@ -588,6 +621,8 @@ function OdaApplication(options) {
     InitializeSplitter();
 
     InitializeComments();
+
+    InitializeRelabeling();
 
     InitializeModalShare();
 

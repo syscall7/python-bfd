@@ -9,6 +9,7 @@ import re
 import branch
 import bfd
 import logging
+from odaweb.models import Label
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +139,16 @@ class defaultAnalyzer(object):
         for sym in self.symbols:
             if sym.type == 'T' or sym.type == 't':
                 self.functions[sym.value] = Function(sym.value, sym.name, sym.type, set())
-                
+
+        # Add in user-defined names from the db
+        # TODO: This needs quite a bit of work
+        labels = Label.get_for_binary(bfd.binary)
+        for label in labels:
+            if label.offset in self.functions:
+                self.functions[label.offset].name = label.label
+            else:
+                self.functions[label.offset] = Function(label.offset, label.label, 't', set())
+
         # Make a first pass at parsing for organizing the instructions
         self.superchunks = superchunks
         for superchunk in self.superchunks:
