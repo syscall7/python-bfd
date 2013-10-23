@@ -51,6 +51,7 @@ Total File Uploads: {{ total_uploads }}<br>
 Total Bytes Uploaded: {{ total_bytes|filesizeformat }}<br>
 Unique Files: {{ unique_files }}<br>
 Unique IPs: {{ unique_ips }}<br>
+Unique User Accounts: {{ unique_users }}<br>
 <br>
 
 <div style="border:3px solid #6B7C70; border-radius: 6px; float:left">
@@ -133,6 +134,10 @@ def genUploadReport(day):
         u = Upload(timestamp, short, fn, ip, desc=desc, size=size, md5=md5)
         uploads.append(u)
 
+    # fetch unique users
+    cursor.execute('select distinct username from auth_user')
+    users = cursor.fetchall()
+
     t = Template(template)
     c = Context({
             'uploads': uploads,
@@ -141,6 +146,7 @@ def genUploadReport(day):
             'total_bytes': total_bytes,
             'unique_files': len(unique_md5s),
             'unique_ips': len(unique_ips),
+            'unique_users': len(users),
     })
 
     return t.render(c)
