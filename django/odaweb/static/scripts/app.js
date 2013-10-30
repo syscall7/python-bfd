@@ -110,12 +110,18 @@ function FileUploadOptionsForm() {
             });
     };
 
-    $('.platform-option-select').on('change', function(){
+    var LoadPlatformOptions = function() {
         var values = $.map(
             $('.platform-option-select'), function(v) {return $(v).val();}
         );
 
         values = $.grep(values, function(e) { return e != "DEFAULT"});
+    };
+
+    $('.platform-option-select').on('change', LoadPlatformOptions);
+    $('#form-platform-options').submit(function(e) {
+        LoadPlatformOptions();
+        e.preventDefault();
     });
 
     $('#select-open-architecture').change(function(){
