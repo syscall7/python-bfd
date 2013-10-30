@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.utils.datastructures import MultiValueDictKeyError
 from odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment, InstDoc, Label
 from django import forms
 from django.contrib.contenttypes.models import ContentType
@@ -138,7 +139,12 @@ def set(request):
     form = HexUploadForm(request.POST) # A form bound to the POST data
 
     # initialize base_address with whatever was in the form data, even if it is invalid
-    baseAddr = form.data['base_address']
+    baseAddr = 0
+    try:
+        baseAddr = form.data['base_address']
+    except MultiValueDictKeyError:
+        logger.warn("base_address not set")
+
     selected_opts = []
     arch = 'i386'
 
