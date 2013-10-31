@@ -179,15 +179,23 @@ class BinaryDisassemblyChunk(models.Model):
     end = models.BigIntegerField()
     class Meta:
         ordering = ['start']
-        
 
-# TODO: Used by views.py. Delete when views.py is obsoleted
-#class DisassemblyComment(models.Model):
-#    chunk = models.ForeignKey(DisassemblyChunk)
-#    comment_str = models.CharField(max_length=128)
-#    offset = models.IntegerField()
-#    class Meta:
-#        ordering = ['offset']
+    def parcels(self):
+        parcels_temp = BinaryParcel.objects.filter(
+            chunk_id = self.id )
+        return list(parcels_temp)
+
+
+class BinaryParcel(models.Model):
+    chunk = models.ForeignKey(BinaryDisassemblyChunk)
+
+    start = models.BigIntegerField()
+    end = models.BigIntegerField()
+    is_code = models.NullBooleanField()
+    class Meta:
+        ordering = ['start']
+
+
 class BinaryString(Binary):
     binary_string = models.TextField()
     

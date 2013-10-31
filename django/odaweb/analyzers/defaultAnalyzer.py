@@ -13,12 +13,12 @@ from odaweb.models import Label
 
 logger = logging.getLogger(__name__)
 
-class InstUnit(object):
-    def __init__(self, section_name, offset, rawBytes, instStr, branch, branch_label):
+class DisplayUnit(object):
+    def __init__(self, section_name, offset, rawBytes, displayStr, branch, branch_label):
         self.section_name = section_name
         self.offset = offset
         self.rawBytes = rawBytes
-        self.instStr = instStr
+        self.instStr = displayStr
         self.branch = branch
         self.branch_label = branch_label
 
@@ -31,6 +31,49 @@ class Function(object):
         self.xrefs = xrefs
         self.name = name
         self.type = type
+
+def parseDataLine(chunk_name, start_addr, end_addr, self, superchunk, is_data ):
+
+    dataLen = end_addr - start_addr
+
+    # Get the raw data from the file
+    rawData = self.disassembler.bfd.raw_data(self.disassembler.bfd.sections[chunk_name], start_addr, dataLen)
+
+    if is_data:
+        # TODO: Organize the data in groups of one, two, four bytes etc.,
+        addr = start_addr
+        for c in map(ord, rawData):
+            inst = instruction()
+            inst.isCode = False
+            inst.offset = addr
+            inst.name = chunk_name
+            inst.rawBytes =  '%02x' % c
+            inst.isArray = False
+            inst.dataSize = 1
+            superchunk.instructions[inst.offset] = inst
+
+            addr += 1
+
+
+    else:
+        # Undefined. Treat as single byte per line
+        addr = start_addr
+        for c in map(ord, rawData):
+            inst = instruction()
+            inst.isCode = False
+            inst.offset = addr
+            inst.name = chunk_name
+            inst.rawBytes =  '%02x' % c
+            inst.isArray = False
+            inst.dataSize = 1
+            superchunk.instructions[inst.offset] = inst
+
+            addr += 1
+
+
+
+
+
 
 def parseDisassemblyLine(addr, rawData, instr, abfd, self, superchunk, chunk_name):
 
@@ -114,9 +157,9 @@ class defaultAnalyzer(object):
     def processOptions(self, options):
         return options
 
-    def analyze(self, bfd, superchunks=None):
-        
-        self.bfd = bfd
+    def analyze(self, disassembler, superchunks=None):
+
+        self.disassembler = disassembler
         self.instParserRegEx = re.compile(
                     # beginning of the line plus white space
                     "^\s*" +               
@@ -133,7 +176,7 @@ class defaultAnalyzer(object):
         self.opcodeRegEx = re.compile( self.opcodeRegExStr )
 
         # Grab the symbols and sections for convenience and performance reasons
-        self.symbols = self.bfd.symbols() 
+        self.symbols = self.disassembler.symbols()
         
         # Add preidentified symbols to the labels and functions list
         for sym in self.symbols:
@@ -142,7 +185,7 @@ class defaultAnalyzer(object):
 
         # Add in user-defined names from the db
         # TODO: This needs quite a bit of work
-        labels = Label.get_for_binary(bfd.binary)
+        labels = Label.get_for_binary(self.disassembler.binary)
         for label in labels:
             if label.offset in self.functions:
                 self.functions[label.offset].name = label.label
@@ -154,18 +197,27 @@ class defaultAnalyzer(object):
         for superchunk in self.superchunks:
             superchunk.instructions = {}
             for chunk in superchunk.chunks():
-                
-                logger.debug("CHUNK START: 0x%08x" % (chunk.start))
-                
-                # Convert the chunk to disassembly
-                # TODO: Fix sec name
-                bfd.disassemble(chunk.name, chunk.start, chunk.end,
-                                funcFmtLine=parseDisassemblyLine,
-                                funcFmtLineArgs={
-                                    'self': self,
-                                    'superchunk': superchunk,
-                                    'chunk_name': chunk.name,
-                                })
+                for parcel in chunk.parcels():
+                    logger.debug("PARCEL START: 0x%08x" % (parcel.start))
+
+                    # Convert the parcel to disassembly
+                    # TODO: Fix sec name
+                    if parcel.is_code:
+                        self.disassembler.disassemble(chunk.name, parcel.start, parcel.end,
+                                                      funcFmtLine=parseDisassemblyLine,
+                                                      funcFmtLineArgs={
+                                                          'self': self,
+                                                          'superchunk': superchunk,
+                                                          'chunk_name': chunk.name,
+                                                      })
+                    elif parcel.is_code == None:
+                        # Defined Data
+                        parseDataLine(chunk.name, parcel.start, parcel.end, self, superchunk, False)
+                    elif parcel.is_code == False:
+                        # Undefined
+                        parseDataLine(chunk.name, parcel.start, parcel.end, self, superchunk, True)
+
+        # Now we've got the superchunk fields populated
 
         # verify target address is at a valid instruction boundary (someday maybe we'll handle the odd case where it's not)
         for b in self.branches:
@@ -179,13 +231,13 @@ class defaultAnalyzer(object):
         if opcode in self.opcodeTypes:
             return self.opcodeTypes[opcode]
         return instructionType.normal
-     
-    def computeTargetAddr(self,inst):       
+
+    def computeTargetAddr(self,inst):
         pass
-        
+
     def mkLabelName(self, addr, prefix):
         # Include pre-identified symbols
-        if addr in self.symbols and (self.symbols[addr].type == 'T' or self.symbols[addr].type == 't'): 
+        if addr in self.symbols and (self.symbols[addr].type == 'T' or self.symbols[addr].type == 't'):
             return self.symbols[addr].name
         else:
             return '%s_%0.8x' % (prefix,addr)
@@ -200,21 +252,24 @@ class defaultAnalyzer(object):
             superchunk.instUnits = []
             for key in sorted(superchunk.instructions.iterkeys()):
                 inst = superchunk.instructions[key]
-    
+
                 # Fill the rawBytes structure
                 byteStr = re.sub(r'\s', '',inst.rawBytes)
-    
+
                 if len(byteStr) > self.largestInstSize:
                     self.largestInstSize = len(byteStr)
                 rawBytes = "%s" % (byteStr)
-    
-                instStr = self.makeInstr(inst)
-    
+
+                if inst.isCode:
+                    displayStr = self.makeInstr(inst)
+                else:
+                    displayStr = self.makeData(inst)
+
                 # got to get the label first, because it is based on the previous offset
                 branchLabel = blf.pushLabel()
                 branchLines = blf.pushAddr(inst.offset)
-                unit = InstUnit(inst.name[:8], inst.offset, rawBytes, instStr, branchLines, branchLabel)
-    
+                unit = DisplayUnit(inst.name[:8], inst.offset, rawBytes, displayStr, branchLines, branchLabel)
+
                 if inst.offset in self.functions:
                     unit.make_label_target(self.functions[inst.offset].name)
                     unit.function = self.functions[inst.offset]
@@ -226,6 +281,19 @@ class defaultAnalyzer(object):
 
     def makeInstrBranch(self, inst, labelName):
         return "%-7s<a href=\"#view/tab-assembly/offset/%08x\">%s</a>" % (inst.opcode, inst.targetAddr, labelName)
+
+    def makeData(self, inst):
+        dataStr = ""
+
+        # TODO: Account for endian
+
+        if inst.dataSize == 1:
+            dataStr = "0x"+inst.rawBytes
+        else:
+            dataStr = ""
+
+        return dataStr
+
 
     def makeInstr(self, inst):
         instStr = ""

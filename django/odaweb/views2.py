@@ -39,7 +39,7 @@ def index(request, disassembly_id, version=0):
 
     if oda_master:
         d = Disassembler(oda_master.binary)
-        section_info = d.get_code_sections()
+        section_info = d.get_loadable_sections()
         context['section_info'] = section_info
         context['binary'] = oda_master.binary
         context['project_name'] = oda_master.project_name
@@ -186,9 +186,11 @@ def set(request):
 
         oda_master.binary.options.save()
 
+        disassembler = Disassembler(oda_master.binary)
         if formType == "live":
-            disassembler = Disassembler(oda_master.binary)
-            disassembler.process_chunks()
+            disassembler.process_chunks(True)
+        else:
+            disassembler.process_chunks(False)
 
     form_html = render_to_string('form-platform-options.djhtml', {
                     'arch' : arch,

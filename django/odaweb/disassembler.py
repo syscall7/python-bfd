@@ -12,7 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from odaweb.models import (BinaryDisassemblySuperChunk, Binary, BinaryString,
                            BinaryFile, OdaMaster, OdaOptions, Comment, Label,
-                           BinaryDisassemblyChunk)
+                           BinaryDisassemblyChunk, BinaryParcel)
 
 import logging
 
@@ -118,6 +118,17 @@ def guess_bfd_arch(filename):
 
     return arch, target
 
+class SectionInfo(object):
+    def __init__(self, code_sections):
+        self.code_sections = code_sections
+        if len(code_sections):
+            self.start_addr = code_sections[0].vma
+            self.stop_addr = code_sections[-1].vma + code_sections[-1].size - 1
+        else:
+            self.start_addr = 0
+            self.stop_addr = 0
+
+    addr_range = property(lambda self: self.stop_addr - self.start_addr)
 
 class Disassembler(object):
 
@@ -166,6 +177,13 @@ class Disassembler(object):
             if set(flags).issubset(sec_flags):
                 yield sec
 
+    def section_has_flags(self, section, flags=[]):
+        sec_flags = [f.name for f in section.flags]
+        if set(flags).issubset(sec_flags):
+            return True
+        else:
+            return False
+
     def disassemble(self, name, start=None, stop=None, numLines=None, funcFmtLine=None, funcFmtLineArgs=None):
         sec = self.bfd.sections[name]
         baseAddr = self.binary.options.base_address
@@ -205,17 +223,6 @@ class Disassembler(object):
         return [sym for (name, sym) in sorted(self.bfd.syms_by_name.iteritems(), key=lambda (name, sym): sym.value)]
 
     def get_code_sections(self):
-        class SectionInfo(object):
-            def __init__(self, code_sections):
-                self.code_sections = code_sections
-                if len(code_sections):
-                    self.start_addr = code_sections[0].vma
-                    self.stop_addr = code_sections[-1].vma + code_sections[-1].size - 1
-                else:
-                    self.start_addr = 0
-                    self.stop_addr = 0
-
-            addr_range = property(lambda self: self.stop_addr - self.start_addr)
 
         def filter_sec_code(sec):
             return set(['SEC_CODE']).issubset([f.name for f in sec.flags])
@@ -230,8 +237,25 @@ class Disassembler(object):
         section_info = SectionInfo(code_sections)
 
         return section_info
-    
-    def get_chunks_from_file(self, sections):
+
+    def get_loadable_sections(self):
+
+        def filter_sec_load(sec):
+            return set(['SEC_LOAD']).issubset([f.name for f in sec.flags])
+
+        # treat all sections as loaded for targets without code sections
+        if self.bfd.target in TARGETS_WITHOUT_CODE_SECTIONS:
+            code_sections = self.sections
+        # else, only get the code sections
+        else:
+            code_sections = filter(filter_sec_load, self.sections)
+
+        section_info = SectionInfo(code_sections)
+
+        return section_info
+
+
+    def get_chunks_from_file(self, sections, alwaysTreatAsCode=False):
         super_chunks = []
         cur_super_chunk = dischunk.DisSuperChunk()
         
@@ -243,30 +267,36 @@ class Disassembler(object):
 
             while sec_consumed < sec.size:
 
-                disassemble_size = min( cur_super_chunk.available_len(), sec.size-sec_consumed )
+                chunk_size = min( cur_super_chunk.available_len(), sec.size-sec_consumed )
+                treatAsCode = False
 
-                # Disassemble a chunk
-                disassembly, next_addr, num_lines = self.disassemble(sec.name, sec_offset_addr, sec_offset_addr+disassemble_size)
+                if self.section_has_flags(sec,['SEC_CODE']) or alwaysTreatAsCode:
+                    # Disassemble a chunk
+                    disassembly, next_addr, num_lines = self.disassemble(sec.name, sec_offset_addr, sec_offset_addr+chunk_size)
+                    treatAsCode = True
 
-                # when disassembling binaries, weird things can happen...this is one of them
-                if next_addr <= sec_offset_addr:
-                    break
-                
-                # Update Size 
-                disassemble_size = next_addr - sec_offset_addr
+                    # when disassembling binaries, weird things can happen...this is one of them
+                    if next_addr <= sec_offset_addr:
+                        break
+
+                    # Update Size
+                    chunk_size = next_addr - sec_offset_addr
+                else:
+                    # Pure Data or Undefined Section
+                    next_addr = sec_offset_addr+chunk_size
 
                 # Grow the super chunk
-                cur_super_chunk.grow(sec.name, sec_offset_addr, disassemble_size)
+                cur_super_chunk.grow(sec.name, sec_offset_addr, chunk_size, treatAsCode)
 
                 # Check if we need to add another super chunk 
-                if cur_super_chunk.available_len() == 0 or disassemble_size == 0:
+                if cur_super_chunk.available_len() == 0 or chunk_size == 0:
                     # Not enough room in the chunk to add to it
                     #    Get a new chunk
                     super_chunks.append(cur_super_chunk)
                     cur_super_chunk = dischunk.DisSuperChunk()
 
                 # Update loop variables
-                sec_consumed += disassemble_size
+                sec_consumed += chunk_size
                 sec_offset_addr = next_addr
 
         # Include the last chunk
@@ -275,18 +305,18 @@ class Disassembler(object):
             
         return super_chunks
 
-    def process_chunks(self):
+    def process_chunks(self,alwaysTreatAsCode=False):
         ctype = ContentType.objects.get_for_model(self.binary)
         BinaryDisassemblySuperChunk.objects.filter(content_type=ctype.id, object_id=self.binary.id).delete()
 
         # Disassemble the entire file, one section at a time, dividing it into disassembly chunks
-        if self.binary.options.target in TARGETS_WITHOUT_CODE_SECTIONS:
-            super_chunks = self.get_chunks_from_file(self.sections)
+        if alwaysTreatAsCode:
+            super_chunks = self.get_chunks_from_file(self.sections, True)
             if not super_chunks:
                 # TODO: What shoud we do if there is nothing for us to disassemble? Is this file empty?
                 logger.warn("Unable to obtain data from binary file")
         else:
-            super_chunks = self.get_chunks_from_file(self.sections_iter(['SEC_CODE']))
+            super_chunks = self.get_chunks_from_file(self.sections_iter(['SEC_LOAD']), False)
             if not super_chunks:
                 # No code section, but there could still be strings, etc.
                 logger.warn('No code sections found to disassemble')
@@ -311,6 +341,14 @@ class Disassembler(object):
                      name=chunk.name,
                      superchunk=sch)
                 ch.save()
+                for parcel in chunk.parcels.values():
+                    p = BinaryParcel(id=None,
+                        start = parcel.start,
+                        end = parcel.end,
+                        is_code = parcel.is_code,
+                        chunk = ch
+                        )
+                    p.save()
 
             #i+=1
 
@@ -389,7 +427,7 @@ class JsonChunkProcessor(object):
         self.binary = binary
 
     def get_chunks_from_addr(self, addr, num_chunks):
-        analyzer = analyzerFactory( self.binary.options.architecture )
+        #analyzer = analyzerFactory( self.binary.options.architecture )
 
         ctype = ContentType.objects.get_for_model(self.binary)
 
@@ -555,6 +593,7 @@ def copy_disassembly(from_id, from_version, owner, ip_address):
     to_oda = OdaMaster.objects.get(short_name = from_id, revision = from_version)
     comments = Comment.get_for_binary(to_oda.binary)
     labels = Label.get_for_binary(to_oda.binary)
+    superchunks = BinaryDisassemblySuperChunk.get_for_binary(to_oda.binary)
 
     to_oda.id = None
     to_oda.ipAddress = ip_address
@@ -587,12 +626,35 @@ def copy_disassembly(from_id, from_version, owner, ip_address):
 
     to_oda.save()
 
-    Disassembler(to_oda.binary).process_chunks()
+    #Disassembler(to_oda.binary).process_chunks()
 
     for comment in comments:
         comment.id = None
         comment.object_id = binary.id
         comment.save()
+
+    for superchunk in superchunks:
+        chunks = superchunk.chunks()
+        superchunk.id = None
+        superchunk.object_id = binary.id
+        superchunk.save()
+
+        for chunk in chunks:
+            parcels = chunk.parcels()
+            chunk.id = None
+            chunk.object_id = binary.id
+            chunk.superchunk = superchunk
+            chunk.save()
+
+            for parcel in parcels:
+                parcel.id = None
+                parcel.object_id = binary.id
+                parcel.chunk = chunk
+                parcel.save()
+
+
+
+
 
     for label in labels:
         label.id = None

@@ -9,7 +9,8 @@ class instructionType:
     branch = 1
     call = 2
     undefined = 3
-    
+    data = 4
+
 class callType:
     direct = 0
     indirect = 1    
@@ -20,6 +21,8 @@ class instruction(object):
     '''
 
     def __init__(self):
+        self.isCode = True
+        self.isArray = False
         self.offset = 0
         self.listing = ""
         self.rawBytes = ""
@@ -28,5 +31,7 @@ class instruction(object):
         self.targetAddr = 0
         self.opcode = ""
         self.operands = ""
+        self.data = ""
         self.instType = instructionType.undefined
         self.callType = None
+        self.byteLength = 0

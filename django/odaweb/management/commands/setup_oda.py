@@ -26,11 +26,13 @@ def load_examples():
             f = open(os.path.join(EXAMPLES_DIR, example['file_name']),'rb')
             binary = BinaryFile.create(f, options)
             binary.save()
+            alwaysTreatAsCode = False
         elif example['binary_type'] is 'string':
             binary = BinaryString()
             binary.binary_string = ''.join(example['data'].split())
             binary.options = options
             binary.save()
+            alwaysTreatAsCode = True
 
         oda_master = OdaMaster(short_name = short_name, project_name = example['project_name'], binary = binary)
         oda_master.save()
@@ -43,7 +45,7 @@ def load_examples():
                 print "Adding Comment %s To %s" % (comment.comment, binary.id)
 
         disassembler = Disassembler(binary)
-        disassembler.process_chunks()
+        disassembler.process_chunks(alwaysTreatAsCode)
 
 
 # ------------------------------------------------------------------------------
