@@ -1,1 +1,25 @@
-SYMBOLS
+<table class="table table-striped sidebar-table" id="symbol-table">
+    <thead>
+        <tr>
+            <th align="right">Address</th>
+            <th align="center">Type</th>
+            <th align="left">Name</th>
+        </tr>
+    </thead>
+    <tbody class="scrollContent">
+        <tr ng-repeat="symbol in symbols">
+            <td align="right">0x{{symbol.offset.toString(16)}}</td>
+            <td align="center">{{symbol.type}}</td>
+            <td align="left" ng-switch on="symbol.type.toLowerCase()"
+                <span ng-switch-when="t"><a href="#/view/tab-assembly/offset/{{s.offset}}">{{s.name}}</a></span>
+                <span ng-switch-default>{{ symbol.name }}</span>
+
+            </td>
+            <td align="left">{{symbol.name}}</td>
+        </tr>
+    </tbody>
+</table>
+
+<div ng-show="!symbols">
+<em>No symbols available</em>
+</div>

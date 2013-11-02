@@ -77,7 +77,7 @@ class SectionSerializer(serializers.Serializer):
         pass
 
 class StringSerializer(serializers.Serializer):
-    offset = serializers.CharField()
+    addr = serializers.CharField()
     string = serializers.CharField()
 
 class SymbolSerializer(serializers.Serializer):

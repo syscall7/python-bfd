@@ -45,7 +45,8 @@ class StringsViewSet(viewsets.GenericViewSet):
 
         binary = oda.binary
         dasm = Disassembler(binary)
-        serializer = self.get_serializer(dasm.strings(), many=True)
+        strings = [{'addr': key, 'string': value} for key, value in dasm.strings().items()]
+        serializer = self.get_serializer(strings, many=True)
         return Response(serializer.data)
 
 class SymbolsViewSet(viewsets.GenericViewSet):
@@ -60,8 +61,7 @@ class SymbolsViewSet(viewsets.GenericViewSet):
 
         ctype = ContentType.objects.get_for_model(binary)
 
-        superchunks = BinaryDisassemblySuperChunk.objects.filter(
-                content_type=ctype.id, object_id = binary.id)[:]
+        superchunks = BinaryDisassemblySuperChunk.objects.filter(content_type=ctype.id, object_id= binary.id)[:]
 
         architecture = binary.options.architecture
         analyzer = analyzerFactory(architecture)

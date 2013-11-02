@@ -50,5 +50,13 @@ odaApplication.controller('SymbolsController', function SymbolsController($scope
         .success(function(data){
             $scope.symbols = data;
         });
+
+    $scope.isDefined = function(symbol) {
+        if (symbol.type == 't' || symbol.type == 'T')
+            return true;
+        else
+            return false;
+
+    };
 });
 
