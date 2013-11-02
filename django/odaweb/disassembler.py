@@ -165,7 +165,8 @@ class Disassembler(object):
         f.open("rb")
         bin = f.read()
         for m in re.finditer("([\t\x20-\x7e]{4,})", bin):
-            strs.append((m.start(), m.group(1)))
+            #strs.append((m.start(), m.group(1)))
+            strs.append({'offset': m.start(), 'string': m.group(1)})
         f.close()
         f.done()
         return strs

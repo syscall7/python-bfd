@@ -40,6 +40,7 @@ def index(request, disassembly_id, version=0):
     if oda_master:
         d = Disassembler(oda_master.binary)
         section_info = d.get_loadable_sections()
+        context['master'] = oda_master
         context['section_info'] = section_info
         context['binary'] = oda_master.binary
         context['project_name'] = oda_master.project_name

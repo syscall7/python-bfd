@@ -5,6 +5,12 @@
 {% block head %}
 
     <script type="text/javascript">
+
+    window.oda_master = {
+        short_name : '{{master.short_name }}',
+        revision : {{ master.revision | jsonify}}
+    };
+
     $(document).ready(function(){
 
         // set the address range for the slider
@@ -20,6 +26,8 @@
             binary : binary,
             saved : {{ saved|jsonify }}
         });
+
+
     });
     </script>
 
@@ -60,7 +68,9 @@
             <div class="tab-content" id="myTabContent">
                 {% include "tab-disassembly.djhtml" %}
                 {% include "tab-hexdump.djhtml" %}
-                <div id="tab-sections" class="tab-pane fade"></div>
+                <div id="tab-sections" class="tab-pane fade"
+                     ng-controller="SectionsController"
+                     ng-include="'/static2/templates/sections.html'"></div>
                 <div id="tab-fileinfo" class="tab-pane fade"></div>
             </div>
 

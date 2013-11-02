@@ -29,7 +29,19 @@
         <div id="sidebarContent">
             {% include 'sidebar-hex.djhtml' %}
         
-            {% include "sidebar-strings.djhtml" %}
+            <div id="strings-display"
+                 style="padding:5px; background-color:white;"
+                 class="item">
+                <div class="sidebar-legend">Strings</div>
+                <div class="sidebar-content">
+                    <div class="sidebar-scroll-container"
+                         ng-controller="StringsController"
+                         ng-include="'/static2/templates/strings.html'"
+                         id="strings-content">
+                    </div>
+                </div>
+            </div>
+
         
             {% include "sidebar-symbols.djhtml" %}
         </div>

@@ -5,7 +5,8 @@ from rest import views
 router = routers.DefaultRouter()
 router.register(r'masters', views.OdaMasterViewSet)
 router.register(r'comments', views.CommentViewSet)
-router.register(r'sections', views.SectionsViewSet, base_name="sections ")
+router.register(r'sections', views.SectionsViewSet, base_name="sections")
+router.register(r'strings', views.StringsViewSet, base_name="strings")
 router.register(r'superchunks', views.SuperChunksViewSet, base_name="superchunks")
 
 # Wire up our API using automatic URL routing.

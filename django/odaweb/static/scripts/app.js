@@ -454,17 +454,17 @@ function Load(binary, show_loading) {
         oda.alert('symbols fail to load');
     });
 
-    $.post(oda.url('_strings'), {id: binary.id}).done(function(data){
+    /* $.post(oda.url('_strings'), {id: binary.id}).done(function(data){
         $('#strings-content').append(data.strings);
         scrolify($('#strings-table')); // 160 is height
         ResizeHandler();
     }).fail(function(){
             oda.alert('strings fail to load');
-    });
+    }); */
 
     $.post(oda.url('_sections'), {id: binary.id}).done(function(data){
 
-        $('#tab-sections').html(data.sections_tab);
+        //$('#tab-sections').html(data.sections_tab);
 
         SetupSectionFlagPopovers(data.section_flags);
 

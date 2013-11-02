@@ -1,7 +1,7 @@
 {% load staticfiles %}
 
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html" ng-app="odaApp">
 <head>
 
     <title>{%  block title %}ODA - The Online Disassembler{% endblock %}</title>
@@ -27,6 +27,9 @@
     <script type="text/javascript" src="{% static 'scripts/lib/jquery.form.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/app.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/live-hex.js' %}"></script>
+
+    <script type="text/javascript" src="{% static 'scripts/oda_application.js' %}"></script>
+
     {%  endcompress %}
     <script src="https://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
 

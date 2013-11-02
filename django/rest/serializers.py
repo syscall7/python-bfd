@@ -76,5 +76,9 @@ class SectionSerializer(serializers.Serializer):
     def restore_object(self, attrs, instance=None):
         pass
 
+class StringSerializer(serializers.Serializer):
+    offset = serializers.CharField()
+    string = serializers.CharField()
+
 
 
