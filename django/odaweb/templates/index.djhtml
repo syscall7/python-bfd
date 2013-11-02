@@ -39,7 +39,7 @@
 
     <div id="view">
         <div id="view-container">
-            <div ng-controller="SliderController" ng-include="'/static2/templates/slider.html'">
+            <div ng-include="'/static2/templates/slider.html'">
 
             </div>
             <ul class="nav nav-pills" id="myTab" style="margin-bottom: 15px;">

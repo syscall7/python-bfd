@@ -67,6 +67,14 @@ odaApplication.controller('SliderController', function SliderController($scope, 
         .success(function(data){
             $scope.sections = data;
         });
+
+    $scope.getSectionWidth = function(section) {
+        return '10px';
+    };
+
+    $scope.act = function() {
+        alert('here');
+    }
 });
 
 
