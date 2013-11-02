@@ -34,7 +34,7 @@ class SectionsViewSet(viewsets.GenericViewSet):
                                   revision=request.QUERY_PARAMS.get('revision'))
         d = Disassembler(oda.binary)
         section_info = d.get_loadable_sections()
-        serializer = self.get_serializer(section_info.code_sections, many=True)
+        serializer = self.get_serializer(section_info.sections, many=True)
         return Response(serializer.data)
 
 class ParcelsViewSet(viewsets.GenericViewSet):
