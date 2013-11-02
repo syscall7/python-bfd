@@ -5,7 +5,8 @@ from django.http import HttpResponseRedirect
 from django.contrib import admin
 from django.contrib.auth.views import password_reset, password_reset_done, password_reset_confirm, password_reset_complete
 
-from users import urls
+import users.urls as user_urls
+import rest.urls as rest_urls
 
 admin.autodiscover()
 
@@ -62,7 +63,9 @@ urlpatterns = patterns('',
 
     url(r'^odaweb/createuser', 'odaweb.views_login.create_user'),
 
-    url(r'^odaweb/user/', include(urls.urlpatterns)),
+    url(r'^odaweb/user/', include(user_urls.urlpatterns)),
+
+    url(r'^odaweb/api/', include(rest_urls.urlpatterns)),
 
     url(r'^odaweb/(?P<disassembly_id>\w{0,16})$$', 'odaweb.views2.index'),
     url(r'^odaweb/(?P<disassembly_id>\w{0,16})/(?P<version>\w{0,16})$$', 'odaweb.views2.index')

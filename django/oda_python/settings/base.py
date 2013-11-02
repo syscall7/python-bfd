@@ -139,6 +139,9 @@ INSTALLED_APPS = (
     #django_compressor
     'compressor',
 
+    #django-rest-framework
+    'rest_framework',
+
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
