@@ -68,7 +68,7 @@ $(document).ready(function() {
     $('#myTabContent').bind('scroll', function(event) {
             if ( window.scrollTimer == null )
             {
-                window.scrollTimer = setTimeout(scrollHandler, 100);
+                //window.scrollTimer = setTimeout(scrollHandler, 100);
             }
         });
         

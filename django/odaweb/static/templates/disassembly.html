@@ -1,13 +1,13 @@
 <div id="assembly-scroll" class="tabbed-scroll assembly" style="display: block;" ng-controller="DisassemblyController">
     <table id="listing">
         <colgroup></colgroup>
-        <tbody>
-            <tr ng-repeat="displayUnit in displayUnits">
+        <tbody ng-repeat="displayUnit in displayUnits">
+            <tr addr="{{ displayUnit.offset }}" >
                 <td class="branchLines">  </td>
                 <td class="offset">{{ displayUnit.section_name }}:0x{{ displayUnit.offset.toString(16) }}</td>
                 <td class="raw">{{ displayUnit.rawBytes }}</td>
-                <td class="insn-col">{{ displayUnit.instStr }}</td>
-                <td class="comment-col"></td>
+                <td class="insn-col"><span ng-bind-html-unsafe="displayUnit.instStr"</span></td>
+                <td class="comment-col">{{ getComments(displayUnit.offset).comment }}</td>
             </tr>
         </tbody>
     </table>
