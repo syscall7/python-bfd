@@ -419,17 +419,33 @@ class Disassembler(object):
                         superchunk.hex_lines.append((name, addr, hex, ascii))
                         addr += len(line)
                 
+    def convert_to_data(self, addr):
+        pass
 
-
+    def get_all_superchunks(self):
+        ctype = ContentType.objects.get_for_model(self.binary)
+        superChunks = BinaryDisassemblySuperChunk.objects.filter(
+            content_type=ctype.id, object_id = self.binary.id )
+        return superChunks
 
 class JsonChunkProcessor(object):
     def __init__(self, binary):
         self.binary = binary
 
+    def get_parcel_from_addr(self, addr):
+
+        ctype = ContentType.objects.get_for_model(self.binary)
+
+        parcel = BinaryParcel.objects.filter(
+            content_type=ctype.id, object_id = self.binary.id, start__gte = addr )[0]
+
+
     def get_chunks_from_addr(self, addr, num_chunks):
         #analyzer = analyzerFactory( self.binary.options.architecture )
 
         ctype = ContentType.objects.get_for_model(self.binary)
+        afterChunks = BinaryDisassemblySuperChunk.objects.filter(
+            content_type=ctype.id, object_id = self.binary.id, start__gte = addr )[0:num_chunks]
 
         # The requested address is the center chunk. We need to get chunks
         #    before and after the center chunk (if possible)
