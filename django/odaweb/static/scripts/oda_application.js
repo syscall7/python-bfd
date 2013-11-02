@@ -84,9 +84,28 @@ odaApplication.controller('SliderController', function SliderController($scope, 
         else{
             return '#303030';
         }
-    }
+    };
+
+    $scope.sliderOptions = {
+        change: function( event, ui ) { updateAddrDisplay(ui.value); },
+        slide: function( event, ui ) { updateAddrDisplay(ui.value); },
+        stop: function( event, ui )  { sliderHandler(ui.value); },
+        animate: true,
+        min: min,
+        max: max
+    };
 });
 
+odaApplication.directive('slider', function ($parse) {
+   return {
+       restrict: 'A',
+       link: function (scope, element, attrs) {
+           var options = $parse(attrs.slider)();
+
+           $(element).slider(options);
+       }
+   };
+});
 
 
 
