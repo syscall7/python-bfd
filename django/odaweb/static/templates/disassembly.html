@@ -1,8 +1,7 @@
 <div id="assembly-scroll" class="tabbed-scroll assembly" style="display: block;" ng-controller="DisassemblyController">
     <table id="listing">
         <colgroup></colgroup>
-        <tbody ng-repeat="displayUnit in displayUnits">
-            <tr addr="{{ displayUnit.offset }}" >
+        <tr ng-repeat="displayUnit in displayUnits" addr="{{ displayUnit.offset }}" >
                 <td class="branchLines">  </td>
                 <td class="offset">{{ displayUnit.section_name }}:0x{{ displayUnit.offset.toString(16) }}</td>
                 <td class="raw">{{ displayUnit.rawBytes }}</td>
