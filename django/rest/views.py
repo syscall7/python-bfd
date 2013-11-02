@@ -95,3 +95,5 @@ class SymbolsViewSet(viewsets.GenericViewSet):
         architecture = binary.options.architecture
         analyzer = analyzerFactory(architecture)
         analyzer.analyze(dasm, parcels)
+        serializer = self.get_serializer(analyzer.functions.values(), many=True)
+        return Response(serializer.data)
