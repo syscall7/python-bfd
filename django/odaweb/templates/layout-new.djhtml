@@ -30,6 +30,10 @@
     <script type="text/javascript" src="{% static 'scripts/live-hex.js' %}"></script>
 
     <script type="text/javascript" src="{% static 'scripts/oda_application.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/DisassemblyController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/StringsController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/SectionsController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/SymbolsController.js' %}"></script>
 
     {%  endcompress %}
     <script src="https://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>

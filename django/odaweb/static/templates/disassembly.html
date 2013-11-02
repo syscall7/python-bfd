@@ -1,0 +1,14 @@
+<div id="assembly-scroll" class="tabbed-scroll assembly" style="display: block;" ng-controller="DisassemblyController">
+    <table id="listing">
+        <colgroup></colgroup>
+        <tbody>
+            <tr ng-repeat="displayUnit in displayUnits">
+                <td class="branchLines">  </td>
+                <td class="offset">{{ displayUnit.section_name }}:0x{{ displayUnit.offset.toString(16) }}</td>
+                <td class="raw">{{ displayUnit.rawBytes }}</td>
+                <td class="insn-col">{{ displayUnit.instStr }}</td>
+                <td class="comment-col"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
