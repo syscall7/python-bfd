@@ -10,8 +10,8 @@
         <tr ng-repeat="symbol in symbols">
             <td align="right">0x{{symbol.offset.toString(16)}}</td>
             <td align="center">{{symbol.type}}</td>
-            <td align="left" ng-switch on="symbol.type.toLowerCase()"
-                <span ng-switch-when="t"><a href="#/view/tab-assembly/offset/{{s.offset}}">{{s.name}}</a></span>
+            <td align="left" ng-switch on="symbol.type.toLowerCase()">
+                <span ng-switch-when="t"><a href="#/view/tab-assembly/offset/{{symbol.offset}}">{{symbol.name}}</a></span>
                 <span ng-switch-default>{{ symbol.name }}</span>
 
             </td>
