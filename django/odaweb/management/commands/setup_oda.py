@@ -4,7 +4,7 @@ import subprocess
 from django.core.management.base import BaseCommand, CommandError
 import odaweb.disassembler
 from odaweb.disassembler import Disassembler, examples
-from odaweb.models import BinaryDisassemblyChunk, Binary, BinaryString, BinaryFile, OdaMaster, OdaOptions, InstDoc, Comment
+from odaweb.models import BinaryParcel, Binary, BinaryString, BinaryFile, OdaMaster, OdaOptions, InstDoc, Comment
 from django.contrib.contenttypes.models import ContentType
 
 def load_examples():
@@ -45,7 +45,7 @@ def load_examples():
                 print "Adding Comment %s To %s" % (comment.comment, binary.id)
 
         disassembler = Disassembler(binary)
-        disassembler.process_chunks(alwaysTreatAsCode)
+        disassembler.process_parcels(alwaysTreatAsCode)
 
 
 # ------------------------------------------------------------------------------

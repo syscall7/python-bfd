@@ -1,5 +1,5 @@
 import json
-from odaweb.models import OdaMaster, Comment, BinaryFile, BinaryString
+from odaweb.models import OdaMaster, Comment, BinaryFile, BinaryString, BinaryParcel
 from rest_framework import serializers
 
 
@@ -51,11 +51,19 @@ class StringListField(serializers.WritableField):
     def from_native(self, obj):
         return json.loads(obj)
 
-class BinarySuperChunkSerializer(serializers.Serializer):
+
+class BinaryParcelSerializer(serializers.Serializer):
     start = serializers.IntegerField()
     end = serializers.IntegerField()
-    is_boundary = serializers.BooleanField()
+    is_code = serializers.BooleanField()
 
+class DisplayUnitSerializer(serializers.Serializer):
+    section_name = serializers.CharField()
+    offset = serializers.IntegerField()
+    rawBytes = serializers.BooleanField()
+    instStr = serializers.CharField()
+    branch = serializers.CharField()
+    branch_label = serializers.CharField()
 
 class SectionFlagSerializer(serializers.Serializer):
     abbrev = serializers.CharField()

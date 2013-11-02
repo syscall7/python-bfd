@@ -40,6 +40,7 @@ urlpatterns = patterns('',
     url(r'^odaweb/_instdoc$', 'odaweb.views2.instdoc'),
     url(r'^odaweb/_set', 'odaweb.views2.set'),
     url(r'^odaweb/_options', 'odaweb.views2.show_options'),
+    url(r'^odaweb/_convert_to_data', 'odaweb.views2.convert_to_data'),
 
 
     #User Dealing with URL

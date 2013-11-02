@@ -32,12 +32,12 @@ class Function(object):
         self.name = name
         self.type = type
 
-def parseDataLine(chunk_name, start_addr, end_addr, self, superchunk, is_data ):
+def parseDataLine(section_name, start_addr, end_addr, self, instructions, is_data ):
 
     dataLen = end_addr - start_addr
 
     # Get the raw data from the file
-    rawData = self.disassembler.bfd.raw_data(self.disassembler.bfd.sections[chunk_name], start_addr, dataLen)
+    rawData = self.disassembler.bfd.raw_data(self.disassembler.bfd.sections[section_name], start_addr, dataLen)
 
     if is_data:
         # TODO: Organize the data in groups of one, two, four bytes etc.,
@@ -46,11 +46,11 @@ def parseDataLine(chunk_name, start_addr, end_addr, self, superchunk, is_data ):
             inst = instruction()
             inst.isCode = False
             inst.offset = addr
-            inst.name = chunk_name
+            inst.name = section_name
             inst.rawBytes =  '%02x' % c
             inst.isArray = False
             inst.dataSize = 1
-            superchunk.instructions[inst.offset] = inst
+            instructions[inst.offset] = inst
 
             addr += 1
 
@@ -66,7 +66,7 @@ def parseDataLine(chunk_name, start_addr, end_addr, self, superchunk, is_data ):
             inst.rawBytes =  '%02x' % c
             inst.isArray = False
             inst.dataSize = 1
-            superchunk.instructions[inst.offset] = inst
+            instructions[inst.offset] = inst
 
             addr += 1
 
@@ -75,7 +75,7 @@ def parseDataLine(chunk_name, start_addr, end_addr, self, superchunk, is_data ):
 
 
 
-def parseDisassemblyLine(addr, rawData, instr, abfd, self, superchunk, chunk_name):
+def parseDisassemblyLine(addr, rawData, instr, abfd, self, instructions, section_name):
 
     inst = instruction()
 
@@ -120,8 +120,8 @@ def parseDisassemblyLine(addr, rawData, instr, abfd, self, superchunk, chunk_nam
                         # Add new cross reference to set
                         self.functions[inst.targetAddr].xrefs.update([inst.offset])
 
-        inst.name = chunk_name
-        superchunk.instructions[inst.offset] = inst
+        inst.name = section_name
+        instructions[inst.offset] = inst
 
 
 class defaultAnalyzer(object):
@@ -157,7 +157,7 @@ class defaultAnalyzer(object):
     def processOptions(self, options):
         return options
 
-    def analyze(self, disassembler, superchunks=None):
+    def analyze(self, disassembler, parcels=None):
 
         self.disassembler = disassembler
         self.instParserRegEx = re.compile(
@@ -177,7 +177,9 @@ class defaultAnalyzer(object):
 
         # Grab the symbols and sections for convenience and performance reasons
         self.symbols = self.disassembler.symbols()
-        
+
+        self.instructions = {}
+
         # Add preidentified symbols to the labels and functions list
         for sym in self.symbols:
             if sym.type == 'T' or sym.type == 't':
@@ -193,39 +195,38 @@ class defaultAnalyzer(object):
                 self.functions[label.offset] = Function(label.offset, label.label, 't', set())
 
         # Make a first pass at parsing for organizing the instructions
-        self.superchunks = superchunks
-        for superchunk in self.superchunks:
-            superchunk.instructions = {}
-            for chunk in superchunk.chunks():
-                for parcel in chunk.parcels():
-                    logger.debug("PARCEL START: 0x%08x" % (parcel.start))
+        self.parcels = parcels
+        for parcel in self.parcels:
+            logger.debug("PARCEL START: 0x%08x" % (parcel.start))
 
-                    # Convert the parcel to disassembly
-                    # TODO: Fix sec name
-                    if parcel.is_code:
-                        self.disassembler.disassemble(chunk.name, parcel.start, parcel.end,
-                                                      funcFmtLine=parseDisassemblyLine,
-                                                      funcFmtLineArgs={
-                                                          'self': self,
-                                                          'superchunk': superchunk,
-                                                          'chunk_name': chunk.name,
-                                                      })
-                    elif parcel.is_code == None:
-                        # Defined Data
-                        parseDataLine(chunk.name, parcel.start, parcel.end, self, superchunk, False)
-                    elif parcel.is_code == False:
-                        # Undefined
-                        parseDataLine(chunk.name, parcel.start, parcel.end, self, superchunk, True)
+            s = self.disassembler.get_section_from_addr(parcel.start)
+
+            # Convert the parcel to disassembly
+            # TODO: Fix sec name
+            if parcel.is_code:
+                self.disassembler.disassemble(s.name, parcel.start, parcel.end,
+                                              funcFmtLine=parseDisassemblyLine,
+                                              funcFmtLineArgs={
+                                                  'self': self,
+                                                  'instructions': self.instructions,
+                                                  'section_name': s.name,
+                                              })
+            elif parcel.is_code == None:
+                # Defined Data
+                parseDataLine(s.name, parcel.start, parcel.end, self, self.instructions, False)
+            elif parcel.is_code == False:
+                # Undefined
+                parseDataLine(s.name, parcel.start, parcel.end, self, self.instructions, True)
 
         # Now we've got the superchunk fields populated
+        print "INSTRUCTIONS POPULATED. BRANCHES:",len(self.branches)
 
         # verify target address is at a valid instruction boundary (someday maybe we'll handle the odd case where it's not)
         for b in self.branches:
             b.isTargetAddrValid = False
-            for superchunk in self.superchunks:
-                if b.targetAddr in superchunk.instructions:
-                    b.isTargetAddrValid = True
-                    break
+            if b.targetAddr in self.instructions:
+                b.isTargetAddrValid = True
+                break
 
     def getInstructionType(self,opcode):
         if opcode in self.opcodeTypes:
@@ -243,44 +244,54 @@ class defaultAnalyzer(object):
             return '%s_%0.8x' % (prefix,addr)
 
     # Make a second pass through the instructions to create the html
-    def convertToHtmlLine(self):
+    def convertToHtmlLine(self,comments):
 
         # weed out invalid branches
         blf = branch.BranchLineHtmlFormatter(self.branches)
 
-        # get all the strings (we don't need to do this unless we are creating html)
+   # get all the strings (we don't need to do this unless we are creating html)
         self.strings = self.disassembler.strings()
 
-        for superchunk in self.superchunks:
-            superchunk.instUnits = []
-            for key in sorted(superchunk.instructions.iterkeys()):
-                inst = superchunk.instructions[key]
+        self.display_units = []
 
-                # Fill the rawBytes structure
-                byteStr = re.sub(r'\s', '',inst.rawBytes)
+        print "INSTRUCTIONS:",len(self.instructions)
 
-                if len(byteStr) > self.largestInstSize:
-                    self.largestInstSize = len(byteStr)
-                rawBytes = "%s" % (byteStr)
+        for key in sorted(self.instructions.iterkeys()):
+            inst = self.instructions[key]
 
-                if inst.isCode:
-                    displayStr = self.makeInstr(inst)
-                else:
-                    displayStr = self.makeData(inst)
+            # Fill the rawBytes structure
+            byteStr = re.sub(r'\s', '',inst.rawBytes)
 
-                # got to get the label first, because it is based on the previous offset
-                branchLabel = blf.pushLabel()
-                branchLines = blf.pushAddr(inst.offset)
-                unit = DisplayUnit(inst.name[:8], inst.offset, rawBytes, displayStr, branchLines, branchLabel)
+            if len(byteStr) > self.largestInstSize:
+                self.largestInstSize = len(byteStr)
+            rawBytes = "%s" % (byteStr)
 
-                if inst.offset in self.functions:
-                    unit.make_label_target(self.functions[inst.offset].name)
-                    unit.function = self.functions[inst.offset]
-                    #chunk.lines += 2 + len(self.functions[inst.offset].xrefs)
-                elif inst.offset in self.labels:
-                    unit.make_label_target(self.mkLabelName(inst.offset,'loc'))
-                    #chunk.lines += 1
-                superchunk.instUnits.append(unit)
+            if inst.isCode:
+                displayStr = self.makeInstr(inst)
+            else:
+                displayStr = self.makeData(inst)
+
+            # got to get the label first, because it is based on the previous offset
+            branchLabel = blf.pushLabel()
+            branchLines = blf.pushAddr(inst.offset)
+            unit = DisplayUnit(inst.name[:8], inst.offset, rawBytes, displayStr, branchLines, branchLabel)
+
+            if inst.offset in self.functions:
+                unit.make_label_target(self.functions[inst.offset].name)
+                unit.function = self.functions[inst.offset]
+                #chunk.lines += 2 + len(self.functions[inst.offset].xrefs)
+            elif inst.offset in self.labels:
+                unit.make_label_target(self.mkLabelName(inst.offset,'loc'))
+                #chunk.lines += 1
+
+            comments_for_address = filter( lambda c: c.offset == inst.offset, comments )
+            if (len(comments_for_address) > 0):
+                inst.comment = comments_for_address[0].comment
+
+
+            self.display_units.append(unit)
+
+        print "DISPLAY UNITS:",len(self.display_units)
 
     def makeInstrBranch(self, inst, labelName):
         return "%-7s<a href=\"#view/tab-assembly/offset/%08x\">%s</a>" % (inst.opcode, inst.targetAddr, labelName)

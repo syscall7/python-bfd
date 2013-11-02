@@ -139,35 +139,87 @@ class Binary(models.Model):
     class Meta:
         abstract = True
 
-class BinaryDisassemblySuperChunk(models.Model):
+#class BinaryDisassemblySuperChunk(models.Model):
+#    content_type = models.ForeignKey(ContentType)
+#    object_id = models.PositiveIntegerField()
+#    binary = generic.GenericForeignKey()
+#
+#    # TODO: Is this length too much? Not enough?
+#    start = models.BigIntegerField()
+#    end = models.BigIntegerField()
+#    is_boundary = models.BooleanField()
+#    class Meta:
+#        ordering = ['start']
+#
+#    def chunks(self):
+#        chunks_temp = BinaryDisassemblyChunk.objects.filter(
+#            superchunk_id = self.id )
+#        return list(chunks_temp)
+#
+#    def attach_comments(self, binary):
+#        comments = Comment.get_for_binary(binary)
+#        if len(comments) == 0:
+#            return
+#        for iu in self.instUnits:
+#            comments_for_address = filter( lambda c: c.offset == iu.offset, comments )
+#            if (len(comments_for_address) > 0):
+#                iu.comment = comments_for_address[0].comment
+#
+#    def attach_prototype(self, binary):
+#        prototypes = Prototype.get_for_binary(binary)
+#        for iu in self.instUnits:
+#            prototype_for_address = filter( lambda c: c.offset == iu.offset, prototypes )
+#            if (len(prototype_for_address) > 0):
+#                iu.retval = prototype_for_address[0].retval
+#                iu.args = prototype_for_address[0].args
+#
+#    @staticmethod
+#    def get_for_binary(binary):
+#        ctype = ContentType.objects.get_for_model(binary)
+#        return BinaryDisassemblySuperChunk.objects.filter(content_type=ctype.id, object_id = binary.id)
+#
+#
+#class BinaryDisassemblyChunk(models.Model):
+#    superchunk = models.ForeignKey(BinaryDisassemblySuperChunk)
+#
+#    name = models.CharField(max_length=128)
+#    start = models.BigIntegerField()
+#    end = models.BigIntegerField()
+#    class Meta:
+#        ordering = ['start']
+#
+#    def parcels(self):
+#        parcels_temp = BinaryParcel.objects.filter(
+#            chunk_id = self.id )
+#        return list(parcels_temp)
+
+
+class BinaryParcel(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     binary = generic.GenericForeignKey()
 
-    # TODO: Is this length too much? Not enough?
+    #chunk = models.ForeignKey(BinaryDisassemblyChunk)
+
     start = models.BigIntegerField()
     end = models.BigIntegerField()
-    is_boundary = models.BooleanField()
+    is_code = models.NullBooleanField()
+
     class Meta:
         ordering = ['start']
-
-    def chunks(self):
-        chunks_temp = BinaryDisassemblyChunk.objects.filter(
-            superchunk_id = self.id )
-        return list(chunks_temp)
 
     def attach_comments(self, binary):
         comments = Comment.get_for_binary(binary)
         if len(comments) == 0:
             return
-        for iu in self.instUnits:
+        for iu in self.display_units:
             comments_for_address = filter( lambda c: c.offset == iu.offset, comments )
             if (len(comments_for_address) > 0):
                 iu.comment = comments_for_address[0].comment
 
     def attach_prototype(self, binary):
         prototypes = Prototype.get_for_binary(binary)
-        for iu in self.instUnits:
+        for iu in self.display_units:
             prototype_for_address = filter( lambda c: c.offset == iu.offset, prototypes )
             if (len(prototype_for_address) > 0):
                 iu.retval = prototype_for_address[0].retval
@@ -176,32 +228,7 @@ class BinaryDisassemblySuperChunk(models.Model):
     @staticmethod
     def get_for_binary(binary):
         ctype = ContentType.objects.get_for_model(binary)
-        return BinaryDisassemblySuperChunk.objects.filter(content_type=ctype.id, object_id = binary.id)
-
-
-class BinaryDisassemblyChunk(models.Model):
-    superchunk = models.ForeignKey(BinaryDisassemblySuperChunk)
-    
-    name = models.CharField(max_length=128)
-    start = models.BigIntegerField()
-    end = models.BigIntegerField()
-    class Meta:
-        ordering = ['start']
-
-    def parcels(self):
-        parcels_temp = BinaryParcel.objects.filter(
-            chunk_id = self.id )
-        return list(parcels_temp)
-
-
-class BinaryParcel(models.Model):
-    chunk = models.ForeignKey(BinaryDisassemblyChunk)
-
-    start = models.BigIntegerField()
-    end = models.BigIntegerField()
-    is_code = models.NullBooleanField()
-    class Meta:
-        ordering = ['start']
+        return BinaryParcel.objects.filter(content_type=ctype.id, object_id = binary.id)
 
 
 class BinaryString(Binary):

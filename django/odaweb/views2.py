@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from disassembler import Disassembler, JsonChunkProcessor, examples, get_supported_archs, \
     copy_disassembly, get_supported_endians, get_platform_options, guess_bfd_arch, analyzerFactory
 from django.contrib import messages
-from odaweb.models import BinaryDisassemblySuperChunk
+from odaweb.models import BinaryParcel
 from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseServerError
 from django.utils import simplejson
@@ -31,11 +31,11 @@ def index(request, disassembly_id, version=0):
 
     saved = request.session.get('saved', False)
 
-    try:
-        oda_master = create_session(request, disassembly_id, version)
-    except Exception as e:
-        logger.exception("Failed to create_session [%s] [%s]", e.args, disassembly_id)
-        return redirect('/odaweb/')
+    #try:
+    oda_master = create_session(request, disassembly_id, version)
+    #except Exception as e:
+    #    logger.exception("Failed to create_session [%s] [%s]", e.args, disassembly_id)
+    #    return redirect('/odaweb/')
 
     if oda_master:
         d = Disassembler(oda_master.binary)
@@ -326,6 +326,7 @@ def sections(request):
     binary = oda_master.binary
     dasm = Disassembler(binary)
 
+
     sections_tab = render_to_string('sections_tab.djhtml', {
         'sections' : dasm.sections,
         'sectionFlagsInfo' : dasm.sectionFlagsInfo(),
@@ -570,6 +571,32 @@ def comment(request):
         return HttpResponse()
     else:
         return HttpResponse("Session Not Initialized", status=400)
+
+def convert_to_data(request):
+    class ConvertDataForm(forms.Form):
+        offset = forms.CharField()
+
+    form = ConvertDataForm(request.POST, request.FILES)
+
+    if form.is_valid():
+        offset = int(form.cleaned_data['offset'])
+        logger.info('Convert to data at offset 0x%08x' % (offset))
+
+        oda_master = get_session(request)
+        if not oda_master:
+            return HttpResponse("Session Not Initialized", status=400)
+
+        binary = oda_master.binary
+        jcp = JsonChunkProcessor(binary)
+        parcel = jcp.get_parcel_from_addr(offset)
+
+        # TODO: Due the parcel conversion here
+
+
+        return HttpResponse()
+    else:
+        return HttpResponse("Session Not Initialized", status=400)
+
 
 def relabel(request):
 
