@@ -60,3 +60,15 @@ odaApplication.controller('SymbolsController', function SymbolsController($scope
     };
 });
 
+odaApplication.controller('SliderController', function SliderController($scope, $http, $window) {
+    var master = oda_api.getMaster();
+
+    $http.get('http://localhost:8000/odaweb/api/sections/?short_name=' + master.short_name + " &revision=" + master.revision)
+        .success(function(data){
+            $scope.sections = data;
+        });
+});
+
+
+
+
