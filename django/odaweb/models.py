@@ -165,6 +165,14 @@ class BinaryDisassemblySuperChunk(models.Model):
             if (len(comments_for_address) > 0):
                 iu.comment = comments_for_address[0].comment
 
+    def attach_prototype(self, binary):
+        prototypes = Prototype.get_for_binary(binary)
+        for iu in self.instUnits:
+            prototype_for_address = filter( lambda c: c.offset == iu.offset, prototypes )
+            if (len(prototype_for_address) > 0):
+                iu.retval = prototype_for_address[0].retval
+                iu.args = prototype_for_address[0].args
+
     @staticmethod
     def get_for_binary(binary):
         ctype = ContentType.objects.get_for_model(binary)
@@ -244,6 +252,19 @@ class Comment(models.Model):
     object_id = models.PositiveIntegerField()
     binary = generic.GenericForeignKey()
     comment = models.CharField(max_length=255)
+    offset = models.BigIntegerField()
+
+    @staticmethod
+    def get_for_binary(binary):
+        ctype = ContentType.objects.get_for_model(binary)
+        return Comment.objects.filter(content_type=ctype.id, object_id = binary.id)
+
+class Prototype(models.Model):
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    binary = generic.GenericForeignKey()
+    retval = models.CharField(max_length=255)
+    args = models.CharField(max_length=255)
     offset = models.BigIntegerField()
 
     @staticmethod

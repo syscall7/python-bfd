@@ -238,6 +238,14 @@ insn {
 .listing-label {
 }
 
+.listing-retval {
+    font-style: italic
+}
+
+.listing-args {
+    font-style: italic
+}
+
 errinsn {
     color: red;
     font-family: monospace;

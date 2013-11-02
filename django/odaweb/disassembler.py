@@ -513,7 +513,8 @@ class JsonChunkProcessor(object):
 
         for superchunk in superchunks:
             superchunk.attach_comments(self.binary)
-        
+            superchunk.attach_prototype(self.binary)
+
     def process_chunks_hex(self, superchunks):
         logger.info("process_chunks_hex")
         dasm = Disassembler(self.binary)
