@@ -62,18 +62,28 @@ odaApplication.controller('SymbolsController', function SymbolsController($scope
 
 odaApplication.controller('SliderController', function SliderController($scope, $http, $window) {
     var master = oda_api.getMaster();
+    var numCodeSections = 0;
+
+    /* sum of all the section address ranges */
+    var sumAddrRanges = 0;
 
     $http.get('http://localhost:8000/odaweb/api/sections/?short_name=' + master.short_name + " &revision=" + master.revision)
         .success(function(data){
             $scope.sections = data;
+            sumAddrRanges = _.reduce($scope.sections, function(memo, section) {return memo+section.size}, 0);
         });
 
     $scope.getSectionWidth = function(section) {
-        return '10px';
+        return (section.size/sumAddrRanges).toString() + '%';
     };
 
-    $scope.act = function() {
-        alert('here');
+    $scope.getSectionColor = function(section) {
+        if (_.contains(_.pluck(section.flags, 'name'), 'SEC_CODE')) {
+            return 'blue';
+        }
+        else{
+            return '#303030';
+        }
     }
 });
 

@@ -3,12 +3,9 @@
     <table id="slider-sections"2
         <tr>
             <td ng-repeat="section in sections"
-                style="width:{{ getSectionWidth(section) }}"
-                    >{{ section.name }}</td>
-           <!-- {% for s in section_info.code_sections %}
-                <td bgcolor="{%  sectioncolor s.flags forloop.counter0 %}"
-                    style="border:1px solid #ffffff; width:{% widthratio s.size section_info.addr_range  100 %}%"></td>
-            {% endfor %} -->
+                bgcolor="{{  getSectionColor(section) }}"
+                style="border:1px solid #ffffff; width:{{ getSectionWidth(section) }}">
+            </td>
         </tr>
     </table>
 </div>
