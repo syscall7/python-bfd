@@ -29,6 +29,7 @@
     <script type="text/javascript" src="{% static 'scripts/app.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/live-hex.js' %}"></script>
 
+    <script type="text/javascript" src="{% static 'scripts/socket.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/oda_application.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/DisassemblyController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/StringsController.js' %}"></script>
