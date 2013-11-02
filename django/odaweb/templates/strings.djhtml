@@ -6,9 +6,9 @@
         </tr>
     </thead>
     <tbody class="scrollContent">
-        {% for addr,str in strings %}
+        {% for addr,str in strings.items %}
             <tr>
-                <td class="str-offset" align="center">0x{{addr|stringformat:'08x'}}</td>
+                <td class="str-offset" align="center"><a href="#/view/tab-assembly/offset/{{addr|stringformat:'08x'}}">0x{{addr|stringformat:'08x'}}</a></td>
                 <td class="string" align="center">{{str}}</td>
             </tr>
         {% endfor %}
