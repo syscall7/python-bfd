@@ -1,8 +1,10 @@
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import viewsets
 from rest_framework.response import Response
-from odaweb.disassembler import Disassembler
-from odaweb.models import OdaMaster, Comment
-from rest.serializers import OdaMasterSerializer, CommentSerializer, SectionSerializer, StringSerializer, SymbolSerializer, BinaryParcelSerializer, DisplayUnitSerializer
+from odaweb.disassembler import Disassembler, JsonChunkProcessor, analyzerFactory
+from odaweb.models import OdaMaster, Comment, BinaryParcel
+from rest.serializers import OdaMasterSerializer, CommentSerializer, SectionSerializer, StringSerializer, SymbolSerializer, DisplayUnitSerializer, BinaryParcelSerializer
+
 
 
 class OdaMasterViewSet(viewsets.ModelViewSet):
@@ -35,14 +37,61 @@ class SectionsViewSet(viewsets.GenericViewSet):
         serializer = self.get_serializer(section_info.code_sections, many=True)
         return Response(serializer.data)
 
-class SuperChunksViewSet(viewsets.GenericViewSet):
-    serializer_class = BinarySuperChunkSerializer
+class ParcelsViewSet(viewsets.GenericViewSet):
+    serializer_class = BinaryParcelSerializer
 
     def list(self, request):
         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
                                   revision=request.QUERY_PARAMS.get('revision'))
-        d = Disassembler(oda.binary)
-        superchunks = d.get_all_superchunks()
-        serializer = self.get_serializer(superchunks, many=True)
+
+        binary = oda.binary
+        jcp = JsonChunkProcessor(binary)
+        parcels = jcp.get_all_parcels()
+
+        serializer = self.get_serializer(parcels, many=True)
         return Response(serializer.data)
 
+class DisplayUnitsViewSet(viewsets.GenericViewSet):
+    serializer_class = DisplayUnitSerializer
+
+    def list(self, request):
+        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
+                                  revision=request.QUERY_PARAMS.get('revision'))
+
+        binary = oda.binary
+        jcp = JsonChunkProcessor(binary)
+        parcels = jcp.get_all_parcels()
+        display_units = jcp.process_parcels_disassembly(parcels)
+        serializer = self.get_serializer(display_units, many=True)
+        return Response(serializer.data)
+
+class StringsViewSet(viewsets.GenericViewSet):
+    serializer_class = StringSerializer
+
+    def list(self, request):
+        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
+                                    revision=request.QUERY_PARAMS.get('revision'))
+
+        binary = oda.binary
+        dasm = Disassembler(binary)
+        strings = [{'addr': key, 'string': value} for key, value in dasm.strings().items()]
+        serializer = self.get_serializer(strings, many=True)
+        return Response(serializer.data)
+
+class SymbolsViewSet(viewsets.GenericViewSet):
+    serializer_class = SymbolSerializer
+
+    def list(self, request):
+        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
+                                    revision=request.QUERY_PARAMS.get('revision'))
+
+        binary = oda.binary
+        dasm = Disassembler(binary)
+
+        ctype = ContentType.objects.get_for_model(binary)
+
+        parcels = BinaryParcel.objects.filter(content_type=ctype.id, object_id= binary.id)[:]
+
+        architecture = binary.options.architecture
+        analyzer = analyzerFactory(architecture)
+        analyzer.analyze(dasm, parcels)
