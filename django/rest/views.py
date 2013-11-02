@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from odaweb.disassembler import Disassembler
 from odaweb.models import OdaMaster, Comment
-from rest.serializers import OdaMasterSerializer, CommentSerializer, SectionSerializer
+from rest.serializers import OdaMasterSerializer, CommentSerializer, SectionSerializer, BinarySuperChunkSerializer
 
 
 class OdaMasterViewSet(viewsets.ModelViewSet):
@@ -33,5 +33,16 @@ class SectionsViewSet(viewsets.GenericViewSet):
         d = Disassembler(oda.binary)
         section_info = d.get_loadable_sections()
         serializer = self.get_serializer(section_info.code_sections, many=True)
+        return Response(serializer.data)
+
+class SuperChunksViewSet(viewsets.GenericViewSet):
+    serializer_class = BinarySuperChunkSerializer
+
+    def list(self, request):
+        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
+                                  revision=request.QUERY_PARAMS.get('revision'))
+        d = Disassembler(oda.binary)
+        superchunks = d.get_all_superchunks()
+        serializer = self.get_serializer(superchunks, many=True)
         return Response(serializer.data)
 

@@ -51,6 +51,12 @@ class StringListField(serializers.WritableField):
     def from_native(self, obj):
         return json.loads(obj)
 
+class BinarySuperChunkSerializer(serializers.Serializer):
+    start = serializers.IntegerField()
+    end = serializers.IntegerField()
+    is_boundary = serializers.BooleanField()
+
+
 class SectionFlagSerializer(serializers.Serializer):
     abbrev = serializers.CharField()
     desc = serializers.CharField()
