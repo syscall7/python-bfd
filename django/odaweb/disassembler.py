@@ -119,11 +119,11 @@ def guess_bfd_arch(filename):
     return arch, target
 
 class SectionInfo(object):
-    def __init__(self, code_sections):
-        self.code_sections = code_sections
-        if len(code_sections):
-            self.start_addr = code_sections[0].vma
-            self.stop_addr = code_sections[-1].vma + code_sections[-1].size - 1
+    def __init__(self, sections):
+        self.sections = sections
+        if len(sections):
+            self.start_addr = sections[0].vma
+            self.stop_addr = sections[-1].vma + sections[-1].size - 1
         else:
             self.start_addr = 0
             self.stop_addr = 0
@@ -160,9 +160,13 @@ class Disassembler(object):
 
     def strings(self):
         strs = {}
-        for s in self.sections:
+        for s in self.get_loadable_sections().sections:
+            print 'Section %s, base 0x%08x, size 0x%08x' % (s.name, s.vma, s.size)
             for m in re.finditer("([\t\x20-\x7e]{4,})", self.bfd.raw_data(s, s.vma, s.size)):
                 strs[m.start()+s.vma] = m.group(1)
+
+        for k,v in strs.items():
+            print '0x%08x: %s' % (k, v)
         return strs
 
     def sections_iter(self, flags=[]):
