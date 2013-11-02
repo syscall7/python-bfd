@@ -74,7 +74,7 @@ class StringsViewSet(viewsets.GenericViewSet):
 
         binary = oda.binary
         dasm = Disassembler(binary)
-        strings = [{'addr': key, 'string': value} for key, value in dasm.strings().items()]
+        strings = [{'addr': key, 'string': value} for key, value in sorted(dasm.strings().items(), key=lambda s: s[0])]
         serializer = self.get_serializer(strings, many=True)
         return Response(serializer.data)
 
