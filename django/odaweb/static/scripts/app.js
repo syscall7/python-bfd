@@ -333,73 +333,7 @@ function InitializeMenus() {
  * ---------------------------------------------------------------------------------------------------------  */
 function InitializeSlider(min, max) {
 
-    var selectedRow = null;
 
-    // remove border
-    $(".ui-slider-horizontal").css('border', 0);
-    $(".ui-slider-handle").removeClass('ui-corner-all');
-
-    // set the slider address display text
-    // NOTE: This function is triggered via updateSlider() in history.js as well
-    function updateAddrDisplay(addr) {
-        window.topDisplayAddr = addr;
-        addrStr = addr.toString(16).toUpperCase();
-        while (addrStr.length < 8) addrStr = "0" + addrStr;
-        $("#slider-address").text("0x" + addrStr);
-    }
-
-    // event handler for slider control
-    function sliderHandler(addr) {
-
-        // no need to set the slider position, that's already been done by the event
-        updateAddrDisplay(addr);
-
-        // Try to scroll to the address
-        if ( !scrollToAddr(addr) )
-        {
-            // Isn't loaded. Try to load it
-            //window.topDisplayAddr = addr;
-            updateDisplayedFileContent(addr,false);
-            scrollToAddr(addr);
-        }
-    }
-
-    // setup slider
-    $( "#slider" ).slider({
-        change: function( event, ui ) { updateAddrDisplay(ui.value); },
-        slide: function( event, ui ) { updateAddrDisplay(ui.value); },
-        stop: function( event, ui )  { sliderHandler(ui.value); },
-        animate: true,
-        min: min,
-        max: max,
-    });
-
-    // set initial position
-    window.initialOffset = min;
-    window.activeTab = "tab-assembly";
-    updateAddrDisplay($("#slider").slider("value"));
-
-    $(document).on("click", "#listing tr", function(){
-        selectedRow = $(this);
-        $('tr.selected').removeClass('selected');
-        $(this).addClass('selected');
-    });
-    $(document).on("hover", "#listing tr", function(){
-        updateAddrDisplay($(this).attr('addr'));
-    });
-
-    $("html").keypress(function(event) {
-        if (String.fromCharCode(event.which) == 'g' && !commentEditing && !dialogOpen) {
-            GoToAddressPrompt();
-        }
-        else if (String.fromCharCode(event.which) == ';') {
-
-            if (selectedRow != null) {
-                selectedRow.find('.comment').text('   ');
-                selectedRow.find('.comment').focus();
-            }
-        }
-    });
 
 }
 
