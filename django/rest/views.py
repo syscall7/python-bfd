@@ -1,8 +1,9 @@
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import viewsets
 from rest_framework.response import Response
-from odaweb.disassembler import Disassembler
-from odaweb.models import OdaMaster, Comment
-from rest.serializers import OdaMasterSerializer, CommentSerializer, SectionSerializer, StringSerializer
+from odaweb.disassembler import Disassembler, analyzerFactory
+from odaweb.models import OdaMaster, Comment, BinaryDisassemblySuperChunk
+from rest.serializers import OdaMasterSerializer, CommentSerializer, SectionSerializer, StringSerializer, SymbolSerializer
 
 
 class OdaMasterViewSet(viewsets.ModelViewSet):
@@ -40,22 +41,38 @@ class StringsViewSet(viewsets.GenericViewSet):
 
     def list(self, request):
         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-                                  revision=request.QUERY_PARAMS.get('revision'))
+                                    revision=request.QUERY_PARAMS.get('revision'))
 
         binary = oda.binary
         dasm = Disassembler(binary)
         serializer = self.get_serializer(dasm.strings(), many=True)
         return Response(serializer.data)
 
-class SuperChunksViewSet(viewsets.Ge~nericViewSet):
-    serializer_class = BinarySuperChunkSerializer
+class SymbolsViewSet(viewsets.GenericViewSet):
+    serializer_class = SymbolSerializer
 
     def list(self, request):
         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-                                  revision=request.QUERY_PARAMS.get('revision'))
-        d = Disassembler(oda.binary)
-        superchunks = d.get_all_superchunks()
-        serializer = self.get_serializer(superchunks, many=True)
+                                    revision=request.QUERY_PARAMS.get('revision'))
+
+        binary = oda.binary
+        dasm = Disassembler(binary)
+
+        ctype = ContentType.objects.get_for_model(binary)
+
+        superchunks = BinaryDisassemblySuperChunk.objects.filter(
+                content_type=ctype.id, object_id = binary.id)[:]
+
+        architecture = binary.options.architecture
+        analyzer = analyzerFactory(architecture)
+        analyzer.analyze(dasm, superchunks)
+
+        #syms = render_to_string('symbols.djhtml', {
+        #    'symbols' : sorted(analyzer.functions.values(), key=lambda t: t.offset)
+        #})
+
+        serializer = self.get_serializer(analyzer.functions.values(), many=True)
         return Response(serializer.data)
+
 
 

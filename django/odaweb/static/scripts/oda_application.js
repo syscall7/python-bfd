@@ -43,3 +43,12 @@ odaApplication.controller('StringsController', function StringsController($scope
         });
 });
 
+odaApplication.controller('SymbolsController', function SymbolsController($scope, $http, $window) {
+    var master = oda_api.getMaster();
+
+    $http.get('http://localhost:8000/odaweb/api/symbols/?short_name=' + master.short_name + " &revision=" + master.revision)
+        .success(function(data){
+            $scope.symbols = data;
+        });
+});
+
