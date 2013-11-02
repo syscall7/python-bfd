@@ -270,7 +270,7 @@ class Prototype(models.Model):
     @staticmethod
     def get_for_binary(binary):
         ctype = ContentType.objects.get_for_model(binary)
-        return Comment.objects.filter(content_type=ctype.id, object_id = binary.id)
+        return Prototype.objects.filter(content_type=ctype.id, object_id = binary.id)
 
 class Label(models.Model):
     content_type = models.ForeignKey(ContentType)
