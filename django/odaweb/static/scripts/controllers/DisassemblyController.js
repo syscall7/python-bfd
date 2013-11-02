@@ -22,4 +22,9 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         return $scope.comments[offset];
     };
 
+    $scope.isPop = function(displayUnit) {
+        var p = displayUnit.instStr.indexOf("pop") !== -1;
+        return p;
+    };
+
 });
