@@ -246,6 +246,10 @@ insn {
     font-style: italic
 }
 
+.stringref {
+    color: red;
+}
+
 errinsn {
     color: red;
     font-family: monospace;

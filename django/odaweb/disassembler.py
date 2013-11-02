@@ -159,16 +159,10 @@ class Disassembler(object):
         return bfd.FLAGS
 
     def strings(self):
-        strs = []
-        # Create temporary file handle to retrieve strings
-        f = self.binary.file_handle()
-        f.open("rb")
-        bin = f.read()
-        for m in re.finditer("([\t\x20-\x7e]{4,})", bin):
-            #strs.append((m.start(), m.group(1)))
-            strs.append({'offset': m.start(), 'string': m.group(1)})
-        f.close()
-        f.done()
+        strs = {}
+        for s in self.sections:
+            for m in re.finditer("([\t\x20-\x7e]{4,})", self.bfd.raw_data(s, s.vma, s.size)):
+                strs[m.start()+s.vma] = m.group(1)
         return strs
 
     def sections_iter(self, flags=[]):

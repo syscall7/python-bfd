@@ -248,6 +248,9 @@ class defaultAnalyzer(object):
         # weed out invalid branches
         blf = branch.BranchLineHtmlFormatter(self.branches)
 
+        # get all the strings (we don't need to do this unless we are creating html)
+        self.strings = self.disassembler.strings()
+
         for superchunk in self.superchunks:
             superchunk.instUnits = []
             for key in sorted(superchunk.instructions.iterkeys()):
@@ -321,6 +324,15 @@ class defaultAnalyzer(object):
             else:
                 instStr += rawInstrStr
         else:
+            # for non-branch/non-call instructions, look for a reference to a string
+            for m in re.finditer('0x([0-9a-fA-F]+)', rawInstrStr):
+                addrRef = int(m.group(1), 16)
+
+                # TODO: skip address 0 for now, but address this again someday
+                if 0 == addrRef:
+                    continue
+                if addrRef in self.strings:
+                    rawInstrStr += '  <a href="#/view/tab-assembly/offset/%08x" class="stringref">"%s"</a>' % (addrRef, self.strings[addrRef])
             instStr += rawInstrStr
 
         # Check for errors
