@@ -571,5 +571,5 @@ function OdaApplication(options) {
 
     LiveHex(options.binary);
 
-    Load(options.binary);
+    //Load(options.binary);
 }
