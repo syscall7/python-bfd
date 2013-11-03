@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from odaweb.disassembler import Disassembler, JsonChunkProcessor, analyzerFactory
 from odaweb.models import OdaMaster, Comment, BinaryParcel
-from rest.serializers import OdaMasterSerializer, CommentSerializer, SectionSerializer, StringSerializer, SymbolSerializer, DisplayUnitSerializer, BinaryParcelSerializer
+from rest.serializers import OdaMasterSerializer, CommentSerializer, SectionSerializer, StringSerializer, SymbolSerializer, DisplayUnitSerializer, BinaryParcelSerializer, RefSerializer
 
 
 
@@ -62,7 +62,13 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         jcp = JsonChunkProcessor(binary)
         parcels = jcp.get_all_parcels()
         display_units = jcp.process_parcels_disassembly(parcels)
-        serializer = self.get_serializer(display_units, many=True)
+        print "DUVIEWSET: getValues"
+        sorted_du = display_units.values()
+        print "DUVIEWSET: sortinplace"
+        sorted_du.sort(key=lambda x: x.offset, reverse=False)
+        print "DUVIEWSET: serialize"
+        serializer = self.get_serializer(sorted_du, many=True)
+        print "DUVIEWSET: Response"
         return Response(serializer.data)
 
 class StringsViewSet(viewsets.GenericViewSet):

@@ -57,13 +57,26 @@ class BinaryParcelSerializer(serializers.Serializer):
     end = serializers.IntegerField()
     is_code = serializers.BooleanField()
 
+
+class RefSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    offset = serializers.IntegerField()
+
 class DisplayUnitSerializer(serializers.Serializer):
     section_name = serializers.CharField()
     offset = serializers.IntegerField()
-    rawBytes = serializers.BooleanField()
+    rawBytes = serializers.CharField()
     instStr = serializers.CharField()
     branch = serializers.CharField()
     branch_label = serializers.CharField()
+    opcode = serializers.CharField()
+    operands = serializers.CharField()
+    stringRef = RefSerializer(required=False)
+    branchRef = RefSerializer(required=False)
+    crossRef = RefSerializer(required=False, many=True)
+    isBranch = serializers.BooleanField()
+    isFunction = serializers.BooleanField()
+
 
 class SectionFlagSerializer(serializers.Serializer):
     abbrev = serializers.CharField()
@@ -85,7 +98,7 @@ class SectionSerializer(serializers.Serializer):
         pass
 
 class StringSerializer(serializers.Serializer):
-    addr     = serializers.CharField()
+    addr  = serializers.CharField()
     string = serializers.CharField()
 
 class SymbolSerializer(serializers.Serializer):

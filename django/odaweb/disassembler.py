@@ -617,9 +617,11 @@ class JsonChunkProcessor(object):
         dasm = Disassembler(self.binary)
         comments = Comment.get_for_binary(self.binary)
         analyzer.analyze( dasm, parcels )
-        analyzer.convertToHtmlLine(comments)
+        #analyzer.convertToHtmlLine(comments)
 
-        return analyzer.display_units
+        #sortedUnits = sorted(analyzer.displayUnits, key=lambda key: analyzer.displayUnits[key])
+        #sortedUnits = iter(sorted(analyzer.displayUnits.items()))
+        return analyzer.displayUnits
         #self.attach_comments(self.binary)
 
         #for parcel in parcels:

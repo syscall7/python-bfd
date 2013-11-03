@@ -12,18 +12,31 @@ import logging
 from odaweb.models import Label
 
 logger = logging.getLogger(__name__)
-
-class DisplayUnit(object):
-    def __init__(self, section_name, offset, rawBytes, displayStr, branch, branch_label):
-        self.section_name = section_name
-        self.offset = offset
-        self.rawBytes = rawBytes
-        self.instStr = displayStr
-        self.branch = branch
-        self.branch_label = branch_label
-
-    def make_label_target(self, labelName):
-        self.labelName = labelName
+#
+#class RefUnit(object):
+#    def __init__(self, name, offset):
+#        self.name = name
+#        self.offset = offset
+#
+#
+#class DisplayUnit(object):
+#    def __init__(self, section_name, offset, rawBytes, displayStr, branch, branch_label):
+#        self.section_name = section_name
+#        self.offset = offset
+#        self.rawBytes = rawBytes
+#        self.instStr = displayStr
+#        self.branch = branch
+#        self.branch_label = branch_label
+#        self.isFunction= False
+#        self.isBranch= False
+#        self.branchRef = None
+#        self.stringRef = None
+#        self.crossRef = None
+#        self.opcode = ''
+#        self.operand = ''
+#
+#    def make_label_target(self, labelName):
+#        self.labelName = labelName
 
 class Function(object):
     def __init__(self, offset, name, type, xrefs):
@@ -32,25 +45,27 @@ class Function(object):
         self.name = name
         self.type = type
 
-def parseDataLine(section_name, start_addr, end_addr, self, instructions, is_data ):
+def parseDataLine(section_name, start_addr, end_addr, self, displayUnits, is_data ):
 
     dataLen = end_addr - start_addr
 
     # Get the raw data from the file
     rawData = self.disassembler.bfd.raw_data(self.disassembler.bfd.sections[section_name], start_addr, dataLen)
 
+    print "PARSEDATA START:",section_name
+
     if is_data:
         # TODO: Organize the data in groups of one, two, four bytes etc.,
         addr = start_addr
         for c in map(ord, rawData):
-            inst = instruction()
-            inst.isCode = False
-            inst.offset = addr
-            inst.name = section_name
-            inst.rawBytes =  '%02x' % c
-            inst.isArray = False
-            inst.dataSize = 1
-            instructions[inst.offset] = inst
+            du = DisplayUnit()
+            du.isCode = False
+            du.offset = addr
+            du.section_name = section_name
+            du.rawBytes =  '%02x' % c
+            du.isArray = False
+            du.dataSize = 1
+            displayUnits[du.offset] = du
 
             addr += 1
 
@@ -59,69 +74,67 @@ def parseDataLine(section_name, start_addr, end_addr, self, instructions, is_dat
         # Undefined. Treat as single byte per line
         addr = start_addr
         for c in map(ord, rawData):
-            inst = instruction()
-            inst.isCode = False
-            inst.offset = addr
-            inst.name = chunk_name
-            inst.rawBytes =  '%02x' % c
-            inst.isArray = False
-            inst.dataSize = 1
-            instructions[inst.offset] = inst
+            du = DisplayUnit()
+            du.isCode = False
+            du.offset = addr
+            du.section_name = section_name
+            du.rawBytes =  '%02x' % c
+            du.isArray = False
+            du.dataSize = 1
+            displayUnits[du.offset] = du
 
             addr += 1
 
+    print "PARSEDATA DONE:",section_name
 
 
+def parseDisassemblyLine(addr, rawData, instr, abfd, self, displayUnits, section_name):
 
-
-
-def parseDisassemblyLine(addr, rawData, instr, abfd, self, instructions, section_name):
-
-    inst = instruction()
+    du = DisplayUnit()
 
     # Separate out the address
-    inst.offset = addr
+    du.offset = addr
 
     # Separate out the raw bytes
     if abfd.bpc > 1 and (abfd.endian is bfd.ENDIAN_LITTLE or abfd.endian is bfd.ENDIAN_DEFAULT):
-        inst.rawBytes = ''.join(['%02x ' % i for i in reversed(rawData)])
+        du.rawBytes = ''.join(['%02x' % i for i in reversed(rawData)])
     else:
-        inst.rawBytes = ''.join(['%02x ' % i for i in rawData])
+        du.rawBytes = ''.join(['%02x' % i for i in rawData])
 
     # Separate out the instruction and check for errors
-    inst.listing = instr
+    du.listing = instr
     matchObj = self.errorInstRegEx.match(instr)
     if matchObj:
-        inst.isError = True
+        du.isError = True
 
     # Get the Opcode
-    if not inst.isError:
+    if not du.isError:
         matchObj = self.opcodeRegEx.match(instr)
         if matchObj:
-            inst.opcode = matchObj.group(1)
-            inst.instType = self.getInstructionType(inst.opcode)
-            inst.operands = matchObj.group(2)
-            self.computeTargetAddr(inst)
+            du.opcode = matchObj.group(1)
+            du.instType = self.getInstructionType(du.opcode)
+            du.operands = matchObj.group(2)
+            self.computeTargetAddr(du)
 
             # save all branches
-            if inst.instType == instructionType.branch:
-                self.branches.append(branch.Branch(inst))
+            if du.instType == instructionType.branch:
+                self.branches.append(branch.Branch(du))
 
             # Check if we need to create a label or function
-            if inst.isTargetAddrValid:
+            if du.isTargetAddrValid:
 
                 # Create a new label for branch instructions
-                if inst.targetAddr not in self.labels and inst.instType == instructionType.branch:
-                    self.labels.append(inst.targetAddr)
-                elif inst.instType == instructionType.call:
-                    if inst.targetAddr not in self.functions:
-                        self.functions[inst.targetAddr] = Function(inst.targetAddr, 'func_%0.8x' % (inst.targetAddr), 't', set([inst.offset]))
+                if du.targetAddr not in self.labels and du.instType == instructionType.branch:
+                    self.labels.append(du.targetAddr)
+                elif du.instType == instructionType.call:
+                    if du.targetAddr not in self.functions:
+                        self.functions[du.targetAddr] = Function(du.targetAddr, 'func_%0.8x' % (du.targetAddr), 't', set([du.offset]))
                     else:
                         # Add new cross reference to set
-                        self.functions[inst.targetAddr].xrefs.update([inst.offset])
+                        self.functions[du.targetAddr].xrefs.update([du.offset])
 
-        inst.name = section_name
-        instructions[inst.offset] = inst
+        du.section_name = section_name
+        displayUnits[du.offset] = du
 
 
 class defaultAnalyzer(object):
@@ -136,7 +149,7 @@ class defaultAnalyzer(object):
         self.offsetStr = []
         self.listing = ""
         self.branchLineHtml = ""
-        self.instructions = {}
+        self.displayUnits = {}
         self.largestInstSize = 0
         self.opcodeTypes = {}
         self.labels = []
@@ -178,8 +191,6 @@ class defaultAnalyzer(object):
         # Grab the symbols and sections for convenience and performance reasons
         self.symbols = self.disassembler.symbols()
 
-        self.instructions = {}
-
         # Add preidentified symbols to the labels and functions list
         for sym in self.symbols:
             if sym.type == 'T' or sym.type == 't':
@@ -195,6 +206,7 @@ class defaultAnalyzer(object):
                 self.functions[label.offset] = Function(label.offset, label.label, 't', set())
 
         # Make a first pass at parsing for organizing the instructions
+        print "START FIRST PASS"
         self.parcels = parcels
         for parcel in self.parcels:
             logger.debug("PARCEL START: 0x%08x" % (parcel.start))
@@ -208,15 +220,15 @@ class defaultAnalyzer(object):
                                               funcFmtLine=parseDisassemblyLine,
                                               funcFmtLineArgs={
                                                   'self': self,
-                                                  'instructions': self.instructions,
+                                                  'displayUnits': self.displayUnits,
                                                   'section_name': s.name,
                                               })
             elif parcel.is_code == None:
                 # Defined Data
-                parseDataLine(s.name, parcel.start, parcel.end, self, self.instructions, False)
+                parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, False)
             elif parcel.is_code == False:
                 # Undefined
-                parseDataLine(s.name, parcel.start, parcel.end, self, self.instructions, True)
+                parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, True)
 
         # Now we've got the superchunk fields populated
         print "INSTRUCTIONS POPULATED. BRANCHES:",len(self.branches)
@@ -224,9 +236,34 @@ class defaultAnalyzer(object):
         # verify target address is at a valid instruction boundary (someday maybe we'll handle the odd case where it's not)
         for b in self.branches:
             b.isTargetAddrValid = False
-            if b.targetAddr in self.instructions:
+            if b.targetAddr in self.displayUnits:
                 b.isTargetAddrValid = True
                 break
+
+        # Second Pass
+        print "START SECOND PASS. UNITS:",len(self.displayUnits)
+
+        # weed out invalid branches
+        blf = branch.BranchLineHtmlFormatter(self.branches)
+        for key in sorted(self.displayUnits.iterkeys()):
+            du = self.displayUnits[key]
+            du.branch_label = blf.pushLabel()
+            du.branch = blf.pushAddr(du.offset)
+
+            if du.offset in self.functions:
+                du.make_label_target(self.functions[du.offset].name)
+                #unit.function = self.functions[inst.offset]
+                du.isFunction = True
+                du.branchRef = RefUnit(self.functions[du.offset].name,du.offset)
+
+                #chunk.lines += 2 + len(self.functions[inst.offset].xrefs)
+            elif du.offset in self.labels:
+                #unit.make_label_target(self.mkLabelName(inst.offset,'loc'))
+                du.branchRef = RefUnit(self.mkLabelName(du.offset,'loc'),du.offset)
+                du.isBranch = True
+
+        print "SECOND PASS COMPLETE"
+
 
     def getInstructionType(self,opcode):
         if opcode in self.opcodeTypes:
@@ -244,54 +281,53 @@ class defaultAnalyzer(object):
             return '%s_%0.8x' % (prefix,addr)
 
     # Make a second pass through the instructions to create the html
-    def convertToHtmlLine(self,comments):
-
-        # weed out invalid branches
-        blf = branch.BranchLineHtmlFormatter(self.branches)
-
-   # get all the strings (we don't need to do this unless we are creating html)
-        self.strings = self.disassembler.strings()
-
-        self.display_units = []
-
-        print "INSTRUCTIONS:",len(self.instructions)
-
-        for key in sorted(self.instructions.iterkeys()):
-            inst = self.instructions[key]
-
-            # Fill the rawBytes structure
-            byteStr = re.sub(r'\s', '',inst.rawBytes)
-
-            if len(byteStr) > self.largestInstSize:
-                self.largestInstSize = len(byteStr)
-            rawBytes = "%s" % (byteStr)
-
-            if inst.isCode:
-                displayStr = self.makeInstr(inst)
-            else:
-                displayStr = self.makeData(inst)
-
-            # got to get the label first, because it is based on the previous offset
-            branchLabel = blf.pushLabel()
-            branchLines = blf.pushAddr(inst.offset)
-            unit = DisplayUnit(inst.name[:8], inst.offset, rawBytes, displayStr, branchLines, branchLabel)
-
-            if inst.offset in self.functions:
-                unit.make_label_target(self.functions[inst.offset].name)
-                unit.function = self.functions[inst.offset]
-                #chunk.lines += 2 + len(self.functions[inst.offset].xrefs)
-            elif inst.offset in self.labels:
-                unit.make_label_target(self.mkLabelName(inst.offset,'loc'))
-                #chunk.lines += 1
-
-            comments_for_address = filter( lambda c: c.offset == inst.offset, comments )
-            if (len(comments_for_address) > 0):
-                inst.comment = comments_for_address[0].comment
-
-
-            self.display_units.append(unit)
-
-        print "DISPLAY UNITS:",len(self.display_units)
+    #def convertToHtmlLine(self,comments):
+    #
+    #    # weed out invalid branches
+    #    blf = branch.BranchLineHtmlFormatter(self.branches)
+    #
+    #    # get all the strings (we don't need to do this unless we are creating html)
+    #    self.strings = self.disassembler.strings()
+    #
+    #    print "INSTRUCTIONS:",len(self.displayUnits)
+    #
+    #    for key in sorted(self.instructions.iterkeys()):
+    #        inst = self.instructions[key]
+    #
+    #        # Fill the rawBytes structure
+    #        byteStr = re.sub(r'\s', '',inst.rawBytes)
+    #
+    #        if len(byteStr) > self.largestInstSize:
+    #            self.largestInstSize = len(byteStr)
+    #        rawBytes = "%s" % (byteStr)
+    #
+    #        if inst.isCode:
+    #            displayStr = self.makeInstr(inst)
+    #        else:
+    #            displayStr = self.makeData(inst)
+    #
+    #        # got to get the label first, because it is based on the previous offset
+    #        branchLabel = blf.pushLabel()
+    #        branchLines = blf.pushAddr(inst.offset)
+    #        unit = DisplayUnit(inst.name[:8], inst.offset, rawBytes, displayStr, branchLines, branchLabel)
+    #
+    #        if inst.offset in self.functions:
+    #            unit.make_label_target(self.functions[inst.offset].name)
+    #            #unit.function = self.functions[inst.offset]
+    #            unit.isFunction = True
+    #            unit.branchRef = RefUnit(self.functions[inst.offset].name,inst.offset)
+    #
+    #            #chunk.lines += 2 + len(self.functions[inst.offset].xrefs)
+    #        elif inst.offset in self.labels:
+    #            #unit.make_label_target(self.mkLabelName(inst.offset,'loc'))
+    #            unit.branchRef = RefUnit(self.mkLabelName(inst.offset,'loc'),inst.offset)
+    #            unit.isBranch = True
+    #
+    #
+    #        self.display_units.append(unit)
+    #
+    #
+    #    print "DISPLAY UNITS:",len(self.display_units)
 
     def makeInstrBranch(self, inst, labelName):
         return "%-7s<a href=\"#view/tab-assembly/offset/%08x\">%s</a>" % (inst.opcode, inst.targetAddr, labelName)
