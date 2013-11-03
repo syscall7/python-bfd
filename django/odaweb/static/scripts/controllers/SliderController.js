@@ -1,4 +1,4 @@
-odaApplication.controller('SliderController', function SliderController($scope, $http, $window) {
+odaApplication.controller('SliderController', function SliderController($scope, $http, $window, odaApi) {
     var master = oda_util.getMaster();
     var numCodeSections = 0;
 
@@ -7,7 +7,7 @@ odaApplication.controller('SliderController', function SliderController($scope, 
     var minAddr = 0;
     var maxAddr = 0xFFFFFFFF;
 
-    $http.get('http://localhost:8000/odaweb/api/sections/?short_name=' + master.short_name + " &revision=" + master.revision)
+    odaApi.getSections(master.short_name, master.revision)
         .success(function(data){
             $scope.sections = data;
             sumAddrRanges = _.reduce($scope.sections, function(memo, section) {return memo+section.size}, 0);

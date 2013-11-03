@@ -57,6 +57,12 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
             });
 
             return deferred.promise;
+        },
+        getSections : function(short_name, revision) {
+            return $http.get('/odaweb/api/sections/?short_name=' + short_name + "&revision=" + revision)
+        },
+        getSymbols : function(short_name, revision) {
+            return $http.get('/odaweb/api/symbols/?short_name=' + short_name + "&revision=" + revision);
         }
     };
 });

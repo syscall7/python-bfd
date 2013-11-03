@@ -1,7 +1,7 @@
-odaApplication.controller('SymbolsController', function SymbolsController($scope, $http, $window) {
+odaApplication.controller('SymbolsController', function SymbolsController($scope, $http, $window, odaApi) {
     var master = oda_util.getMaster();
 
-    $http.get('/odaweb/api/symbols/?short_name=' + master.short_name + "&revision=" + master.revision)
+    odaApi.getSymbols(master.short_name, master.revision)
         .success(function(data){
             $scope.symbols = data;
         });
