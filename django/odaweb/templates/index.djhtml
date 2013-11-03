@@ -15,7 +15,7 @@
         username : '{% if not user.is_authenticated %}anonymous{% else %}{{ user.username }}{% endif %}'
     };
 
-    window.socket = io.connect("http://localhost:8080");
+    window.socket = io.connect("http://" + window.location.hostname + ":8080");
 
     $(document).ready(function(){
 
