@@ -10,7 +10,7 @@ var oda_util = {
 
 };
 
-/*
+
 odaApplication.directive('slider', function ($parse) {
    return {
        restrict: 'A',
@@ -21,7 +21,7 @@ odaApplication.directive('slider', function ($parse) {
        }
    };
 });
-*/
+
 
 //factory style, more involved but more sophisticated
 odaApplication.factory('socketService', function($rootScope) {
