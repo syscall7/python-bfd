@@ -1,6 +1,6 @@
 $(document).ready(function(){
 
-    var master = oda_api.getMaster();
+    var master = oda_util.getMaster();
     socket.emit('subscribe', {
         username : window.user.username,
         room : master.short_name

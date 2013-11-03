@@ -4,8 +4,10 @@ var odaApplication = angular
 
 });
 
-var oda_api = {
-    getMaster : function() { return window.oda_master; }
+var oda_util = {
+    getMaster : function() { return window.oda_master; },
+    getUsername: function() { return window.user.username}
+
 };
 
 
@@ -31,7 +33,13 @@ odaApplication.factory('socketService', function($rootScope) {
     socket.on("comment", handler);
 
     return {
-
+        sendComment : function(comment, offset) {
+            socket.emit('comment', {
+                username: oda_util.getUsername(),
+                comment: comment,
+                offset: offset
+            });
+        }
     };
 });
 

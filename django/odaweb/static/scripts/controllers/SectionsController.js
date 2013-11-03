@@ -1,5 +1,5 @@
 odaApplication.controller('SectionsController', function SectionsController($scope, $http, $window) {
-    var master = oda_api.getMaster();
+    var master = oda_util.getMaster();
 
     $http.get('/odaweb/api/sections/?short_name=' + master.short_name + "&revision=" + master.revision)
         .success(function(data){

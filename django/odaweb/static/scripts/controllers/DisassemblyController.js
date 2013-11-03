@@ -1,5 +1,5 @@
-odaApplication.controller('DisassemblyController', function DisassemblyController($scope, $http, $window, $sanitize) {
-    var master = oda_api.getMaster();
+odaApplication.controller('DisassemblyController', function DisassemblyController($scope, $http, $window, $sanitize, socketService) {
+    var master = oda_util.getMaster();
 
     var loadDisassembly = function()  {
         $http.get('/odaweb/api/displayunits/?short_name=' + master.short_name + "&revision=" + master.revision)
@@ -45,7 +45,7 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
     };
 
     $scope.$on('comment', function(event,comment){
-        oda.alert('comment');
+        oda.alert(comment.username + " commented on 0x" + comment.offset.toString(16));
         $scope.comments[comment.offset] = {comment: comment.comment, offset: comment.offset};
         console.log($scope.comments);
     });
@@ -53,6 +53,8 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
     $scope.commentEnter = function($event, displayUnit) {
         var comment = $($event.target).text()
         $.post("/odaweb/comment", { comment: comment, offset: displayUnit.offset } );
+        $scope.comments[comment.offset] = {comment: comment.comment, offset: displayUnit.offset};
+        socketService.sendComment(comment, displayUnit.offset);
         $event.preventDefault();
     };
 

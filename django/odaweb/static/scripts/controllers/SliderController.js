@@ -1,5 +1,5 @@
 odaApplication.controller('SliderController', function SliderController($scope, $http, $window) {
-    var master = oda_api.getMaster();
+    var master = oda_util.getMaster();
     var numCodeSections = 0;
 
     /* sum of all the section address ranges */
