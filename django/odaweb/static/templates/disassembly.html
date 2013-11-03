@@ -37,9 +37,9 @@
             <td class="offset">{{du.section_name}}:0x{{ du.offset.toString(16) }}</td>
             <td></td>
             <td ng-if="isFunction(du)">
-                <span class="listing-retval" contenteditable="true" ng-bind-html="getPrototypeRetval(du)"></span>
+                <span class="listing-retval" contenteditable="true" ng-bind-html="getPrototypeRetval(du.offset)"></span>
                 <span class="listing-label" contenteditable="true" ng-bind-html="du.labelName"></span>
-                (<span class="listing-args" contenteditable="true" ng-bind-html="getPrototypeArgs(du)"></span>)
+                (<span class="listing-args" contenteditable="true" ng-bind-html="getPrototypeArgs(du.offset)"></span>)
             </td>
             <td ng-if="isLabel(du)"><span class="listing-label" contenteditable="true" ng-bind-html="du.labelName"></span>:</td>
             <td></td>

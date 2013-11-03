@@ -57,17 +57,21 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
     };
 
     $scope.getPrototypeRetval = function(offset) {
-        retval = $scope.prototypes[offset].retval;
-        if (typeof retval == 'undefined') {
+        prototype = $scope.prototypes[offset];
+        if (typeof prototype == 'undefined') {
             retval = 'unknown'
+        } else {
+            retval = prototype.retval;
         }
         return retval;
     };
 
     $scope.getPrototypeArgs = function(offset) {
-        args = $scope.prototypes[offset].args;
-        if (typeof args == 'undefined') {
+        prototype = $scope.prototypes[offset];
+        if (typeof prototype == 'undefined') {
             args = 'unknown'
+        } else {
+            args = prototype.args;
         }
         return args;
     };
