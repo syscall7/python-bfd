@@ -28,7 +28,7 @@
         </tr>
 
         <!-- Function Prototype or Label Name -->
-        <tr ng-if="isLabeled(du)" addr={{ du.offset.toString(16) }}>
+        <tr ng-if="isLabeled(du)" addr="{{ du.offset.toString(16) }}">
             <td class="branchLines" ng-bind-html="du.branch_label"></td>
             <td class="offset">{{du.section_name}}:0x{{ du.offset.toString(16) }}</td>
             <td></td>

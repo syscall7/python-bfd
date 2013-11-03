@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.utils.datastructures import MultiValueDictKeyError
-from odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment, InstDoc, Label
+from odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment, InstDoc, Label, Prototype
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from disassembler import Disassembler, JsonChunkProcessor, examples, get_supported_archs, \
@@ -618,6 +618,34 @@ def relabel(request):
 
         label = Label(content_type=ctype, object_id=binary.id, label = form.cleaned_data['label'], offset = int(form.cleaned_data['offset'],16))
         label.save()
+
+        return HttpResponse()
+    else:
+        return HttpResponse("Session Not Initialized", status=400)
+
+def prototype(request):
+
+    class PrototypeForm(forms.Form):
+        offset = forms.CharField()
+        retval = forms.CharField()
+        args = forms.CharField()
+
+    form = PrototypeForm(request.POST, request.FILES)
+
+    if form.is_valid():
+        logger.info('Adding prototype at offset %s: retval %s, args %s' % (form.cleaned_data['offset'],
+                                                                           form.cleaned_data['retval'],
+                                                                           form.cleaned_data['args']))
+
+        oda_master = get_session(request)
+        if not oda_master:
+            return HttpResponse("Session Not Initialized", status=400)
+
+        binary = oda_master.binary
+        ctype = ContentType.objects.get_for_model(binary)
+
+        prototype = Prototype(content_type=ctype, object_id=binary.id, retval = form.cleaned_data['retval'], args = form.cleaned_data['args'], offset = int(form.cleaned_data['offset'],16))
+        prototype.save()
 
         return HttpResponse()
     else:
