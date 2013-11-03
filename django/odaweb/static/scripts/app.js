@@ -10,8 +10,8 @@ oda.url = function(url) {
 
 oda.alert = function(message) {
     $('.top-right').notify({
-        message: { text: message },
-        fadeOut: { enabled : false }
+        message: { html: message },
+        fadeOut: { enabled : true, delay: 5000 }
     }).show();
 };
 

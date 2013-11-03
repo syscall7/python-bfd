@@ -15,7 +15,11 @@
             <td class="branchLines" ng-bind-html="du.branch_label"></td>
             <td class="offset">{{du.section_name}}:0x{{ du.offset.toString(16) }}</td>
             <td></td>
-            <td class="xref" colspan="2">; CODE XREF: <a href="#view/tab-assembly/offset/{{xref.offset.toString(16)}}">0x{{xref.offset.toString(16)}}</a></td>
+            <td class="xref" colspan="2">
+                ; CODE XREF: <span class="clickable" ng-click="setPosition(xref.offset)">
+                        0x{{xref.offset.toString(16)}}
+                </span>
+            </td>
         </tr>
 
         <!-- empty line before the label -->

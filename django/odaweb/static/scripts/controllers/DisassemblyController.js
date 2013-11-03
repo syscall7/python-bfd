@@ -85,10 +85,14 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
     };
 
     $scope.$on('comment', function(event,comment){
-        oda.alert(comment.username + " commented on 0x" + comment.offset.toString(16));
+        oda.alert(comment.username + ' commented on <a href="#'+ comment.offset +'">0x' + comment.offset.toString(16) + '</a>');
         $scope.comments[comment.offset] = {comment: comment.comment, offset: comment.offset};
         console.log($scope.comments);
     });
+
+    $scope.setPosition = function(position) {
+        odaApi.setPosition(position);
+    }
 
     $scope.$on('position', function(event, position) {
         console.log('position changed' + position);
