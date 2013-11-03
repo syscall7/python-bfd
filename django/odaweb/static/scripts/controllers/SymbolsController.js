@@ -13,4 +13,8 @@ odaApplication.controller('SymbolsController', function SymbolsController($scope
             return false;
 
     };
+
+    $scope.setPosition = function(position) {
+        odaApi.setPosition(position);
+    }
 });

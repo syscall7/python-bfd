@@ -1,14 +1,25 @@
-odaApplication.controller('DisassemblyController', function DisassemblyController($scope, $http, $window, $sanitize, socketService) {
+odaApplication.controller('DisassemblyController', function DisassemblyController($scope, $http, $window, $sanitize, socketService, odaApi) {
     var master = oda_util.getMaster();
 
-    var loadDisassembly = function()  {
-        $http.get('/odaweb/api/displayunits/?short_name=' + master.short_name + "&revision=" + master.revision)
-            .success(function(data){
-                $scope.displayUnits = data;
+    var minAddress = -1;
+    var maxAddress = -1
+
+    var loadDisassembly = function(addr)  {
+        $http.get('/odaweb/api/displayunits/?', {
+            params: {
+                short_name : master.short_name,
+                revision : master.revision,
+                addr : addr
+            }
+        }).success(function(data){
+            $scope.displayUnits = data;
+            minAddress = $scope.displayUnits[0].offset;
+            maxAddress = $scope.displayUnits[$scope.displayUnits.length-1].offset;
+            console.log("minAddress:"+ minAddress + " maxAddress:"+maxAddress);
         });
     };
 
-    $http.get('/odaweb/api/comments/?short_name=' + master.short_name + "&revision=" + master.revision)
+    odaApi.getComments(master.short_name, master.revision)
         .success(function(data) {
             $scope.comments = {};
             $.each(data, function(i,comment){
@@ -51,7 +62,11 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
     });
 
     $scope.$on('position', function(event, position) {
-        alert('position changed' + position);
+        console.log('position changed' + position);
+        if (position < minAddress || position > maxAddress) {
+            console.log("outside window, need to reload")
+        }
+
     })
 
 

@@ -190,9 +190,11 @@
 
 
     <script type="text/javascript">
+         /*
          {%  for sql in sql_queries %}
             console.log("{{  sql.sql }}");
           {%  endfor  %}
+          */
     </script>
 
 </body>

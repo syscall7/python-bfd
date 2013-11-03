@@ -65,10 +65,19 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
             return deferred.promise;
         },
         getSections : function(short_name, revision) {
-            return $http.get('/odaweb/api/sections/?short_name=' + short_name + "&revision=" + revision)
+            return $http.get('/odaweb/api/sections/', {
+                params: {
+                    short_name : short_name,
+                    revision : revision
+                },
+                cache: true
+            })
         },
         getSymbols : function(short_name, revision) {
             return $http.get('/odaweb/api/symbols/?short_name=' + short_name + "&revision=" + revision);
+        },
+        getComments : function(short_name, revision) {
+            return $http.get('/odaweb/api/comments/?short_name=' + short_name + "&revision=" + revision);
         },
         getPosition: function() {
             return postion;
