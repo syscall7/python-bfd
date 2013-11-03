@@ -71,7 +71,7 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
                     revision : revision
                 },
                 cache: true
-            })
+            });
         },
         getSymbols : function(short_name, revision) {
             return $http.get('/odaweb/api/symbols/?short_name=' + short_name + "&revision=" + revision);
