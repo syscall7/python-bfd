@@ -45,7 +45,8 @@
             <td class="branchLines" ng-bind-html="du.branch"></td>
             <td class="offset">{{ du.section_name }}:0x{{ du.offset.toString(16) }}</td>
             <td class="raw">{{ du.rawBytes }}</td>
-            <td class="insn-col"><span ng-bind-html="du.instStr"></span></td>
+            <!-- <td class="insn-col"><insn ng-bind-html="du.opcode + ' ' + du.operands"></insn></td> -->
+            <td class="insn-col"><insn ng-bind-html="du.instStr"></insn></td>
             <td class="comment-col">
                 <div class="comment"
                      contenteditable="true"
