@@ -11,7 +11,7 @@ import os
 from django.contrib.contenttypes.models import ContentType
 
 from odaweb.models import (Binary, BinaryString,
-                           BinaryFile, OdaMaster, OdaOptions, Comment, Label,
+                           BinaryFile, OdaMaster, OdaOptions, Comment, Label, Symbol,
                            BinaryParcel)
 
 import logging
@@ -344,7 +344,7 @@ class Disassembler(object):
     #
     #    return super_chunks
 
-    def process_parcels(self,alwaysTreatAsCode=False):
+    def process_parcels(self,alwaysTreatAsCode=False,initialPass=True):
         ctype = ContentType.objects.get_for_model(self.binary)
         BinaryParcel.objects.filter(content_type=ctype.id, object_id=self.binary.id).delete()
 
@@ -368,6 +368,28 @@ class Disassembler(object):
                 binary=self.binary
                 )
             p.save()
+
+        # Make the initial pass to load the database with info from the newly uploaded file
+        if initialPass:
+
+            # Grab the symbols from the object file
+            symbols = self.symbols()
+            for sym in symbols:
+                s = Symbol(id=None,
+                    offset = sym.value,
+                    name = sym.name,
+                    sym_type = sym.type,
+                    binary=self.binary
+                    )
+                s.save()
+
+            # Make a pass through the code sections to identify more symbols
+            #dbParcels = BinaryParcel.objects.filter(
+            #                content_type=ctype.id, object_id = self.binary.id)
+            #architecture = self.binary.options.architecture
+            #analyzer = analyzerFactory(architecture)
+            #analyzer.analyze( self, dbParcels )
+
 
 
     #def process_chunks(self,alwaysTreatAsCode=False):

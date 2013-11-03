@@ -207,13 +207,13 @@ class defaultAnalyzer(object):
         # Make a first pass at parsing for organizing the instructions
         logger.debug("Analyze: START FIRST PASS FOR INSTRUCTIONS")
 
-        self.parcels = parcels
-        for parcel in self.parcels:
-            logger.debug("PARCEL START: 0x%08x" % (parcel.start))
+        #self.parcels = parcels
+        for parcel in parcels:
+            logger.debug("PARCEL START: 0x%08x RQ START: 0x%08x" % (parcel.start,start))
 
-            if parcel.start >= start:
+            if parcel.end >= start:
 
-                if start < parcel.end and start > parcel.start:
+                if start < parcel.end and start >= parcel.start:
                     dis_start = start
                 else:
                     dis_start = parcel.start
@@ -279,7 +279,7 @@ class defaultAnalyzer(object):
 
             logger.debug("Analyze: THIRD PASS FOR DATA")
 
-            for parcel in self.parcels:
+            for parcel in parcels:
                 logger.debug("PARCEL START: 0x%08x" % (parcel.start))
                 s = self.disassembler.get_section_from_addr(parcel.start)
                 if start < parcel.end and start > parcel.start:

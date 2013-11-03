@@ -79,7 +79,7 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         if request.QUERY_PARAMS.get('addr'):
             start = int(request.QUERY_PARAMS.get('addr'),10)
 
-        parcels = BinaryParcel.objects.filter(content_type=ctype.id, object_id= binary.id, start__gte = start)[:]
+        parcels = BinaryParcel.objects.filter(content_type=ctype.id, object_id= binary.id, end__gte = start)[:]
 
         #architecture = binary.options.architecture
         #analyzer = analyzerFactory(architecture)

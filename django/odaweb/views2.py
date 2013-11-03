@@ -189,9 +189,9 @@ def set(request):
 
         disassembler = Disassembler(oda_master.binary)
         if formType == "live":
-            disassembler.process_parcels(True)
+            disassembler.process_parcels(True,True)
         else:
-            disassembler.process_parcels(False)
+            disassembler.process_parcels(False,True)
 
     form_html = render_to_string('form-platform-options.djhtml', {
                     'arch' : arch,

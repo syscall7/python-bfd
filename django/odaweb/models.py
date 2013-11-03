@@ -312,6 +312,19 @@ class Label(models.Model):
         ctype = ContentType.objects.get_for_model(binary)
         return Label.objects.filter(content_type=ctype.id, object_id = binary.id)
 
+class Symbol(models.Model):
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    binary = generic.GenericForeignKey()
+    name = models.CharField(max_length=255)
+    offset = models.IntegerField()
+    sym_type = models.CharField(max_length=1)
+
+    @staticmethod
+    def get_for_binary(binary):
+        ctype = ContentType.objects.get_for_model(binary)
+        return Label.objects.filter(content_type=ctype.id, object_id = binary.id)
+
 class BinaryFile(Binary):
     the_file = models.FileField(storage=fs, upload_to="uploads")
     filename = models.CharField(max_length=255)
