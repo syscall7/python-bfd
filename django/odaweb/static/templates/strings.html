@@ -1,18 +1,22 @@
-<table class="table table-striped sidebar-table" id="strings-table" ng-controller="StringsController">
-    <thead>
-        <tr>
-            <th align="center">Offset</th>
-            <th align="center">String</th>
-        </tr>
-    </thead>
-    <tbody class="scrollContent">
-            <tr ng-repeat="string in strings">
-                <td class="str-offset" align="center"><a href="#/view/tab-assembly/offset/{{ string.addr.toString(16) }}">0x{{ string.addr.toString(16) }}</a></td>
-                <td class="string" align="center">{{ string.string }}</td>
-            </tr>
-    </tbody>
-</table>
+<div  ng-controller="StringsController">
 
-<div ng-show="!strings">
-    <em>No strings found</em>
+    <table class="table table-striped sidebar-table" id="strings-table">
+        <thead>
+            <tr>
+                <th align="center">Offset</th>
+                <th align="center">String</th>
+            </tr>
+        </thead>
+        <tbody class="scrollContent">
+                <tr ng-repeat="string in strings">
+                    <td class="str-offset" align="center"><a href="#/view/tab-assembly/offset/{{ string.addr.toString(16) }}">0x{{ string.addr.toString(16) }}</a></td>
+                    <td class="string" align="center">{{ string.string }}</td>
+                </tr>
+        </tbody>
+    </table>
+
+    <div ng-show="!strings">
+        <em>No strings found</em>
+    </div>
+
 </div>
