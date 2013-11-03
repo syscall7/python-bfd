@@ -245,24 +245,27 @@ class defaultAnalyzer(object):
             # Second Pass
             logger.debug("Analyze: START SECOND INSTRUCTION PASS. UNITS COUNT: %d" % (len(self.displayUnits)))
 
-            # weed out invalid branches
-            #blf = branch.BranchLineHtmlFormatter(self.branches)
-            #for key in sorted(self.displayUnits.iterkeys()):
-            #    du = self.displayUnits[key]
-            #    du.branch_label = blf.pushLabel()
-            #    du.branch = blf.pushAddr(du.offset)
-            #
-            #    if du.offset in self.functions:
-            #        du.make_label_target(self.functions[du.offset].name)
-            #        #unit.function = self.functions[inst.offset]
-            #        du.isFunction = True
-            #        du.branchRef = RefUnit(self.functions[du.offset].name,du.offset)
-            #
-            #        #chunk.lines += 2 + len(self.functions[inst.offset].xrefs)
-            #    elif du.offset in self.labels:
-            #        #unit.make_label_target(self.mkLabelName(inst.offset,'loc'))
-            #        du.branchRef = RefUnit(self.mkLabelName(du.offset,'loc'),du.offset)
-            #        du.isBranch = True
+            # break up branches into sets based on function boundary
+            prevFuncAddr = 0
+
+            # sort displayUnits
+            dunits = sorted(self.displayUnits.values(), key=lambda du: du.offset)
+
+            if len(self.functions) > 0:
+                for function in sorted(self.functions.values(), key=lambda f: f.offset):
+
+                    # get all the branches between prev func and this func
+                    branches = [b for b in self.branches if b.targetAddr > prevFuncAddr and b.targetAddr < function.offset]
+
+                    dus = [du for du in dunits if du.offset >= prevFuncAddr and du.offset < function.offset]
+                    for du in dunits:
+                        if du.offset > prevFuncAddr and du.offset < function.offset:
+                            print '0x%08x:0x%08x   0x%08x' % (prevFuncAddr, function.offset, du.offset)
+
+                    self.addBranchLinesAndLabels(dunits, branches)
+                    prevFuncAddr = function.offset
+            else:
+                self.addBranchLinesAndLabels(dunits, self.branches)
 
             logger.debug("Analyze: SECOND PASS COMPLETE")
 
@@ -279,6 +282,25 @@ class defaultAnalyzer(object):
                     parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, True)
 
             logger.debug("Analyze: THIRD PASS COMPLETE")
+
+    def addBranchLinesAndLabels(self, dunits, branches):
+
+        blf = branch.BranchLineHtmlFormatter(branches)
+        for du in dunits:
+            du.branch_label = blf.pushLabel()
+            du.branch = blf.pushAddr(du.offset)
+
+            if du.offset in self.functions:
+                du.make_label_target(self.functions[du.offset].name)
+                #unit.function = self.functions[inst.offset]
+                du.isFunction = True
+                du.branchRef = RefUnit(self.functions[du.offset].name,du.offset)
+
+            elif du.offset in self.labels:
+                #unit.make_label_target(self.mkLabelName(inst.offset,'loc'))
+                du.branchRef = RefUnit(self.mkLabelName(du.offset,'loc'),du.offset)
+                du.make_label_target('loc_0%08x' % du.offset)
+                du.isBranch = True
 
     def getInstructionType(self,opcode):
         if opcode in self.opcodeTypes:

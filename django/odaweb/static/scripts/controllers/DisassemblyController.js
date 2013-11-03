@@ -48,16 +48,15 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
     };
 
     $scope.isFunction = function(displayUnit) {
-        var p = displayUnit.instStr.indexOf("push") !== -1;
-        return false;
+        return displayUnit.isFunction;
     };
 
     $scope.isLabel = function(displayUnit) {
-        return false;
+        return displayUnit.isBranch;
     };
 
     $scope.isLabeled = function(displayUnit) {
-        return false;
+        return displayUnit.isFunction || displayUnit.isBranch;
     };
 
     $scope.$on('comment', function(event,comment){

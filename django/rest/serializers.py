@@ -76,6 +76,7 @@ class DisplayUnitSerializer(serializers.Serializer):
     crossRef = RefSerializer(required=False, many=True)
     isBranch = serializers.BooleanField()
     isFunction = serializers.BooleanField()
+    labelName = serializers.CharField()
 
 
 class SectionFlagSerializer(serializers.Serializer):

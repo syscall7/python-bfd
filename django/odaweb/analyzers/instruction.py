@@ -49,6 +49,7 @@ class DisplayUnit(object):
         self.byteLength = 0
         self.data = ''
         self.targetAddr = 0
+        self.labelName = 'abc'
 
     def make_label_target(self, labelName):
         self.labelName = labelName
