@@ -62,9 +62,22 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
                                   revision=request.QUERY_PARAMS.get('revision'))
 
         binary = oda.binary
+        ctype = ContentType.objects.get_for_model(binary)
+
         jcp = JsonChunkProcessor(binary)
-        parcels = jcp.get_all_parcels()
-        display_units = jcp.process_parcels_disassembly(parcels)
+
+        start = 0
+        if request.QUERY_PARAMS.get('addr'):
+            start = int(request.QUERY_PARAMS.get('addr'),10)
+
+        parcels = BinaryParcel.objects.filter(content_type=ctype.id, object_id= binary.id, start__gte = start)[:]
+
+        #architecture = binary.options.architecture
+        #analyzer = analyzerFactory(architecture)
+        #analyzer.analyze(dasm, parcels, startAddr=start, onlySymbols=True)
+        #parcels = jcp.get_all_parcels()
+
+        display_units = jcp.process_parcels_disassembly(parcels, start)
         sorted_du = display_units.values()
         sorted_du.sort(key=lambda x: x.offset, reverse=False)
         serializer = self.get_serializer(sorted_du[:500], many=True)

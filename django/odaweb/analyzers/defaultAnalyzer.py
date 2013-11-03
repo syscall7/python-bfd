@@ -169,7 +169,7 @@ class defaultAnalyzer(object):
     def processOptions(self, options):
         return options
 
-    def analyze(self, disassembler, parcels=None, onlySymbols=False):
+    def analyze(self, disassembler, parcels=None, start=0, onlySymbols=False):
 
         self.disassembler = disassembler
         self.instParserRegEx = re.compile(
@@ -211,24 +211,35 @@ class defaultAnalyzer(object):
         for parcel in self.parcels:
             logger.debug("PARCEL START: 0x%08x" % (parcel.start))
 
+            if parcel.start >= start:
 
-            # Convert the parcel to disassembly
-            # TODO: Fix sec name
-            if parcel.is_code:
-                s = self.disassembler.get_section_from_addr(parcel.start)
-                self.disassembler.disassemble(s.name, parcel.start, parcel.end,
-                                              funcFmtLine=parseDisassemblyLine,
-                                              funcFmtLineArgs={
-                                                  'self': self,
-                                                  'displayUnits': self.displayUnits,
-                                                  'section_name': s.name,
-                                              })
-                #elif parcel.is_code == None:
-                #    # Defined Data
-                #    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, False)
-                #elif parcel.is_code == False:
-                #    # Undefined
-                #    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, True)
+                if start < parcel.end and start > parcel.start:
+                    dis_start = start
+                else:
+                    dis_start = parcel.start
+
+                #if end < parcel.end:
+                #    dis_end = end
+                #else:
+                dis_end = parcel.end
+
+                # Convert the parcel to disassembly
+                # TODO: Fix sec name
+                if parcel.is_code:
+                    s = self.disassembler.get_section_from_addr(parcel.start)
+                    self.disassembler.disassemble(s.name, dis_start, dis_end,
+                                                  funcFmtLine=parseDisassemblyLine,
+                                                  funcFmtLineArgs={
+                                                      'self': self,
+                                                      'displayUnits': self.displayUnits,
+                                                      'section_name': s.name,
+                                                  })
+                    #elif parcel.is_code == None:
+                    #    # Defined Data
+                    #    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, False)
+                    #elif parcel.is_code == False:
+                    #    # Undefined
+                    #    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, True)
 
         # Don't need to do multiple passes just for the symbols
         if not onlySymbols:
@@ -274,12 +285,22 @@ class defaultAnalyzer(object):
             for parcel in self.parcels:
                 logger.debug("PARCEL START: 0x%08x" % (parcel.start))
                 s = self.disassembler.get_section_from_addr(parcel.start)
+                if start < parcel.end and start > parcel.start:
+                    dis_start = start
+                else:
+                    dis_start = parcel.start
+
+                #if end < parcel.end:
+                #    dis_end = end
+                #else:
+                dis_end = parcel.end
+
                 if parcel.is_code == None:
                     # Defined Data
-                    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, False)
+                    parseDataLine(s.name, dis_start, dis_end, self, self.displayUnits, False)
                 elif parcel.is_code == False:
                     # Undefined
-                    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, True)
+                    parseDataLine(s.name, dis_start, dis_end, self, self.displayUnits, True)
 
             logger.debug("Analyze: THIRD PASS COMPLETE")
 

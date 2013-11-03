@@ -608,7 +608,7 @@ class JsonChunkProcessor(object):
     #
     #    return chunk_list
 
-    def process_parcels_disassembly(self, parcels):
+    def process_parcels_disassembly(self, parcels, start=0):
 
         architecture = self.binary.options.architecture
 
@@ -616,7 +616,7 @@ class JsonChunkProcessor(object):
 
         dasm = Disassembler(self.binary)
         comments = Comment.get_for_binary(self.binary)
-        analyzer.analyze( dasm, parcels )
+        analyzer.analyze( dasm, parcels, start=start )
         #analyzer.convertToHtmlLine(comments)
 
         #sortedUnits = sorted(analyzer.displayUnits, key=lambda key: analyzer.displayUnits[key])
