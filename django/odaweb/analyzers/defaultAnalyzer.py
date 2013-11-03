@@ -102,8 +102,10 @@ def parseDisassemblyLine(addr, rawData, instr, abfd, self, displayUnits, section
         du.rawBytes = ''.join(['%02x' % i for i in rawData])
 
     # Separate out the instruction and check for errors
-    du.listing = instr
-    du.instStr = instr
+    du.listing = instr.replace("<", "&lt;")
+    du.listing = du.listing.replace(">", "&gt;")
+    du.instStr = du.listing
+
     matchObj = self.errorInstRegEx.match(instr)
     if matchObj:
         du.isError = True

@@ -209,20 +209,20 @@ def set(request):
     }), mimetype='application/json')
 
 class ShowOptionsForm(forms.Form):
-    arch = forms.CharField()
+    platformId = forms.CharField()
     options = forms.CharField(required=False)
 
 def show_options(request):
     form = ShowOptionsForm(request.POST) # A form bound to the POST data
     if form.is_valid():
         #print "Show_options"
-        platform = form.cleaned_data['arch']
+        platform = form.cleaned_data['platformId']
         options = form.cleaned_data['options']
         opts_defaults = []
-        if options:
-            for str_pair in options.split('---'):
-                pairs = str_pair.split('--')
-                opts_defaults.append((pairs[0],pairs[1]))
+        #if options:
+        #    for str_pair in options.split('---'):
+        #        pairs = str_pair.split('--')
+        #        opts_defaults.append((pairs[0],pairs[1]))
 
         #print opts_defaults
 
