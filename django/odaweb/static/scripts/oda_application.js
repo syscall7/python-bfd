@@ -10,7 +10,7 @@ var oda_util = {
 
 };
 
-
+/*
 odaApplication.directive('slider', function ($parse) {
    return {
        restrict: 'A',
@@ -21,6 +21,7 @@ odaApplication.directive('slider', function ($parse) {
        }
    };
 });
+*/
 
 //factory style, more involved but more sophisticated
 odaApplication.factory('socketService', function($rootScope) {
@@ -43,7 +44,7 @@ odaApplication.factory('socketService', function($rootScope) {
     };
 });
 
-odaApplication.factory('odaApi', function($rootScope) {
+odaApplication.factory('odaApi', function($rootScope, $q, $http) {
     return {
         getStrings : function(short_name, revision) {
             var deferred = $q.defer();
