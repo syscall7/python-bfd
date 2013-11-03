@@ -1,4 +1,5 @@
 <div id="assembly-scroll" class="tabbed-scroll assembly" style="display: block;" ng-controller="DisassemblyController">
+    <div ng-show="!displayUnits">Loading...</div>
     <table id="listing">
         <colgroup></colgroup>
         <tbody ng-repeat="du in displayUnits">
@@ -18,7 +19,7 @@
             <td class="branchLines" ng-bind-html="du.branch_label"></td>
             <td class="offset">{{du.section_name}}:0x{{ du.offset.toString(16) }}</td>
             <td></td>
-            <td class="function" colspan="2">; =============== F U N C T I O N ====================================</td>
+            <td class="function" colspan="2">; =============== F U N C T I O N ==================</td>
         </tr>
 
         <tr ng-repeat="xref in du.crossRef" addr={{ du.offset.toString(16) }}>
@@ -48,7 +49,9 @@
             <td></td>
             <td ng-if="isFunction(du)">
                 <span class="listing-retval" contenteditable="true" ng-bind-html="getPrototypeRetval(du.offset)"></span>
-                <span class="listing-label" contenteditable="true" ng-bind-html="getLabel(du)" style="font-weight:bold"></span>
+                <span class="listing-label" contenteditable="true"
+                      ui-keypress="{13:'labelEnter($event, du)'}"
+                      ng-bind-html="getLabel(du)" style="font-weight:bold"></span>
                 (<span class="listing-args" contenteditable="true" ng-bind-html="getPrototypeArgs(du.offset)"></span>)
             </td>
             <td ng-if="isLabel(du)"><span class="listing-label"
