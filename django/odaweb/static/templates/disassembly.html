@@ -11,11 +11,11 @@
             <td class="function" colspan="2">; =============== F U N C T I O N ====================================</td>
         </tr>
 
-        <tr ng-repeat="xref in du.function.xrefs" addr={{ du.offset.toString(16) }}>
+        <tr ng-repeat="xref in du.crossRef" addr={{ du.offset.toString(16) }}>
             <td class="branchLines" ng-bind-html="du.branch_label"></td>
             <td class="offset">{{du.section_name}}:0x{{ du.offset.toString(16) }}</td>
             <td></td>
-            <td class="xref" colspan="2">; CODE XREF: <a href="#view/tab-assembly/offset/{{xref.toString(16)}}">0x{{xref.toString(16)}}</a></td>
+            <td class="xref" colspan="2">; CODE XREF: <a href="#view/tab-assembly/offset/{{xref.offset.toString(16)}}">0x{{xref.offset.toString(16)}}</a></td>
         </tr>
 
         <!-- empty line before the label -->

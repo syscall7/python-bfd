@@ -269,11 +269,8 @@ class defaultAnalyzer(object):
                     branches = [b for b in self.branches if b.targetAddr > prevFuncAddr and b.targetAddr < function.offset]
 
                     dus = [du for du in dunits if du.offset >= prevFuncAddr and du.offset < function.offset]
-                    for du in dunits:
-                        if du.offset > prevFuncAddr and du.offset < function.offset:
-                            print '0x%08x:0x%08x   0x%08x' % (prevFuncAddr, function.offset, du.offset)
 
-                    self.addBranchLinesAndLabels(dunits, branches)
+                    self.addBranchLinesAndLabels(dus, branches)
                     prevFuncAddr = function.offset
             else:
                 self.addBranchLinesAndLabels(dunits, self.branches)
@@ -316,6 +313,8 @@ class defaultAnalyzer(object):
                 #unit.function = self.functions[inst.offset]
                 du.isFunction = True
                 du.branchRef = RefUnit(self.functions[du.offset].name,du.offset)
+                for xref in self.functions[du.offset].xrefs:
+                    du.crossRef.append(RefUnit('', xref))
 
             elif du.offset in self.labels:
                 #unit.make_label_target(self.mkLabelName(inst.offset,'loc'))

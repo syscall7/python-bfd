@@ -37,7 +37,7 @@ class DisplayUnit(object):
         self.isBranch= False
         self.branchRef = None
         self.stringRef = None
-        self.crossRef = None
+        self.crossRef = []
         self.opcode = ''
         self.operands = ''
         self.isCode = True
