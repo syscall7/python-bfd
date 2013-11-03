@@ -48,10 +48,13 @@
             <td></td>
             <td ng-if="isFunction(du)">
                 <span class="listing-retval" contenteditable="true" ng-bind-html="getPrototypeRetval(du.offset)"></span>
-                <span class="listing-label" contenteditable="true" ng-bind-html="du.labelName" style="font-weight:bold"></span>
+                <span class="listing-label" contenteditable="true" ng-bind-html="getLabel(du)" style="font-weight:bold"></span>
                 (<span class="listing-args" contenteditable="true" ng-bind-html="getPrototypeArgs(du.offset)"></span>)
             </td>
-            <td ng-if="isLabel(du)"><span class="listing-label" contenteditable="true" ng-bind-html="du.labelName"></span>:</td>
+            <td ng-if="isLabel(du)"><span class="listing-label"
+                                          ui-keypress="{13:'labelEnter($event, du)'}"
+                                          contenteditable="true"
+                                          ng-bind-html="getLabel(du)"></span>:</td>
             <td></td>
         </tr>
 

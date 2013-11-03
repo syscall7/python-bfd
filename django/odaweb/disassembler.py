@@ -690,6 +690,9 @@ examples = (
                 (0x14, 'dst[i] = c'),
                 (0x18, 'i++'),
                 (0x1b, 'while (c != 0)'),
+        ),
+        'labels': (
+            (0x10, 'loop')
         )
     },
     {

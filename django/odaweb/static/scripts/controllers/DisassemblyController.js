@@ -29,7 +29,7 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
     var prototypesReq = odaApi.getPrototypes(master.short_name, master.revision);
     $q.all([commentsReq, prototypesReq]).then(function(results) {
         $scope.comments = {};
-        $scope.prototypes = {};
+            $scope.prototypes = {};
         comments = results[0];
         prototypes = results[1];
         $.each(comments, function(i,comment){
@@ -40,12 +40,25 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
             $scope.prototypes[prototype.offset] = prototype;
         });
 
+        $scope.labels = {};
+
         loadDisassembly();
     });
 
+    $scope.getLabel = function(displayUnit) {
+        var label = $scope.labels[displayUnit.offset];
+
+        if (typeof label == 'undefined') {
+            return displayUnit.labelName;
+        }
+
+        return label.label;
+
+    };
+
     $scope.getComment = function(offset) {
-        comment = $scope.comments[offset];
-        prefix = ';';
+        var comment = $scope.comments[offset];
+        var prefix = ';';
         if (typeof comment == 'undefined') {
             prefix = '';
             comment = '';
@@ -94,6 +107,12 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         console.log($scope.comments);
     });
 
+    $scope.$on('label', function(event,label){
+        oda.alert(label.username + ' renamed a lable on <a href="#'+ label.label +'">0x' + label.offset.toString(16) + '</a>');
+        $scope.labels[label.offset] = label;
+        console.log(label);
+    });
+
     $scope.setPosition = function(position) {
         odaApi.setPosition(position);
     }
@@ -126,6 +145,13 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
 
     })
 
+    $scope.labelEnter = function($event, displayUnit) {
+        var label = $($event.target).text();
+        $.post("/odaweb/label", { label: comment, offset: displayUnit.offset } );
+        //$scope.label
+        socketService.sendLabel(label, displayUnit.offset);
+        $event.preventDefault();
+    };
 
     $scope.commentEnter = function($event, displayUnit) {
         var comment = $($event.target).text()

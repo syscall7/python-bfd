@@ -25,19 +25,30 @@ odaApplication.directive('slider', function ($parse) {
 
 //factory style, more involved but more sophisticated
 odaApplication.factory('socketService', function($rootScope) {
-    var handler = function (msg) {
-        $rootScope.$apply(function () {
-          $rootScope.$broadcast("comment", msg);
-        });
-      };
+    var createHandler = function (messageType) {
+        var handler = function (msg) {
+            $rootScope.$apply(function () {
+                $rootScope.$broadcast(messageType, msg);
+            });
+        };
+        return handler;
+    };
 
-    socket.on("comment", handler);
+    socket.on("comment", createHandler('comment'));
+    socket.on("label", createHandler('label'));
 
     return {
         sendComment : function(comment, offset) {
             socket.emit('comment', {
                 username: oda_util.getUsername(),
                 comment: comment,
+                offset: offset
+            });
+        },
+        sendLabel : function(label, offset) {
+            socket.emit('label', {
+                username: oda_util.getUsername(),
+                label: label,
                 offset: offset
             });
         }
