@@ -4,7 +4,17 @@
         <tbody ng-repeat="du in displayUnits">
 
         <!-- FUNCTION -->
-        <tr ng-if="isFunction(du)" addr={{du.offset.toString(16)}}">
+
+        <!-- empty line before the function -->
+        <tr ng-if="isFunction(du)" addr={{ du.offset.toString(16) }}>
+            <td class="branchLines" ng-bind-html="du.branch_label"></td>
+            <td class="offset">{{du.section_name}}:0x{{ du.offset.toString(16) }}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+
+        <tr ng-if="isFunction(du)" addr="{{du.offset.toString(16)}}">
             <td class="branchLines" ng-bind-html="du.branch_label"></td>
             <td class="offset">{{du.section_name}}:0x{{ du.offset.toString(16) }}</td>
             <td></td>
