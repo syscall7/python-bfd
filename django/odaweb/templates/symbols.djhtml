@@ -1,4 +1,4 @@
-<table class="table table-striped sidebar-table" id="symbol-table"  ng-controller="SymbolsController">
+<table class="table table-striped sidebar-table" id="symbol-table">
     <thead>
         <tr>
             <th align="right">Address</th>
