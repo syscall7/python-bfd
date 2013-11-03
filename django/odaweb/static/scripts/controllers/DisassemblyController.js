@@ -147,7 +147,7 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
 
     $scope.labelEnter = function($event, displayUnit) {
         var label = $($event.target).text();
-        $.post("/odaweb/label", { label: comment, offset: displayUnit.offset } );
+        //$.post("/odaweb/label", { label: comment, offset: displayUnit.offset } );
         //$scope.label
         socketService.sendLabel(label, displayUnit.offset);
         $event.preventDefault();
