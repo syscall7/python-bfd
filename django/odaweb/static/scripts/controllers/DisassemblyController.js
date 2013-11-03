@@ -25,14 +25,22 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         return deferred.promise;
     };
 
-    odaApi.getComments(master.short_name, master.revision)
-        .success(function(data) {
-            $scope.comments = {};
-            $.each(data, function(i,comment){
-                $scope.comments[comment.offset] = comment;
-            });
+    var commentsReq = odaApi.getComments(master.short_name, master.revision);
+    var prototypesReq = odaApi.getPrototypes(master.short_name, master.revision);
+    $q.all([commentsReq, prototypesReq]).then(function(results) {
+        $scope.comments = {};
+        $scope.prototypes = {};
+        comments = results[0];
+        prototypes = results[1];
+        $.each(comments, function(i,comment){
+            $scope.comments[comment.offset] = comment;
+        });
 
-            loadDisassembly();
+        $.each(prototypes, function(i,prototype){
+            $scope.prototypes[prototype.offset] = prototype;
+        });
+
+        loadDisassembly();
     });
 
     $scope.getComment = function(offset) {
@@ -46,6 +54,22 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         }
 
         return prefix+'&nbsp;'+comment;
+    };
+
+    $scope.getPrototypeRetval = function(offset) {
+        retval = $scope.prototypes[offset].retval;
+        if (typeof retval == 'undefined') {
+            retval = 'unknown'
+        }
+        return retval;
+    };
+
+    $scope.getPrototypeArgs = function(offset) {
+        args = $scope.prototypes[offset].args;
+        if (typeof args == 'undefined') {
+            args = 'unknown'
+        }
+        return args;
     };
 
     $scope.isFunction = function(displayUnit) {

@@ -10,6 +10,7 @@ router.register(r'parcels', views.ParcelsViewSet, base_name="parcels")
 router.register(r'displayunits', views.DisplayUnitsViewSet, base_name="displayunits")
 router.register(r'strings', views.StringsViewSet, base_name="strings")
 router.register(r'symbols', views.SymbolsViewSet, base_name="symbols")
+router.register(r'prototypes', views.PrototypeViewSet, base_name="prototypes")
 #router.register(r'superchunks', views.SuperChunksViewSet, base_name="superchunks")
 
 # Wire up our API using automatic URL routing.

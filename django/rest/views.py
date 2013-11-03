@@ -2,8 +2,8 @@ from django.contrib.contenttypes.models import ContentType
 from rest_framework import viewsets
 from rest_framework.response import Response
 from odaweb.disassembler import Disassembler, JsonChunkProcessor, analyzerFactory
-from odaweb.models import OdaMaster, Comment, BinaryParcel
-from rest.serializers import OdaMasterSerializer, CommentSerializer, SectionSerializer, StringSerializer, SymbolSerializer, DisplayUnitSerializer, BinaryParcelSerializer, RefSerializer
+from odaweb.models import OdaMaster, Comment, BinaryParcel, Prototype
+from rest.serializers import OdaMasterSerializer, CommentSerializer, PrototypeSerializer, SectionSerializer, StringSerializer, SymbolSerializer, DisplayUnitSerializer, BinaryParcelSerializer, RefSerializer
 import logging
 
 logger = logging.getLogger(__name__)
@@ -28,6 +28,15 @@ class CommentViewSet(viewsets.ModelViewSet):
 
         return Comment.get_for_binary(oda.binary)
 
+class PrototypeViewSet(viewsets.ModelViewSet):
+    serializer_class = PrototypeSerializer
+    model = Prototype
+
+    def get_queryset(self):
+        oda = OdaMaster.objects.get(short_name=self.request.QUERY_PARAMS.get('short_name'),
+                                    revision=self.request.QUERY_PARAMS.get('revision'))
+
+        return Prototype.get_for_binary(oda.binary)
 
 class SectionsViewSet(viewsets.GenericViewSet):
     serializer_class = SectionSerializer

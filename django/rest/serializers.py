@@ -1,5 +1,5 @@
 import json
-from odaweb.models import OdaMaster, Comment, BinaryFile, BinaryString, BinaryParcel
+from odaweb.models import OdaMaster, Comment, BinaryFile, BinaryString, BinaryParcel, Prototype
 from rest_framework import serializers
 
 
@@ -44,6 +44,11 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Comment
         fields = ('comment', 'offset')
+
+class PrototypeSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Prototype
+        fields = ('retval', 'args', 'offset')
 
 class StringListField(serializers.WritableField):
     def to_native(self, obj):
