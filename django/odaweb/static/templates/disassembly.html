@@ -1,13 +1,32 @@
 <div id="assembly-scroll" class="tabbed-scroll assembly" style="display: block;" ng-controller="DisassemblyController">
     <table id="listing">
         <colgroup></colgroup>
-        <tr ng-repeat="displayUnit in displayUnits"  ng-show="isPop(displayUnit)" addr="{{ displayUnit.offset }}" >
-                <td class="branchLines">  </td>
-                <td class="offset">{{ displayUnit.section_name }}:0x{{ displayUnit.offset.toString(16) }}</td>
-                <td class="raw">{{ displayUnit.rawBytes }}</td>
-                <td class="insn-col"><span ng-bind-html-unsafe="displayUnit.instStr"</span></td>
-                <td class="comment-col">{{ getComments(displayUnit.offset).comment }}</td>
-            </tr>
+        <tbody ng-repeat="du in displayUnits">
+
+        <!-- FUNCTION -->
+        <tr ng-if="isFunction(du)" addr={{du.offset.toString(16)}}">
+            <td class="branchLines">{{ du.branch_label }}</td>
+            <td class="offset">{{du.section_name}}:0x{{ du.offset.toString(16) }}</td>
+            <td></td>
+            <td class="function" colspan="2">; =============== F U N C T I O N ====================================</td>
+        </tr>
+
+        <tr ng-repeat="xref in du.function.xrefs" addr={{ du.offset.toString(16) }}>
+            <td class="branchLines">{{ du.branch_label }}</td>
+            <td class="offset">{{du.section_name}}:0x{{ du.offset.toString(16) }}</td>
+            <td></td>
+            <td class="xref" colspan="2">; CODE XREF: <a href="#view/tab-assembly/offset/{{xref.toString(16)}}">0x{{xref.toString(16)}}</a></td>
+        </tr>
+
+        <tr addr="{{ du.offset }}" >
+            <td class="branchLines">  </td>
+            <td class="offset">{{ du.section_name }}:0x{{ du.offset.toString(16) }}</td>
+            <td class="raw">{{ du.rawBytes }}</td>
+            <td class="insn-col"><span ng-bind-html="du.instStr"</span></td>
+            <td class="comment-col">{{ getComments(du.offset).comment }}</td>
+        </tr>
+
         </tbody>
+
     </table>
 </div>

@@ -1,4 +1,4 @@
-var odaApplication = angular.module('odaApp',[]).config(function($interpolateProvider) {
+var odaApplication = angular.module('odaApp',['ngSanitize']).config(function($interpolateProvider) {
 
 });
 

@@ -1,4 +1,4 @@
-odaApplication.controller('DisassemblyController', function DisassemblyController($scope, $http, $window) {
+odaApplication.controller('DisassemblyController', function DisassemblyController($scope, $http, $window, $sanitize) {
     var master = oda_api.getMaster();
 
     var loadDisassembly = function()  {
@@ -22,9 +22,9 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         return $scope.comments[offset];
     };
 
-    $scope.isPop = function(displayUnit) {
-        var p = displayUnit.instStr.indexOf("pop") !== -1;
-        return p;
+    $scope.isFunction = function(displayUnit) {
+        var p = displayUnit.instStr.indexOf("push") !== -1;
+        return false;
     };
 
 });
