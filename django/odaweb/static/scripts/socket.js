@@ -1,5 +1,4 @@
 $(document).ready(function(){
-    var socket = io.connect("http://localhost:8080");
 
     var master = oda_api.getMaster();
     socket.emit('subscribe', {
@@ -12,8 +11,8 @@ $(document).ready(function(){
         oda.alert('User ' + data.username + ' has joined this session');
     });
 
-    socket.on('comment', function (data) {
+    /*socket.on('comment', function (data) {
         oda.alert('comment');
-    });
+    });*/
 
 });

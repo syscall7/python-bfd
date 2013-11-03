@@ -15,6 +15,8 @@
         username : '{% if not user.is_authenticated %}anonymous{% else %}{{ user.username }}{% endif %}'
     };
 
+    window.socket = io.connect("http://localhost:8080");
+
     $(document).ready(function(){
 
         // set the address range for the slider

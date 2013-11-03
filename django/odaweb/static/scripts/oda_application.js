@@ -18,5 +18,18 @@ odaApplication.directive('slider', function ($parse) {
    };
 });
 
+//factory style, more involved but more sophisticated
+odaApplication.factory('socketService', function($rootScope) {
+    var handler = function (msg) {
+        $rootScope.$apply(function () {
+          $rootScope.$broadcast("comment", msg);
+        });
+      };
 
+    socket.on("comment", handler);
+
+    return {
+
+    };
+});
 
