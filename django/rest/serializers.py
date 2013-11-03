@@ -78,6 +78,7 @@ class DisplayUnitSerializer(serializers.Serializer):
     operands = serializers.CharField()
     stringRef = RefSerializer(required=False)
     branchRef = RefSerializer(required=False)
+    targetRef = RefSerializer(required=False)
     crossRef = RefSerializer(required=False, many=True)
     isBranch = serializers.BooleanField()
     isFunction = serializers.BooleanField()

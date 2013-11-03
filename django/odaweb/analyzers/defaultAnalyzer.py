@@ -308,6 +308,14 @@ class defaultAnalyzer(object):
             du.branch_label = blf.pushLabel()
             du.branch = blf.pushAddr(du.offset)
 
+            if du.isTargetAddrValid:
+                if du.targetAddr in self.functions:
+                    offset = self.functions[du.targetAddr].offset
+                    du.targetRef = RefUnit(self.functions[offset].name,offset)
+                elif du.targetAddr in self.labels:
+                    offset = self.labels[du.targetAddr].offset
+                    du.targetRef = RefUnit(self.mkLabelName(offset,'loc'),offset)
+
             if du.offset in self.functions:
                 du.make_label_target(self.functions[du.offset].name)
                 #unit.function = self.functions[inst.offset]
