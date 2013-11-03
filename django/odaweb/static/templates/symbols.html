@@ -8,7 +8,7 @@
             </tr>
         </thead>
         <tbody class="scrollContent">
-            <tr ng-repeat="symbol in symbols">
+            <tr ng-repeat="symbol in symbols | orderBy:'offset'">
                 <td align="right">0x{{symbol.offset.toString(16)}}</td>
                 <td align="center">{{symbol.type}}</td>
                 <td align="left" ng-switch on="symbol.type.toLowerCase()">

@@ -9,7 +9,9 @@
         </thead>
         <tbody class="scrollContent">
                 <tr ng-repeat="string in strings">
-                    <td class="str-offset" align="center"><a href="#/view/tab-assembly/offset/{{ string.addr.toString(16) }}">0x{{ string.addr.toString(16) }}</a></td>
+                    <td class="str-offset" align="center">
+                        <span ng-click="setPosition(string.addr)">0x{{ string.addr.toString(16) }}</span>
+                    </td>
                     <td class="string" align="center">{{ string.string }}</td>
                 </tr>
         </tbody>

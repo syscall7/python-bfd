@@ -50,6 +50,11 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         console.log($scope.comments);
     });
 
+    $scope.$on('position', function(event, position) {
+        alert('position changed' + position);
+    })
+
+
     $scope.commentEnter = function($event, displayUnit) {
         var comment = $($event.target).text()
         $.post("/odaweb/comment", { comment: comment, offset: displayUnit.offset } );

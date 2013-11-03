@@ -44,7 +44,13 @@ odaApplication.factory('socketService', function($rootScope) {
     };
 });
 
+
+
+
 odaApplication.factory('odaApi', function($rootScope, $q, $http) {
+
+    var position = 0;
+
     return {
         getStrings : function(short_name, revision) {
             var deferred = $q.defer();
@@ -63,6 +69,15 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
         },
         getSymbols : function(short_name, revision) {
             return $http.get('/odaweb/api/symbols/?short_name=' + short_name + "&revision=" + revision);
+        },
+        getPosition: function() {
+            return postion;
+        },
+        setPosition: function(newPosition) {
+            if (position != newPosition) {
+                position = newPosition;
+                $rootScope.$broadcast("position", position);
+            }
         }
     };
 });
