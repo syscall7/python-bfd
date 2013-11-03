@@ -67,7 +67,7 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         print "DUVIEWSET: sortinplace"
         sorted_du.sort(key=lambda x: x.offset, reverse=False)
         print "DUVIEWSET: serialize"
-        serializer = self.get_serializer(sorted_du, many=True)
+        serializer = self.get_serializer(sorted_du[0:500], many=True)
         print "DUVIEWSET: Response"
         return Response(serializer.data)
 

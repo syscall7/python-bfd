@@ -189,9 +189,9 @@ def set(request):
 
         disassembler = Disassembler(oda_master.binary)
         if formType == "live":
-            disassembler.process_chunks(True)
+            disassembler.process_parcels(True)
         else:
-            disassembler.process_chunks(False)
+            disassembler.process_parcels(False)
 
     form_html = render_to_string('form-platform-options.djhtml', {
                     'arch' : arch,
@@ -339,44 +339,44 @@ def sections(request):
         }),
         mimetype='application/json')
 
-def symbols(request):
-    oda_master = get_session(request)
-    if not oda_master:
-        return HttpResponse("Session Not Initialized", status=400)
+#def symbols(request):
+#    oda_master = get_session(request)
+#    if not oda_master:
+#        return HttpResponse("Session Not Initialized", status=400)
+#
+#    binary = oda_master.binary
+#    dasm = Disassembler(binary)
+#
+#    ctype = ContentType.objects.get_for_model(binary)
+#
+#    superchunks = BinaryDisassemblySuperChunk.objects.filter(
+#            content_type=ctype.id, object_id = binary.id)[:]
+#
+#    architecture = binary.options.architecture
+#    analyzer = analyzerFactory(architecture)
+#    analyzer.analyze(dasm, superchunks)
+#
+#    syms = render_to_string('symbols.djhtml', {
+#        'symbols' : sorted(analyzer.functions.values(), key=lambda t: t.offset)
+#    })
+#
+#    # Return the new disassembly
+#    return HttpResponse(simplejson.dumps({'symbols_html' : syms })  , mimetype='application/json')
 
-    binary = oda_master.binary
-    dasm = Disassembler(binary)
-
-    ctype = ContentType.objects.get_for_model(binary)
-
-    superchunks = BinaryDisassemblySuperChunk.objects.filter(
-            content_type=ctype.id, object_id = binary.id)[:]
-
-    architecture = binary.options.architecture
-    analyzer = analyzerFactory(architecture)
-    analyzer.analyze(dasm, superchunks)
-
-    syms = render_to_string('symbols.djhtml', {
-        'symbols' : sorted(analyzer.functions.values(), key=lambda t: t.offset)
-    })
-
-    # Return the new disassembly
-    return HttpResponse(simplejson.dumps({'symbols_html' : syms })  , mimetype='application/json')
-
-def strings(request):
-    oda_master = get_session(request)
-    if not oda_master:
-        return HttpResponse("Session Not Initialized", status=400)
-
-    binary = oda_master.binary
-    dasm = Disassembler(binary)
-
-    strings = render_to_string('strings.djhtml', {
-        'strings' : dasm.strings(),
-        })
-
-    # Return the new disassembly
-    return HttpResponse(simplejson.dumps({'strings' : strings })  , mimetype='application/json')
+#def strings(request):
+#    oda_master = get_session(request)
+#    if not oda_master:
+#        return HttpResponse("Session Not Initialized", status=400)
+#
+#    binary = oda_master.binary
+#    dasm = Disassembler(binary)
+#
+#    strings = render_to_string('strings.djhtml', {
+#        'strings' : dasm.strings(),
+#        })
+#
+#    # Return the new disassembly
+#    return HttpResponse(simplejson.dumps({'strings' : strings })  , mimetype='application/json')
 
 class UploadFileForm(forms.Form):
     MAX_UPLOAD_SIZE_KB = 2500
