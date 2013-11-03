@@ -1,4 +1,4 @@
-odaApplication.controller('DisassemblyController', function DisassemblyController($scope, $http, $window, $sanitize, socketService) {
+odaApplication.controller('DisassemblyController', function DisassemblyController($scope, $http, $window, $sanitize) {
     var master = oda_api.getMaster();
 
     var loadDisassembly = function()  {
@@ -18,12 +18,29 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
             loadDisassembly();
     });
 
-    $scope.getComments = function(offset) {
-        return $scope.comments[offset];
+    $scope.getComment = function(offset) {
+        comment = $scope.comments[offset];
+        prefix = ';';
+        if (typeof comment == 'undefined') {
+            prefix = '';
+            comment = '';
+        } else {
+            comment = comment.comment;
+        }
+
+        return prefix+'&nbsp;'+comment;
     };
 
     $scope.isFunction = function(displayUnit) {
         var p = displayUnit.instStr.indexOf("push") !== -1;
+        return false;
+    };
+
+    $scope.isLabel = function(displayUnit) {
+        return false;
+    };
+
+    $scope.isLabeled = function(displayUnit) {
         return false;
     };
 

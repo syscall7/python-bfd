@@ -18,12 +18,35 @@
             <td class="xref" colspan="2">; CODE XREF: <a href="#view/tab-assembly/offset/{{xref.toString(16)}}">0x{{xref.toString(16)}}</a></td>
         </tr>
 
+        <!-- empty line before the label -->
+        <tr ng-if="isLabeled(du)" addr={{ du.offset.toString(16) }}>
+            <td class="branchLines" ng-bind-html="du.branch_label"></td>
+            <td class="offset">{{du.section_name}}:0x{{ du.offset.toString(16) }}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+
+        <!-- Function Prototype or Label Name -->
+        <tr ng-if="isLabeled(du)" addr={{ du.offset.toString(16) }}>
+            <td class="branchLines" ng-bind-html="du.branch_label"></td>
+            <td class="offset">{{du.section_name}}:0x{{ du.offset.toString(16) }}</td>
+            <td></td>
+            <td ng-if="isFunction(du)">
+                <span class="listing-retval" contenteditable="true" ng-bind-html="du.retval"></span>
+                <span class="listing-label" contenteditable="true" ng-bind-html="du.labelName"></span>
+                (<span class="listing-args" contenteditable="true" ng-bind-html="du.args"></span>)
+            </td>
+            <td ng-if="isLabel(du)"><span class="listing-label" contenteditable="true" ng-bind-html="du.labelName"></span>:</td>
+            <td></td>
+        </tr>
+
         <tr addr="{{ du.offset }}" >
-            <td class="branchLines">  </td>
+            <td class="branchLines" ng-bind-html="du.branch"></td>
             <td class="offset">{{ du.section_name }}:0x{{ du.offset.toString(16) }}</td>
             <td class="raw">{{ du.rawBytes }}</td>
-            <td class="insn-col"><span ng-bind-html="du.instStr"</span></td>
-            <td class="comment-col">{{ getComments(du.offset).comment }}</td>
+            <td class="insn-col"><span ng-bind-html="du.instStr"></span></td>
+            <td class="comment-col"><div class="comment" contenteditable="true" ng-bind-html="getComment(du.offset)"></div></td>
         </tr>
 
         </tbody>
