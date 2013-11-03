@@ -103,6 +103,7 @@ def parseDisassemblyLine(addr, rawData, instr, abfd, self, displayUnits, section
 
     # Separate out the instruction and check for errors
     du.listing = instr
+    du.instStr = instr
     matchObj = self.errorInstRegEx.match(instr)
     if matchObj:
         du.isError = True
@@ -206,16 +207,16 @@ class defaultAnalyzer(object):
                 self.functions[label.offset] = Function(label.offset, label.label, 't', set())
 
         # Make a first pass at parsing for organizing the instructions
-        print "START FIRST PASS"
+        print "START FIRST PASS FOR INSTRUCTIONS"
         self.parcels = parcels
         for parcel in self.parcels:
             logger.debug("PARCEL START: 0x%08x" % (parcel.start))
 
-            s = self.disassembler.get_section_from_addr(parcel.start)
 
             # Convert the parcel to disassembly
             # TODO: Fix sec name
             if parcel.is_code:
+                s = self.disassembler.get_section_from_addr(parcel.start)
                 self.disassembler.disassemble(s.name, parcel.start, parcel.end,
                                               funcFmtLine=parseDisassemblyLine,
                                               funcFmtLineArgs={
@@ -223,12 +224,12 @@ class defaultAnalyzer(object):
                                                   'displayUnits': self.displayUnits,
                                                   'section_name': s.name,
                                               })
-            elif parcel.is_code == None:
-                # Defined Data
-                parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, False)
-            elif parcel.is_code == False:
-                # Undefined
-                parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, True)
+                #elif parcel.is_code == None:
+                #    # Defined Data
+                #    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, False)
+                #elif parcel.is_code == False:
+                #    # Undefined
+                #    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, True)
 
         # Now we've got the superchunk fields populated
         print "INSTRUCTIONS POPULATED. BRANCHES:",len(self.branches)
@@ -241,7 +242,7 @@ class defaultAnalyzer(object):
                 break
 
         # Second Pass
-        print "START SECOND PASS. UNITS:",len(self.displayUnits)
+        print "START SECOND INSTRUCTION PASS. UNITS:",len(self.displayUnits)
 
         # weed out invalid branches
         blf = branch.BranchLineHtmlFormatter(self.branches)
@@ -264,6 +265,18 @@ class defaultAnalyzer(object):
 
         print "SECOND PASS COMPLETE"
 
+        print "THIRD PASS FOR DATA"
+        for parcel in self.parcels:
+            logger.debug("PARCEL START: 0x%08x" % (parcel.start))
+
+            if parcel.is_code == None:
+                # Defined Data
+                parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, False)
+            elif parcel.is_code == False:
+                # Undefined
+                parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, True)
+
+        print "THIRD PASS COMPLETE"
 
     def getInstructionType(self,opcode):
         if opcode in self.opcodeTypes:
