@@ -1,10 +1,11 @@
-odaApplication.controller('DisassemblyController', function DisassemblyController($scope, $http, $window, $sanitize, socketService, odaApi) {
+odaApplication.controller('DisassemblyController', function DisassemblyController($q, $scope, $http, $window, $sanitize, socketService, odaApi) {
     var master = oda_util.getMaster();
 
     var minAddress = -1;
     var maxAddress = -1
 
     var loadDisassembly = function(addr)  {
+        var deferred = $q.defer();
         $http.get('/odaweb/api/displayunits/?', {
             params: {
                 short_name : master.short_name,
@@ -16,7 +17,11 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
             minAddress = $scope.displayUnits[0].offset;
             maxAddress = $scope.displayUnits[$scope.displayUnits.length-1].offset;
             console.log("minAddress:"+ minAddress + " maxAddress:"+maxAddress);
+            deferred.resolve(data);
+        }).error(function(data, status){
+            deferred.reject(data);
         });
+        return deferred.promise;
     };
 
     odaApi.getComments(master.short_name, master.revision)
@@ -64,7 +69,15 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
     $scope.$on('position', function(event, position) {
         console.log('position changed' + position);
         if (position < minAddress || position > maxAddress) {
-            console.log("outside window, need to reload")
+            console.log("outside window, need to reload");
+            loadDisassembly(position).then(function(data){
+                if (position < minAddress || position > maxAddress) {
+                    //if we still are out of position, then we're in trouble
+                    oda.alert("We're not in position");
+                } else {
+                    alert('scroll');
+                }
+            });
         }
 
     })

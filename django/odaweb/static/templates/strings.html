@@ -10,7 +10,7 @@
         <tbody class="scrollContent">
                 <tr ng-repeat="string in strings">
                     <td class="str-offset" align="center">
-                        <span ng-click="setPosition(string.addr)">0x{{ string.addr.toString(16) }}</span>
+                        <span class="clickable" ng-click="setPosition(string.addr)">0x{{ string.addr.toString(16) }}</span>
                     </td>
                     <td class="string" align="center">{{ string.string }}</td>
                 </tr>

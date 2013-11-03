@@ -408,3 +408,13 @@ dislineerr {
 .share-btn .popover {
     width:350px;
 }
+
+.clickable {
+    color: #0088CC;
+    text-decoration: none;
+}
+.clickable:hover {
+    color: #005580;
+    text-decoration: underline;
+    cursor:pointer;
+}
