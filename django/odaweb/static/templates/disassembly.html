@@ -46,7 +46,12 @@
             <td class="offset">{{ du.section_name }}:0x{{ du.offset.toString(16) }}</td>
             <td class="raw">{{ du.rawBytes }}</td>
             <td class="insn-col"><span ng-bind-html="du.instStr"></span></td>
-            <td class="comment-col"><div class="comment" contenteditable="true" ng-bind-html="getComment(du.offset)"></div></td>
+            <td class="comment-col">
+                <div class="comment"
+                     contenteditable="true"
+                     ui-keypress="{13:'commentEnter($event, du)'}"
+                     ng-bind-html="getComment(du.offset)"></div>
+            </td>
         </tr>
 
         </tbody>

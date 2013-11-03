@@ -561,7 +561,7 @@ function OdaApplication(options) {
 
     InitializeSplitter();
 
-    InitializeComments();
+   // InitializeComments();
 
     InitializeRelabeling();
 

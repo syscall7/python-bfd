@@ -50,4 +50,10 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         console.log($scope.comments);
     });
 
+    $scope.commentEnter = function($event, displayUnit) {
+        var comment = $($event.target).text()
+        $.post("/odaweb/comment", { comment: comment, offset: displayUnit.offset } );
+        $event.preventDefault();
+    };
+
 });
