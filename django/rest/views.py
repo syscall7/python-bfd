@@ -4,6 +4,9 @@ from rest_framework.response import Response
 from odaweb.disassembler import Disassembler, JsonChunkProcessor, analyzerFactory
 from odaweb.models import OdaMaster, Comment, BinaryParcel
 from rest.serializers import OdaMasterSerializer, CommentSerializer, SectionSerializer, StringSerializer, SymbolSerializer, DisplayUnitSerializer, BinaryParcelSerializer, RefSerializer
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -62,14 +65,15 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         jcp = JsonChunkProcessor(binary)
         parcels = jcp.get_all_parcels()
         display_units = jcp.process_parcels_disassembly(parcels)
-        print "DUVIEWSET: getValues"
         sorted_du = display_units.values()
-        print "DUVIEWSET: sortinplace"
         sorted_du.sort(key=lambda x: x.offset, reverse=False)
-        print "DUVIEWSET: serialize"
-        serializer = self.get_serializer(sorted_du[0:500], many=True)
-        print "DUVIEWSET: Response"
-        return Response(serializer.data)
+        serializer = self.get_serializer(sorted_du[:500], many=True)
+
+        logger.debug("DisplayUnitsViewSet: Generate serialized data")
+        serialData = Response(serializer.data)
+        logger.debug("DisplayUnitsViewSet: Serial data complete")
+        return serialData
+
 
 class StringsViewSet(viewsets.GenericViewSet):
     serializer_class = StringSerializer
@@ -100,6 +104,6 @@ class SymbolsViewSet(viewsets.GenericViewSet):
 
         architecture = binary.options.architecture
         analyzer = analyzerFactory(architecture)
-        analyzer.analyze(dasm, parcels)
+        analyzer.analyze(dasm, parcels, onlySymbols=True)
         serializer = self.get_serializer(analyzer.functions.values(), many=True)
         return Response(serializer.data)

@@ -52,8 +52,6 @@ def parseDataLine(section_name, start_addr, end_addr, self, displayUnits, is_dat
     # Get the raw data from the file
     rawData = self.disassembler.bfd.raw_data(self.disassembler.bfd.sections[section_name], start_addr, dataLen)
 
-    print "PARSEDATA START:",section_name
-
     if is_data:
         # TODO: Organize the data in groups of one, two, four bytes etc.,
         addr = start_addr
@@ -84,8 +82,6 @@ def parseDataLine(section_name, start_addr, end_addr, self, displayUnits, is_dat
             displayUnits[du.offset] = du
 
             addr += 1
-
-    print "PARSEDATA DONE:",section_name
 
 
 def parseDisassemblyLine(addr, rawData, instr, abfd, self, displayUnits, section_name):
@@ -173,7 +169,7 @@ class defaultAnalyzer(object):
     def processOptions(self, options):
         return options
 
-    def analyze(self, disassembler, parcels=None):
+    def analyze(self, disassembler, parcels=None, onlySymbols=False):
 
         self.disassembler = disassembler
         self.instParserRegEx = re.compile(
@@ -209,7 +205,8 @@ class defaultAnalyzer(object):
                 self.functions[label.offset] = Function(label.offset, label.label, 't', set())
 
         # Make a first pass at parsing for organizing the instructions
-        print "START FIRST PASS FOR INSTRUCTIONS"
+        logger.debug("Analyze: START FIRST PASS FOR INSTRUCTIONS")
+
         self.parcels = parcels
         for parcel in self.parcels:
             logger.debug("PARCEL START: 0x%08x" % (parcel.start))
@@ -233,52 +230,55 @@ class defaultAnalyzer(object):
                 #    # Undefined
                 #    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, True)
 
-        # Now we've got the superchunk fields populated
-        print "INSTRUCTIONS POPULATED. BRANCHES:",len(self.branches)
+        # Don't need to do multiple passes just for the symbols
+        if not onlySymbols:
+            # Now we've got the superchunk fields populated
+            logger.debug("Analyze: INSTRUCTIONS POPULATED. BRANCH COUNT: %d" % (len(self.branches)))
 
-        # verify target address is at a valid instruction boundary (someday maybe we'll handle the odd case where it's not)
-        for b in self.branches:
-            b.isTargetAddrValid = False
-            if b.targetAddr in self.displayUnits:
-                b.isTargetAddrValid = True
-                break
+            # verify target address is at a valid instruction boundary (someday maybe we'll handle the odd case where it's not)
+            for b in self.branches:
+                b.isTargetAddrValid = False
+                if b.targetAddr in self.displayUnits:
+                    b.isTargetAddrValid = True
+                    break
 
-        # Second Pass
-        print "START SECOND INSTRUCTION PASS. UNITS:",len(self.displayUnits)
+            # Second Pass
+            logger.debug("Analyze: START SECOND INSTRUCTION PASS. UNITS COUNT: %d" % (len(self.displayUnits)))
 
-        # weed out invalid branches
-        #blf = branch.BranchLineHtmlFormatter(self.branches)
-        #for key in sorted(self.displayUnits.iterkeys()):
-        #    du = self.displayUnits[key]
-        #    du.branch_label = blf.pushLabel()
-        #    du.branch = blf.pushAddr(du.offset)
-        #
-        #    if du.offset in self.functions:
-        #        du.make_label_target(self.functions[du.offset].name)
-        #        #unit.function = self.functions[inst.offset]
-        #        du.isFunction = True
-        #        du.branchRef = RefUnit(self.functions[du.offset].name,du.offset)
-        #
-        #        #chunk.lines += 2 + len(self.functions[inst.offset].xrefs)
-        #    elif du.offset in self.labels:
-        #        #unit.make_label_target(self.mkLabelName(inst.offset,'loc'))
-        #        du.branchRef = RefUnit(self.mkLabelName(du.offset,'loc'),du.offset)
-        #        du.isBranch = True
+            # weed out invalid branches
+            #blf = branch.BranchLineHtmlFormatter(self.branches)
+            #for key in sorted(self.displayUnits.iterkeys()):
+            #    du = self.displayUnits[key]
+            #    du.branch_label = blf.pushLabel()
+            #    du.branch = blf.pushAddr(du.offset)
+            #
+            #    if du.offset in self.functions:
+            #        du.make_label_target(self.functions[du.offset].name)
+            #        #unit.function = self.functions[inst.offset]
+            #        du.isFunction = True
+            #        du.branchRef = RefUnit(self.functions[du.offset].name,du.offset)
+            #
+            #        #chunk.lines += 2 + len(self.functions[inst.offset].xrefs)
+            #    elif du.offset in self.labels:
+            #        #unit.make_label_target(self.mkLabelName(inst.offset,'loc'))
+            #        du.branchRef = RefUnit(self.mkLabelName(du.offset,'loc'),du.offset)
+            #        du.isBranch = True
 
-        print "SECOND PASS COMPLETE"
+            logger.debug("Analyze: SECOND PASS COMPLETE")
 
-        print "THIRD PASS FOR DATA"
-        for parcel in self.parcels:
-            logger.debug("PARCEL START: 0x%08x" % (parcel.start))
-            s = self.disassembler.get_section_from_addr(parcel.start)
-            if parcel.is_code == None:
-                # Defined Data
-                parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, False)
-            elif parcel.is_code == False:
-                # Undefined
-                parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, True)
+            logger.debug("Analyze: THIRD PASS FOR DATA")
 
-        print "THIRD PASS COMPLETE"
+            for parcel in self.parcels:
+                logger.debug("PARCEL START: 0x%08x" % (parcel.start))
+                s = self.disassembler.get_section_from_addr(parcel.start)
+                if parcel.is_code == None:
+                    # Defined Data
+                    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, False)
+                elif parcel.is_code == False:
+                    # Undefined
+                    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, True)
+
+            logger.debug("Analyze: THIRD PASS COMPLETE")
 
     def getInstructionType(self,opcode):
         if opcode in self.opcodeTypes:
