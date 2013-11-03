@@ -89,7 +89,7 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         display_units = jcp.process_parcels_disassembly(parcels, start)
         sorted_du = display_units.values()
         sorted_du.sort(key=lambda x: x.offset, reverse=False)
-        serializer = self.get_serializer(sorted_du[:500], many=True)
+        serializer = self.get_serializer(sorted_du[:250], many=True)
 
         logger.debug("DisplayUnitsViewSet: Generate serialized data")
         serialData = Response(serializer.data)
