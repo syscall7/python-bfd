@@ -1,4 +1,5 @@
-odaApplication.controller('DisassemblyController', function DisassemblyController($q, $scope, $http, $window, $sanitize, socketService, odaApi) {
+odaApplication.controller('DisassemblyController', function DisassemblyController($q, $scope, $http, $location, $anchorScroll,
+                                                                                  $window, $sanitize, socketService, odaApi) {
     var master = oda_util.getMaster();
 
     var minAddress = -1;
@@ -67,17 +68,29 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
 
     $scope.$on('position', function(event, position) {
         console.log('position changed' + position);
+
+        var handleScroll = function() {
+            $location.hash("addr-" + $scope.location);
+            // call $anchorScroll()
+            $anchorScroll();
+        };
+
         if (position < minAddress || position > maxAddress) {
-            console.log("outside window, need to reload");
+            oda.alert("reloading...");
             loadDisassembly(position).then(function(data){
                 if (position < minAddress || position > maxAddress) {
                     //if we still are out of position, then we're in trouble
                     oda.alert("We're not in position");
                 } else {
-                    alert('scroll');
+                    $scope.location = position;
+                    handleScroll();
                 }
             });
+        } else {
+            $scope.location = position;
+            handleScroll();
         }
+
 
     })
 

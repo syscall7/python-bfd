@@ -248,23 +248,21 @@ function FileUploadForm() {
 }
 
 function ResizeHandler() {
-    $(window).resize(function() {
+
+    var resize = function() {
         // TODO: Hardcoded Height includes footer and banner
         /*$('#view-container').height($(window).height()-74);*/
         $('#vertSplitter').height($(window).height()-47);
-        
+
         // TODO: Hardcoded Height incluees footer, banner, and tabs
         $('#myTabContent').height($(window).height()-157);
-             
+
         $('.sidebar-scroll-container').each( function (i,elem) {
             $(elem).height( sidebar.resize($(elem)) );} );
-        
-    });
-    //$('#view-container').height($(window).height()-74);
-    $('#vertSplitter').height($(window).height()-47);
-    $('#myTabContent').height($(window).height()-157);
-    $('.sidebar-scroll-container').each( function (i,elem) {
-        $(elem).height( sidebar.resize($(elem)) );} );
+    };
+    $(window).resize(resize);
+
+    window.setTimeout(resize, 1000);
 
     
 }
@@ -379,7 +377,9 @@ function Load(binary, show_loading) {
     
     refreshDisassembly(addr,  show_loading);
     refreshHex(addr,false);
-    
+
+    ResizeHandler();
+
     /*$.post(oda.url('_symbols'), {id: binary.id}).done(function(data){
         $('#symbol-content').append(data.symbols_html);
         scrolify($('#symbol-table')); // 160 is height

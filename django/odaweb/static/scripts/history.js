@@ -64,7 +64,7 @@ $(document).ready(function() {
 	Backbone.history.start();
 	
 
-	$('#myTabContent').bind('scrollstop', scrollStopHandler);
+/*	$('#myTabContent').bind('scrollstop', scrollStopHandler); */
     $('#myTabContent').bind('scroll', function(event) {
             if ( window.scrollTimer == null )
             {
