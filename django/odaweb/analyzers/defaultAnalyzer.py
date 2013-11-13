@@ -257,7 +257,7 @@ class defaultAnalyzer(object):
             logger.debug("Analyze: START SECOND INSTRUCTION PASS. UNITS COUNT: %d" % (len(self.displayUnits)))
 
             # break up branches into sets based on function boundary
-            prevFuncAddr = 0
+            prevFuncAddr = -1
 
             # sort displayUnits
             dunits = sorted(self.displayUnits.values(), key=lambda du: du.offset)
@@ -272,6 +272,12 @@ class defaultAnalyzer(object):
 
                     self.addBranchLinesAndLabels(dus, branches)
                     prevFuncAddr = function.offset
+
+                # now process betwen the last func and the end
+                branches = [b for b in self.branches if b.targetAddr >= prevFuncAddr]
+                dus = [du for du in dunits if du.offset >= prevFuncAddr]
+                self.addBranchLinesAndLabels(dus, branches)
+
             else:
                 self.addBranchLinesAndLabels(dunits, self.branches)
 
