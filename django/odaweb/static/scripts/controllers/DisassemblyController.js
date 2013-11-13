@@ -167,7 +167,12 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
 
     $scope.commentEnter = function($event, displayUnit) {
         var comment = $($event.target).text()
-        $.post("/odaweb/comment", { comment: comment, offset: displayUnit.offset } );
+        $http.post("/odaweb/api/comments/",{
+            object_id : oda_util.getMaster().object_id,
+            content_type: oda_util.getMaster().content_type,
+            comment: comment,
+            offset: displayUnit.offset
+        });;
         $scope.comments[comment.offset] = {comment: comment.comment, offset: displayUnit.offset};
         socketService.sendComment(comment, displayUnit.offset);
         $event.preventDefault();

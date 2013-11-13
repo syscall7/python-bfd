@@ -40,11 +40,6 @@ class OdaMasterSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('project_name', 'short_name', 'revision', 'creation_date', 'binary')
 
 
-class CommentSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Comment
-        fields = ('comment', 'offset')
-
 class PrototypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Prototype

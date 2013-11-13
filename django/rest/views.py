@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from odaweb.disassembler import Disassembler, JsonChunkProcessor, analyzerFactory
 from odaweb.models import OdaMaster, Comment, BinaryParcel, Prototype, Label
-from rest.serializers import OdaMasterSerializer, CommentSerializer, PrototypeSerializer, SectionSerializer, StringSerializer, SymbolSerializer, DisplayUnitSerializer, BinaryParcelSerializer, RefSerializer
+from rest.serializers import OdaMasterSerializer, PrototypeSerializer, SectionSerializer, StringSerializer, SymbolSerializer, DisplayUnitSerializer, BinaryParcelSerializer, RefSerializer
 import logging
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ class OdaMasterViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     #queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
+    #serializer_class = CommentSerializer
     model = Comment
 
     def get_queryset(self):
