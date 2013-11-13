@@ -69,8 +69,10 @@
                 </div>
                 {% include "tab-hexdump.djhtml" %}
                 <div id="tab-sections" class="tab-pane fade"
-                     ng-include="'/static2/templates/sections.html'"></div>
-                <div id="tab-fileinfo" class="tab-pane fade"></div>
+                     ng-inc99lude="'/static2/templates/sections.html'"></div>
+                <div id="tab-fileinfo" class="tab-pane fade">
+                    {% include "tab_fileinfo.djhtml" %}
+                </div>
             </div>
 
         </div>
