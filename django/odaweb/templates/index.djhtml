@@ -8,6 +8,8 @@
 
     window.oda_master = {
         short_name : '{{master.short_name }}',
+        content_type : '{{ master.content_type.id }}',
+        object_id : {{ master.object_id }},
         revision : {{ master.revision | jsonify}}
     };
 

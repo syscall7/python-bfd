@@ -1,8 +1,0 @@
-<div id="strings-display" style="padding:5px; background-color:white;" class="item">
-    <div class="sidebar-legend">Strings</div>
-    <div class="sidebar-content">
-        <div class="sidebar-scroll-container" id="strings-content">
-        </div>
-    </div>
-</div>
-

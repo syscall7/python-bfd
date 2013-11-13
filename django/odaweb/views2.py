@@ -318,26 +318,26 @@ def instdoc(request):
             'instdoc' : instdoc_html,
         }), mimetype='application/json')
 
-def sections(request):
-    oda_master = get_session(request)
-    if not oda_master:
-        return HttpResponse("Session Not Initialized", status=400)
-
-    binary = oda_master.binary
-    dasm = Disassembler(binary)
-
-
-    sections_tab = render_to_string('sections_tab.djhtml', {
-        'sections' : dasm.sections,
-        'sectionFlagsInfo' : dasm.sectionFlagsInfo(),
-    })
-
-    # Return the new disassembly
-    return HttpResponse(simplejson.dumps({
-        'sections_tab' : sections_tab,
-        #'section_flags' : dasm.sectionFlagsInfo(),
-        }),
-        mimetype='application/json')
+#def sections(request):
+#    oda_master = get_session(request)
+#    if not oda_master:
+#        return HttpResponse("Session Not Initialized", status=400)
+#
+#    binary = oda_master.binary
+#    dasm = Disassembler(binary)
+#
+#
+#    sections_tab = render_to_string('sections_tab.djhtml', {
+#        'sections' : dasm.sections,
+#        'sectionFlagsInfo' : dasm.sectionFlagsInfo(),
+#    })
+#
+#    # Return the new disassembly
+#    return HttpResponse(simplejson.dumps({
+#        'sections_tab' : sections_tab,
+#        #'section_flags' : dasm.sectionFlagsInfo(),
+#        }),
+#        mimetype='application/json')
 
 #def symbols(request):
 #    oda_master = get_session(request)

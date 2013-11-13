@@ -563,7 +563,7 @@ function OdaApplication(options) {
 
    // InitializeComments();
 
-    InitializeRelabeling();
+   // InitializeRelabeling();
 
     InitializeModalShare();
 

@@ -11,6 +11,7 @@ router.register(r'displayunits', views.DisplayUnitsViewSet, base_name="displayun
 router.register(r'strings', views.StringsViewSet, base_name="strings")
 router.register(r'symbols', views.SymbolsViewSet, base_name="symbols")
 router.register(r'prototypes', views.PrototypeViewSet, base_name="prototypes")
+router.register(r'labels', views.LabelsViewSet, base_name='labels')
 #router.register(r'superchunks', views.SuperChunksViewSet, base_name="superchunks")
 
 # Wire up our API using automatic URL routing.
@@ -18,4 +19,5 @@ router.register(r'prototypes', views.PrototypeViewSet, base_name="prototypes")
 urlpatterns = patterns('',
     url(r'^', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+
 )

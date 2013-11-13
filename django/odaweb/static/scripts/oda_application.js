@@ -1,6 +1,9 @@
 var odaApplication = angular
     .module('odaApp',['ngSanitize','ui.keypress'])
-    .config(function($interpolateProvider) {
+    .config(function($httpProvider) {
+
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 
 });
 
