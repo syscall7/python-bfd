@@ -372,23 +372,13 @@ class Disassembler(object):
         # Make the initial pass to load the database with info from the newly uploaded file
         if initialPass:
 
-            # Grab the symbols from the object file
-            symbols = self.symbols()
-            for sym in symbols:
-                s = Symbol(id=None,
-                    offset = sym.value,
-                    name = sym.name,
-                    sym_type = sym.type,
-                    binary=self.binary
-                    )
-                s.save()
-
             # Make a pass through the code sections to identify more symbols
             #dbParcels = BinaryParcel.objects.filter(
             #                content_type=ctype.id, object_id = self.binary.id)
             #architecture = self.binary.options.architecture
             #analyzer = analyzerFactory(architecture)
             #analyzer.analyze( self, dbParcels )
+            pass
 
 
 
@@ -644,25 +634,6 @@ class JsonChunkProcessor(object):
         #sortedUnits = sorted(analyzer.displayUnits, key=lambda key: analyzer.displayUnits[key])
         #sortedUnits = iter(sorted(analyzer.displayUnits.items()))
         return analyzer.displayUnits
-        #self.attach_comments(self.binary)
-
-        #for parcel in parcels:
-        #    parcel.attach_comments(self.binary)
-        #    parcel.attach_prototype(self.binary)
-    #
-    #def process_chunks_disassembly(self, superchunks):
-    #
-    #    architecture = self.binary.options.architecture
-    #
-    #    analyzer = analyzerFactory(architecture)
-    #
-    #    dasm = Disassembler(self.binary)
-    #    analyzer.analyze( dasm, superchunks )
-    #    analyzer.convertToHtmlLine()
-    #
-    #    for superchunk in superchunks:
-    #        superchunk.attach_comments(self.binary)
-    #        superchunk.attach_prototype(self.binary)
 
     def process_parcels_hex(self, parcels):
         logger.info("process_chunks_hex")

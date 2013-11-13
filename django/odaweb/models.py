@@ -139,67 +139,10 @@ class Binary(models.Model):
     class Meta:
         abstract = True
 
-#class BinaryDisassemblySuperChunk(models.Model):
-#    content_type = models.ForeignKey(ContentType)
-#    object_id = models.PositiveIntegerField()
-#    binary = generic.GenericForeignKey()
-#
-#    # TODO: Is this length too much? Not enough?
-#    start = models.BigIntegerField()
-#    end = models.BigIntegerField()
-#    is_boundary = models.BooleanField()
-#    class Meta:
-#        ordering = ['start']
-#
-#    def chunks(self):
-#        chunks_temp = BinaryDisassemblyChunk.objects.filter(
-#            superchunk_id = self.id )
-#        return list(chunks_temp)
-#
-#    def attach_comments(self, binary):
-#        comments = Comment.get_for_binary(binary)
-#        if len(comments) == 0:
-#            return
-#        for iu in self.instUnits:
-#            comments_for_address = filter( lambda c: c.offset == iu.offset, comments )
-#            if (len(comments_for_address) > 0):
-#                iu.comment = comments_for_address[0].comment
-#
-#    def attach_prototype(self, binary):
-#        prototypes = Prototype.get_for_binary(binary)
-#        for iu in self.instUnits:
-#            prototype_for_address = filter( lambda c: c.offset == iu.offset, prototypes )
-#            if (len(prototype_for_address) > 0):
-#                iu.retval = prototype_for_address[0].retval
-#                iu.args = prototype_for_address[0].args
-#
-#    @staticmethod
-#    def get_for_binary(binary):
-#        ctype = ContentType.objects.get_for_model(binary)
-#        return BinaryDisassemblySuperChunk.objects.filter(content_type=ctype.id, object_id = binary.id)
-#
-#
-#class BinaryDisassemblyChunk(models.Model):
-#    superchunk = models.ForeignKey(BinaryDisassemblySuperChunk)
-#
-#    name = models.CharField(max_length=128)
-#    start = models.BigIntegerField()
-#    end = models.BigIntegerField()
-#    class Meta:
-#        ordering = ['start']
-#
-#    def parcels(self):
-#        parcels_temp = BinaryParcel.objects.filter(
-#            chunk_id = self.id )
-#        return list(parcels_temp)
-
-
 class BinaryParcel(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     binary = generic.GenericForeignKey()
-
-    #chunk = models.ForeignKey(BinaryDisassemblyChunk)
 
     start = models.BigIntegerField()
     end = models.BigIntegerField()
@@ -207,23 +150,6 @@ class BinaryParcel(models.Model):
 
     class Meta:
         ordering = ['start']
-
-    def attach_comments(self, binary):
-        comments = Comment.get_for_binary(binary)
-        if len(comments) == 0:
-            return
-        for iu in self.display_units:
-            comments_for_address = filter( lambda c: c.offset == iu.offset, comments )
-            if (len(comments_for_address) > 0):
-                iu.comment = comments_for_address[0].comment
-
-    def attach_prototype(self, binary):
-        prototypes = Prototype.get_for_binary(binary)
-        for iu in self.display_units:
-            prototype_for_address = filter( lambda c: c.offset == iu.offset, prototypes )
-            if (len(prototype_for_address) > 0):
-                iu.retval = prototype_for_address[0].retval
-                iu.args = prototype_for_address[0].args
 
     @staticmethod
     def get_for_binary(binary):
@@ -286,18 +212,22 @@ class Comment(models.Model):
         ctype = ContentType.objects.get_for_model(binary)
         return Comment.objects.filter(content_type=ctype.id, object_id = binary.id)
 
-class Prototype(models.Model):
+class Function(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     binary = generic.GenericForeignKey()
-    retval = models.CharField(max_length=255)
-    args = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
     offset = models.BigIntegerField()
+    retval = models.CharField(max_length=255, default='unknown')
+    args = models.CharField(max_length=255, default='unknown')
+
+    class Meta:
+        unique_together = ('offset', 'content_type', 'object_id')
 
     @staticmethod
     def get_for_binary(binary):
         ctype = ContentType.objects.get_for_model(binary)
-        return Prototype.objects.filter(content_type=ctype.id, object_id = binary.id)
+        return Function.objects.filter(content_type=ctype.id, object_id = binary.id)
 
 class Label(models.Model):
     content_type = models.ForeignKey(ContentType)
@@ -305,7 +235,6 @@ class Label(models.Model):
     binary = generic.GenericForeignKey()
     label = models.CharField(max_length=255)
     offset = models.BigIntegerField()
-    # TODO: Add a field for the type of label (i.e., func or local)
 
     @staticmethod
     def get_for_binary(binary):

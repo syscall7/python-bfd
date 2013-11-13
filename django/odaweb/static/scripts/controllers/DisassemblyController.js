@@ -25,24 +25,24 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         return deferred.promise;
     };
 
-    var commentsReq = odaApi.getComments(master.short_name, master.revision);
-    var prototypesReq = odaApi.getPrototypes(master.short_name, master.revision);
-    var labelsReq = odaApi.getLabels(master.short_name, master.revision);
-    $q.all([commentsReq, prototypesReq, labelsReq]).then(function(results) {
+    var commentsRequest = odaApi.getComments(master.short_name, master.revision);
+    var functionsRequest = odaApi.getFunctions(master.short_name, master.revision);
+    var labelsRequest = odaApi.getLabels(master.short_name, master.revision);
+    $q.all([commentsRequest, functionsRequest, labelsRequest]).then(function(results) {
         $scope.comments = {};
-        $scope.prototypes = {};
+        $scope.functions = {};
         $scope.labels={};
 
         comments = results[0];
-        prototypes = results[1];
+        functions = results[1];
         labels = results[2];
 
         $.each(comments, function(i,comment){
             $scope.comments[comment.offset] = comment;
         });
 
-        $.each(prototypes, function(i,prototype){
-            $scope.prototypes[prototype.offset] = prototype;
+        $.each(functions, function(i,func){
+            $scope.functions[func.offset] = func;
         });
 
         $.each(labels, function(i, label){
@@ -76,22 +76,22 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         return prefix+'&nbsp;'+comment;
     };
 
-    $scope.getPrototypeRetval = function(offset) {
-        prototype = $scope.prototypes[offset];
-        if (typeof prototype == 'undefined') {
+    $scope.getFunctionRetval = function(offset) {
+        func = $scope.functions[offset];
+        if (typeof func == 'undefined') {
             retval = 'unknown'
         } else {
-            retval = prototype.retval;
+            retval = func.retval;
         }
         return retval;
     };
 
-    $scope.getPrototypeArgs = function(offset) {
-        prototype = $scope.prototypes[offset];
-        if (typeof prototype == 'undefined') {
+    $scope.getFunctionArgs = function(offset) {
+        func = $scope.functions[offset];
+        if (typeof func == 'undefined') {
             args = 'unknown'
         } else {
-            args = prototype.args;
+            args = func.args;
         }
         return args;
     };

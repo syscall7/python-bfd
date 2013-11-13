@@ -1,5 +1,5 @@
 import json
-from odaweb.models import OdaMaster, Comment, BinaryFile, BinaryString, BinaryParcel, Prototype
+from odaweb.models import OdaMaster, Comment, BinaryFile, BinaryString, BinaryParcel, Function
 from rest_framework import serializers
 
 
@@ -40,9 +40,9 @@ class OdaMasterSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('project_name', 'short_name', 'revision', 'creation_date', 'binary')
 
 
-class PrototypeSerializer(serializers.HyperlinkedModelSerializer):
+class FunctionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = Prototype
+        model = Function
         fields = ('retval', 'args', 'offset')
 
 class StringListField(serializers.WritableField):

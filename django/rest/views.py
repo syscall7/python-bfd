@@ -2,8 +2,8 @@ from django.contrib.contenttypes.models import ContentType
 from rest_framework import viewsets
 from rest_framework.response import Response
 from odaweb.disassembler import Disassembler, JsonChunkProcessor, analyzerFactory
-from odaweb.models import OdaMaster, Comment, BinaryParcel, Prototype, Label
-from rest.serializers import OdaMasterSerializer, PrototypeSerializer, SectionSerializer, StringSerializer, SymbolSerializer, DisplayUnitSerializer, BinaryParcelSerializer, RefSerializer
+from odaweb.models import OdaMaster, Comment, BinaryParcel, Function, Label
+from rest.serializers import OdaMasterSerializer, CommentSerializer, FunctionSerializer, SectionSerializer, StringSerializer, SymbolSerializer, DisplayUnitSerializer, BinaryParcelSerializer, RefSerializer
 import logging
 
 logger = logging.getLogger(__name__)
@@ -29,15 +29,15 @@ class CommentViewSet(viewsets.ModelViewSet):
 
         return Comment.get_for_binary(oda.binary)
 
-class PrototypeViewSet(viewsets.ModelViewSet):
-    serializer_class = PrototypeSerializer
-    model = Prototype
+class FunctionViewSet(viewsets.ModelViewSet):
+    serializer_class = FunctionSerializer
+    model = Function
 
     def get_queryset(self):
         oda = OdaMaster.objects.get(short_name=self.request.QUERY_PARAMS.get('short_name'),
                                     revision=self.request.QUERY_PARAMS.get('revision'))
 
-        return Prototype.get_for_binary(oda.binary)
+        return Function.get_for_binary(oda.binary)
 
 class SectionsViewSet(viewsets.GenericViewSet):
     serializer_class = SectionSerializer
@@ -131,6 +131,17 @@ class SymbolsViewSet(viewsets.GenericViewSet):
         serializer = self.get_serializer(analyzer.functions.values(), many=True)
         return Response(serializer.data)
 
+class FunctionsViewSet(viewsets.ModelViewSet):
+    model = Function
+
+    def get_queryset(self):
+        queryset = Function.objects.all()
+        short_name = self.request.QUERY_PARAMS.get('short_name', None)
+        revision = self.request.QUERY_PARAMS.get('revision', None)
+        if short_name is not None:
+            queryset = Function.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
+
+        return queryset
 
 class LabelsViewSet(viewsets.ModelViewSet):
     model = Label
