@@ -37,15 +37,15 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         functions = results[1];
         labels = results[2];
 
-        $.each(comments, function(i,comment){
+        $.each(comments.data, function(i,comment){
             $scope.comments[comment.offset] = comment;
         });
 
-        $.each(functions, function(i,func){
+        $.each(functions.data, function(i,func){
             $scope.functions[func.offset] = func;
         });
 
-        $.each(labels, function(i, label){
+        $.each(labels.data, function(i, label){
             $scope.labels[label.offset] = label;
         });
 
