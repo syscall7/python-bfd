@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from odaweb.disassembler import Disassembler, JsonChunkProcessor, analyzerFactory
 from odaweb.models import OdaMaster, Comment, BinaryParcel, Function, Label
-from rest.serializers import OdaMasterSerializer, CommentSerializer, FunctionSerializer, SectionSerializer, StringSerializer, SymbolSerializer, DisplayUnitSerializer, BinaryParcelSerializer, RefSerializer
+from rest.serializers import OdaMasterSerializer, FunctionSerializer, SectionSerializer, StringSerializer, SymbolSerializer, DisplayUnitSerializer, BinaryParcelSerializer, RefSerializer
 import logging
 
 logger = logging.getLogger(__name__)
