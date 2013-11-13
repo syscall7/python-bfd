@@ -692,7 +692,7 @@ examples = (
                 (0x1b, 'while (c != 0)'),
         ),
         'labels': (
-            (0x10, 'loop')
+            (0x10, 'loop'),
         )
     },
     {
