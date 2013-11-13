@@ -96,6 +96,14 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
         getPrototypes : function(short_name, revision) {
             return $http.get('/odaweb/api/prototypes/?short_name=' + short_name + "&revision=" + revision);
         },
+        getLabels : function(short_name, revision) {
+            return $http.get('/odaweb/api/labels/', {
+                params: {
+                    short_name : short_name,
+                    revision : revision
+                }
+            });
+        },
         getPosition: function() {
             return postion;
         },

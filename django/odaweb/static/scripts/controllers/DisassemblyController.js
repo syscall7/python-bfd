@@ -27,11 +27,16 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
 
     var commentsReq = odaApi.getComments(master.short_name, master.revision);
     var prototypesReq = odaApi.getPrototypes(master.short_name, master.revision);
-    $q.all([commentsReq, prototypesReq]).then(function(results) {
+    var labelsReq = odaApi.getLabels(master.short_name, master.revision);
+    $q.all([commentsReq, prototypesReq, labelsReq]).then(function(results) {
         $scope.comments = {};
-            $scope.prototypes = {};
+        $scope.prototypes = {};
+        $scope.labels={};
+
         comments = results[0];
         prototypes = results[1];
+        labels = results[2];
+
         $.each(comments, function(i,comment){
             $scope.comments[comment.offset] = comment;
         });
@@ -40,7 +45,9 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
             $scope.prototypes[prototype.offset] = prototype;
         });
 
-        $scope.labels = {};
+        $.each(labels, function(i, label){
+            $scope.labels[label.offset] = label;
+        });
 
         loadDisassembly();
     });
