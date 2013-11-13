@@ -138,8 +138,8 @@ class LabelsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Label.objects.all()
         short_name = self.request.QUERY_PARAMS.get('short_name', None)
-
+        revision = self.request.QUERY_PARAMS.get('revision', None)
         if short_name is not None:
-            queryset = Label.get_for_binary(OdaMaster.objects.get(short_name=short_name).binary)
+            queryset = Label.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
 
         return queryset
