@@ -42,17 +42,23 @@
             <td></td>
         </tr>
 
-        <!-- Function Prototype or Label Name -->
+        <!-- Function Function or Label Name -->
         <tr ng-if="isLabeled(du)" addr="{{ du.offset | hex:8 }}">
             <td class="branchLines" ng-bind-html="du.branch_label"></td>
             <td class="offset">{{du.section_name}}:0x{{ du.offset | hex:8 }}</td>
             <td></td>
             <td ng-if="isFunction(du)">
-                <span class="listing-retval" contenteditable="true" ng-bind-html="getPrototypeRetval(du.offset)"></span>
+                <span class="listing-retval" contenteditable="true"
+                        ui-keypress="{13:'retvalEnter($event, du)'}"
+                        ng-blur="retvalEnter($event, du)"
+                        ng-bind-html="getFunctionRetval(du.offset)"></span>
                 <span class="listing-label" contenteditable="true"
-                      ui-keypress="{13:'labelEnter($event, du)'}"
-                      ng-bind-html="getLabel(du)" style="font-weight:bold"></span>
-                (<span class="listing-args" contenteditable="true" ng-bind-html="getPrototypeArgs(du.offset)"></span>)
+                        ui-keypress="{13:'labelEnter($event, du)'}"
+                        ng-bind-html="getLabel(du)" style="font-weight:bold"></span>
+                (<span class="listing-args" contenteditable="true"
+                        ui-keypress="{13:'argsEnter($event, du)'}"
+                        ng-blur="argsEnter($event, du)"
+                        ng-bind-html="getFunctionArgs(du.offset)"></span>)
             </td>
             <td ng-if="isLabel(du)"><span class="listing-label"
                                           ui-keypress="{13:'labelEnter($event, du)'}"

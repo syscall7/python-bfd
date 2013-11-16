@@ -39,6 +39,7 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
 
         $.each(comments.data, function(i,comment){
             $scope.comments[comment.offset] = comment;
+            console.debug(comment.offset);
         });
 
         $.each(functions.data, function(i,func){
@@ -122,7 +123,7 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
 
     $scope.setPosition = function(position) {
         odaApi.setPosition(position);
-    }
+    };
 
     $scope.$on('position', function(event, position) {
         console.log('position changed' + position);
@@ -148,9 +149,57 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
             $scope.location = position;
             handleScroll();
         }
+    });
 
+    $scope.retvalEnter = function($event, du) {
+        var func = $scope.functions[du.offset];
+        if ( undefined == func ) {
+            func = {
+                args : 'unknown',
+                name : $scope.getLabel(du)
+            };
+        }
 
-    })
+        func.retval = $($event.target).text();
+        $scope.functions[du.offset] = func;
+
+        $http.post("/odaweb/api/functions/",{
+            object_id : oda_util.getMaster().object_id,
+            content_type: oda_util.getMaster().content_type,
+            retval: func.retval,
+            args: func.args,
+            name: func.name,
+            offset: du.offset
+        });
+
+        //socketService.sendRetval(label, displayUnit.offset);
+        $event.preventDefault();
+    };
+
+    $scope.argsEnter = function($event, du) {
+        var func = $scope.functions[du.offset];
+        if ( undefined == func ) {
+            func = {
+                retval : 'unknown',
+                name : $scope.getLabel(du)
+            };
+        }
+
+        func.args = $($event.target).text();
+        $scope.functions[du.offset] = func;
+
+        $http.post("/odaweb/api/functions/",{
+            object_id : oda_util.getMaster().object_id,
+            content_type: oda_util.getMaster().content_type,
+            retval: func.retval,
+            args: func.args,
+            name: func.name,
+            offset: du.offset
+        });
+
+        //socketService.sendRetval(label, displayUnit.offset);
+        $event.preventDefault();
+    };
 
     $scope.labelEnter = function($event, displayUnit) {
         var label = $($event.target).text();
@@ -172,7 +221,7 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
             content_type: oda_util.getMaster().content_type,
             comment: comment,
             offset: displayUnit.offset
-        });;
+        });
         $scope.comments[comment.offset] = {comment: comment.comment, offset: displayUnit.offset};
         socketService.sendComment(comment, displayUnit.offset);
         $event.preventDefault();

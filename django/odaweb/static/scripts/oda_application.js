@@ -94,8 +94,15 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
             return $http.get('/odaweb/api/comments/?short_name=' + short_name + "&revision=" + revision);
         },
         getFunctions : function(short_name, revision) {
-            return $http.get('/odaweb/api/functions/?short_name=' + short_name + "&revision=" + revision);
+            console.debug('getting functions for ' + short_name + ' revision ' + revision);
+            return $http.get('/odaweb/api/functions/', {
+                params: {
+                    short_name : short_name,
+                    revision : revision
+                }
+            });
         },
+
         getLabels : function(short_name, revision) {
             return $http.get('/odaweb/api/labels/', {
                 params: {

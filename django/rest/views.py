@@ -30,7 +30,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         return Comment.get_for_binary(oda.binary)
 
 class FunctionViewSet(viewsets.ModelViewSet):
-    serializer_class = FunctionSerializer
+    #serializer_class = FunctionSerializer
     model = Function
 
     def get_queryset(self):
