@@ -7,45 +7,45 @@
         <!-- FUNCTION -->
 
         <!-- empty line before the function -->
-        <tr ng-if="isFunction(du)" addr={{ du.offset.toString(16) }}>
+        <tr ng-if="isFunction(du)" addr={{ du.offset | hex:8 }}>
             <td class="branchLines" ng-bind-html="du.branch_label"></td>
-            <td class="offset">{{du.section_name}}:0x{{ du.offset.toString(16) }}</td>
+            <td class="offset">{{du.section_name}}:0x{{ du.offset | hex:8 }}</td>
             <td></td>
             <td></td>
             <td></td>
         </tr>
 
-        <tr ng-if="isFunction(du)" addr="{{du.offset.toString(16)}}">
+        <tr ng-if="isFunction(du)" addr="{{du.offset | hex:8 }}">
             <td class="branchLines" ng-bind-html="du.branch_label"></td>
-            <td class="offset">{{du.section_name}}:0x{{ du.offset.toString(16) }}</td>
+            <td class="offset">{{du.section_name}}:0x{{ du.offset | hex:8 }}</td>
             <td></td>
             <td class="function" colspan="2">; =============== F U N C T I O N ==================</td>
         </tr>
 
-        <tr ng-repeat="xref in du.crossRef" addr={{ du.offset.toString(16) }}>
+        <tr ng-repeat="xref in du.crossRef" addr={{ du.offset | hex:8 }}>
             <td class="branchLines" ng-bind-html="du.branch_label"></td>
-            <td class="offset">{{du.section_name}}:0x{{ du.offset.toString(16) }}</td>
+            <td class="offset">{{du.section_name}}:0x{{ du.offset | hex:8 }}</td>
             <td></td>
             <td class="xref" colspan="2">
                 ; CODE XREF: <span class="clickable" ng-click="setPosition(xref.offset)">
-                        0x{{xref.offset.toString(16)}}
+                        0x{{xref.offset | hex:8 }}
                 </span>
             </td>
         </tr>
 
         <!-- empty line before the label -->
-        <tr ng-if="isLabeled(du)" addr={{ du.offset.toString(16) }}>
+        <tr ng-if="isLabeled(du)" addr={{ du.offset | hex:8 }}>
             <td class="branchLines" ng-bind-html="du.branch_label"></td>
-            <td class="offset">{{du.section_name}}:0x{{ du.offset.toString(16) }}</td>
+            <td class="offset">{{du.section_name}}:0x{{ du.offset | hex:8 }}</td>
             <td></td>
             <td></td>
             <td></td>
         </tr>
 
         <!-- Function Prototype or Label Name -->
-        <tr ng-if="isLabeled(du)" addr="{{ du.offset.toString(16) }}">
+        <tr ng-if="isLabeled(du)" addr="{{ du.offset | hex:8 }}">
             <td class="branchLines" ng-bind-html="du.branch_label"></td>
-            <td class="offset">{{du.section_name}}:0x{{ du.offset.toString(16) }}</td>
+            <td class="offset">{{du.section_name}}:0x{{ du.offset | hex:8 }}</td>
             <td></td>
             <td ng-if="isFunction(du)">
                 <span class="listing-retval" contenteditable="true" ng-bind-html="getPrototypeRetval(du.offset)"></span>
@@ -63,7 +63,7 @@
 
         <tr id="addr-{{ du.offset }}" addr="{{ du.offset }}" >
             <td class="branchLines" ng-bind-html="du.branch"></td>
-            <td class="offset"><a name="#{{ du.offset }}">{{ du.section_name }}:0x{{ du.offset.toString(16) }}</a></td>
+            <td class="offset"><a name="#{{ du.offset }}">{{ du.section_name }}:0x{{ du.offset | hex:8 }}</a></td>
             <td class="raw">{{ du.rawBytes }}</td>
             <!-- <td class="insn-col"><insn ng-bind-html="du.opcode + ' ' + du.operands"></insn></td> -->
             <td class="insn-col"><insn ng-bind-html="du.instStr"></insn></td>
