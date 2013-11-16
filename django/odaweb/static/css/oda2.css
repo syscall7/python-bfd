@@ -211,12 +211,13 @@ tbody.scrollContent {
     line-height: 14px;
 }
 
-.offset {
+.offset , .offset a {
     color: black;
     font-family: monospace;
     font-size: 14px;
     text-align: right;
     line-height: 14px;
+    text-decoration: none;
 }
 
 insn {
