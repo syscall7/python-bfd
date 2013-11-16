@@ -19,22 +19,39 @@ import types
 
 logger = logging.getLogger(__name__)
 
-
+# where to store uploaded files on the server's filesystem
 fs = FileSystemStorage(location='/tmp/odaweb2')
 
-## TODO: Used by views.py. Delete when views.py is obsoleted
-#class DisassemblyChunk(models.Model):
-#    odafile = models.ForeignKey(OdaFile)
-#
-#    # TODO: Is this length too much? Not enough?    
-#    #sec_name = models.CharField(max_length=128)
-#    start = models.IntegerField()
-#    end = models.IntegerField()
-#    is_boundary = models.BooleanField()
-#    class Meta:
-#        ordering = ['start']
+class OdaMaster(models.Model):
+    ''' Complete representation of a disassembled entity '''
+
+    ipAddress = models.CharField(max_length=64, default='')
+    project_name = models.CharField(max_length=64, default='')
+    short_name = models.CharField(max_length=12, db_index = True)
+    revision = models.IntegerField(default=0)
+    owner = models.ForeignKey(User, null=True)
+    creation_date = models.DateTimeField(auto_now_add = True)
+    copy = models.ForeignKey('OdaMaster', null=True)
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    binary = generic.GenericForeignKey()
+
+    def file_handle(self):
+        return self.content_object.file_handle()
+
+    def next_revision(self):
+        revisions = map(lambda m: m.revision, OdaMaster.objects.filter(short_name=self.short_name))
+        return max(revisions) + 1
+
+    def latest_revision(self):
+        revisions = map(lambda m: m.revision, OdaMaster.objects.filter(short_name=self.short_name))
+        return max(revisions)
+
+    def details(self):
+        return self.binary.options.target + " " + self.binary.options.architecture
 
 class OdaOptions(models.Model):
+    ''' Options that specify how the associated Binary is to be treated '''
     target = models.CharField(max_length=128)
     architecture = models.CharField(max_length=128)
     extra_options = models.CharField(max_length=256, default='{"flags" : [] }')
@@ -69,12 +86,12 @@ class OdaOptions(models.Model):
         o["endian"] = endian
         self.extra_options = json.dumps(o)
 
-
 class Binary(models.Model):
+    ''' Parent class of BinaryFile and BinaryString containing the data of a single disassembled entity'''
     options = models.OneToOneField(OdaOptions, null=True)
 
     def md5(self):
-        f = self.file_handle() 
+        f = self.file_handle()
         f.open('rb')
         md5 = hashlib.md5(f.read()).hexdigest()
         f.close()
@@ -82,7 +99,7 @@ class Binary(models.Model):
         return md5
 
     def sha1(self):
-        f = self.file_handle() 
+        f = self.file_handle()
         f.open('rb')
         md5 = hashlib.sha1(f.read()).hexdigest()
         f.close()
@@ -102,27 +119,10 @@ class Binary(models.Model):
     class Meta:
         abstract = True
 
-class BinaryParcel(models.Model):
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    binary = generic.GenericForeignKey()
-
-    start = models.BigIntegerField()
-    end = models.BigIntegerField()
-    is_code = models.NullBooleanField()
-
-    class Meta:
-        ordering = ['start']
-
-    @staticmethod
-    def get_for_binary(binary):
-        ctype = ContentType.objects.get_for_model(binary)
-        return BinaryParcel.objects.filter(content_type=ctype.id, object_id = binary.id)
-
-
 class BinaryString(Binary):
+    ''' Represents a disassembled binary that was entered as a string of hex characters via Live View'''
     binary_string = models.TextField()
-    
+
     def file_handle(self):
         if len(self.binary_string) % 2 == 1:
             self.binary_string += '0'
@@ -131,12 +131,12 @@ class BinaryString(Binary):
             byte_array = self.binary_string.decode("hex")
         except TypeError:
             logger.exception("Failed to decode hex")
-        
+
         # Create a file containing the BinaryString for passing to BFD
         #  Must use delete=False because bfd expects a file name
         t = tempfile.NamedTemporaryFile(bufsize = 0, delete = False)
         t.write(byte_array)
-        
+
         # Dynamic function that deletes the temp file when we are done with it
         def done(self):
             # Close the file in case it isn't already closed
@@ -144,7 +144,7 @@ class BinaryString(Binary):
 
             # Delete the temporary file permanently
             unlink(self.name)
-                
+
         # Add the done function dynamically to the File instance
         f = File(t)
         f.done = types.MethodType(done, f)
@@ -163,68 +163,15 @@ class BinaryString(Binary):
     def binary_string_display(self):
         return " ".join(self.binary_string[i:i+2] for i in range(0, len(self.binary_string), 2))
 
-class Comment(models.Model):
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    binary = generic.GenericForeignKey()
-    comment = models.CharField(max_length=255)
-    offset = models.BigIntegerField()
-
-    @staticmethod
-    def get_for_binary(binary):
-        ctype = ContentType.objects.get_for_model(binary)
-        return Comment.objects.filter(content_type=ctype.id, object_id = binary.id)
-
-class Function(models.Model):
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    binary = generic.GenericForeignKey()
-    name = models.CharField(max_length=255)
-    offset = models.BigIntegerField()
-    retval = models.CharField(max_length=255, default='unknown')
-    args = models.CharField(max_length=255, default='unknown')
-
-    class Meta:
-        unique_together = ('offset', 'content_type', 'object_id')
-
-    @staticmethod
-    def get_for_binary(binary):
-        ctype = ContentType.objects.get_for_model(binary)
-        return Function.objects.filter(content_type=ctype.id, object_id = binary.id)
-
-class Label(models.Model):
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    binary = generic.GenericForeignKey()
-    label = models.CharField(max_length=255)
-    offset = models.BigIntegerField()
-
-    @staticmethod
-    def get_for_binary(binary):
-        ctype = ContentType.objects.get_for_model(binary)
-        return Label.objects.filter(content_type=ctype.id, object_id = binary.id)
-
-class Symbol(models.Model):
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    binary = generic.GenericForeignKey()
-    name = models.CharField(max_length=255)
-    offset = models.IntegerField()
-    sym_type = models.CharField(max_length=1)
-
-    @staticmethod
-    def get_for_binary(binary):
-        ctype = ContentType.objects.get_for_model(binary)
-        return Label.objects.filter(content_type=ctype.id, object_id = binary.id)
-
 class BinaryFile(Binary):
+    ''' Represents a disassembled entity that was uploaded as a file '''
     the_file = models.FileField(storage=fs, upload_to="uploads")
     filename = models.CharField(max_length=255)
     filesize = models.IntegerField()
     hash = models.CharField(max_length=128)
 
     def file_handle(self):
-        
+
         # Add done function to the BinaryFile file object
         def done(self):
             # BinaryFiles need to exist indefinitely. Nothing to do here
@@ -255,35 +202,58 @@ class BinaryFile(Binary):
 
     create = staticmethod(create)
 
-class OdaMaster(models.Model):
-
-    ipAddress = models.CharField(max_length=64, default='')
-    project_name = models.CharField(max_length=64, default='')
-    short_name = models.CharField(max_length=12, db_index = True)
-    revision = models.IntegerField(default=0)
-    owner = models.ForeignKey(User, null=True)
-    creation_date = models.DateTimeField(auto_now_add = True)
-    copy = models.ForeignKey('OdaMaster', null=True)
+class BinaryFeature(models.Model):
+    ''' Represents a stored feature of a Binary '''
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     binary = generic.GenericForeignKey()
 
-    def file_handle(self):
-        return self.content_object.file_handle()
+    @classmethod
+    def get_for_binary(cls, binary):
+        ctype = ContentType.objects.get_for_model(binary)
+        return cls.objects.filter(content_type=ctype.id, object_id = binary.id)
 
-    def next_revision(self):
-        revisions = map(lambda m: m.revision, OdaMaster.objects.filter(short_name=self.short_name))
-        return max(revisions) + 1
+    class Meta:
+        abstract = True
 
-    def latest_revision(self):
-        revisions = map(lambda m: m.revision, OdaMaster.objects.filter(short_name=self.short_name))
-        return max(revisions)
+class BinaryAddressFeature(BinaryFeature):
+    ''' Represents a stored feature of a Binary, unique to a certain address '''
+    offset = models.BigIntegerField()
 
-    def details(self):
-        return self.binary.options.target + " " + self.binary.options.architecture
+    class Meta:
+        abstract = True
+        unique_together = ('offset', 'content_type', 'object_id')
 
+class Comment(BinaryAddressFeature):
+    ''' Comment on a line of disassembly '''
+    comment = models.CharField(max_length=255)
+
+class Function(BinaryAddressFeature):
+    ''' Describes a disassembled function '''
+    name = models.CharField(max_length=255)
+    retval = models.CharField(max_length=255, default='unknown')
+    args = models.CharField(max_length=255, default='unknown')
+
+class Label(BinaryAddressFeature):
+    ''' Describes a local label '''
+    label = models.CharField(max_length=255)
+
+class Symbol(BinaryAddressFeature):
+    ''' Symbol of a function or chunk of data '''
+    name = models.CharField(max_length=255)
+    sym_type = models.CharField(max_length=1)
+
+class BinaryParcel(BinaryFeature):
+    ''' Represents a contiguous chunk of code or a single data '''
+    start = models.BigIntegerField()
+    end = models.BigIntegerField()
+    is_code = models.NullBooleanField()
+
+    class Meta:
+        ordering = ['start']
 
 class InstDoc(models.Model):
+    ''' Help for an assembly instruction '''
     platform = models.TextField()
     mnemonic = models.TextField()
     short = models.TextField()
