@@ -4,10 +4,11 @@ __author__ = 'davis'
 
 import re
 import string
-import bfd
 import dischunk
 import time
 import os
+import bfd
+from ofd import Ofd
 from django.contrib.contenttypes.models import ContentType
 
 from odaweb.models import (Binary, BinaryString,
@@ -17,8 +18,6 @@ from odaweb.models import (Binary, BinaryString,
 import logging
 
 logger = logging.getLogger(__name__)
-
-TARGETS_WITHOUT_CODE_SECTIONS = ['binary', 'ihex', 'srec']
 
 def analyzerFactory(arch):
 
@@ -91,174 +90,13 @@ def get_platform_options(platform):
             #print 'DHTML',djhtmlOpts
     return djhtmlOpts
 
-# Returns our best guess at target (file format) and architecture
-def guess_bfd_arch(filename):
-
-    # use defaults these default when we can't detect the arch/target
-    arch = 'UNKNOWN!'
-    target = 'binary'
-    try:
-        target_archs = bfd.guess_target_arch(filename)
-
-        # TODO: Present these options to the user and let them pick from all matching target/archs
-
-        # for each detected target/arch
-        for (t, a) in target_archs:
-
-            # we'll set the target here even in cases where we cannot detect arch (i.e., ihex, srec)
-            target = t
-            if a != "UNKNOWN!":
-                arch = a
-                break
-
-    except bfd.BfdFileFormatException, e:
-        pass
-    except Exception, e:
-        pass
-
-    return arch, target
-
-class SectionInfo(object):
-    def __init__(self, sections):
-        self.sections = sections
-        if len(sections):
-            self.start_addr = sections[0].vma
-            self.stop_addr = sections[-1].vma + sections[-1].size - 1
-        else:
-            self.start_addr = 0
-            self.stop_addr = 0
-
-    addr_range = property(lambda self: self.stop_addr - self.start_addr)
-
 class Disassembler(object):
 
     def __init__(self, binary):
 
         self.binary = binary
 
-        self.bfd_file_handle = binary.file_handle()
-        filename = self.bfd_file_handle.name
-
-        self.bfd = bfd.Bfd(filename, binary.options.target, binary.options.architecture)
-
-        self.sections = list(self.bfd.sections.values())
-
-        for s in self.sections:
-            for f in bfd.FLAGS:
-                if f.name in s.flags:
-                    setattr(self, f.name, True) # i.e, section.SEC_ALLOC = True
-                else:
-                    setattr(self, f.name, False) # i.e, section.SEC_ALLOC = False
-    def __del__(self):
-        if hasattr(self, 'bfd'):
-            self.bfd.close()
-            self.bfd_file_handle.close()
-            self.bfd_file_handle.done()
-
-    def sectionFlagsInfo(self):
-        return bfd.FLAGS
-
-    def strings(self):
-        strs = {}
-        for s in self.get_loadable_sections().sections:
-            print 'Section %s, base 0x%08x, size 0x%08x' % (s.name, s.vma, s.size)
-            for m in re.finditer("([\t\x20-\x7e]{4,})", self.bfd.raw_data(s, s.vma, s.size)):
-                strs[m.start()+s.vma] = m.group(1)
-
-        for k,v in strs.items():
-            print '0x%08x: %s' % (k, v)
-        return strs
-
-    def sections_iter(self, flags=[]):
-        '''Iterate over all sections (in ascending address order) that have all give flags specified'''
-        for sec in self.sections:
-            sec_flags = [f.name for f in sec.flags]
-            if set(flags).issubset(sec_flags):
-                yield sec
-
-    def section_has_flags(self, section, flags=[]):
-        sec_flags = [f.name for f in section.flags]
-        if set(flags).issubset(sec_flags):
-            return True
-        else:
-            return False
-
-    def disassemble(self, name, start=None, stop=None, numLines=None, funcFmtLine=None, funcFmtLineArgs=None):
-        sec = self.bfd.sections[name]
-        baseAddr = self.binary.options.base_address
-        options = self.binary.options.get_extra_options()
-        if baseAddr:
-            baseAddr = int(baseAddr, 16)
-            start += baseAddr
-            stop += baseAddr
-        # determine endianness
-        endian = ({'BIG': bfd.ENDIAN_BIG,
-                    'LITTLE': bfd.ENDIAN_LITTLE,
-                    'DEFAULT': bfd.ENDIAN_DEFAULT})[self.binary.options.get_endian()]
-
-        analyzer = analyzerFactory(self.binary.options.architecture)
-        options = analyzer.processOptions(options)
-
-        # force intel syntax as default for i386 arch
-        if self.bfd.arch.startswith('i386') and len(options) == 0:
-            options = ['intel-mnemonic']
-
-        options_string = ",".join(options)
-
-        dis = self.bfd.disassemble(sec, start, stop, numLines, None, funcFmtLine, funcFmtLineArgs, endian, options_string, baseAddr)
-        return dis
-
-    def symbol(self, lookup):
-        '''Lookup can either be address or name'''
-        if type(lookup) == int:
-            return bfd.syms_by_addr[lookup]
-        elif type(lookup) == string:
-            return bfd.syms_by_name[lookup]
-        else:
-            raise Exception('Can\'t lookup symbol by type %s' % type(lookup))
-
-    def symbols(self):
-        '''Returns a list of Symbols sorted by increasing address'''
-        return [sym for (name, sym) in sorted(self.bfd.syms_by_name.iteritems(), key=lambda (name, sym): sym.value)]
-
-    def get_code_sections(self):
-
-        def filter_sec_code(sec):
-            return set(['SEC_CODE']).issubset([f.name for f in sec.flags])
-
-        # treat all sections as code for targets without code sections
-        if self.bfd.target in TARGETS_WITHOUT_CODE_SECTIONS:
-            code_sections = self.sections
-        # else, only get the code sections
-        else:
-            code_sections = filter(filter_sec_code, self.sections)
-
-        section_info = SectionInfo(code_sections)
-
-        return section_info
-
-    def get_loadable_sections(self):
-
-        def filter_sec_load(sec):
-            return set(['SEC_LOAD']).issubset([f.name for f in sec.flags])
-
-        # treat all sections as loaded for targets without code sections
-        if self.bfd.target in TARGETS_WITHOUT_CODE_SECTIONS:
-            code_sections = self.sections
-        # else, only get the code sections
-        else:
-            code_sections = filter(filter_sec_load, self.sections)
-
-        section_info = SectionInfo(code_sections)
-
-        return section_info
-
-    def get_section_from_addr(self, addr):
-        for sec in self.sections:
-            if addr >= sec.vma and addr < (sec.vma+sec.size):
-                return sec
-
-        return None
+        self.ofd = Ofd(binary)
 
     def get_parcels_from_file(self, sections, alwaysTreatAsCode):
 
@@ -266,7 +104,7 @@ class Disassembler(object):
 
         for sec in sections:
 
-            if self.section_has_flags(sec,['SEC_CODE']) or alwaysTreatAsCode:
+            if self.ofd.section_has_flags(sec,['SEC_CODE']) or alwaysTreatAsCode:
                 is_code = True
             else:
                 is_code = False
@@ -350,12 +188,12 @@ class Disassembler(object):
 
         # Disassemble the entire file, one section at a time, dividing it into disassembly chunks
         if alwaysTreatAsCode:
-            parcels = self.get_parcels_from_file(self.sections, True)
+            parcels = self.get_parcels_from_file(self.ofd.sections, True)
             if not parcels:
                 # TODO: What shoud we do if there is nothing for us to disassemble? Is this file empty?
                 logger.warn("Unable to obtain data from binary file")
         else:
-            parcels = self.get_parcels_from_file(self.sections_iter(['SEC_LOAD']), False)
+            parcels = self.get_parcels_from_file(self.ofd.sections_iter(['SEC_LOAD']), False)
             if not parcels:
                 # No code section, but there could still be strings, etc.
                 logger.warn('No code sections found to disassemble')
@@ -458,7 +296,7 @@ class Disassembler(object):
             return hex
 
         for parcel in parcels:
-            s = self.get_section_from_addr(parcel.start)
+            s = self.ofd.get_section_from_addr(parcel.start)
             alignment = s.vma % LINE_WIDTH
             logger.info("ALIGN: %d" % (alignment))
             # Determine if the chunk is the start of a section
@@ -478,7 +316,7 @@ class Disassembler(object):
 
 
             if rounded_size > 0:
-                raw = self.bfd.raw_data(s, rounded_start, rounded_size)
+                raw = self.ofd.bfd.raw_data(s, rounded_start, rounded_size)
                 raw_lines = [raw[i:i+LINE_WIDTH] for i in range(0,len(raw),LINE_WIDTH)]
                 addr = rounded_start
 
@@ -487,7 +325,7 @@ class Disassembler(object):
                         if parcel.end != (s.vma + s.size):
                             # Pad out the short line with bytes from the next chunk
                             pad_size = LINE_WIDTH - len(line)
-                            line += self.bfd.raw_data(s, parcel.end, pad_size)
+                            line += self.ofd.bfd.raw_data(s, parcel.end, pad_size)
                     ascii = toAscii(line)
                     hex = toHex(line)
                     name = s.name
@@ -647,74 +485,6 @@ class JsonChunkProcessor(object):
     #    logger.info("got dasm")
     #    dasm.mk_hex_lines(superchunks)
 
-examples = (
-    {
-        'project_name' : 'strcpy (x86)',
-        'short_name' : 'strcpy_x86',
-        'binary_type' : 'string',
-        'data' : '55 31 D2 89 E5 8B 45 08 56 8B 75 0C 53 8D 58 FF 0F B6 0C 16 88 4C 13 01 83 C2 01 84 C9 75 F1 5B 5E 5D C3 ',
-        'options' : OdaOptions(target="binary", architecture="i386"),
-        'comments' : (
-                (0x09, 'char* src = arg[1]'),
-                (0x0d, 'char* dst = arg[0]'),
-                (0x10, 'char c = src[i]'),
-                (0x14, 'dst[i] = c'),
-                (0x18, 'i++'),
-                (0x1b, 'while (c != 0)'),
-        ),
-        'labels': (
-            (0x10, 'loop'),
-        )
-    },
-    {
-        'project_name' : 'strcpy (arm)',
-        'short_name' : 'strcpy_arm',
-        'binary_type' : 'string',
-        'data' : '01 20 40 E2 02 20 61 E0 01 30 D1 E4 00 00 53 E3 02 30 C1 E7 FB FF FF 1A 1E FF 2F E1',
-        'options' : OdaOptions(target="binary", architecture="arm"),
-    },
-    {
-        'project_name' : 'whoami (Linux)',
-        'short_name' : 'whoami',
-        'binary_type' : 'file',
-        'file_name' : 'whoami',
-        'options' : OdaOptions(target="elf64-x86-64", architecture="i386:x86-64"),
-    },
-    {
-        'project_name' : 'mkdir (Linux)',
-        'short_name' : 'mkdir',
-        'binary_type' : 'file',
-        'file_name' : 'mkdir',
-        'options' : OdaOptions(target="elf64-x86-64", architecture="i386:x86-64"),
-        },
-    {
-        'project_name' : 'cat (Linux)',
-        'short_name' : 'cat',
-        'binary_type' : 'file',
-        'file_name' : 'cat',
-        'options' : OdaOptions(target="elf64-x86-64", architecture="i386:x86-64"),
-        },
-    {
-        'project_name' : 'chown (Linux)',
-        'short_name' : 'chown',
-        'binary_type' : 'file',
-        'file_name' : 'chown',
-        'options' : OdaOptions(target="elf64-x86-64", architecture="i386:x86-64"),        },
-    {
-        'project_name' : 'sha1sum (Linux)',
-        'short_name' : 'sha1sum',
-        'binary_type' : 'file',
-        'file_name' : 'sha1sum',
-        'options' : OdaOptions(target="elf64-x86-64", architecture="i386:x86-64"),
-    },
-    #{
-    #    'project_name' : 'Sasser Worm (Windows)',
-    #    'short_name' : 'sasser',
-    #    'binary_type' : 'file',
-    #    'file_name' : 'net-worm.win32.sasser.a',
-    #    'options' : OdaOptions(target="elf32-i386", architecture="i386"),
-    #    },
-)
 
 def copy_disassembly(from_id, from_version, owner, ip_address):
 

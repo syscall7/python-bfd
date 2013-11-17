@@ -50,7 +50,7 @@ def parseDataLine(section_name, start_addr, end_addr, self, displayUnits, is_dat
     dataLen = end_addr - start_addr
 
     # Get the raw data from the file
-    rawData = self.disassembler.bfd.raw_data(self.disassembler.bfd.sections[section_name], start_addr, dataLen)
+    rawData = self.disassembler.ofd.bfd.raw_data(self.disassembler.ofd.bfd.sections[section_name], start_addr, dataLen)
 
     if is_data:
         # TODO: Organize the data in groups of one, two, four bytes etc.,
@@ -84,7 +84,7 @@ def parseDataLine(section_name, start_addr, end_addr, self, displayUnits, is_dat
             addr += 1
 
 
-def parseDisassemblyLine(addr, rawData, instr, abfd, self, displayUnits, section_name):
+def parseEverything(addr, rawData, instr, abfd, self, displayUnits, section_name):
 
     du = DisplayUnit()
 
@@ -135,6 +135,34 @@ def parseDisassemblyLine(addr, rawData, instr, abfd, self, displayUnits, section
         du.section_name = section_name
         displayUnits[du.offset] = du
 
+def parseFunctionsOnly(addr, rawData, instr, abfd, self, functions):
+    ''' Disassembly line parser optimized for finding functions '''
+
+    if self.errorInstRegEx.match(instr):
+        return
+
+    # Get the Opcode
+    matchObj = self.opcodeRegEx.match(instr)
+    if matchObj:
+        du = DisplayUnit()
+        du.offset = addr
+        du.opcode = matchObj.group(1)
+        du.instType = self.getInstructionType(du.opcode)
+        du.operands = matchObj.group(2)
+
+        self.computeTargetAddr(du)
+
+        # If we need to create a function
+        if du.isTargetAddrValid and du.instType == instructionType.call:
+
+            # If this is a new Function
+            if du.targetAddr not in functions:
+                functions[du.targetAddr] = Function(du.targetAddr, 'func_%0.8x' % (du.targetAddr), 't', set([du.offset]))
+
+            # Else, update a pre-existing Function
+            else:
+                # Add new cross reference to set
+                self.functions[du.targetAddr].xrefs.update([du.offset])
 
 class defaultAnalyzer(object):
     '''
@@ -169,6 +197,67 @@ class defaultAnalyzer(object):
     def processOptions(self, options):
         return options
 
+    def analyzeFirstTime(self):
+        ''' Here we do the minimum initial analysis for a brand new file, and nothing more '''
+
+        # establish initial parcel boundaries
+        ctype = ContentType.objects.get_for_model(self.binary)
+        BinaryParcel.objects.filter(content_type=ctype.id, object_id=self.binary.id).delete()
+
+        # Disassemble the entire file, one section at a time, dividing it into disassembly chunks
+        if alwaysTreatAsCode:
+            parcels = self.get_parcels_from_file(self.sections, True)
+            if not parcels:
+                # TODO: What shoud we do if there is nothing for us to disassemble? Is this file empty?
+                logger.warn("Unable to obtain data from binary file")
+        else:
+            parcels = self.get_parcels_from_file(self.sections_iter(['SEC_LOAD']), False)
+            if not parcels:
+                # No code section, but there could still be strings, etc.
+                logger.warn('No code sections found to disassemble')
+
+        for parcel in parcels:
+            p = BinaryParcel(id=None,
+                start = parcel.start,
+                end = parcel.end,
+                is_code = parcel.is_code,
+                binary=self.binary
+                )
+            p.save()
+
+        # create Functions for symbols of type 't' and 'T'
+        functions = []
+        for sym in self.disassembler.ofd.symbols():
+            if sym.type == 'T' or sym.type == 't':
+                functions[sym.value] = Function(sym.value, sym.name, sym.type, set())
+
+        # create Functions for new functions we identify
+        start = 0
+        for parcel in parcels:
+            logger.debug("PARCEL START: 0x%08x RQ START: 0x%08x" % (parcel.start,start))
+
+            if parcel.end >= start:
+
+                if start < parcel.end and start >= parcel.start:
+                    dis_start = start
+                else:
+                    dis_start = parcel.start
+
+                dis_end = parcel.end
+
+                # Convert the parcel to disassembly
+                if parcel.is_code:
+                    s = self.disassembler.ofd.get_section_from_addr(dis_start)
+
+                    logger.debug("Requesting disassembly from BFD...")
+                    self.disassembler.ofd.disassemble(s.name, [], dis_start, dis_end,
+                                                  funcFmtLine=parseFunctionsOnly,
+                                                  funcFmtLineArgs={
+                                                      'self': self,
+                                                      'functions': functions,
+                                                      })
+
+
     def analyze(self, disassembler, parcels=None, start=0, onlySymbols=False):
 
         self.disassembler = disassembler
@@ -188,7 +277,7 @@ class defaultAnalyzer(object):
         self.opcodeRegEx = re.compile( self.opcodeRegExStr )
 
         # Grab the symbols and sections for convenience and performance reasons
-        self.symbols = self.disassembler.symbols()
+        self.symbols = self.disassembler.ofd.symbols()
 
         # Add preidentified symbols to the labels and functions list
         for sym in self.symbols:
@@ -225,9 +314,12 @@ class defaultAnalyzer(object):
                 # Convert the parcel to disassembly
                 # TODO: Fix sec name
                 if parcel.is_code:
-                    s = self.disassembler.get_section_from_addr(parcel.start)
-                    self.disassembler.disassemble(s.name, dis_start, dis_end,
-                                                  funcFmtLine=parseDisassemblyLine,
+                    s = self.disassembler.ofd.get_section_from_addr(parcel.start)
+
+                    logger.debug("Requesting disassembly from BFD...")
+                    options = self.processOptions(self.disassembler.binary.options.get_extra_options())
+                    self.disassembler.ofd.disassemble(s.name, options, dis_start, dis_end,
+                                                  funcFmtLine=parseEverything,
                                                   funcFmtLineArgs={
                                                       'self': self,
                                                       'displayUnits': self.displayUnits,
@@ -286,7 +378,7 @@ class defaultAnalyzer(object):
 
             for parcel in parcels:
                 logger.debug("PARCEL START: 0x%08x" % (parcel.start))
-                s = self.disassembler.get_section_from_addr(parcel.start)
+                s = self.disassembler.ofd.get_section_from_addr(parcel.start)
                 if start < parcel.end and start > parcel.start:
                     dis_start = start
                 else:

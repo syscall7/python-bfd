@@ -3,8 +3,9 @@ from django.utils.datastructures import MultiValueDictKeyError
 from odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment, InstDoc, Label, Function
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from disassembler import Disassembler, JsonChunkProcessor, examples, get_supported_archs, \
-    copy_disassembly, get_supported_endians, get_platform_options, guess_bfd_arch, analyzerFactory
+from disassembler import Disassembler, JsonChunkProcessor, get_supported_archs, \
+    copy_disassembly, get_supported_endians, get_platform_options, analyzerFactory
+from examples import Examples
 from django.contrib import messages
 from odaweb.models import BinaryParcel
 from django.template.loader import render_to_string
@@ -14,6 +15,7 @@ import dns.resolver
 import bfd
 import socket
 import logging
+from ofd import Ofd
 
 logger = logging.getLogger(__name__)
 
@@ -39,14 +41,14 @@ def index(request, disassembly_id, version=0):
 
     if oda_master:
         d = Disassembler(oda_master.binary)
-        section_info = d.get_loadable_sections()
+        section_info = d.ofd.get_loadable_sections()
         context['master'] = oda_master
         context['section_info'] = section_info
         context['binary'] = oda_master.binary
         context['project_name'] = oda_master.project_name
         context['disassembly_id'] = oda_master.short_name
         context['share_url'] = request.build_absolute_uri()
-        context['examples'] = examples
+        context['examples'] = Examples
         context['supported_archs'] = get_supported_archs()
         context['arch'] = oda_master.binary.options.architecture
         context['saved'] = saved
@@ -417,7 +419,7 @@ def upload(request):
         request.session["disassembly_token"]['id'] = oda_master.short_name
         request.session["disassembly_token"]['version'] = 0
 
-        arch, target = guess_bfd_arch(binary_file.file_handle().name)
+        arch, target = ofd.guess_bfd_arch(binary_file.file_handle().name)
         oda_master.binary.options.architecture = arch
         oda_master.binary.options.target = target
         oda_master.binary.options.save()

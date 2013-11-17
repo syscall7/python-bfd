@@ -46,7 +46,7 @@ class SectionsViewSet(viewsets.GenericViewSet):
         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
                                   revision=request.QUERY_PARAMS.get('revision'))
         d = Disassembler(oda.binary)
-        section_info = d.get_loadable_sections()
+        section_info = d.ofd.get_loadable_sections()
         serializer = self.get_serializer(section_info.sections, many=True)
         return Response(serializer.data)
 
@@ -107,7 +107,7 @@ class StringsViewSet(viewsets.GenericViewSet):
 
         binary = oda.binary
         dasm = Disassembler(binary)
-        strings = [{'addr': key, 'string': value} for key, value in sorted(dasm.strings().items(), key=lambda s: s[0])]
+        strings = [{'addr': key, 'string': value} for key, value in sorted(dasm.ofd.strings().items(), key=lambda s: s[0])]
         serializer = self.get_serializer(strings, many=True)
         return Response(serializer.data)
 

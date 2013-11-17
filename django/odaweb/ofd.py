@@ -1,0 +1,178 @@
+import bfd
+import re
+import logging
+
+logger = logging.getLogger(__name__)
+
+TARGETS_WITHOUT_CODE_SECTIONS = ['binary', 'ihex', 'srec']
+
+class SectionInfo(object):
+    def __init__(self, sections):
+        self.sections = sections
+        if len(sections):
+            self.start_addr = sections[0].vma
+            self.stop_addr = sections[-1].vma + sections[-1].size - 1
+        else:
+            self.start_addr = 0
+            self.stop_addr = 0
+
+    addr_range = property(lambda self: self.stop_addr - self.start_addr)
+
+class Ofd(object):
+    ''' ODA File Descriptor (wrapper for BFD) '''
+
+    @staticmethod
+    def guess_bfd_arch(filename):
+        ''' Returns our best guess at target (file format) and architecture '''
+
+        # use defaults these default when we can't detect the arch/target
+        arch = 'UNKNOWN!'
+        target = 'binary'
+        try:
+            target_archs = bfd.guess_target_arch(filename)
+
+            # TODO: Present these options to the user and let them pick from all matching target/archs
+
+            # for each detected target/arch
+            for (t, a) in target_archs:
+
+                # we'll set the target here even in cases where we cannot detect arch (i.e., ihex, srec)
+                target = t
+                if a != "UNKNOWN!":
+                    arch = a
+                    break
+
+        except bfd.BfdFileFormatException, e:
+            pass
+        except Exception, e:
+            pass
+
+        return arch, target
+
+    def __init__(self, binary):
+
+        self.binary = binary
+
+        self.bfd_file_handle = binary.file_handle()
+        filename = self.bfd_file_handle.name
+
+        # internal BFD object
+        self.bfd = bfd.Bfd(filename, binary.options.target, binary.options.architecture)
+
+        # process sections
+        self.sections = list(self.bfd.sections.values())
+        for s in self.sections:
+            for f in bfd.FLAGS:
+                if f.name in s.flags:
+                    setattr(self, f.name, True) # i.e, section.SEC_ALLOC = True
+                else:
+                    setattr(self, f.name, False) # i.e, section.SEC_ALLOC = False
+
+    def __del__(self):
+        if hasattr(self, 'bfd'):
+            self.bfd.close()
+            self.bfd_file_handle.close()
+            self.bfd_file_handle.done()
+
+    def sectionFlagsInfo(self):
+        return bfd.FLAGS
+
+    def strings(self):
+        strs = {}
+        for s in self.get_loadable_sections().sections:
+            print 'Section %s, base 0x%08x, size 0x%08x' % (s.name, s.vma, s.size)
+            for m in re.finditer("([\t\x20-\x7e]{4,})", self.bfd.raw_data(s, s.vma, s.size)):
+                strs[m.start()+s.vma] = m.group(1)
+
+        for k,v in strs.items():
+            print '0x%08x: %s' % (k, v)
+        return strs
+
+    def sections_iter(self, flags=[]):
+        '''Iterate over all sections (in ascending address order) that have all give flags specified'''
+        for sec in self.sections:
+            sec_flags = [f.name for f in sec.flags]
+            if set(flags).issubset(sec_flags):
+                yield sec
+
+    def section_has_flags(self, section, flags=[]):
+        sec_flags = [f.name for f in section.flags]
+        if set(flags).issubset(sec_flags):
+            return True
+        else:
+            return False
+
+    def disassemble(self, name, options=[], start=None, stop=None, numLines=None, funcFmtLine=None, funcFmtLineArgs=None):
+        sec = self.bfd.sections[name]
+        baseAddr = self.binary.options.base_address
+
+        if baseAddr:
+            baseAddr = int(baseAddr, 16)
+            start += baseAddr
+            stop += baseAddr
+        # determine endianness
+        endian = ({'BIG': bfd.ENDIAN_BIG,
+                    'LITTLE': bfd.ENDIAN_LITTLE,
+                    'DEFAULT': bfd.ENDIAN_DEFAULT})[self.binary.options.get_endian()]
+
+        # force intel syntax as default for i386 arch
+        if self.bfd.arch.startswith('i386') and len(options) == 0:
+            options.append('intel-mnemonic')
+
+        options_string = ",".join(options)
+
+        dis = self.bfd.disassemble(sec, start, stop, numLines, None, funcFmtLine, funcFmtLineArgs, endian, options_string, baseAddr)
+        return dis
+
+    def symbol(self, lookup):
+        '''Lookup can either be address or name'''
+        if type(lookup) == int:
+            return bfd.syms_by_addr[lookup]
+        elif type(lookup) == string:
+            return bfd.syms_by_name[lookup]
+        else:
+            raise Exception('Can\'t lookup symbol by type %s' % type(lookup))
+
+    def symbols(self):
+        '''Returns a list of Symbols sorted by increasing address'''
+        return [sym for (name, sym) in sorted(self.bfd.syms_by_name.iteritems(), key=lambda (name, sym): sym.value)]
+
+    def get_code_sections(self):
+
+        def filter_sec_code(sec):
+            return set(['SEC_CODE']).issubset([f.name for f in sec.flags])
+
+        # treat all sections as code for targets without code sections
+        if self.bfd.target in TARGETS_WITHOUT_CODE_SECTIONS:
+            code_sections = self.sections
+        # else, only get the code sections
+        else:
+            code_sections = filter(filter_sec_code, self.sections)
+
+        section_info = SectionInfo(code_sections)
+
+        return section_info
+
+    def get_loadable_sections(self):
+
+        def filter_sec_load(sec):
+            return set(['SEC_LOAD']).issubset([f.name for f in sec.flags])
+
+        # treat all sections as loaded for targets without code sections
+        if self.bfd.target in TARGETS_WITHOUT_CODE_SECTIONS:
+            loadable_sections = self.sections
+        # else, only get the code sections
+        else:
+            loadable_sections = filter(filter_sec_load, self.sections)
+
+        section_info = SectionInfo(loadable_sections)
+
+        return section_info
+
+    def get_section_from_addr(self, addr):
+        for sec in self.sections:
+            if addr >= sec.vma and addr < (sec.vma+sec.size):
+                return sec
+
+        return None
+

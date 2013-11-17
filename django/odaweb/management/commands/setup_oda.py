@@ -3,7 +3,8 @@ import re
 import subprocess
 from django.core.management.base import BaseCommand, CommandError
 import odaweb.disassembler
-from odaweb.disassembler import Disassembler, examples
+from odaweb.disassembler import Disassembler
+from examples import Examples
 from odaweb.models import BinaryParcel, Binary, BinaryString, BinaryFile, OdaMaster, OdaOptions, InstDoc, Comment, Label
 from django.contrib.contenttypes.models import ContentType
 
@@ -11,7 +12,7 @@ def load_examples():
 
     EXAMPLES_DIR = os.path.join(os.path.dirname(odaweb.disassembler.__file__), 'examples')
 
-    for example in examples:
+    for example in Examples:
         short_name = example['short_name']
         if OdaMaster.objects.filter(short_name=short_name).exists():
             print 'Example %s already exists in the database' % short_name
