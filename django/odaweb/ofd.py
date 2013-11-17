@@ -21,34 +21,6 @@ class SectionInfo(object):
 class Ofd(object):
     ''' ODA File Descriptor (wrapper for BFD) '''
 
-    @staticmethod
-    def guess_bfd_arch(filename):
-        ''' Returns our best guess at target (file format) and architecture '''
-
-        # use defaults these default when we can't detect the arch/target
-        arch = 'UNKNOWN!'
-        target = 'binary'
-        try:
-            target_archs = bfd.guess_target_arch(filename)
-
-            # TODO: Present these options to the user and let them pick from all matching target/archs
-
-            # for each detected target/arch
-            for (t, a) in target_archs:
-
-                # we'll set the target here even in cases where we cannot detect arch (i.e., ihex, srec)
-                target = t
-                if a != "UNKNOWN!":
-                    arch = a
-                    break
-
-        except bfd.BfdFileFormatException, e:
-            pass
-        except Exception, e:
-            pass
-
-        return arch, target
-
     def __init__(self, binary):
 
         self.binary = binary
