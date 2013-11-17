@@ -139,6 +139,10 @@ def set(request):
             # always return the cleaned data, whether you have changed it or not
             return self.cleaned_data['base_address']
 
+        def clean_arch(self):
+            arch = self.cleaned_data['arch']
+            return arch.strip()
+
     form = HexUploadForm(request.POST) # A form bound to the POST data
 
     # initialize base_address with whatever was in the form data, even if it is invalid
