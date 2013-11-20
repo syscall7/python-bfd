@@ -111,6 +111,15 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
                 }
             });
         },
+        setComment : function(id, comment) {
+            return $http({
+                method: 'PATCH',
+                url: '/odaweb/api/comments/'+id+"/",
+                data: {
+                  comment: comment
+                }
+            });
+        },
         getLabels : function(short_name, revision) {
             return $http.get('/odaweb/api/labels/', {
                 params: {

@@ -24,10 +24,14 @@ class CommentViewSet(viewsets.ModelViewSet):
     model = Comment
 
     def get_queryset(self):
-        oda = OdaMaster.objects.get(short_name=self.request.QUERY_PARAMS.get('short_name'),
-                                  revision=self.request.QUERY_PARAMS.get('revision'))
+        queryset = Comment.objects.all()
+        short_name = self.request.QUERY_PARAMS.get('short_name', None)
+        revision = self.request.QUERY_PARAMS.get('revision', None)
+        if short_name is not None:
+            oda = OdaMaster.objects.get(short_name=short_name, revision=revision)
+            return Comment.get_for_binary(oda.binary)
 
-        return Comment.get_for_binary(oda.binary)
+        return queryset
 
 class FunctionViewSet(viewsets.ModelViewSet):
     #serializer_class = FunctionSerializer

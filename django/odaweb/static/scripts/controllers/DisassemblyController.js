@@ -226,12 +226,22 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
 
     $scope.commentEnter = function($event, displayUnit) {
         var comment = $($event.target).text()
-        $http.post("/odaweb/api/comments/",{
-            object_id : oda_util.getMaster().object_id,
-            content_type: oda_util.getMaster().content_type,
-            comment: comment,
-            offset: displayUnit.offset
-        });
+
+        var existingComment = $scope.comments[displayUnit.offset];
+
+        if (typeof existingComment == 'undefined') {
+            $http.post("/odaweb/api/comments/",{
+                object_id : oda_util.getMaster().object_id,
+                content_type: oda_util.getMaster().content_type,
+                comment: comment,
+                offset: displayUnit.offset
+            }).success(function(data){
+                $scope.comments[displayUnit.offset] = data;
+            });
+        } else {
+            odaApi.setComment(existingComment.id, comment);
+        }
+
         $scope.comments[comment.offset] = {comment: comment.comment, offset: displayUnit.offset};
         socketService.sendComment(comment, displayUnit.offset);
         $event.preventDefault();
