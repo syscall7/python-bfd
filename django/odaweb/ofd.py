@@ -109,6 +109,14 @@ class Ofd(object):
         '''Returns a list of Symbols sorted by increasing address'''
         return [sym for (name, sym) in sorted(self.bfd.syms_by_name.iteritems(), key=lambda (name, sym): sym.value)]
 
+    def is_code_section(self, sec):
+
+        # treat all sections as code for targets without code sections
+        if self.bfd.target in TARGETS_WITHOUT_CODE_SECTIONS:
+            return True
+        else:
+            return self.section_has_flags(sec, ['SEC_CODE'])
+
     def get_code_sections(self):
 
         def filter_sec_code(sec):

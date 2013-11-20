@@ -135,7 +135,7 @@ def parseEverything(addr, rawData, instr, abfd, self, displayUnits, section_name
         du.section_name = section_name
         displayUnits[du.offset] = du
 
-def parseFunctionsOnly(addr, rawData, instr, abfd, self, functions):
+def parseFunctionsOnly(addr, rawData, instr, abfd, self):
     ''' Disassembly line parser optimized for finding functions '''
 
     if self.errorInstRegEx.match(instr):
@@ -156,8 +156,8 @@ def parseFunctionsOnly(addr, rawData, instr, abfd, self, functions):
         if du.isTargetAddrValid and du.instType == instructionType.call:
 
             # If this is a new Function
-            if du.targetAddr not in functions:
-                functions[du.targetAddr] = Function(du.targetAddr, 'func_%0.8x' % (du.targetAddr), 't', set([du.offset]))
+            if du.targetAddr not in self.functions:
+                self.functions[du.targetAddr] = Function(du.targetAddr, 'func_%0.8x' % (du.targetAddr), 't', set([du.offset]))
 
             # Else, update a pre-existing Function
             else:
@@ -197,39 +197,17 @@ class defaultAnalyzer(object):
     def processOptions(self, options):
         return options
 
-    def analyzeFirstTime(self):
+    def analyze_first_time(self, disassembler, parcels):
         ''' Here we do the minimum initial analysis for a brand new file, and nothing more '''
 
-        # establish initial parcel boundaries
-        ctype = ContentType.objects.get_for_model(self.binary)
-        BinaryParcel.objects.filter(content_type=ctype.id, object_id=self.binary.id).delete()
-
-        # Disassemble the entire file, one section at a time, dividing it into disassembly chunks
-        if alwaysTreatAsCode:
-            parcels = self.get_parcels_from_file(self.sections, True)
-            if not parcels:
-                # TODO: What shoud we do if there is nothing for us to disassemble? Is this file empty?
-                logger.warn("Unable to obtain data from binary file")
-        else:
-            parcels = self.get_parcels_from_file(self.sections_iter(['SEC_LOAD']), False)
-            if not parcels:
-                # No code section, but there could still be strings, etc.
-                logger.warn('No code sections found to disassemble')
-
-        for parcel in parcels:
-            p = BinaryParcel(id=None,
-                start = parcel.start,
-                end = parcel.end,
-                is_code = parcel.is_code,
-                binary=self.binary
-                )
-            p.save()
+        self.errorInstRegEx = re.compile( self.errorInstRegExStr )
+        self.opcodeRegEx = re.compile( self.opcodeRegExStr )
 
         # create Functions for symbols of type 't' and 'T'
-        functions = []
-        for sym in self.disassembler.ofd.symbols():
+        self.functions = {}
+        for sym in disassembler.ofd.symbols():
             if sym.type == 'T' or sym.type == 't':
-                functions[sym.value] = Function(sym.value, sym.name, sym.type, set())
+                self.functions[sym.value] = Function(sym.value, sym.name, sym.type, set())
 
         # create Functions for new functions we identify
         start = 0
@@ -247,18 +225,17 @@ class defaultAnalyzer(object):
 
                 # Convert the parcel to disassembly
                 if parcel.is_code:
-                    s = self.disassembler.ofd.get_section_from_addr(dis_start)
+                    s = disassembler.ofd.get_section_from_addr(dis_start)
 
                     logger.debug("Requesting disassembly from BFD...")
-                    self.disassembler.ofd.disassemble(s.name, [], dis_start, dis_end,
+                    disassembler.ofd.disassemble(s.name, [], dis_start, dis_end,
                                                   funcFmtLine=parseFunctionsOnly,
                                                   funcFmtLineArgs={
                                                       'self': self,
-                                                      'functions': functions,
                                                       })
 
 
-    def analyze(self, disassembler, parcels=None, start=0, onlySymbols=False):
+    def analyze(self, disassembler, parcels=None, start=0, maxLines=None):
 
         self.disassembler = disassembler
         self.instParserRegEx = re.compile(
@@ -318,13 +295,20 @@ class defaultAnalyzer(object):
 
                     logger.debug("Requesting disassembly from BFD...")
                     options = self.processOptions(self.disassembler.binary.options.get_extra_options())
-                    self.disassembler.ofd.disassemble(s.name, options, dis_start, dis_end,
+                    (_, _, lines) = self.disassembler.ofd.disassemble(s.name, options, dis_start, dis_end,
+                                                  numLines = maxLines,
                                                   funcFmtLine=parseEverything,
                                                   funcFmtLineArgs={
                                                       'self': self,
                                                       'displayUnits': self.displayUnits,
                                                       'section_name': s.name,
                                                   })
+
+                    if maxLines is not None:
+                        maxLines -= lines
+                        if maxLines <= 0:
+                            break;
+
                     #elif parcel.is_code == None:
                     #    # Defined Data
                     #    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, False)
@@ -332,71 +316,66 @@ class defaultAnalyzer(object):
                     #    # Undefined
                     #    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, True)
 
-        # Don't need to do multiple passes just for the symbols
-        if not onlySymbols:
-            # Now we've got the superchunk fields populated
-            logger.debug("Analyze: INSTRUCTIONS POPULATED. BRANCH COUNT: %d" % (len(self.branches)))
+        logger.debug("Analyze: INSTRUCTIONS POPULATED. BRANCH COUNT: %d" % (len(self.branches)))
 
-            # verify target address is at a valid instruction boundary (someday maybe we'll handle the odd case where it's not)
-            for b in self.branches:
-                b.isTargetAddrValid = False
-                if b.targetAddr in self.displayUnits:
-                    b.isTargetAddrValid = True
-                    break
+        # verify target address is at a valid instruction boundary (someday maybe we'll handle the odd case where it's not)
+        for b in self.branches:
+            b.isTargetAddrValid = False
+            if b.targetAddr in self.displayUnits:
+                b.isTargetAddrValid = True
+                break
 
-            # Second Pass
-            logger.debug("Analyze: START SECOND INSTRUCTION PASS. UNITS COUNT: %d" % (len(self.displayUnits)))
+        # Second Pass
+        logger.debug("Analyze: START SECOND INSTRUCTION PASS. UNITS COUNT: %d" % (len(self.displayUnits)))
 
-            # break up branches into sets based on function boundary
-            prevFuncAddr = -1
+        # break up branches into sets based on function boundary
+        prevFuncAddr = -1
 
-            # sort displayUnits
-            dunits = sorted(self.displayUnits.values(), key=lambda du: du.offset)
+        # sort displayUnits
+        dunits = sorted(self.displayUnits.values(), key=lambda du: du.offset)
 
-            if len(self.functions) > 0:
-                for function in sorted(self.functions.values(), key=lambda f: f.offset):
+        if len(self.functions) > 0:
+            for function in sorted(self.functions.values(), key=lambda f: f.offset):
 
-                    # get all the branches between prev func and this func
-                    branches = [b for b in self.branches if b.targetAddr > prevFuncAddr and b.targetAddr < function.offset]
+                # get all the branches between prev func and this func
+                branches = [b for b in self.branches if b.targetAddr > prevFuncAddr and b.targetAddr < function.offset]
 
-                    dus = [du for du in dunits if du.offset >= prevFuncAddr and du.offset < function.offset]
+                dus = [du for du in dunits if du.offset >= prevFuncAddr and du.offset < function.offset]
 
-                    self.addBranchLinesAndLabels(dus, branches)
-                    prevFuncAddr = function.offset
-
-                # now process betwen the last func and the end
-                branches = [b for b in self.branches if b.targetAddr >= prevFuncAddr]
-                dus = [du for du in dunits if du.offset >= prevFuncAddr]
                 self.addBranchLinesAndLabels(dus, branches)
+                prevFuncAddr = function.offset
 
+            # now process betwen the last func and the end
+            branches = [b for b in self.branches if b.targetAddr >= prevFuncAddr]
+            dus = [du for du in dunits if du.offset >= prevFuncAddr]
+            self.addBranchLinesAndLabels(dus, branches)
+
+        else:
+            self.addBranchLinesAndLabels(dunits, self.branches)
+
+        logger.debug("Analyze: SECOND PASS COMPLETE")
+
+        logger.debug("Analyze: THIRD PASS FOR DATA")
+
+        # TODO: Add data display back in, but make it respect maxLines
+        for parcel in []: #parcels:
+            logger.debug("PARCEL START: 0x%08x" % (parcel.start))
+            s = self.disassembler.ofd.get_section_from_addr(parcel.start)
+            if start < parcel.end and start > parcel.start:
+                dis_start = start
             else:
-                self.addBranchLinesAndLabels(dunits, self.branches)
+                dis_start = parcel.start
 
-            logger.debug("Analyze: SECOND PASS COMPLETE")
+            dis_end = parcel.end
 
-            logger.debug("Analyze: THIRD PASS FOR DATA")
+            if parcel.is_code == None:
+                # Defined Data
+                parseDataLine(s.name, dis_start, dis_end, self, self.displayUnits, False)
+            elif parcel.is_code == False:
+                # Undefined
+                parseDataLine(s.name, dis_start, dis_end, self, self.displayUnits, True)
 
-            for parcel in parcels:
-                logger.debug("PARCEL START: 0x%08x" % (parcel.start))
-                s = self.disassembler.ofd.get_section_from_addr(parcel.start)
-                if start < parcel.end and start > parcel.start:
-                    dis_start = start
-                else:
-                    dis_start = parcel.start
-
-                #if end < parcel.end:
-                #    dis_end = end
-                #else:
-                dis_end = parcel.end
-
-                if parcel.is_code == None:
-                    # Defined Data
-                    parseDataLine(s.name, dis_start, dis_end, self, self.displayUnits, False)
-                elif parcel.is_code == False:
-                    # Undefined
-                    parseDataLine(s.name, dis_start, dis_end, self, self.displayUnits, True)
-
-            logger.debug("Analyze: THIRD PASS COMPLETE")
+        logger.debug("Analyze: THIRD PASS COMPLETE")
 
     def addBranchLinesAndLabels(self, dunits, branches):
 

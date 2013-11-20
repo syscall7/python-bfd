@@ -3,7 +3,7 @@ from django.utils.datastructures import MultiValueDictKeyError
 from odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment, InstDoc, Label, Function
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from disassembler import Disassembler, JsonChunkProcessor, get_supported_archs, \
+from disassembler import Disassembler, get_supported_archs, \
     copy_disassembly, get_supported_endians, get_platform_options, analyzerFactory
 from examples import Examples
 from django.contrib import messages
@@ -194,10 +194,9 @@ def set(request):
         oda_master.binary.options.save()
 
         disassembler = Disassembler(oda_master.binary)
-        if formType == "live":
-            disassembler.process_parcels(True,True)
-        else:
-            disassembler.process_parcels(False,True)
+
+        # TODO: This is getting called twice for a file upload, once before options are presented and once after
+        disassembler.analyze_first_time()
 
     form_html = render_to_string('form-platform-options.djhtml', {
                     'arch' : arch,

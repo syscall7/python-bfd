@@ -4,7 +4,7 @@ import subprocess
 from django.core.management.base import BaseCommand, CommandError
 import odaweb.disassembler
 from odaweb.disassembler import Disassembler
-from examples import Examples
+from odaweb.examples import Examples
 from odaweb.models import BinaryParcel, Binary, BinaryString, BinaryFile, OdaMaster, OdaOptions, InstDoc, Comment, Label
 from django.contrib.contenttypes.models import ContentType
 
@@ -52,7 +52,7 @@ def load_examples():
                 print "Saving label %s To %s" % (label.label, binary.id)
 
         disassembler = Disassembler(binary)
-        disassembler.process_parcels(alwaysTreatAsCode)
+        disassembler.analyze_first_time()
 
 
 # ------------------------------------------------------------------------------

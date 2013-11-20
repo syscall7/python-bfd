@@ -126,106 +126,47 @@ class Disassembler(object):
 
         return arch, target
 
-    def get_parcels_from_file(self, sections, alwaysTreatAsCode):
+    def get_parcels(self):
 
         parcels = []
 
-        for sec in sections:
+        for sec in self.ofd.get_loadable_sections().sections:
 
-            if self.ofd.section_has_flags(sec,['SEC_CODE']) or alwaysTreatAsCode:
-                is_code = True
-            else:
-                is_code = False
-
+            is_code = self.ofd.is_code_section(sec)
             parcel = dischunk.DisParcel(sec.vma, sec.size+sec.vma, is_code)
             parcels.append(parcel)
 
         return parcels
 
-    #def get_all_parcels(self, sections, alwaysTreatAsCode):
-    #
-    #    parcels = []
-    #
-    #    for sec in sections:
-    #        parcel = dischunk.DisParcel()
-    #        if self.section_has_flags(sec,['SEC_CODE']) or alwaysTreatAsCode:
-    #            parcel.is_code = True
-    #        else:
-    #            parcel.is_code = False
-    #
-    #        parcel.start = sec.vma
-    #        parcel.end = sec.size+sec.vma
-    #        parcels.append(parcel)
-    #
-    #    return parcels
+    def analyze(self, start, lines):
 
-
-    #def get_chunks_from_file(self, sections, alwaysTreatAsCode=False):
-    #    super_chunks = []
-    #    cur_super_chunk = dischunk.DisSuperChunk()
-    #
-    #    for sec in sections:
-    #
-    #        # Initialize loop variables
-    #        sec_consumed = 0
-    #        sec_offset_addr = sec.vma
-    #
-    #        while sec_consumed < sec.size:
-    #
-    #            chunk_size = min( cur_super_chunk.available_len(), sec.size-sec_consumed )
-    #            treatAsCode = False
-    #
-    #            if self.section_has_flags(sec,['SEC_CODE']) or alwaysTreatAsCode:
-    #                # Disassemble a chunk
-    #                disassembly, next_addr, num_lines = self.disassemble(sec.name, sec_offset_addr, sec_offset_addr+chunk_size)
-    #                treatAsCode = True
-    #
-    #                # when disassembling binaries, weird things can happen...this is one of them
-    #                if next_addr <= sec_offset_addr:
-    #                    break
-    #
-    #                # Update Size
-    #                chunk_size = next_addr - sec_offset_addr
-    #            else:
-    #                # Pure Data or Undefined Section
-    #                next_addr = sec_offset_addr+chunk_size
-    #
-    #            # Grow the super chunk
-    #            cur_super_chunk.grow(sec.name, sec_offset_addr, chunk_size, treatAsCode)
-    #
-    #            # Check if we need to add another super chunk
-    #            if cur_super_chunk.available_len() == 0 or chunk_size == 0:
-    #                # Not enough room in the chunk to add to it
-    #                #    Get a new chunk
-    #                super_chunks.append(cur_super_chunk)
-    #                cur_super_chunk = dischunk.DisSuperChunk()
-    #
-    #            # Update loop variables
-    #            sec_consumed += chunk_size
-    #            sec_offset_addr = next_addr
-    #
-    #    # Include the last chunk
-    #    if len(cur_super_chunk) > 0:
-    #        super_chunks.append(cur_super_chunk)
-    #
-    #    return super_chunks
-
-    def process_parcels(self,alwaysTreatAsCode=False,initialPass=True):
         ctype = ContentType.objects.get_for_model(self.binary)
-        BinaryParcel.objects.filter(content_type=ctype.id, object_id=self.binary.id).delete()
+        parcels = BinaryParcel.objects.filter(content_type=ctype.id, object_id= self.binary.id, end__gte = start)[:]
+
+        architecture = self.binary.options.architecture
+        analyzer = analyzerFactory(architecture)
+
+        analyzer.analyze( self, parcels, start=start, maxLines=lines)
+        sorted_du = analyzer.displayUnits.values()
+        sorted_du.sort(key=lambda x: x.offset, reverse=False)
+        return sorted_du
+
+    def analyze_first_time(self):
+        ctype = ContentType.objects.get_for_model(self.binary)
+        parcels = BinaryParcel.objects.filter(content_type=ctype.id, object_id=self.binary.id)
+
+        # if one parcel already exists, then we've already completed first-time analysis
+        if parcels.exists():
+            logger.warn('Attempted first-time analysis again!')
+            return
 
         # Disassemble the entire file, one section at a time, dividing it into disassembly chunks
-        if alwaysTreatAsCode:
-            parcels = self.get_parcels_from_file(self.ofd.sections, True)
-            if not parcels:
-                # TODO: What shoud we do if there is nothing for us to disassemble? Is this file empty?
-                logger.warn("Unable to obtain data from binary file")
-        else:
-            parcels = self.get_parcels_from_file(self.ofd.sections_iter(['SEC_LOAD']), False)
-            if not parcels:
-                # No code section, but there could still be strings, etc.
-                logger.warn('No code sections found to disassemble')
+        parcels = self.get_parcels()
+        if not parcels:
+            # TODO: What shoud we do if there is nothing for us to disassemble? Is this file empty?
+            logger.warn('No code sections found to disassemble')
 
+        # Save parcels to database
         for parcel in parcels:
             p = BinaryParcel(id=None,
                 start = parcel.start,
@@ -235,65 +176,18 @@ class Disassembler(object):
                 )
             p.save()
 
-        # Make the initial pass to load the database with info from the newly uploaded file
-        if initialPass:
+        architecture = self.binary.options.architecture
+        analyzer = analyzerFactory(architecture)
+        analyzer.analyze_first_time(self, parcels)
 
-            # Make a pass through the code sections to identify more symbols
-            #dbParcels = BinaryParcel.objects.filter(
-            #                content_type=ctype.id, object_id = self.binary.id)
-            #architecture = self.binary.options.architecture
-            #analyzer = analyzerFactory(architecture)
-            #analyzer.analyze( self, dbParcels )
-            pass
-
-
-
-    #def process_chunks(self,alwaysTreatAsCode=False):
-    #    ctype = ContentType.objects.get_for_model(self.binary)
-    #    BinaryDisassemblySuperChunk.objects.filter(content_type=ctype.id, object_id=self.binary.id).delete()
-    #
-    #    # Disassemble the entire file, one section at a time, dividing it into disassembly chunks
-    #    if alwaysTreatAsCode:
-    #        super_chunks = self.get_chunks_from_file(self.sections, True)
-    #        if not super_chunks:
-    #            # TODO: What shoud we do if there is nothing for us to disassemble? Is this file empty?
-    #            logger.warn("Unable to obtain data from binary file")
-    #    else:
-    #        super_chunks = self.get_chunks_from_file(self.sections_iter(['SEC_LOAD']), False)
-    #        if not super_chunks:
-    #            # No code section, but there could still be strings, etc.
-    #            logger.warn('No code sections found to disassemble')
-    #
-    #    # Note the boundary chunks
-    #    if super_chunks:
-    #        super_chunks[0].is_boundary = True
-    #        super_chunks[len(super_chunks)-1].is_boundary = True
-    #
-    #    #i = 0
-    #    for super_chunk in super_chunks:
-    #        sch = BinaryDisassemblySuperChunk(id=None,
-    #            start=super_chunk.start,
-    #            end=super_chunk.end,
-    #            is_boundary=super_chunk.is_boundary,
-    #            binary=self.binary)
-    #        sch.save()
-    #        for chunk in super_chunk.chunks.values():
-    #            ch = BinaryDisassemblyChunk(id=None,
-    #                 start=chunk.start,
-    #                 end=chunk.end,
-    #                 name=chunk.name,
-    #                 superchunk=sch)
-    #            ch.save()
-    #            for parcel in chunk.parcels.values():
-    #                p = BinaryParcel(id=None,
-    #                    start = parcel.start,
-    #                    end = parcel.end,
-    #                    is_code = parcel.is_code,
-    #                    chunk = ch
-    #                    )
-    #                p.save()
-    #
-    #        #i+=1
+        # Save symbols to database
+        for symbol in analyzer.functions.values():
+            s = Symbol(id=None,
+                    binary=self.binary,
+                    offset = symbol.offset,
+                    name = symbol.name,
+                    type=symbol.type)
+            s.save()
 
     def mk_hex_lines(self, parcels):
         LINE_WIDTH = 16
@@ -360,159 +254,11 @@ class Disassembler(object):
                     parcel.hex_lines.append((name, addr, hex, ascii))
                     addr += len(line)
                 
-    #def convert_to_data(self, addr):
-    #    ctype = ContentType.objects.get_for_model(self.binary)
-
-    #def get_all_superchunks(self):
-    #    ctype = ContentType.objects.get_for_model(self.binary)
-    #    superChunks = BinaryDisassemblySuperChunk.objects.filter(
-    #        content_type=ctype.id, object_id = self.binary.id )
-    #    return superChunks
-
-class JsonChunkProcessor(object):
-    def __init__(self, binary):
-        self.binary = binary
-
-    def get_parcel_from_addr(self, addr):
-
-        ctype = ContentType.objects.get_for_model(self.binary)
-
-        parcel = BinaryParcel.objects.filter(
-            content_type=ctype.id, object_id = self.binary.id, start__gte = addr )[0]
-
-        return parcel
-
-    def get_all_parcels(self):
-
-        ctype = ContentType.objects.get_for_model(self.binary)
-
-        parcels = BinaryParcel.objects.filter(
-            content_type=ctype.id, object_id = self.binary.id)
-
-        return parcels
-
-
-    #def convert_addr_to_data(self, addr):
-    #
-    #    parcel = self.get_parcel_from_addr(addr)
-    #
-    #    parcel_avail_size = parcel.end - addr
-    #
-    #
-    #    # Check if the parcel is already data or code
-    #    if parcel.is_code == True:
-    #        # Convert the entire instruction to byte array
-    #
-    #    elif parcel.is_code == False:
-    #        if ( parcel_avail_size )
-    #    else:
-    #        # Parcel is undefined.
-
-
-    #def get_chunks_from_addr(self, addr, num_chunks):
-    #    #analyzer = analyzerFactory( self.binary.options.architecture )
-    #
-    #    ctype = ContentType.objects.get_for_model(self.binary)
-    #    afterChunks = BinaryDisassemblySuperChunk.objects.filter(
-    #        content_type=ctype.id, object_id = self.binary.id, start__gte = addr )[0:num_chunks]
-    #
-    #    # The requested address is the center chunk. We need to get chunks
-    #    #    before and after the center chunk (if possible)
-    #
-    #    # Chunks after an address are easier to retrieve. Retrieve the
-    #    #    maximum number in case there is a shortage of chunks before
-    #    #    the provided address. Include the chunk that contains the
-    #    #    provided address
-    #    #    Note: afterChunks does not include the center chunk
-    #    afterChunks = BinaryDisassemblySuperChunk.objects.filter(
-    #        content_type=ctype.id, object_id = self.binary.id, start__gte = addr )[0:num_chunks]
-    #
-    #    # Determine how many chunks before the address that we need to get
-    #    numAfterChunks = len(afterChunks)
-    #    if numAfterChunks >= (num_chunks//2):
-    #        # Plenty of chunks, request the minimum beforeChunks
-    #        numRequested = (num_chunks//2) + 1
-    #    else:
-    #        # Towards the back of the address space, or a very small file
-    #        #    Request more chunks before the given address to make up
-    #        #    the difference
-    #        numRequested = num_chunks - numAfterChunks
-    #
-    #    # Get the chunks before the address (including the center chunk)
-    #    beforeChunksReversed = BinaryDisassemblySuperChunk.objects.filter(
-    #        content_type=ctype.id, object_id = self.binary.id, start__lt = addr ).order_by('-start')[0:numRequested]
-    #
-    #    # Chunks before the given chunk but in reverse order
-    #    beforeChunks = list(beforeChunksReversed)
-    #    beforeChunks.reverse()
-    #
-    #    # Get the chunks to return
-    #    numBeforeChunks = len(beforeChunks)
-    #    numAfterChunks = num_chunks - numBeforeChunks
-    #    #print "BEFORE: %d, AFTER %d" % (numBeforeChunks,numAfterChunks)
-    #    permachunks = beforeChunks + afterChunks[0:numAfterChunks]
-    #
-    #    return permachunks
-
-    #def get_chunks_from_chunk(self, start, end, direction, num_chunks):
-    #
-    #    ctype = ContentType.objects.get_for_model(self.binary)
-    #
-    #    if direction == 1:
-    #        # Chunks after the given chunk
-    #        permachunks = BinaryDisassemblySuperChunk.objects.filter(
-    #            content_type=ctype.id, object_id = self.binary.id, start__gt = start )[0:num_chunks]
-    #    else:
-    #        # Chunks before the given chunk
-    #        permachunksReversed = BinaryDisassemblySuperChunk.objects.filter(
-    #            content_type=ctype.id, object_id = self.binary.id, start__lt = start ).order_by('-start')[0:num_chunks]
-    #
-    #        # Chunks before the given chunk but in reverse order
-    #        permachunks = list(permachunksReversed)
-    #        permachunks.reverse()
-    #
-    #    return permachunks
-
-    #def get_chunk_list(self, superchunks):
-    #    # Build a primitive object containing the list of chunk data to pass back to the client
-    #    chunk_list = []
-    #    for superchunk in superchunks:
-    #        chunk_list.append ({
-    #            'startOffset': superchunk.start,
-    #            'endOffset': superchunk.end,
-    #            'isBoundary': superchunk.is_boundary,
-    #            #'hex_lines' : hex_lines #chunk.hex_lines
-    #        })
-    #
-    #    return chunk_list
-
-    def process_parcels_disassembly(self, parcels, start=0):
-
-        architecture = self.binary.options.architecture
-
-        analyzer = analyzerFactory(architecture)
-
-        dasm = Disassembler(self.binary)
-        comments = Comment.get_for_binary(self.binary)
-        analyzer.analyze( dasm, parcels, start=start )
-        #analyzer.convertToHtmlLine(comments)
-
-        #sortedUnits = sorted(analyzer.displayUnits, key=lambda key: analyzer.displayUnits[key])
-        #sortedUnits = iter(sorted(analyzer.displayUnits.items()))
-        return analyzer.displayUnits
-
     def process_parcels_hex(self, parcels):
         logger.info("process_chunks_hex")
         dasm = Disassembler(self.binary)
         logger.info("got dasm")
         dasm.mk_hex_lines(parcels)
-
-    #def process_chunks_hex(self, superchunks):
-    #    logger.info("process_chunks_hex")
-    #    dasm = Disassembler(self.binary)
-    #    logger.info("got dasm")
-    #    dasm.mk_hex_lines(superchunks)
-
 
 def copy_disassembly(from_id, from_version, owner, ip_address):
 
@@ -523,6 +269,7 @@ def copy_disassembly(from_id, from_version, owner, ip_address):
     labels = Label.get_for_binary(to_oda.binary)
     functions = Function.get_for_binary(to_oda.binary)
     parcels = BinaryParcel.get_for_binary(to_oda.binary)
+    symbols = Symbol.get_for_binary(to_oda.binary)
 
     to_oda.id = None
     to_oda.ipAddress = ip_address
@@ -555,25 +302,10 @@ def copy_disassembly(from_id, from_version, owner, ip_address):
 
     to_oda.save()
 
-    #Disassembler(to_oda.binary).process_chunks()
-
     for comment in comments:
         comment.id = None
         comment.object_id = binary.id
         comment.save()
-
-    #for superchunk in superchunks:
-    #    chunks = superchunk.chunks()
-    #    superchunk.id = None
-    #    superchunk.object_id = binary.id
-    #    superchunk.save()
-    #
-    #    for chunk in chunks:
-    #        parcels = chunk.parcels()
-    #        chunk.id = None
-    #        chunk.object_id = binary.id
-    #        chunk.superchunk = superchunk
-    #        chunk.save()
 
     for parcel in parcels:
         parcel.id = None
@@ -589,6 +321,11 @@ def copy_disassembly(from_id, from_version, owner, ip_address):
         func.id = None
         func.object_id = binary.id
         func.save()
+
+    for sym in symbols:
+        sym.id = None
+        sym.object_id = binary.id
+        sym.save()
 
     return to_oda
 

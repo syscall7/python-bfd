@@ -241,7 +241,7 @@ class Label(BinaryAddressFeature):
 class Symbol(BinaryAddressFeature):
     ''' Symbol of a function or chunk of data '''
     name = models.CharField(max_length=255)
-    sym_type = models.CharField(max_length=1)
+    type = models.CharField(max_length=1)
 
 class BinaryParcel(BinaryFeature):
     ''' Represents a contiguous chunk of code or a single data '''

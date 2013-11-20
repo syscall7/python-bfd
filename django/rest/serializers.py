@@ -102,8 +102,3 @@ class SectionSerializer(serializers.Serializer):
 class StringSerializer(serializers.Serializer):
     addr  = serializers.CharField()
     string = serializers.CharField()
-
-class SymbolSerializer(serializers.Serializer):
-    name = serializers.CharField()
-    type = serializers.CharField()
-    offset = serializers.CharField()

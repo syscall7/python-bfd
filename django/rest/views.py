@@ -1,14 +1,12 @@
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import viewsets
 from rest_framework.response import Response
-from odaweb.disassembler import Disassembler, JsonChunkProcessor, analyzerFactory
-from odaweb.models import OdaMaster, Comment, BinaryParcel, Function, Label
-from rest.serializers import OdaMasterSerializer, FunctionSerializer, SectionSerializer, StringSerializer, SymbolSerializer, DisplayUnitSerializer, BinaryParcelSerializer, RefSerializer
+from odaweb.disassembler import Disassembler, analyzerFactory
+from odaweb.models import OdaMaster, Comment, BinaryParcel, Function, Label, Symbol
+from rest.serializers import OdaMasterSerializer, FunctionSerializer, SectionSerializer, StringSerializer, DisplayUnitSerializer, BinaryParcelSerializer, RefSerializer
 import logging
 
 logger = logging.getLogger(__name__)
-
-
 
 class OdaMasterViewSet(viewsets.ModelViewSet):
     """
@@ -72,31 +70,19 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
     serializer_class = DisplayUnitSerializer
 
     def list(self, request):
-        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-                                  revision=request.QUERY_PARAMS.get('revision'))
-
-        binary = oda.binary
-        ctype = ContentType.objects.get_for_model(binary)
-
-        jcp = JsonChunkProcessor(binary)
 
         start = 0
         if request.QUERY_PARAMS.get('addr'):
             start = int(request.QUERY_PARAMS.get('addr'),10)
 
-        parcels = BinaryParcel.objects.filter(content_type=ctype.id, object_id= binary.id, end__gte = start)[:]
+        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
+                                  revision=request.QUERY_PARAMS.get('revision'))
 
-        #architecture = binary.options.architecture
-        #analyzer = analyzerFactory(architecture)
-        #analyzer.analyze(dasm, parcels, startAddr=start, onlySymbols=True)
-        #parcels = jcp.get_all_parcels()
-
-        display_units = jcp.process_parcels_disassembly(parcels, start)
-        sorted_du = display_units.values()
-        sorted_du.sort(key=lambda x: x.offset, reverse=False)
-        serializer = self.get_serializer(sorted_du[:250], many=True)
+        dasm = Disassembler(oda.binary)
+        dunits = dasm.analyze(start, 100)
 
         logger.debug("DisplayUnitsViewSet: Generate serialized data")
+        serializer = self.get_serializer(dunits, many=True)
         serialData = Response(serializer.data)
         logger.debug("DisplayUnitsViewSet: Serial data complete")
         return serialData
@@ -115,25 +101,17 @@ class StringsViewSet(viewsets.GenericViewSet):
         serializer = self.get_serializer(strings, many=True)
         return Response(serializer.data)
 
-class SymbolsViewSet(viewsets.GenericViewSet):
-    serializer_class = SymbolSerializer
+class SymbolsViewSet(viewsets.ModelViewSet):
+    model = Symbol
 
-    def list(self, request):
-        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-                                    revision=request.QUERY_PARAMS.get('revision'))
+    def get_queryset(self):
+        queryset = Symbol.objects.all()
+        short_name = self.request.QUERY_PARAMS.get('short_name', None)
+        revision = self.request.QUERY_PARAMS.get('revision', None)
+        if short_name is not None:
+            queryset = Symbol.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
 
-        binary = oda.binary
-        dasm = Disassembler(binary)
-
-        ctype = ContentType.objects.get_for_model(binary)
-
-        parcels = BinaryParcel.objects.filter(content_type=ctype.id, object_id= binary.id)[:]
-
-        architecture = binary.options.architecture
-        analyzer = analyzerFactory(architecture)
-        analyzer.analyze(dasm, parcels, onlySymbols=True)
-        serializer = self.get_serializer(analyzer.functions.values(), many=True)
-        return Response(serializer.data)
+        return queryset
 
 class FunctionsViewSet(viewsets.ModelViewSet):
     model = Function
