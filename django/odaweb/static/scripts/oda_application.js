@@ -1,5 +1,5 @@
 var odaApplication = angular
-    .module('odaApp',['ngSanitize','ui.keypress'])
+    .module('odaApp',['ngSanitize','ui.keypress','ui.event'])
     .config(function($httpProvider) {
 
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
@@ -14,16 +14,7 @@ var oda_util = {
 };
 
 
-odaApplication.directive('slider', function ($parse) {
-   return {
-       restrict: 'A',
-       link: function (scope, element, attrs) {
-           var options = $parse(attrs.slider)();
 
-           $(element).slider(options);
-       }
-   };
-});
 
 
 //factory style, more involved but more sophisticated

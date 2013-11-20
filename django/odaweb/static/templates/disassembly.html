@@ -50,18 +50,19 @@
             <td ng-if="isFunction(du)">
                 <span class="listing-retval" contenteditable="true"
                         ui-keypress="{13:'retvalEnter($event, du)'}"
-                        ng-blur="retvalEnter($event, du)"
+                        ui-event="{ blur : 'retvalEnter($event, du)' }"
                         ng-bind-html="getFunctionRetval(du.offset)"></span>
                 <span class="listing-label" contenteditable="true"
                         ui-keypress="{13:'labelEnter($event, du)'}"
                         ng-bind-html="getLabel(du)" style="font-weight:bold"></span>
                 (<span class="listing-args" contenteditable="true"
                         ui-keypress="{13:'argsEnter($event, du)'}"
-                        ng-blur="argsEnter($event, du)"
+                        ui-event="{ blur : 'argsEnter($event, du)' }"
                         ng-bind-html="getFunctionArgs(du.offset)"></span>)
             </td>
             <td ng-if="isLabel(du)"><span class="listing-label"
                                           ui-keypress="{13:'labelEnter($event, du)'}"
+                                          ui-event="{ blur : 'labelEnter($event, du)' }"
                                           contenteditable="true"
                                           ng-bind-html="getLabel(du)"></span>:</td>
             <td></td>
@@ -77,6 +78,7 @@
                 <div class="comment"
                      contenteditable="true"
                      ui-keypress="{13:'commentEnter($event, du)'}"
+                     ui-event="{ blur : 'commentEnter($event, du)' }"
                      ng-bind-html="getComment(du.offset)"></div>
             </td>
         </tr>
