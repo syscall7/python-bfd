@@ -39,7 +39,6 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
 
         $.each(comments.data, function(i,comment){
             $scope.comments[comment.offset] = comment;
-            console.debug(comment.offset);
         });
 
         $.each(functions.data, function(i,func){
