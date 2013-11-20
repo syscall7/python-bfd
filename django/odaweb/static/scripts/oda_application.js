@@ -102,7 +102,15 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
                 }
             });
         },
-
+        setLabel : function(id, label) {
+            return $http({
+                method: 'PATCH',
+                url: '/odaweb/api/labels/'+id+"/",
+                data: {
+                  label: label
+                }
+            });
+        },
         getLabels : function(short_name, revision) {
             return $http.get('/odaweb/api/labels/', {
                 params: {

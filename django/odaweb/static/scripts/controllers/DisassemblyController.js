@@ -203,12 +203,22 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
 
     $scope.labelEnter = function($event, displayUnit) {
         var label = $($event.target).text();
-        $http.post("/odaweb/api/labels/",{
-            object_id : oda_util.getMaster().object_id,
-            content_type: oda_util.getMaster().content_type,
-            label: label,
-            offset: displayUnit.offset
-        });
+
+        var existingLabel = $scope.labels[displayUnit.offset];
+
+        if (typeof existingLabel == 'undefined') {
+            $http.post("/odaweb/api/labels/",{
+                object_id : oda_util.getMaster().object_id,
+                content_type: oda_util.getMaster().content_type,
+                label: label,
+                offset: displayUnit.offset
+            }).success(function(data){
+                $scope.labels[displayUnit.offset] = data;
+            });
+
+        } else {
+            odaApi.setLabel(existingLabel.id, label);
+        }
 
         socketService.sendLabel(label, displayUnit.offset);
         $event.preventDefault();
