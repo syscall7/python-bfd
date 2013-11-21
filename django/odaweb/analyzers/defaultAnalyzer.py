@@ -254,20 +254,12 @@ class defaultAnalyzer(object):
         self.opcodeRegEx = re.compile( self.opcodeRegExStr )
 
         # Grab the symbols and sections for convenience and performance reasons
-        self.symbols = self.disassembler.ofd.symbols()
+        self.symbols = self.disassembler.symbols()
 
-        # Add preidentified symbols to the labels and functions list
+        # Add symbols from the database to the functions list
         for sym in self.symbols:
             if sym.type == 'T' or sym.type == 't':
-                self.functions[sym.value] = Function(sym.value, sym.name, sym.type, set())
-
-        # Add in user-defined functions from the db
-        funcs = odaweb.models.Function.get_for_binary(self.disassembler.binary)
-        for func in funcs:
-            if func.offset in self.functions:
-                self.functions[func.offset].name = func.name
-            else:
-                self.functions[func.offset] = Function(func.offset, func.name, 't', set())
+                self.functions[sym.offset] = Function(sym.offset, sym.name, sym.type, sym.xrefs)
 
         # Make a first pass at parsing for organizing the instructions
         logger.debug("Analyze: START FIRST PASS FOR INSTRUCTIONS")

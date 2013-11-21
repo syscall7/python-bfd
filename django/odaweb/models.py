@@ -252,6 +252,18 @@ class BinaryParcel(BinaryFeature):
     class Meta:
         ordering = ['start']
 
+class Xref(models.Model):
+    ''' Reference to a symbol '''
+
+    # location that references the symbol
+    address = models.BigIntegerField()
+
+    # symbol that is referenced
+    symbol = models.ForeignKey(Symbol, related_name='xrefs_set')
+
+    class Meta:
+        unique_together = ('address', 'symbol')
+
 class InstDoc(models.Model):
     ''' Help for an assembly instruction '''
     platform = models.TextField()

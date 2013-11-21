@@ -13,7 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from odaweb.models import (Binary, BinaryString,
                            BinaryFile, OdaMaster, OdaOptions, Comment, Label, Symbol,
-                           BinaryParcel, Function)
+                           BinaryParcel, Function, Xref)
 
 import logging
 
@@ -138,6 +138,18 @@ class Disassembler(object):
 
         return parcels
 
+    def symbols(self):
+        ctype = ContentType.objects.get_for_model(self.binary)
+        symbols = Symbol.objects.filter(content_type=ctype.id, object_id=self.binary.id)
+        for sym in symbols:
+            xrefs = sym.xrefs_set.all()
+            if xrefs.exists():
+                sym.xrefs = set([x.address for x in xrefs])
+            else:
+                sym.xrefs = set([])
+
+        return symbols
+
     def analyze(self, start, lines):
 
         ctype = ContentType.objects.get_for_model(self.binary)
@@ -188,6 +200,9 @@ class Disassembler(object):
                     name = symbol.name,
                     type=symbol.type)
             s.save()
+
+            for xref in symbol.xrefs:
+               s.xrefs_set.create(address=xref)
 
     def mk_hex_lines(self, parcels):
         LINE_WIDTH = 16
@@ -323,9 +338,19 @@ def copy_disassembly(from_id, from_version, owner, ip_address):
         func.save()
 
     for sym in symbols:
+        xrefs = sym.xrefs_set.all()
         sym.id = None
         sym.object_id = binary.id
         sym.save()
+
+        for xref in xrefs:
+            xref.id = None
+            xref.symbol = sym
+            xref.save()
+
+
+        # TODO: What happens to the xrefs here?
+
 
     return to_oda
 
