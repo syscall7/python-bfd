@@ -64,10 +64,9 @@
                 </li>-->
             </ul>
             <div class="tab-content" id="myTabContent">
-                <div id="tab-assembly" class="tab-pane active in" ng-include="'/static2/templates/disassembly.html'">
-
-                </div>
-                {% include "tab-hexdump.djhtml" %}
+                <div id="tab-assembly" class="tab-pane active in" ng-include="'/static2/templates/disassembly.html'"></div>
+                <div id="tab-hexdump" class="tab-pane fade" ng-include="'/static2/templates/hex.html'"></div>
+                <!--  {% include "tab-hexdump.djhtml" %} -->
                 <div id="tab-sections" class="tab-pane fade"
                      ng-include="'/static2/templates/sections.html'"></div>
                 <div id="tab-fileinfo" class="tab-pane fade">

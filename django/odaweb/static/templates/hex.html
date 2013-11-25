@@ -1,0 +1,27 @@
+<div id="hex-scroll" ng-controller="HexController">
+    <div ng-show="!hexLines">Loading...</div>
+    <table id="hex-dump-table">
+        <tbody>
+        <tr ng-repeat="h in hexLines" addr={{ h.addr|hex:8 }}>
+
+            <td class="hex-cell-sec">{{ h.name }}:</td>
+
+            <td class="hex-cell-addr" id="p{{ h.addr|hex:8}}" >{{ h.addr|hex:8 }}</td>
+            <td class="hex-cell-gap"></td>
+
+
+            <td class="hex-cell-byte" ng-repeat-start="byte in h.bytes track by $index" id="h{{ h.addr + $index | hex:8 }}">
+                {{ byte }}
+            </td>
+            <td class="hex-cell-gap" ng-repeat-end ng-if="$index==8"></td>
+
+            <td class="hex-cell-asc" id="a{{ addr + $index | hex:8 }}" ng-repeat="asc in h.asc track by $index">
+                    {{ asc }}
+                </td>
+
+        </tr>
+    </tbody>
+    </table>
+    </div>
+</div>
+
