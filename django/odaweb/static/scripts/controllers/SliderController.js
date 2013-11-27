@@ -57,6 +57,7 @@ odaApplication.controller('SliderController', function SliderController($scope, 
     };
 
     $scope.$on('position', function(event, position) {
+        //TODO This is a hack! Interact with the slider via scope
         $('#slider').slider('value', position);
     });
 
