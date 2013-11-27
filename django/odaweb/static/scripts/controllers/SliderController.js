@@ -7,6 +7,7 @@ odaApplication.controller('SliderController', function SliderController($scope, 
     var minAddr = oda_util.getSectionInfo().start_addr;
     var maxAddr = oda_util.getSectionInfo().stop_addr;
 
+    $scope.address = 0;
     var mapSliderpointToAddress = function(x) {
         var sum = 0;
         var i = 0;
@@ -71,6 +72,7 @@ odaApplication.controller('SliderController', function SliderController($scope, 
         console.log("sliderHandler  " + x);
         var addr = mapSliderpointToAddress(x);
         odaApi.setPosition(addr);
+        $scope.$apply(function(){$scope.address = addr;});
     }
 
     $scope.sliderOptions = {
@@ -84,6 +86,7 @@ odaApplication.controller('SliderController', function SliderController($scope, 
 
     $scope.$on('position', function(event, position) {
         //TODO This is a hack! Interact with the slider via scope
+        $scope.address=position;
         $('#slider').slider('value', mapAddressToSliderpoint(position));
     });
 

@@ -1,5 +1,5 @@
+<div ng-controller="SliderController">
 <div id="slider" style="margin-bottom: 20px; margin-top: 15px; margin-right: 15px; border: 0px"
-     ng-controller="SliderController"
      slider="sliderOptions">
     <table id="slider-sections">
         <tr>
@@ -10,4 +10,5 @@
         </tr>
     </table>
 </div>
-<div id="slider-address" style="color:gray; font-family:monospace; margin-right: 15px; float:right">0</div>
+<div style="color:gray; font-family:monospace; margin-right: 15px; float:right">0x{{ address.toString(16) }}</div>
+</div>
