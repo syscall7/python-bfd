@@ -142,8 +142,15 @@ function FileUploadOptionsForm() {
 
         values = $.grep(values, function(e) { return e != "DEFAULT"});
 
+        form_data = {
+            arch : arch,
+            base_address : base_address,
+            options: values,
+            disassemble : true
+        };
+
         /* TODO: catch form errors and redisplay form here */
-        $.post('/odaweb/_set', {arch: arch, base_address: base_address, options: values})
+        $.post('/odaweb/_set', form_data)
             .done(function() {
                 var foobar = $('#modal-open-platform-options-short-name').val();
                 window.location = "/odaweb/" + $('#modal-open-platform-options-short-name').val();
@@ -203,8 +210,11 @@ function FileUploadForm() {
 
                     form_data = {
                         arch : default_arch,
-                        base_address : ""
+                        base_address : "",
+                        disassemble : false,
                     };
+
+                    debugger;
 
                     $.post('/odaweb/_set', form_data)
                         .done(function(response) {

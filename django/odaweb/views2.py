@@ -117,6 +117,9 @@ def set(request):
         base_address = forms.CharField(required=False)
         endian = forms.CharField(required=False)
 
+        # set to True on the last time the options form is submitted (file upload) or always (live hex)
+        disassemble = forms.BooleanField(required=False)
+
         def clean_hex_val(self):
             # strip whitespace
             cleaned_hex_string = ''.join(self.cleaned_data['hex_val'].split())
@@ -193,10 +196,10 @@ def set(request):
 
         oda_master.binary.options.save()
 
-        disassembler = Disassembler(oda_master.binary)
-
-        # TODO: This is getting called twice for a file upload, once before options are presented and once after
-        disassembler.analyze_first_time()
+        # if we need to disassemble this data for the first time
+        if form.cleaned_data['disassemble']:
+            disassembler = Disassembler(oda_master.binary)
+            disassembler.analyze_first_time()
 
     form_html = render_to_string('form-platform-options.djhtml', {
                     'arch' : arch,
