@@ -4,8 +4,8 @@ odaApplication.controller('SliderController', function SliderController($scope, 
 
     /* sum of all the section address ranges */
     var sumAddrRanges = 0;
-    var minAddr = 0;
-    var maxAddr = 0xFFFFFFFF;
+    var minAddr = oda_util.getSectionInfo().start_addr;
+    var maxAddr = oda_util.getSectionInfo().stop_addr;
 
     odaApi.getSections(master.short_name, master.revision)
         .success(function(data){
@@ -38,29 +38,13 @@ odaApplication.controller('SliderController', function SliderController($scope, 
     // set the slider address display text
     // NOTE: This function is triggered via updateSlider() in history.js as well
     $scope.updateAddrDisplay = function (addr) {
-        window.topDisplayAddr = addr;
-        addrStr = addr.toString(16).toUpperCase();
-        while (addrStr.length < 8) addrStr = "0" + addrStr;
-        $("#slider-address").text("0x" + addrStr);
+        console.log("updateAddrDisplay " + addr.toString(16));
     }
 
     // event handler for slider control
     $scope.sliderHandler = function (addr) {
-
-        alert(addr);
-        debugger;
-
-        // no need to set the slider position, that's already been done by the event
-        $scope.updateAddrDisplay(addr);
-
-        // Try to scroll to the address
-        if ( !scrollToAddr(addr) )
-        {
-            // Isn't loaded. Try to load it
-            //window.topDisplayAddr = addr;
-            updateDisplayedFileContent(addr,false);
-            scrollToAddr(addr);
-        }
+        console.log("sliderHandler  " + addr);
+        odaApi.setPosition(addr);
     }
 
     $scope.sliderOptions = {
@@ -71,6 +55,10 @@ odaApplication.controller('SliderController', function SliderController($scope, 
         min: minAddr,
         max: maxAddr
     };
+
+    $scope.$on('position', function(event, position) {
+        $('#slider').slider('value', position);
+    });
 
     var selectedRow = null;
 

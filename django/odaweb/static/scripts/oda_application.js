@@ -9,7 +9,8 @@ var odaApplication = angular
 
 var oda_util = {
     getMaster : function() { return window.oda_master; },
-    getUsername: function() { return window.user.username}
+    getUsername: function() { return window.user.username},
+    getSectionInfo: function() { return window.oda_master.section_info;}
 
 };
 

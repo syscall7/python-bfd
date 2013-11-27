@@ -10,12 +10,18 @@
         short_name : '{{master.short_name }}',
         content_type : '{{ master.content_type.id }}',
         object_id : {{ master.object_id }},
-        revision : {{ master.revision | jsonify}}
+        revision : {{ master.revision | jsonify}},
+        section_info : {
+            start_addr : {{ section_info.start_addr }},
+            stop_addr : {{ section_info.stop_addr }}
+        }
     };
 
     window.user = {
         username : '{% if not user.is_authenticated %}anonymous{% else %}{{ user.username }}{% endif %}'
     };
+
+
 
     window.socket = io.connect("http://" + window.location.hostname + ":8080");
 
