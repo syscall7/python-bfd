@@ -7,7 +7,7 @@
         <!-- FUNCTION -->
 
         <!-- empty line before the function -->
-        <tr ng-if="isFunction(du)" addr={{ du.offset | hex:8 }}>
+        <tr ng-if="isFunction(du)" id="addr-{{ du.offset }}" addr={{ du.offset | hex:8 }}>
             <td class="branchLines" ng-bind-html="du.branch_label"></td>
             <td class="offset">{{du.section_name}}:0x{{ du.offset | hex:8 }}</td>
             <td></td>
