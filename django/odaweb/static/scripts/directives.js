@@ -5,6 +5,13 @@ odaApplication.directive('slider', function ($parse) {
            var options = $parse(attrs.slider)(scope);
 
            $(element).slider(options);
+
+           scope.$watch(attrs.slider, function(newValue, oldValue) {
+                if (newValue) {
+                    $(element).slider("destroy");
+                    $(element).slider(newValue);
+                }
+            }, true);
        }
    };
 });
