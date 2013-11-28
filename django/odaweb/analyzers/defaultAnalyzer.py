@@ -498,9 +498,6 @@ class defaultAnalyzer(object):
     #
     #    print "DISPLAY UNITS:",len(self.display_units)
 
-    def makeInstrBranch(self, inst, labelName):
-        return "%-7s<a href=\"#view/tab-assembly/offset/%08x\">%s</a>" % (inst.opcode, inst.targetAddr, labelName)
-
     def makeData(self, inst):
         dataStr = ""
 
@@ -513,53 +510,3 @@ class defaultAnalyzer(object):
 
         return dataStr
 
-
-    def makeInstr(self, inst):
-        instStr = ""
-        rawInstrStr = inst.listing
-        rawInstrStr = rawInstrStr.replace("<", "&lt;");
-        rawInstrStr = rawInstrStr.replace(">", "&gt;");
-
-        if inst.instType == instructionType.call or\
-           inst.instType == instructionType.branch:
-            # If the branch target address is invalid
-            #     TODO: Need to account for branches beyond the scope of the limited
-            #        instructions considered in this chunk
-            if inst.callType == callType.direct:
-                if not inst.isTargetAddrValid:
-                    # Bad instruction
-                    instStr += "%-6s <errinsn>%s</errinsn>" % (inst.opcode, inst.operands)
-                    #if inst.targetAddr in labels.containsKey(curInstr.targetAddr))
-                    #    labels.remove(curInstr.targetAddr);
-                else:
-                    if inst.targetAddr in self.functions:
-                        labelName = self.functions[inst.targetAddr].name
-                    else:
-                        labelName = self.mkLabelName(inst.targetAddr,'loc')
-                    instStr += self.makeInstrBranch(inst, labelName)
-            else:
-                instStr += rawInstrStr
-        else:
-            # for non-branch/non-call instructions, look for a reference to a string
-            for m in re.finditer('0x([0-9a-fA-F]+)', rawInstrStr):
-                addrRef = int(m.group(1), 16)
-
-                # TODO: skip address 0 for now, but address this again someday
-                if 0 == addrRef:
-                    continue
-                if addrRef in self.strings:
-                    rawInstrStr += '  <a href="#/view/tab-assembly/offset/%08x" class="stringref">"%s"</a>' % (addrRef, self.strings[addrRef])
-            instStr += rawInstrStr
-
-        # Check for errors
-        if inst.isError:
-            instStr = "<disline addr=%x><dislineerr>     %s</dislineerr></disline>" % (inst.offset,instStr)
-        else:
-            instStr = " %s" % (instStr)
-
-        return instStr
-
-            
-                
-                
-        
