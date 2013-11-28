@@ -12,31 +12,6 @@ import logging
 import odaweb.models
 
 logger = logging.getLogger(__name__)
-#
-#class RefUnit(object):
-#    def __init__(self, name, offset):
-#        self.name = name
-#        self.offset = offset
-#
-#
-#class DisplayUnit(object):
-#    def __init__(self, section_name, offset, rawBytes, displayStr, branch, branch_label):
-#        self.section_name = section_name
-#        self.offset = offset
-#        self.rawBytes = rawBytes
-#        self.instStr = displayStr
-#        self.branch = branch
-#        self.branch_label = branch_label
-#        self.isFunction= False
-#        self.isBranch= False
-#        self.branchRef = None
-#        self.stringRef = None
-#        self.crossRef = None
-#        self.opcode = ''
-#        self.operand = ''
-#
-#    def make_label_target(self, labelName):
-#        self.labelName = labelName
 
 class Function(object):
     def __init__(self, offset, name, type, xrefs):
@@ -141,15 +116,7 @@ def parseEverything(addr, rawData, instr, abfd, self, displayUnits, section_name
 
                     # Valid target address
                     else:
-
-                        # TODO: Get labelName for funcs/labels from the database, because it might have been named!
-                        # Valid function call
-                        if du.targetAddr in self.functions:
-                            labelName = self.functions[du.targetAddr].name
-                        # Valid local branch
-                        else:
-                            labelName = self.mkLabelName(du.targetAddr,'loc')
-
+                        # just use the opcode, we insert the target link on the client side (i.e. call some_func)
                         du.instStr = '%-7s' % du.opcode
 
             # Not a call/branch
@@ -420,7 +387,7 @@ class defaultAnalyzer(object):
                 if du.targetAddr in self.functions:
                     du.targetRef = RefUnit(self.functions[offset].name,offset)
                 elif du.targetAddr in self.labels:
-                    du.targetRef = RefUnit(self.mkLabelName(offset,'loc'),offset)
+                    du.targetRef = RefUnit(offset)
 
             if du.offset in self.functions:
                 #unit.function = self.functions[inst.offset]
@@ -430,8 +397,7 @@ class defaultAnalyzer(object):
                     du.crossRef.append(RefUnit('', xref))
 
             elif du.offset in self.labels:
-                #unit.make_label_target(self.mkLabelName(inst.offset,'loc'))
-                du.branchRef = RefUnit(self.mkLabelName(du.offset,'loc'),du.offset)
+                du.branchRef = RefUnit(du.offset)
                 du.isBranch = True
 
     def getInstructionType(self,opcode):
@@ -441,62 +407,6 @@ class defaultAnalyzer(object):
 
     def computeTargetAddr(self,inst):
         pass
-
-    def mkLabelName(self, addr, prefix):
-        # Include pre-identified symbols
-        if addr in self.symbols and (self.symbols[addr].type == 'T' or self.symbols[addr].type == 't'):
-            return self.symbols[addr].name
-        else:
-            return '%s_%0.8x' % (prefix,addr)
-
-    # Make a second pass through the instructions to create the html
-    #def convertToHtmlLine(self,comments):
-    #
-    #    # weed out invalid branches
-    #    blf = branch.BranchLineHtmlFormatter(self.branches)
-    #
-    #    # get all the strings (we don't need to do this unless we are creating html)
-    #    self.strings = self.disassembler.strings()
-    #
-    #    print "INSTRUCTIONS:",len(self.displayUnits)
-    #
-    #    for key in sorted(self.instructions.iterkeys()):
-    #        inst = self.instructions[key]
-    #
-    #        # Fill the rawBytes structure
-    #        byteStr = re.sub(r'\s', '',inst.rawBytes)
-    #
-    #        if len(byteStr) > self.largestInstSize:
-    #            self.largestInstSize = len(byteStr)
-    #        rawBytes = "%s" % (byteStr)
-    #
-    #        if inst.isCode:
-    #            displayStr = self.makeInstr(inst)
-    #        else:
-    #            displayStr = self.makeData(inst)
-    #
-    #        # got to get the label first, because it is based on the previous offset
-    #        branchLabel = blf.pushLabel()
-    #        branchLines = blf.pushAddr(inst.offset)
-    #        unit = DisplayUnit(inst.name[:8], inst.offset, rawBytes, displayStr, branchLines, branchLabel)
-    #
-    #        if inst.offset in self.functions:
-    #            unit.make_label_target(self.functions[inst.offset].name)
-    #            #unit.function = self.functions[inst.offset]
-    #            unit.isFunction = True
-    #            unit.branchRef = RefUnit(self.functions[inst.offset].name,inst.offset)
-    #
-    #            #chunk.lines += 2 + len(self.functions[inst.offset].xrefs)
-    #        elif inst.offset in self.labels:
-    #            #unit.make_label_target(self.mkLabelName(inst.offset,'loc'))
-    #            unit.branchRef = RefUnit(self.mkLabelName(inst.offset,'loc'),inst.offset)
-    #            unit.isBranch = True
-    #
-    #
-    #        self.display_units.append(unit)
-    #
-    #
-    #    print "DISPLAY UNITS:",len(self.display_units)
 
     def makeData(self, inst):
         dataStr = ""

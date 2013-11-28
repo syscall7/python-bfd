@@ -59,7 +59,6 @@ class BinaryParcelSerializer(serializers.Serializer):
 
 
 class RefSerializer(serializers.Serializer):
-    name = serializers.CharField()
     offset = serializers.IntegerField()
 
 class DisplayUnitSerializer(serializers.Serializer):
