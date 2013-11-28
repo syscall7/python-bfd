@@ -98,9 +98,7 @@ def parseEverything(addr, rawData, instr, abfd, self, displayUnits, section_name
         du.rawBytes = ''.join(['%02x' % i for i in rawData])
 
     # Separate out the instruction and check for errors
-    du.listing = instr.replace("<", "&lt;")
-    du.listing = du.listing.replace(">", "&gt;")
-    du.instStr = du.listing
+    du.instStr = instr.replace('<', '&lt;').replace('>', '&gt;')
 
     matchObj = self.errorInstRegEx.match(instr)
     if matchObj:
@@ -131,6 +129,47 @@ def parseEverything(addr, rawData, instr, abfd, self, displayUnits, section_name
                     else:
                         # Add new cross reference to set
                         self.functions[du.targetAddr].xrefs.update([du.offset])
+
+            if du.instType == instructionType.call or du.instType == instructionType.branch:
+
+                # If the branch target address is invalid
+                if du.callType == callType.direct:
+
+                    # Invalid target address
+                    if not du.isTargetAddrValid:
+                        du.instStr = "%-6s <errinsn>%s</errinsn>" % (du.opcode, du.operands)
+
+                    # Valid target address
+                    else:
+
+                        # TODO: Get labelName for funcs/labels from the database, because it might have been named!
+                        # Valid function call
+                        if du.targetAddr in self.functions:
+                            labelName = self.functions[du.targetAddr].name
+                        # Valid local branch
+                        else:
+                            labelName = self.mkLabelName(du.targetAddr,'loc')
+
+                        du.instStr = '%-7s' % du.opcode
+
+            # Not a call/branch
+            # TODO: Look for string references
+            elif False:
+                # for non-branch/non-call instructions, look for a reference to a string
+                for m in re.finditer('0x([0-9a-fA-F]+)', du.instStr):
+                    addrRef = int(m.group(1), 16)
+
+                    # TODO: skip address 0 for now, but address this again someday
+                    if 0 == addrRef:
+                        continue
+                    if addrRef in self.strings:
+                        rawInstrStr += '  <a href="#/view/tab-assembly/offset/%08x" class="stringref">"%s"</a>' % (addrRef, self.strings[addrRef])
+                instStr += rawInstrStr
+
+            # Check for errors
+            if du.isError:
+                du.instStr = "<disline addr=%x><dislineerr>     %s</dislineerr></disline>" % (du.offset,du.instStr)
+
 
         du.section_name = section_name
         displayUnits[du.offset] = du
@@ -384,7 +423,6 @@ class defaultAnalyzer(object):
                     du.targetRef = RefUnit(self.mkLabelName(offset,'loc'),offset)
 
             if du.offset in self.functions:
-                du.make_label_target(self.functions[du.offset].name)
                 #unit.function = self.functions[inst.offset]
                 du.isFunction = True
                 du.branchRef = RefUnit(self.functions[du.offset].name,du.offset)
@@ -394,7 +432,6 @@ class defaultAnalyzer(object):
             elif du.offset in self.labels:
                 #unit.make_label_target(self.mkLabelName(inst.offset,'loc'))
                 du.branchRef = RefUnit(self.mkLabelName(du.offset,'loc'),du.offset)
-                du.make_label_target('loc_0%08x' % du.offset)
                 du.isBranch = True
 
     def getInstructionType(self,opcode):

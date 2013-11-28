@@ -51,6 +51,3 @@ class DisplayUnit(object):
         self.data = ''
         self.targetAddr = 0
         self.labelName = 'abc'
-
-    def make_label_target(self, labelName):
-        self.labelName = labelName

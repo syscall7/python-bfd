@@ -54,7 +54,7 @@
                         ng-bind-html="getFunctionRetval(du.offset)"></span>
                 <span class="listing-label" contenteditable="true"
                         ui-keypress="{13:'labelEnter($event, du)'}"
-                        ng-bind-html="getLabel(du)" style="font-weight:bold"></span>
+                        ng-bind-html="getLabel(du.offset)" style="font-weight:bold"></span>
                 (<span class="listing-args" contenteditable="true"
                         ui-keypress="{13:'argsEnter($event, du)'}"
                         ui-event="{ blur : 'argsEnter($event, du)' }"
@@ -64,7 +64,7 @@
                                           ui-keypress="{13:'labelEnter($event, du)'}"
                                           ui-event="{ blur : 'labelEnter($event, du)' }"
                                           contenteditable="true"
-                                          ng-bind-html="getLabel(du)"></span>:</td>
+                                          ng-bind-html="getLabel(du.offset)"></span>:</td>
             <td></td>
         </tr>
 
@@ -72,8 +72,10 @@
             <td class="branchLines" ng-bind-html="du.branch"></td>
             <td class="offset"><a name="#{{ du.offset }}">{{ du.section_name }}:0x{{ du.offset | hex:8 }}</a></td>
             <td class="raw">{{ du.rawBytes }}</td>
-            <!-- <td class="insn-col"><insn ng-bind-html="du.opcode + ' ' + du.operands"></insn></td> -->
-            <td class="insn-col"><insn ng-bind-html="du.instStr"></insn></td>
+            <td class="insn-col">
+                <!-- TODO: Update the targetRef label if it get's renamed -->
+                <insn ng-bind-html="du.instStr"></insn><span class="clickable" ng-if="hasTargetRef(du)" ng-click="setPosition(du.targetRef.offset)">{{ getLabel(du.targetRef.offset) }}</span>
+            </td>
             <td class="comment-col">
                 <div class="comment"
                      contenteditable="true"

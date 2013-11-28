@@ -59,14 +59,21 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         loadDisassembly();
     });
 
-    $scope.getLabel = function(displayUnit) {
-        var label = $scope.labels[displayUnit.offset];
+    $scope.getLabel = function(offset) {
+        var labelLookup = $scope.labels[offset];
+        var symbolLookup = $scope.symbols[offset];
 
-        if (typeof label == 'undefined') {
-            return displayUnit.labelName;
+        if (typeof labelLookup != 'undefined') {
+            label = labelLookup.label;
+        } else
+        if (typeof symbolLookup != 'undefined') {
+            label = symbolLookup.name;
+        } else {
+            // it's not a local label or function we know about, so assume it's a draffy local label
+            label = 'loc_' + offset.toString(16);
         }
 
-        return label.label;
+        return label;
 
     };
 
@@ -101,6 +108,10 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
             args = func.args;
         }
         return args;
+    };
+
+    $scope.hasTargetRef = function(du) {
+        return du.targetRef != null;
     };
 
     $scope.isFunction = function(displayUnit) {
@@ -162,7 +173,7 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         if ( undefined == func ) {
             func = {
                 args : 'unknown',
-                name : $scope.getLabel(du)
+                name : $scope.getLabel(du.offset)
             };
         }
 
@@ -187,7 +198,7 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         if ( undefined == func ) {
             func = {
                 retval : 'unknown',
-                name : $scope.getLabel(du)
+                name : $scope.getLabel(du.offset)
             };
         }
 
