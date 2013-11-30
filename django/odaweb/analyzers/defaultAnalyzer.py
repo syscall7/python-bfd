@@ -385,16 +385,16 @@ class defaultAnalyzer(object):
             if du.isTargetAddrValid:
                 offset = du.targetAddr
                 if du.targetAddr in self.functions:
-                    du.targetRef = RefUnit(self.functions[offset].name,offset)
+                    du.targetRef = RefUnit(offset)
                 elif du.targetAddr in self.labels:
                     du.targetRef = RefUnit(offset)
 
             if du.offset in self.functions:
                 #unit.function = self.functions[inst.offset]
                 du.isFunction = True
-                du.branchRef = RefUnit(self.functions[du.offset].name,du.offset)
+                du.branchRef = RefUnit(du.offset)
                 for xref in self.functions[du.offset].xrefs:
-                    du.crossRef.append(RefUnit('', xref))
+                    du.crossRef.append(RefUnit( xref))
 
             elif du.offset in self.labels:
                 du.branchRef = RefUnit(du.offset)

@@ -16,7 +16,7 @@ class callType:
     indirect = 1    
 
 class RefUnit(object):
-    def __init__(self, name, offset):
+    def __init__(self, offset):
         self.offset = offset
 
 
