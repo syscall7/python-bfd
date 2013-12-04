@@ -79,6 +79,16 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
                 cache: true
             });
         },
+        getDisplayUnits : function(short_name, revision, addr) {
+            return $http.get('/odaweb/api/displayunits/?', {
+                params: {
+                    short_name : short_name,
+                    revision : revision,
+                    addr : addr
+                },
+                cache: true
+            });
+        },
         getSymbols : function(short_name, revision) {
             return $http.get('/odaweb/api/symbols/?short_name=' + short_name + "&revision=" + revision);
         },

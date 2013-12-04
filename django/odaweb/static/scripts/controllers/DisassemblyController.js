@@ -7,13 +7,7 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
 
     var loadDisassembly = function(addr)  {
         var deferred = $q.defer();
-        $http.get('/odaweb/api/displayunits/?', {
-            params: {
-                short_name : master.short_name,
-                revision : master.revision,
-                addr : addr
-            }
-        }).success(function(data){
+        odaApi.getDisplayUnits(master.short_name, master.revision, addr).success(function(data){
             $scope.displayUnits = data;
             minAddress = $scope.displayUnits[0].offset;
             maxAddress = $scope.displayUnits[$scope.displayUnits.length-1].offset;
