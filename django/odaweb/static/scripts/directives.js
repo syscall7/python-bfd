@@ -15,3 +15,21 @@ odaApplication.directive('slider', function ($parse) {
        }
    };
 });
+
+odaApplication.directive('scroll', []).directive('whenScrolled', function() {
+    return function(scope, elm, attr) {
+        var raw = elm[0];
+
+        elm.bind('scroll', function() {
+            if (raw.scrollTop + raw.offsetHeight >= raw.scrollHeight) {
+                scope.$apply(attr.whenScrolled);
+            }
+        });
+    };
+});
+
+odaApplication.directive('resize', function ($window) {
+    return function (scope, element) {
+        $(element).height($(window).height()-157);
+    }
+})

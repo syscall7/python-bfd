@@ -1,4 +1,9 @@
-<div id="assembly-scroll" class="tabbed-scroll assembly" style="display: block;" ng-controller="DisassemblyController">
+<div ng-controller="DisassemblyController">
+
+<div id="assembly-scroll" class="tabbed-scroll assembly"
+     when-scrolled="loadMore()"
+     resize
+     style="display: block; overflow:scroll;" >
     <div ng-show="!displayUnits">Loading...</div>
     <table id="listing">
         <colgroup></colgroup>
@@ -88,4 +93,6 @@
         </tbody>
 
     </table>
+</div>
+
 </div>

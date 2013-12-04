@@ -19,6 +19,19 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         return deferred.promise;
     };
 
+    var loadingMore = false;
+    $scope.loadMore = function() {
+        if (loadingMore) return;
+
+        console.log("load more");
+        loadingMore = true;
+        odaApi.getDisplayUnits(master.short_name, master.revision, maxAddress).success(function(data){
+            loadingMore = false;
+            $scope.displayUnits = $scope.displayUnits.concat(data);
+            maxAddress = $scope.displayUnits[$scope.displayUnits.length-1].offset;
+        });
+    }
+
     var commentsRequest = odaApi.getComments(master.short_name, master.revision);
     var functionsRequest = odaApi.getFunctions(master.short_name, master.revision);
     var labelsRequest = odaApi.getLabels(master.short_name, master.revision);
