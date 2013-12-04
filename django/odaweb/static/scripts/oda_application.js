@@ -50,8 +50,20 @@ odaApplication.factory('socketService', function($rootScope) {
     };
 });
 
+odaApplication.factory('odaStatus', function($rootScope, $q, $http) {
+    var status= {
+        text: 'Loaded'
+    };
+    return {
+        getStatus : function() {
+            return status;
+        },
+        setStatus : function(newStatus) {
+            status.text = newStatus;
+        }
 
-
+    };
+});
 
 odaApplication.factory('odaApi', function($rootScope, $q, $http) {
 

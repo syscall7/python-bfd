@@ -151,18 +151,10 @@ tbody.scrollContent {
     overflow: scroll;*/
 }
 
-#status-bar {
+.status-bar {
     background-color: #555;
     color:white;
     width: 100%;
-}
-#status-bar-right {
-    text-align: right;
-    padding-right: 10px;
-}
-
-#status-bar-left {
-    text-align: left;
     font-family:monospace;
 }
 

@@ -40,6 +40,7 @@
     <script type="text/javascript" src="{% static 'scripts/controllers/StringsController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/SectionsController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/SliderController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/StatusController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/SymbolsController.js' %}"></script>
 
     {%  endcompress %}
