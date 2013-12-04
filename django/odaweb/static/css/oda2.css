@@ -151,11 +151,6 @@ tbody.scrollContent {
     overflow: scroll;*/
 }
 
-#myTabContent {
-    /*height: 500px;*/
-    overflow: scroll;    
-}
-
 #status-bar {
     background-color: #555;
     color:white;
