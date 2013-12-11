@@ -28,10 +28,13 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         odaStatus.setStatus("Loading....");
         loadingMore = true;
         odaApi.getDisplayUnits(master.short_name, master.revision, maxAddress).success(function(data){
-            loadingMore = false;
             odaStatus.setStatus("Loaded");
+            if ($scope.displayUnits.length > 200) {
+                $scope.displayUnits = $scope.displayUnits.slice(100);
+            }
             $scope.displayUnits = $scope.displayUnits.concat(data);
             maxAddress = $scope.displayUnits[$scope.displayUnits.length-1].offset;
+            loadingMore = false;
         });
     }
 
