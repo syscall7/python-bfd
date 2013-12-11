@@ -32,4 +32,16 @@ odaApplication.directive('resize', function ($window) {
     return function (scope, element) {
         $(element).height($(window).height()-157);
     }
-})
+});
+
+odaApplication.directive('popover', function ($parse) {
+return {
+       restrict: 'A',
+       link: function (scope, element, attrs) {
+           var options = $parse(attrs.popover)(scope);
+
+           $(element).popover(options);
+
+       }
+   };
+});

@@ -12,15 +12,19 @@
             <td align="right">{{ section.size }} bytes</td>
             <td align="right">{{ section.vma }} </td>
             <td align="left">
-
-                <span ng-class="['FLAG_ALLOC', 'label']"
-                    data-original-title=""
-                    ng-repeat="flag in section.flags"
-                    style="margin-right:5px;"
-                    >
+                <span ng-repeat="flag in section.flags">
+                    <span ng-class="['FLAG_ALLOC', 'label']"
+                    popover="{
+                        title: flag.name,
+                        content: flag.desc,
+                        trigger:'hover'
+                    }"
+                    style="margin-right:5px;">
 
                     {{ getFlagText(flag.name) }}
+                    </span  >
                 </span>
+
 
                    <!-- <span class="FLAG_ALLOC label label-success" data-original-title="">
                         ALLOC
