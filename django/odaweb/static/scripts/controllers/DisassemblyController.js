@@ -7,7 +7,9 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
 
     var loadDisassembly = function(addr)  {
         var deferred = $q.defer();
+        odaStatus.setStatus("Loading....");
         odaApi.getDisplayUnits(master.short_name, master.revision, addr).success(function(data){
+            odaStatus.setStatus("Loaded");
             $scope.displayUnits = data;
             minAddress = $scope.displayUnits[0].offset;
             maxAddress = $scope.displayUnits[$scope.displayUnits.length-1].offset;
@@ -163,7 +165,6 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         };
 
         if (position < minAddress || position > maxAddress) {
-            oda.alert("reloading...");
             loadDisassembly(position).then(function(data){
                 if (position < minAddress || position > maxAddress) {
                     //if we still are out of position, then we're in trouble
