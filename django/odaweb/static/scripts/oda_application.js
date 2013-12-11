@@ -1,3 +1,7 @@
+$.fn.exists = function () {
+    return this.length !== 0;
+}
+
 var odaApplication = angular
     .module('odaApp',['ngSanitize','ui.keypress','ui.event'])
     .config(function($httpProvider) {

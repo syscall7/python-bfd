@@ -154,9 +154,12 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         console.log('position changed' + position);
 
         var handleScroll = function() {
-            $location.hash("addr-" + $scope.location);
-            // call $anchorScroll()
-            $anchorScroll();
+            var id = "addr-" + $scope.location;
+            if (!$("#"+id).exists() || !$("#"+id).visible()) {
+                $location.hash(id);
+                // call $anchorScroll()
+                $anchorScroll();
+            }
         };
 
         if (position < minAddress || position > maxAddress) {
@@ -225,6 +228,10 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         //socketService.sendRetval(label, displayUnit.offset);
         $event.preventDefault();
     };
+
+    $scope.hightlightLine = function(du) {
+        odaApi.setPosition(du.offset);
+    }
 
     $scope.labelEnter = function($event, displayUnit) {
         var label = $($event.target).text();
