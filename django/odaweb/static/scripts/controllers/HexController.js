@@ -16,8 +16,7 @@ odaApplication.controller('HexController', function HexController($q, $scope, $h
             asciiVal = " ";
 
         var status = "Address: <b>" + addr + "h</b> Byte: <b>" + hex.text().trim() + "h</b> ASCII: <b>'" + asciiVal + "'</b>";
-        odaStatus.setStatus("abc");
-        console.debug(status);
+        $scope.$apply(function(){odaStatus.setStatus(status);});
 
         addr = addr.substring(0, addr.length-1) + "0";
         $("#p"+addr).addClass("hex-hovered");
@@ -31,7 +30,7 @@ odaApplication.controller('HexController', function HexController($q, $scope, $h
 
         addr = addr.substring(0, addr.length-1) + "0";
         $("#p"+addr).removeClass("hex-hovered");
-        odaStatus.setStatus("def");
+        $scope.$apply(function(){odaStatus.setStatus("");});
     };
 
 
