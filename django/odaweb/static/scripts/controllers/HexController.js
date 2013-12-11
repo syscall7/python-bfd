@@ -16,7 +16,7 @@ odaApplication.controller('HexController', function HexController($q, $scope, $h
             asciiVal = " ";
 
         var status = "Address: <b>" + addr + "h</b> Byte: <b>" + hex.text().trim() + "h</b> ASCII: <b>'" + asciiVal + "'</b>";
-        $scope.$apply(function(){odaStatus.setStatus(status);});
+        //$scope.$apply(function(){odaStatus.setStatus(status);});
 
         addr = addr.substring(0, addr.length-1) + "0";
         $("#p"+addr).addClass("hex-hovered");
@@ -30,7 +30,7 @@ odaApplication.controller('HexController', function HexController($q, $scope, $h
 
         addr = addr.substring(0, addr.length-1) + "0";
         $("#p"+addr).removeClass("hex-hovered");
-        $scope.$apply(function(){odaStatus.setStatus("");});
+        //$scope.$apply(function(){odaStatus.setStatus("");});
     };
 
 
@@ -46,37 +46,76 @@ odaApplication.controller('HexController', function HexController($q, $scope, $h
     function convertDisplayUnitsToHexLines(dus)
     {
         var WIDTH = 16;
+        var cur_section = "";
+        var idx = -1;
 
         $scope.hexLines = [];
+
 
         for (var i = 0; i < dus.length; i++) {
 
             var du = dus[i];
-            // add the raw bytes and ascii representation
-            for (var b = 0; b < du.rawBytes.length; b+=2) {
 
-                if ((du.offset+b)%WIDTH == 0) {
+            // if this du is starting a new section
+            if (du.section_name != cur_section)
+            {
+                // if this isn't the first section and there actually was a previous section
+                if (idx != -1) {
+
+                    // pad out last line of the section to WIDTH
+                    while ($scope.hexLines[idx].bytes.length < WIDTH) {
+                        $scope.hexLines[idx].bytes.push('  ');
+                        $scope.hexLines[idx].asc.push('  ');
+                    }
+                }
+
+                // if the new section start is not 16-byte aligned
+                if (du.offset % WIDTH != 0) {
+
+                    // add a new hex line
                     $scope.hexLines.push({
                         name : du.section_name,
                         addr : du.offset,
                         bytes : [],
                         asc : []
                     });
+                    idx++;
+
+                    // pad out with leading empty bytes
+                    for (p = 0; p < (WIDTH - (du.offset % WIDTH)); p++) {
+                        $scope.hexLines[idx].bytes.push('  ');
+                        $scope.hexLines[idx].asc.push('  ');
+                    }
+                }
+            }
+
+            cur_section = du.section_name;
+
+            // add the raw bytes and ascii representation
+            for (var b = 0; b < du.rawBytes.length; b+=2) {
+
+                if ((du.offset+b/2)%WIDTH == 0) {
+                    $scope.hexLines.push({
+                        name : du.section_name,
+                        addr : du.offset,
+                        bytes : [],
+                        asc : []
+                    });
+                    idx++;
                 }
 
-                var index = $scope.hexLines.length - 1;
                 byte = du.rawBytes.substring(b,b+2);
                 asc = parseInt(byte, 16);
                 asc = asc < 32 || asc > 127 ? '.' : String.fromCharCode(asc);
-                $scope.hexLines[index].bytes.push(byte);
-                $scope.hexLines[index].asc.push(asc);
+                $scope.hexLines[idx].bytes.push(byte);
+                $scope.hexLines[idx].asc.push(asc);
             }
         }
 
         // pad out last line to WIDTH
-        while ($scope.hexLines[$scope.hexLines.length-1].bytes.length < WIDTH) {
-            $scope.hexLines[$scope.hexLines.length-1].bytes.push('  ');
-            $scope.hexLines[$scope.hexLines.length-1].asc.push('  ');
+        while ($scope.hexLines[idx].bytes.length < WIDTH) {
+            $scope.hexLines[idx].bytes.push('  ');
+            $scope.hexLines[idx].asc.push('  ');
         }
     };
 
