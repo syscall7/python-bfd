@@ -36,7 +36,7 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
             maxAddress = $scope.displayUnits[$scope.displayUnits.length-1].offset;
             loadingMore = false;
         });
-    }
+    };
 
     var commentsRequest = odaApi.getComments(master.short_name, master.revision);
     var functionsRequest = odaApi.getFunctions(master.short_name, master.revision);
