@@ -13,7 +13,7 @@
             <td align="right">{{ section.vma }} </td>
             <td align="left">
                 <span ng-repeat="flag in section.flags">
-                    <span ng-class="['FLAG_ALLOC', 'label']"
+                    <span ng-class="[getFlagLabel(flag.name), 'label']"
                     popover="{
                         title: flag.name,
                         content: flag.desc,
@@ -24,24 +24,6 @@
                     {{ getFlagText(flag.name) }}
                     </span  >
                 </span>
-
-
-                   <!-- <span class="FLAG_ALLOC label label-success" data-original-title="">
-                        ALLOC
-                    </span>&nbsp;
-                
-                    <span class="FLAG_LOAD label label-warning" data-original-title="">
-                        LOAD
-                    </span>&nbsp;
-                
-                    <span class="FLAG_DATA label label-success" data-original-title="">
-                        DATA
-                    </span>&nbsp;
-                
-                    <span class="FLAG_CONTENTS label label-info" data-original-title="">
-                        CONTENTS
-                    </span>&nbsp; -->
-                
             </td>
             <td align="right">2<sup>0</sup></td>
         </tr>
