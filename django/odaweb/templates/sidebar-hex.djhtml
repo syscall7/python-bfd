@@ -27,10 +27,7 @@
         <strong>Warning!</strong> You can only disassemble hexadecimal characters, check your inputs.
     </div>
 
-    <div id="hex-sidebar-scroll" class="sidebar-content">
-        <textarea class="sidebar-scroll-container" id="hex"
-                  style="width:95%; margin-bottom: 5px;" data-bind="value: hex">{% if binary.is_live_mode %}{{ binary.binary_string_display }}{%  endif %}
-
-        </textarea>
+    <div ng-include="'/static2/templates/live_entry.html'">
     </div>
+
 </div>

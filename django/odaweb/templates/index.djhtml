@@ -20,13 +20,17 @@
             id : '{{ binary.id }}',
             liveMode : {{ binary.is_live_mode|jsonify  }},
             arch : '{{ arch }}',
-            size : '{{ binary.size|filesizeformat }}'
+            size : '{{ binary.size|filesizeformat }}',
+            text : {% if binary.is_live_mode %}{{ binary.binary_string_display | jsonify }}{% else %}""{%  endif %}
+
         }
     };
     {% endautoescape %}
     window.user = {
         username : '{% if not user.is_authenticated %}anonymous{% else %}{{ user.username }}{% endif %}'
     };
+
+
 
     window.socket = io.connect("http://" + window.location.hostname + ":8080");
 
