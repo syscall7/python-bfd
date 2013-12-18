@@ -20,9 +20,10 @@ class Function(object):
         self.name = name
         self.type = type
 
-def parseDataLine(section_name, start_addr, end_addr, self, displayUnits, is_data ):
+def parseDataLine(section_name, start_addr, end_addr, self, displayUnits, is_data, maxLines):
 
     dataLen = end_addr - start_addr
+    numLines = 0
 
     # Get the raw data from the file
     rawData = self.disassembler.ofd.bfd.raw_data(self.disassembler.ofd.bfd.sections[section_name], start_addr, dataLen)
@@ -57,7 +58,11 @@ def parseDataLine(section_name, start_addr, end_addr, self, displayUnits, is_dat
             displayUnits[du.offset] = du
 
             addr += 1
+            numLines += 1
+            if (numLines == maxLines):
+                break
 
+    return numLines
 
 def parseEverything(addr, rawData, instr, abfd, self, displayUnits, section_name):
 
@@ -288,9 +293,8 @@ class defaultAnalyzer(object):
 
                 # Convert the parcel to disassembly
                 # TODO: Fix sec name
+                s = self.disassembler.ofd.get_section_from_addr(parcel.start)
                 if parcel.is_code:
-                    s = self.disassembler.ofd.get_section_from_addr(parcel.start)
-
                     logger.debug("Requesting disassembly from BFD...")
                     options = self.processOptions(self.disassembler.binary.options.get_extra_options())
                     (_, _, lines) = self.disassembler.ofd.disassemble(s.name, options, dis_start, dis_end,
@@ -302,10 +306,9 @@ class defaultAnalyzer(object):
                                                       'section_name': s.name,
                                                   })
 
-                    if maxLines is not None:
-                        maxLines -= lines
-                        if maxLines <= 0:
-                            break;
+                # data section
+                else:
+                    lines = parseDataLine(s.name, dis_start, dis_end, self, self.displayUnits, False, maxLines)
 
                     #elif parcel.is_code == None:
                     #    # Defined Data
@@ -313,6 +316,11 @@ class defaultAnalyzer(object):
                     #elif parcel.is_code == False:
                     #    # Undefined
                     #    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, True)
+
+                if maxLines is not None:
+                    maxLines -= lines
+                    if maxLines <= 0:
+                        break;
 
         logger.debug("Analyze: INSTRUCTIONS POPULATED. BRANCH COUNT: %d" % (len(self.branches)))
 
