@@ -130,7 +130,7 @@ class BinaryString(Binary):
         try:
             byte_array = self.binary_string.decode("hex")
         except TypeError:
-            logger.exception("Failed to decode hex")
+            logger.exception("Failed to decode hex %s" % self.binary_string)
 
         # Create a file containing the BinaryString for passing to BFD
         #  Must use delete=False because bfd expects a file name

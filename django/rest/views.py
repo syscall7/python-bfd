@@ -2,7 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from rest_framework import viewsets
 from rest_framework.response import Response
 from odaweb.disassembler import Disassembler, analyzerFactory
-from odaweb.models import OdaMaster, Comment, BinaryParcel, Function, Label, Symbol
+from odaweb.models import OdaMaster, Comment, BinaryParcel, Function, Label, Symbol, BinaryString
 from rest.serializers import OdaMasterSerializer, FunctionSerializer, SectionSerializer, StringSerializer, DisplayUnitSerializer, BinaryParcelSerializer, RefSerializer
 import logging
 
@@ -112,6 +112,10 @@ class SymbolsViewSet(viewsets.ModelViewSet):
             queryset = Symbol.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
 
         return queryset
+
+
+class BinaryStringViewSet(viewsets.ModelViewSet):
+    model = BinaryString
 
 class FunctionsViewSet(viewsets.ModelViewSet):
     model = Function

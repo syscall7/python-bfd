@@ -1,5 +1,7 @@
 <div class="sidebar-content" ng-controller="LiveEntryController" id="hex-sidebar-scroll">
     <textarea class="sidebar-scroll-container" id="hex"
               style="width:95%; margin-bottom: 5px;"
-              data-bind="value: hex">{{ liveEntryText }}</textarea>
+              data-bind="value: hex"
+              ng-change="liveEntryChange()"
+              ng-model="liveEntryText"></textarea>
 </div>
