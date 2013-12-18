@@ -10,6 +10,7 @@ import branch
 import bfd
 import logging
 import odaweb.models
+import string
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +56,10 @@ def parseDataLine(section_name, start_addr, end_addr, self, displayUnits, is_dat
             du.rawBytes =  '%02x' % c
             du.isArray = False
             du.dataSize = 1
+
+            # TODO: Don't specify the css class here - it's not very classy, ha, ha
+            du.instStr = "<span class='string'>%s</span>" % chr(c) if chr(c) in string.printable else ' '
+
             displayUnits[du.offset] = du
 
             addr += 1
