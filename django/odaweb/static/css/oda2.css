@@ -363,7 +363,7 @@ dislineerr {
     color: #093C83;
 }
 
-.str-offset {
+.result-offset, .str-offset {
     text-align: right;
 }
 

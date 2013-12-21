@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from odaweb.disassembler import Disassembler, analyzerFactory
 from odaweb.models import OdaMaster, Comment, BinaryParcel, Function, Label, Symbol, BinaryString
-from rest.serializers import OdaMasterSerializer, FunctionSerializer, SectionSerializer, StringSerializer, DisplayUnitSerializer, BinaryParcelSerializer, RefSerializer
+from rest.serializers import OdaMasterSerializer, FunctionSerializer, SectionSerializer, StringSerializer, DisplayUnitSerializer, BinaryParcelSerializer, RefSerializer, FindResultsSerializer
 import logging
 
 logger = logging.getLogger(__name__)
@@ -97,7 +97,7 @@ class StringsViewSet(viewsets.GenericViewSet):
 
         binary = oda.binary
         dasm = Disassembler(binary)
-        strings = [{'addr': key, 'string': value} for key, value in sorted(dasm.ofd.strings().items(), key=lambda s: s[0])]
+        strings = [{'addr': key, 'string': value} for key, value in sorted(dasm.strings().items(), key=lambda s: s[0])]
         serializer = self.get_serializer(strings, many=True)
         return Response(serializer.data)
 
@@ -140,3 +140,17 @@ class LabelsViewSet(viewsets.ModelViewSet):
             queryset = Label.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
 
         return queryset
+
+class FindViewSet(viewsets.GenericViewSet):
+    serializer_class = FindResultsSerializer
+
+    def list(self, request):
+        bytes = self.request.QUERY_PARAMS.get('bytes', None)
+        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
+                                    revision=request.QUERY_PARAMS.get('revision'))
+
+        binary = oda.binary
+        dasm = Disassembler(binary)
+        results = [{'addr': key, 'section': value} for key, value in sorted(dasm.find(bytes).items(), key=lambda s: s[0])]
+        serializer = self.get_serializer(results, many=True)
+        return Response(serializer.data)

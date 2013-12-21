@@ -23,6 +23,12 @@
                    href="#">
                     <i class="icon-font"></i>
                 </a>
+                <a class="btn nav-btn" data-panel="find-results-display"
+                   data-toggle="tooltip"
+                   title="Find Results"
+                   href="#">
+                    <i class="icon-search"></i>
+                </a>
             </div>
         </div>
 
@@ -49,6 +55,17 @@
 
                          ng-include="'/static2/templates/symbols.html'"
                          id="strings-content">
+                    </div>
+                </div>
+            </div>
+
+            <div id="find-results-display" style="padding:5px; background-color: white;" class="item">
+                <div class="sidebar-legend">Find Results</div>
+                <div class="sidebar-content">
+                    <div class="sidebar-scroll-container"
+
+                         ng-include="'/static2/templates/find_results.html'"
+                         id="results-content">
                     </div>
                 </div>
             </div>

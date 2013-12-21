@@ -101,3 +101,7 @@ class SectionSerializer(serializers.Serializer):
 class StringSerializer(serializers.Serializer):
     addr  = serializers.CharField()
     string = serializers.CharField()
+
+class FindResultsSerializer(serializers.Serializer):
+    addr  = serializers.CharField()
+    section = serializers.CharField()

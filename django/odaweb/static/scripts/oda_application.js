@@ -154,6 +154,9 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
                 position = newPosition;
                 $rootScope.$broadcast("position", position);
             }
+        },
+        find : function(short_name, revision, bytes) {
+            return $http.get('/odaweb/api/find/?short_name=' + short_name + "&revision=" + revision + "&bytes=" + bytes);
         }
     };
 });

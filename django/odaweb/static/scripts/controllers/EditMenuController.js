@@ -1,4 +1,4 @@
-odaApplication.controller('EditMenuController', function EditMenuController($scope, $http, $window, odaApi) {
+odaApplication.controller('EditMenuController', function EditMenuController($q, $rootScope, $scope, $http, $window, odaApi, odaStatus) {
 
     $scope.GoToAddressPrompt = function GoToAddressPrompt() {
 
@@ -42,9 +42,29 @@ odaApplication.controller('EditMenuController', function EditMenuController($sco
         odaApi.setPosition(addr);
     }
 
+    var find = function(bytes)  {
+        var deferred = $q.defer();
+        odaStatus.setStatus("Searching....");
+        var master = oda_util.getMaster();
+        odaApi.find(master.short_name, master.revision, bytes).success(function(data){
+            odaStatus.setStatus("Done searching");
+            $rootScope.results = data;
+            deferred.resolve(data);
+        }).error(function(data, status){
+            deferred.reject(data);
+        });
+        return deferred.promise;
+    };
+
     $scope.FindBytesPrompt = function FindBytesPrompt() {
-        alert("Finding bytes...");
-    }
+        var bytes = prompt("Bytes to Find:");
+        $rootScope.search_pattern = bytes;
+        find(bytes);
+    };
+
+    $scope.setPosition = function(position) {
+        odaApi.setPosition(position);
+    };
 
     $("html").keypress(function(event) {
         if (String.fromCharCode(event.which) == 'g' && !commentEditing && !dialogOpen) {

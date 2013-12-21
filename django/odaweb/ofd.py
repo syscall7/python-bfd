@@ -49,17 +49,6 @@ class Ofd(object):
     def sectionFlagsInfo(self):
         return bfd.FLAGS
 
-    def strings(self):
-        strs = {}
-        for s in self.get_loadable_sections().sections:
-            print 'Section %s, base 0x%08x, size 0x%08x' % (s.name, s.vma, s.size)
-            for m in re.finditer("([\t\x20-\x7e]{4,})", self.bfd.raw_data(s, s.vma, s.size)):
-                strs[m.start()+s.vma] = m.group(1)
-
-        for k,v in strs.items():
-            print '0x%08x: %s' % (k, v)
-        return strs
-
     def sections_iter(self, flags=[]):
         '''Iterate over all sections (in ascending address order) that have all give flags specified'''
         for sec in self.sections:

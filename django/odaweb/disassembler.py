@@ -275,6 +275,22 @@ class Disassembler(object):
         logger.info("got dasm")
         dasm.mk_hex_lines(parcels)
 
+
+    def strings(self):
+        strs = {}
+        for s in self.ofd.get_loadable_sections().sections:
+            print 'Section %s, base 0x%08x, size 0x%08x' % (s.name, s.vma, s.size)
+            for m in re.finditer("([\t\x20-\x7e]{4,})", self.ofd.bfd.raw_data(s, s.vma, s.size)):
+                strs[m.start()+s.vma] = m.group(1)
+        return strs
+
+    def find(self, bytes):
+        results = {}
+        for s in self.ofd.get_loadable_sections().sections:
+            for m in re.finditer("(%s)" % re.escape(bytes), self.ofd.bfd.raw_data(s, s.vma, s.size)):
+                results[m.start()+s.vma] = s.name
+        return results
+
 def copy_disassembly(from_id, from_version, owner, ip_address):
 
     #to_oda gets copied by setting the id to None

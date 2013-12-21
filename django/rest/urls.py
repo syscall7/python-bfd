@@ -13,6 +13,7 @@ router.register(r'symbols', views.SymbolsViewSet, base_name="symbols")
 router.register(r'functions', views.FunctionViewSet, base_name="functions")
 router.register(r'labels', views.LabelsViewSet, base_name='labels')
 router.register(r'binarystrings', views.BinaryStringViewSet, base_name="binarystrings")
+router.register(r'find', views.FindViewSet, base_name="find")
 
 #router.register(r'superchunks', views.SuperChunksViewSet, base_name="superchunks")
 
