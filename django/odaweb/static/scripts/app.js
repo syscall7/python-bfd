@@ -280,62 +280,6 @@ function InitializeSplitter() {
     $("#main-display").splitter({type: 'v'});    
 }
 
-function GoToAddressPrompt() {
-
-    var addr;
-
-    var min = $("#slider").slider("option", "min");
-    var max = $("#slider").slider("option", "max");
-
-    // continue prompting until they get it right or give up
-    do {
-
-        var strAddr = prompt("Go to address:");
-
-        // if Cancel was not hit and the user actually entered something
-        if (strAddr) {
-
-            // prepend '0x'
-            if (strAddr.substring(0,2) != '0x')
-                strAddr = '0x' + strAddr;
-
-            addr = Number(strAddr);
-            // must be a number
-            if (isNaN(addr)) {
-                oda.alert('Address must be hexadecimal in the form of "AABB..." or "0xAABB..."');
-                continue;
-            }
-            // must be within range
-            else if ((addr < min) || (addr > max)) {
-                addr = NaN;
-                oda.alert('Address must be in the range 0x' + min.toString(16) + ' to  0x' + max.toString(16));
-                continue;
-            }
-
-        }
-        // else, Cancel was clicked
-        else {
-            return;
-        }
-    } while (isNaN(addr));
-
-    // update slider
-    $("#slider").slider("value", addr );
-
-    // Try to scroll to the address
-    if ( !updateDisplayedFileContent(addr,false) )
-    {
-        // Isn't loaded. Try to load it
-        scrollToAddr(addr);
-    }
-}
-
-function InitializeMenus() {
-    $('#menu-go-to-addr').click(function(e) {
-        GoToAddressPrompt();
-    });
-}
-
 /* ---------------------------------------------------------------------------------------------------------  *
  * ADDRESS SLIDER
  * ---------------------------------------------------------------------------------------------------------  */
@@ -576,8 +520,6 @@ function OdaApplication(options) {
    // InitializeRelabeling();
 
     InitializeModalShare();
-
-    InitializeMenus();
 
     LiveHex(options.binary);
 

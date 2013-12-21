@@ -44,6 +44,7 @@
     <script type="text/javascript" src="{% static 'scripts/controllers/LiveEntryController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/StatusController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/SymbolsController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/EditMenuController.js' %}"></script>
 
     {%  endcompress %}
     <script src="https://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
@@ -97,7 +98,7 @@
                     </li>
 
                     <!-- Edit Menu -->
-                    <li class="dropdown">
+                    <li class="dropdown" ng-controller="EditMenuController">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">Edit<b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <!--
@@ -110,7 +111,7 @@
                                    data-panel="platform-display" href="#"><i class="icon-pencil"></i>&nbsp;Platform Options</a></li>
                             <li class="divider"></li>
                              -->
-                            <li><a id="menu-go-to-addr" href="#">Go to address...</a></li>
+                            <li><a id="menu-go-to-addr" ng-click="GoToAddressPrompt()" href="#">Go to address...</a></li>
                         </ul>
                     </li>
 

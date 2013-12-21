@@ -104,17 +104,4 @@ odaApplication.controller('SliderController', function SliderController($scope, 
     $(document).on("hover", "#listing tr", function(){
         $scope.updateAddrDisplay($(this).attr('addr'));
     });
-
-    $("html").keypress(function(event) {
-        if (String.fromCharCode(event.which) == 'g' && !commentEditing && !dialogOpen) {
-            GoToAddressPrompt();
-        }
-        else if (String.fromCharCode(event.which) == ';') {
-
-            if (selectedRow != null) {
-                selectedRow.find('.comment').text('   ');
-                selectedRow.find('.comment').focus();
-            }
-        }
-    });
 });
