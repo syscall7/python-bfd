@@ -112,6 +112,7 @@
                             <li class="divider"></li>
                              -->
                             <li><a id="menu-go-to-addr" ng-click="GoToAddressPrompt()" href="#">Go to address...</a></li>
+                            <li><a id="menu-go-to-addr" ng-click="FindBytesPrompt()" href="#">Find sequence of bytes...</a></li>
                         </ul>
                     </li>
 

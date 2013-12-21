@@ -42,6 +42,10 @@ odaApplication.controller('EditMenuController', function EditMenuController($sco
         odaApi.setPosition(addr);
     }
 
+    $scope.FindBytesPrompt = function FindBytesPrompt() {
+        alert("Finding bytes...");
+    }
+
     $("html").keypress(function(event) {
         if (String.fromCharCode(event.which) == 'g' && !commentEditing && !dialogOpen) {
             $scope.GoToAddressPrompt();
