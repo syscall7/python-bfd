@@ -82,7 +82,7 @@ odaApplication.controller('HexController', function HexController($q, $scope, $h
                     idx++;
 
                     // pad out with leading empty bytes
-                    for (p = 0; p < (WIDTH - (du.offset % WIDTH)); p++) {
+                    for (p = 0; p < (du.offset % WIDTH); p++) {
                         $scope.hexLines[idx].bytes.push('  ');
                         $scope.hexLines[idx].asc.push('  ');
                     }
