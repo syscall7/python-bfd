@@ -261,7 +261,13 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
     };
 
     $scope.commentEnter = function($event, displayUnit) {
-        var comment = $($event.target).text()
+        var comment = $.trim($($event.target).text());
+
+        // bail on empty comments
+        if (comment == "")
+        {
+            return;
+        }
 
         var existingComment = $scope.comments[displayUnit.offset];
 
@@ -275,6 +281,8 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
                 $scope.comments[displayUnit.offset] = data;
             });
         } else {
+            // strip off leading "; "
+            comment = comment.substring(2);
             odaApi.setComment(existingComment.id, comment);
         }
 
