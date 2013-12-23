@@ -214,8 +214,6 @@ function FileUploadForm() {
                         disassemble : false,
                     };
 
-                    debugger;
-
                     $.post('/odaweb/_set', form_data)
                         .done(function(response) {
 
