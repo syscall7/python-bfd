@@ -97,7 +97,7 @@ odaApplication.controller('HexController', function HexController($q, $scope, $h
                 if ((du.offset+b/2)%WIDTH == 0) {
                     $scope.hexLines.push({
                         name : du.section_name,
-                        addr : du.offset,
+                        addr : du.offset+b/2,
                         bytes : [],
                         asc : []
                     });
