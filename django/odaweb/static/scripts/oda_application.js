@@ -101,8 +101,8 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
                     short_name : short_name,
                     revision : revision,
                     addr : addr
-                },
-                cache: true
+                }/*,
+                cache: true*/
             });
         },
         getSymbols : function(short_name, revision) {
@@ -154,6 +154,16 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
                 position = newPosition;
                 $rootScope.$broadcast("position", position);
             }
+        },
+        setLiveEntryText: function(liveEntryText) {
+            $http({
+                method: 'PATCH',
+                url: '/odaweb/api/binarystrings/'+oda_util.getMaster().binary.id+"/",
+                data: {
+                  binary_string: liveEntryText.replace(/\s/g, '')
+                }
+            });
+            $rootScope.$broadcast("liveEntryText", position);
         },
         find : function(short_name, revision, bytes) {
             return $http.get('/odaweb/api/find/?short_name=' + short_name + "&revision=" + revision + "&bytes=" + bytes);

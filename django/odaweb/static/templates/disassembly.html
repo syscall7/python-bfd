@@ -74,8 +74,7 @@
         </tr>
 
         <tr id="addr-{{ du.offset }}"
-            addr="{{ du.offset }}"
-            ng-mouseover="hightlightLine(du)">
+            addr="{{ du.offset }}">
             <td class="branchLines" ng-bind-html="du.branch"></td>
             <td class="offset"><a name="#{{ du.offset }}">{{ du.section_name }}:0x{{ du.offset | hex:8 }}</a></td>
             <td class="raw">{{ du.rawBytes }}</td>

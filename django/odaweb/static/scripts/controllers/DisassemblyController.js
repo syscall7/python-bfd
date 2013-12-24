@@ -155,6 +155,10 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         odaApi.setPosition(position);
     };
 
+    $scope.$on('liveEntryText', function(event, liveEntryText) {
+        loadDisassembly();
+    });
+
     $scope.$on('position', function(event, position) {
         console.log('position changed' + position);
 
