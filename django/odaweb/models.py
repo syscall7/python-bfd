@@ -16,6 +16,7 @@ import json
 import commands
 import logging
 import types
+import cPickle
 
 logger = logging.getLogger(__name__)
 
@@ -242,6 +243,16 @@ class Symbol(BinaryAddressFeature):
     ''' Symbol of a function or chunk of data '''
     name = models.CharField(max_length=255)
     type = models.CharField(max_length=1)
+    xrefs_internal = models.BinaryField()
+
+    def get_xrefs(self):
+        if len(self.xrefs_internal) > 0:
+            return cPickle.loads(self.xrefs_internal)
+        else:
+            return []
+
+    def set_xrefs(self, xrefs):
+        self.xrefs_internal = cPickle.dumps(xrefs)
 
 class BinaryParcel(BinaryFeature):
     ''' Represents a contiguous chunk of code or a single data '''
@@ -251,18 +262,6 @@ class BinaryParcel(BinaryFeature):
 
     class Meta:
         ordering = ['start']
-
-class Xref(models.Model):
-    ''' Reference to a symbol '''
-
-    # location that references the symbol
-    address = models.BigIntegerField()
-
-    # symbol that is referenced
-    symbol = models.ForeignKey(Symbol, related_name='xrefs_set')
-
-    class Meta:
-        unique_together = ('address', 'symbol')
 
 class InstDoc(models.Model):
     ''' Help for an assembly instruction '''
