@@ -614,3 +614,10 @@ def owned_files(request):
     file_list =  render_to_string('open-existing-list.djhtml', {'files' : owned_files})
 
     return HttpResponse(simplejson.dumps({'file_list_html' : file_list}), mimetype='application/json')
+
+def download_text_listing(request):
+    oda_master = get_session(request)
+    dasm = Disassembler(oda_master.binary)
+    response = HttpResponse(dasm.get_text_listing(), content_type='text')
+    response['Content-Disposition'] = 'attachment; filename="%s"' % oda_master.project_name
+    return response

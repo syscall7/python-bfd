@@ -199,6 +199,27 @@ class Disassembler(object):
             s.set_xrefs(symbol.xrefs)
             s.save()
 
+    def get_text_listing(self):
+
+        def funcFmtLine(addr, rawData, instr, abfd, sec_name):
+            ret = ''
+            if abfd.syms_by_addr.has_key(addr):
+                ret += '\n%s:0%08x <%s>:\n' % (sec_name, addr, abfd.syms_by_addr[addr].name)
+            if abfd.bpc > 1 and abfd.endian is bfd.ENDIAN_LITTLE:
+                bytes = ''.join(['%02x ' % i for i in reversed(rawData)])
+            else:
+                bytes = ''.join(['%02x ' % i for i in rawData])
+
+            ret += '%s:%08x %-32s %s\n' % (sec_name, addr, bytes, instr)
+            return ret
+
+        text = ''
+        for sec in self.ofd.get_code_sections().sections:
+            (output, _, _) = self.ofd.disassemble(sec.name, funcFmtLine=funcFmtLine, funcFmtLineArgs={ 'sec_name': sec.name})
+            text += output
+
+        return text
+
     def mk_hex_lines(self, parcels):
         LINE_WIDTH = 16
 

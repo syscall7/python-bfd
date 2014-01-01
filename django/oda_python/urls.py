@@ -41,6 +41,7 @@ urlpatterns = patterns('',
     url(r'^odaweb/_set', 'odaweb.views2.set'),
     url(r'^odaweb/_options', 'odaweb.views2.show_options'),
     url(r'^odaweb/_convert_to_data', 'odaweb.views2.convert_to_data'),
+    url(r'^odaweb/_download', 'odaweb.views2.download_text_listing'),
 
 
     #User Dealing with URL
