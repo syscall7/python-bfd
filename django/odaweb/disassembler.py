@@ -165,8 +165,9 @@ class Disassembler(object):
 
         # if one parcel already exists, then we've already completed first-time analysis
         if parcels.exists():
-            logger.warn('Attempted first-time analysis again!')
-            return
+            logger.debug('Attempted first-time analysis again!')
+            parcels.delete()
+            #return
 
         # Disassemble the entire file, one section at a time, dividing it into disassembly chunks
         parcels = self.get_parcels()

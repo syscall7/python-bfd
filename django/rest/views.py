@@ -154,3 +154,5 @@ class FindViewSet(viewsets.GenericViewSet):
         results = [{'addr': key, 'section': value} for key, value in sorted(dasm.find(bytes).items(), key=lambda s: s[0])]
         serializer = self.get_serializer(results, many=True)
         return Response(serializer.data)
+
+
