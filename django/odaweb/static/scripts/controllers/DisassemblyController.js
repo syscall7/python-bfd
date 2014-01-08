@@ -5,13 +5,8 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
     var minAddress = -1;
     var maxAddress = -1
 
-    var loading = false;
     var loadDisassembly = function(addr)  {
-        if (loading) { return; }
-        loading = true;
-
         var deferred = $q.defer();
-
         odaStatus.setStatus("Loading....");
         odaApi.getDisplayUnits(master.short_name, master.revision, addr).success(function(data){
             odaStatus.setStatus("Loaded");
@@ -20,10 +15,8 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
             maxAddress = $scope.displayUnits[$scope.displayUnits.length-1].offset;
             console.log("minAddress:"+ minAddress + " maxAddress:"+maxAddress);
             deferred.resolve(data);
-            loading = false; ;
         }).error(function(data, status){
             deferred.reject(data);
-
         });
         return deferred.promise;
     };

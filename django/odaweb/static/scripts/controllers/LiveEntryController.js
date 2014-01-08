@@ -2,8 +2,12 @@ odaApplication.controller('LiveEntryController', function SectionsController($sc
 
     $scope.liveEntryText = oda_util.getMaster().binary.text;
 
-    $scope.liveEntryChange = function() {
+    var updateText = _.debounce(function() {
         odaApi.setLiveEntryText($scope.liveEntryText);
+    }, 500);
+
+    $scope.liveEntryChange = function() {
+        updateText();
     };
 
 });
