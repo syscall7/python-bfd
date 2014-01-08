@@ -4,7 +4,7 @@ odaApplication.controller('LiveEntryController', function SectionsController($sc
 
     var updateText = _.debounce(function() {
         odaApi.setLiveEntryText($scope.liveEntryText);
-    }, 500);
+    }, 1000);
 
     $scope.liveEntryChange = function() {
         updateText();
