@@ -29,6 +29,10 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         loadingMore = true;
         odaApi.getDisplayUnits(master.short_name, master.revision, maxAddress).success(function(data){
             odaStatus.setStatus("Loaded");
+            if (data.length == 1) {
+                //TODO HACK, to avoid dealing with single returns happening in live view
+                return;
+            }
             if ($scope.displayUnits.length > 200) {
                 $scope.displayUnits = $scope.displayUnits.slice(100);
             }
