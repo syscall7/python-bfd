@@ -1,4 +1,10 @@
 <div class="sidebar-content" ng-controller="LiveEntryController" id="hex-sidebar-scroll">
+    <div id="hex-alert" class="alert" style="" ng-show="entryError">
+        <button class="close" data-dismiss="alert" type="button">×</button>
+        <strong>Warning!</strong>
+        You can only disassemble hexadecimal characters, check your inputs.
+    </div>
+
     <textarea class="sidebar-scroll-container" id="hex"
               style="width:95%; margin-bottom: 5px;"
               data-bind="value: hex"

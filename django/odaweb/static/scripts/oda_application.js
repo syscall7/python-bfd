@@ -156,14 +156,21 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
             }
         },
         setLiveEntryText: function(liveEntryText) {
+            var deferred = $q.defer();
+
             $http({
                 method: 'PATCH',
                 url: '/odaweb/api/binarystrings/'+oda_util.getMaster().binary.id+"/",
                 data: {
                   binary_string: liveEntryText.replace(/\s/g, '')
                 }
+            }).success(function(data){
+                $rootScope.$broadcast("liveEntryText", position);
+                deferred.resolve(data);
+            }).error(function(){
+                deferred.reject("Use only hex characters!");
             });
-            $rootScope.$broadcast("liveEntryText", position);
+            return deferred.promise;
         },
         find : function(short_name, revision, bytes) {
             return $http.get('/odaweb/api/find/?short_name=' + short_name + "&revision=" + revision + "&bytes=" + bytes);
