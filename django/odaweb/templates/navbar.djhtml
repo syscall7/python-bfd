@@ -1,0 +1,131 @@
+{% load staticfiles %}
+<style type="text/css">
+.navbar-brand
+{
+  background: url('{% static 'images/oda.png' %}') no-repeat left center;
+  height: 50px;
+  width: 100px;
+}
+</style>
+<nav class="navbar navbar-default navbar-inverse" role="navigation">
+  <!-- Brand and toggle get grouped for better mobile display -->
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="#"></a>
+  </div>
+
+  <!-- Collect the nav links, forms, and other content for toggling -->
+  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    <ul class="nav navbar-nav">
+       <li class="share-btn">
+            <a href="/odaweb/_save"
+               data-placement="bottom"
+               data-title="You've Saved Your Project"
+               data-html="true"
+               data-content="<p>You can share this url:</p><a href='{{ share_url }}'>{{ share_url }}</a><p><p>If you make more changes, hit <strong>share</strong> again to get a new link.</p>"
+               id="menu-item-share">
+                    <i class="glyphicon glyphicon-share glyphicon-white"></i>Share
+            </a>
+        </li>
+
+       <!-- File Menu -->
+       <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="menu-item-file">File<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+                <li><a id="open-btn" href="_upload" data-toggle="modal"><i class="glyphicon glyphicon-upload"></i>&nbsp;Upload File...</a></li>
+                <li><a id="download-btn" href="/odaweb/_download" data-toggle="modal"><i class="glyphicon glyphicon-download"></i>&nbsp;Download Disassembly</a></li>
+                <li><a href="/odaweb"><i class="glyphicon glyphicon-play-circle"></i> Live Mode</a></li>
+                <!--<li class="dropdown-submenu"><a href="#" tab-index="-1"><i class="icon-file"></i>&nbsp;New</a>
+                    <ul class="dropdown-menu">
+
+                    </ul>
+                </li>
+                <li class="dropdown-submenu"><a href="#" tab-index="-1"><i class="icon-folder-open"></i>&nbsp;Open Existing</a>
+                    <ul id="open-existing-list" class="dropdown-menu">
+                        <li class="disabled"><a href="#">No files exist</a></li>
+                    </ul>
+                </li>
+                <li class="divider"></li>
+                <li><a href="/odaweb/_save"><i class="icon-share"></i>Share</a></li>
+                <li><a href="#">Download</a></li>-->
+            </ul>
+        </li>
+
+       <!-- Edit Menu -->
+       <li class="dropdown" ng-controller="EditMenuController">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Edit<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+                <!--
+                <li><a href="#">Undo</a></li>
+                <li><a href="#">Redo</a></li>
+                <li class="divider"></li>
+                <li><a class="nav-btn"
+                       rel="tooltip"
+                       data-original-title="Platform Settings"
+                       data-panel="platform-display" href="#"><i class="icon-pencil"></i>&nbsp;Platform Options</a></li>
+                <li class="divider"></li>
+                 -->
+                <li><a id="menu-go-to-addr" ng-click="GoToAddressPrompt()" href="#">Go to address...</a></li>
+                <li><a id="menu-go-to-addr" ng-click="FindBytesPrompt()" href="#">Find sequence of bytes...</a></li>
+            </ul>
+        </li>
+
+        <!-- Examples Menu -->
+       <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Examples<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+                <!-- TODO: Build this list dynamically -->
+                {% for example in examples %}
+                    <li><a href="/odaweb/{{ example.short_name }}">{{ example.project_name }}</a></li>
+                {% endfor %}
+            </ul>
+       </li>
+
+        <!-- Help Menu -->
+       <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Help<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+                <li><a id='whats-oda-btn' href="#" data-toggle="modal">What's ODA?</a></li>
+                <li><a id='tutorial-btn' href="http://onlinedisassembler.com/blog/?p=44">Tutorial</a></li>
+                <li class="divider"></li>
+                <li><a id='about-oda-btn' href="#" data-toggle="modal">About</a></li>
+            </ul>
+        </li>
+
+        <!-- Blog Menu -->
+        <li class="">
+            <a href="http://www.onlinedisassembler.com/blog/">Blog</a>
+        </li>
+        <!-- Contact Us Menu -->
+        <li class="">
+            <a href=mailto:admin@onlinedisassembler.com>Contact Us!</a>
+        </li>
+
+
+    </ul>
+    <form class="navbar-form navbar-left" role="search">
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="Search">
+      </div>
+      <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="#">Link</a></li>
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href="#">Action</a></li>
+          <li><a href="#">Another action</a></li>
+          <li><a href="#">Something else here</a></li>
+          <li class="divider"></li>
+          <li><a href="#">Separated link</a></li>
+        </ul>
+      </li>
+    </ul>
+  </div><!-- /.navbar-collapse -->
+</nav>

@@ -6,19 +6,25 @@
 
     <title>{%  block title %}ODA - The Online Disassembler{% endblock %}</title>
     <link rel="icon" type="image/png" href="{% static 'images/oda.png' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'lib/bootstrap-2.2.2/css/bootstrap.min.css' %}"/>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/bootstrap-3.0.3/css/bootstrap.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/bootstrap-3.0.3/css/bootstrap-theme.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/font-awesome-4.0.3/css/font-awesome.css' %}" />
+
     <link rel="stylesheet" type="text/css" media="all" href="https://code.jquery.com/ui/1.10.0/themes/base/jquery-ui.css" />
-    <link rel="stylesheet" type="text/css" href="{% static 'css/oda2.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/bootstrap-notify/bootstrap-notify.css' %}" />
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/oda2.css' %}" />
+
 
     {% load compress %}
     {% compress js %}
-    <script type="text/javascript" src="{% static 'lib/jquery/jquery-1.8.3.min.js' %}" ></script>
-    <script type="text/javascript" src="{% static 'lib/bootstrap-2.2.2/js/bootstrap.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/lib/angular.min-1.2.0-rc.3.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/lib/angular-sanitize.min-1.2.0-rc.3.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/lib/ui-utils-0.0.4/modules/keypress/keypress.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/lib/ui-utils-0.0.4/modules/event/event.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/jquery/jquery-1.8.3.min.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/bootstrap-3.0.3/js/bootstrap.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.10/angular.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.10/angular-sanitize.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/angular-plugins/ui-utils-0.1.0/modules/keypress/keypress.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/angular-plugins/ui-utils-0.1.0/modules/event/event.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/bootstrap-notify/bootstrap-notify.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/underscore-1.3.3.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/backbone-0.9.2.js' %}"></script>
@@ -36,6 +42,7 @@
     <script type="text/javascript" src="{% static 'scripts/socket.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/oda_application.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/directives.js' %}"></script>
+
     <script type="text/javascript" src="{% static 'scripts/controllers/HexController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/DisassemblyController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/StringsController.js' %}"></script>
@@ -56,111 +63,7 @@
 
 <div class='notifications top-right'></div>
 
-<img src="{% static 'images/oda.png' %}"  style="width:40px; position:absolute; padding-top: 4px; padding-left: 2px"/>
-<div class="brand" style="color:#999; position:absolute; padding-top: 12px; padding-left: 45px">BETA</div>
-<div class="navbar navbar-inverse navbar-static-top" >
-    <div class="navbar-inner">
-
-        <div class="container-fluid">
-            <div class="nav-collapse collapse">
-                <a class="brand" href="/odaweb">ODA</a>
-                <ul class="nav">
-
-                    <li class="share-btn">
-                        <a href="/odaweb/_save"
-                           data-placement="bottom"
-                           data-title="You've Saved Your Project"
-                           data-html="true"
-                           data-content="<p>You can share this url:</p><a href='{{ share_url }}'>{{ share_url }}</a><p><p>If you make more changes, hit <strong>share</strong> again to get a new link.</p>"
-                           id="menu-item-share"><i class="icon-share icon-white"></i>Share</a>
-                    </li>
-
-                    <!-- File Menu -->
-                    <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="menu-item-file">File<b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a id="open-btn" href="_upload" data-toggle="modal"><i class="icon-upload"></i>&nbsp;Upload File...</a></li>
-                            <li><a id="download-btn" href="/odaweb/_download" data-toggle="modal"><i class="icon-download"></i>&nbsp;Download Disassembly</a></li>
-                            <li><a href="/odaweb"><i class="icon-play-circle"></i> Live Mode</a></li>
-                            <!--<li class="dropdown-submenu"><a href="#" tab-index="-1"><i class="icon-file"></i>&nbsp;New</a>
-                                <ul class="dropdown-menu">
-
-                                </ul>
-                            </li>
-                            <li class="dropdown-submenu"><a href="#" tab-index="-1"><i class="icon-folder-open"></i>&nbsp;Open Existing</a>
-                                <ul id="open-existing-list" class="dropdown-menu">
-                                    <li class="disabled"><a href="#">No files exist</a></li>
-                                </ul>
-                            </li>
-                            <li class="divider"></li>
-                            <li><a href="/odaweb/_save"><i class="icon-share"></i>Share</a></li>
-                            <li><a href="#">Download</a></li>-->
-                        </ul>
-                    </li>
-
-                    <!-- Edit Menu -->
-                    <li class="dropdown" ng-controller="EditMenuController">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Edit<b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <!--
-                            <li><a href="#">Undo</a></li>
-                            <li><a href="#">Redo</a></li>
-                            <li class="divider"></li>
-                            <li><a class="nav-btn"
-                                   rel="tooltip"
-                                   data-original-title="Platform Settings"
-                                   data-panel="platform-display" href="#"><i class="icon-pencil"></i>&nbsp;Platform Options</a></li>
-                            <li class="divider"></li>
-                             -->
-                            <li><a id="menu-go-to-addr" ng-click="GoToAddressPrompt()" href="#">Go to address...</a></li>
-                            <li><a id="menu-go-to-addr" ng-click="FindBytesPrompt()" href="#">Find sequence of bytes...</a></li>
-                        </ul>
-                    </li>
-
-                    <!-- Examples Menu -->
-                    <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Examples<b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <!-- TODO: Build this list dynamically -->
-                            {% for example in examples %}
-                                <li><a href="/odaweb/{{ example.short_name }}">{{ example.project_name }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </li>
-                    <!-- Help Menu -->
-                    <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Help<b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a id='whats-oda-btn' href="#" data-toggle="modal">What's ODA?</a></li>
-                            <li><a id='tutorial-btn' href="http://onlinedisassembler.com/blog/?p=44">Tutorial</a></li>
-                            <li class="divider"></li>
-                            <li><a id='about-oda-btn' href="#" data-toggle="modal">About</a></li>
-                        </ul>
-                    </li>
-                    <!-- Blog Menu -->
-                    <li class="">
-                        <a href="http://www.onlinedisassembler.com/blog/">Blog</a>
-                    </li>
-                    <!-- Contact Us Menu -->
-                    <li class="">
-                        <a href=mailto:admin@onlinedisassembler.com>Contact Us!</a>
-                    </li>
-                </ul>
-
-                <p class="navbar-text pull-right">
-                  {% if not user.is_authenticated %}
-                  <a href="login">login</a> or <a href="createuser">register</a>
-                   {% else %}
-                      <strong><a href="{% url 'users.views.files' %}">{{ user.username }}</a></strong>
-                      <small> <a href="{% url 'odaweb.views_login.logout' %}">logout</a></small>
-                  {%  endif %}
-
-                </p>
-
-            </div>
-        </div>
-    </div>
-</div>
+{% include 'navbar.djhtml' %}
 
 <div id="open-modal" class="modal hide fade"></div>
 
