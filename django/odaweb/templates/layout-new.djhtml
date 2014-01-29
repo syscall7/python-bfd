@@ -75,9 +75,7 @@
 
 {% include "modal-platform-options.djhtml" %}
 
-<div id="modal-upload-form" class="modal hide fade">
 {% include "modal-open.djhtml" %}
-</div>
 
 {% include "popover-inst-doc.djhtml" %}
 
