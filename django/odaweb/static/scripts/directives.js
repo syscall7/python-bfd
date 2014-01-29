@@ -16,6 +16,24 @@ odaApplication.directive('slider', function ($parse) {
    };
 });
 
+odaApplication.directive('whenScrolled', function() {
+   return {
+      scope: {
+        callback: '&whenScrolled'
+      },
+      link: function(scope, elm, attrs) {
+        var raw = elm[0];
+
+        elm.bind('scroll', function() {
+            if (raw.scrollTop + raw.offsetHeight >= raw.scrollHeight) {
+                //scope.$apply(attr.whenScrolled);
+                scope.callback({mode:'UP'});
+            }
+        });
+      }
+   }
+});
+/*
 odaApplication.directive('scroll', []).directive('whenScrolled', function() {
     return function(scope, elm, attr) {
         var raw = elm[0];
@@ -27,7 +45,7 @@ odaApplication.directive('scroll', []).directive('whenScrolled', function() {
         });
     };
 });
-
+*/
 odaApplication.directive('resize', function ($window) {
     return function (scope, element) {
         $(element).height($(window).height()-157);

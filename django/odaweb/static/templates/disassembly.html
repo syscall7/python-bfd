@@ -1,7 +1,7 @@
 <div ng-controller="DisassemblyController">
 
 <div id="assembly-scroll" class="tabbed-scroll assembly"
-     when-scrolled="loadMore()"
+     when-scrolled="loadMore(mode)"
      resize
      style="display: block; overflow:scroll;" >
     <div ng-show="!displayUnits">Loading...</div>

@@ -22,7 +22,7 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
     };
 
     var loadingMore = false;
-    $scope.loadMore = function() {
+    $scope.loadMore = function(mode) {
         if (loadingMore) return;
 
         odaStatus.setStatus("Loading....");
