@@ -11,9 +11,10 @@
                       action="_upload" method="post">
 
                     <div class="form-group">
-                        <label for="projectName" class="col-sm-4 control-label">Project Name</label>
+                        <label for="project_name" class="col-sm-4 control-label">Project Name</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" id="projectName" placeholder="Project Name">
+                            <input type="text" class="form-control"
+                                   name="project_name" id="project_name" placeholder="Project Name">
                         </div>
                     </div>
 
