@@ -1,35 +1,24 @@
 <div id="sidebar">
     <div id="sidebar-container" style="padding-left: 10px; padding-top: 5px;">
-        <div id="sidebar-tools" class="btn-toolbar pull-right">
-            <div class="btn-group">
-                <a class="btn nav-btn"
-                   data-panel="symbols-display"
-                   data-toggle="tooltip"
-                   title="Symbols"
-                   id="symbols-btn"
-                   href="#">
-                    <i class="icon-list"></i>
-                </a>
-                <a class="btn nav-btn"
-                   data-panel="hex-display"
-                   data-toggle="tooltip"
-                   title="Raw Bytes"
-                   id="hex-display-btn"
-                   href="#"><i class="icon-asterisk"></i>
-                </a>
-                <a class="btn nav-btn" data-panel="strings-display"
-                   data-toggle="tooltip"
-                   title="Strings"
-                   href="#">
-                    <i class="icon-font"></i>
-                </a>
-                <a class="btn nav-btn" data-panel="find-results-display"
-                   data-toggle="tooltip"
-                   title="Find Results"
-                   href="#">
-                    <i class="icon-search"></i>
-                </a>
-            </div>
+
+        <div role="toolbar" class="btn-toolbar pull-right">
+          <div class="btn-group">
+            <button class="btn nav-btn btn-default" type="button" id="symbols-btn"
+                    data-panel="symbols-display" data-toggle="tooltip" title="Symbols">
+                <span class="glyphicon glyphicon-list"></span>
+            </button>
+            <button class="btn nav-btn btn-default" type="button" id="hex-display-btn" data-panel="hex-display">
+                <span class="glyphicon glyphicon-asterisk"></span>
+            </button>
+            <button class="btn nav-btn btn-default" type="button" data-panel="strings-display"
+                    data-toggle="tooltip" title="Strings">
+                <span class="glyphicon glyphicon-font"></span>
+            </button>
+            <button class="btn nav-btn btn-default" type="button" data-panel="find-results-display" data-toggle="tooltip"
+                   title="Find Results">
+                <span class="glyphicon glyphicon-search"></span>
+            </button>
+          </div>
         </div>
 
         <div id="sidebarContent">
