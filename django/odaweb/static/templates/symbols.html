@@ -1,4 +1,8 @@
 <div ng-controller="SymbolsController">
+    <div class="input-group">
+        <span class="input-group-addon">Search</span>
+        <input type="text" class="form-control" placeholder="Search Filter" ng-model="search.name">
+    </div>
     <table class="table table-striped sidebar-table table-condensed" id="symbol-table" style="width:95%">
         <thead>
             <tr>
@@ -8,7 +12,7 @@
             </tr>
         </thead>
         <tbody class="scrollContent">
-            <tr ng-repeat="symbol in symbols | orderBy:'offset'">
+            <tr ng-repeat="symbol in symbols | filter:search | orderBy:'offset'">
                 <td style="text-align: right;">0x{{symbol.offset.toString(16)}}</td>
                 <td style="text-align: center;">{{symbol.type}}</td>
                 <td style="text-align: left;" ng-switch on="symbol.type.toLowerCase()">
