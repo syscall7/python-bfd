@@ -57,20 +57,35 @@ odaApplication.controller('EditMenuController', function EditMenuController($q, 
     };
 
     $scope.FindBytesPrompt = function FindBytesPrompt() {
-        var bytes = prompt("Bytes to Find:");
-        $rootScope.search_pattern = bytes;
-        find(bytes);
+        var bytes = bootbox.prompt("Bytes to Find:<br>" + $scope.searchHelp,
+            function(result) {
+                if ((result != null) && (result != "") ) {
+                    $rootScope.search_pattern = bytes;
+                    find(bytes);
+                }
+            }
+        );
     };
 
     $scope.setPosition = function(position) {
         odaApi.setPosition(position);
     };
 
+    $scope.searchHelp = 'To search for ASCII strings, use double quotes, as in:<br>' +
+                        '&nbsp;&nbsp;&nbsp;&nbsp;"this is some long string to find"<br><br>' +
+                        'To search for a sequnce of bytes, use one of the following formats:<br>' +
+                        '&nbsp;&nbsp;&nbsp;&nbsp;de ad be ef<br>' +
+                        '&nbsp;&nbsp;&nbsp;&nbsp;deadbeef<br>' +
+                        '&nbsp;&nbsp;&nbsp;&nbsp;0xdeadbeef<br>';
+
+    // TODO: Where should this listener go?
+    var listener = new window.keypress.Listener();
+    listener.simple_combo("ctrl g", function() {
+        $scope.GoToAddressPrompt();
+    }, true);
+
     $("html").keypress(function(event) {
-        if (String.fromCharCode(event.which) == 'g' && !commentEditing && !dialogOpen) {
-            $scope.GoToAddressPrompt();
-        }
-        else if (String.fromCharCode(event.which) == ';') {
+        if (String.fromCharCode(event.which) == ';') {
 
             if (selectedRow != null) {
                 selectedRow.find('.comment').text('   ');

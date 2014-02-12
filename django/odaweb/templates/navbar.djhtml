@@ -70,7 +70,7 @@
                        data-panel="platform-display" href="#"><i class="icon-pencil"></i>&nbsp;Platform Options</a></li>
                 <li class="divider"></li>
                  -->
-                <li><a id="menu-go-to-addr" ng-click="GoToAddressPrompt()" href="#">Go to address...</a></li>
+                <li><a id="menu-go-to-addr" ng-click="GoToAddressPrompt()" href="#">Go to address... (Ctrl-g)</a></li>
                 <li><a id="menu-go-to-addr" ng-click="FindBytesPrompt()" href="#">Find sequence of bytes...</a></li>
             </ul>
         </li>
