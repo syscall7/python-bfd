@@ -1,4 +1,6 @@
 <form class="form-horizontal" role="form">
+    <input type="hidden" id="modal-open-platform-options-short-name" value="{{ oda_master.short_name }}" />
+
     <div class="form-group">
         <label class="col-sm-4 control-label upload-form-control" for="select-{{ form_type }}-architecture">Arch</label>
 

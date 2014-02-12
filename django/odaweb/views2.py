@@ -234,6 +234,7 @@ def set(request):
                     'base_address' : baseAddr,
                     'selected_opts' : selected_opts,
                     'form': form,
+                    'oda_master': oda_master,
                     'form_type': formType
     })
 

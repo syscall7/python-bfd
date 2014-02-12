@@ -140,9 +140,9 @@ function FileUploadOptionsForm() {
             $('.platform-option-select'), function(v) {return $(v).val();}
         );
 
-        values = $.grep(values, function(e) { return e != "DEFAULT"});
+        var values = $.grep(values, function(e) { return e != "DEFAULT"});
 
-        form_data = {
+        var form_data = {
             arch : arch,
             base_address : base_address,
             options: values,
