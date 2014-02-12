@@ -182,6 +182,9 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
             });
             return deferred.promise;
         },
+        updatePlatformOptions: function() {
+             $rootScope.$broadcast("liveEntryText", position);
+        },
         find : function(short_name, revision, bytes) {
             return $http.get('/odaweb/api/find/?short_name=' + short_name + "&revision=" + revision + "&bytes=" + bytes);
         }

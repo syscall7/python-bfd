@@ -42,9 +42,9 @@ window.LiveHex = function(binary) {
         }
     });
 
-    $('#hex-display').on('change', '.platform-option-select', function(){
+    /*$('#hex-display').on('change', '.platform-option-select', function(){
         Reload();
-    });
+    })*/;
 
     /* catch ENTER key and reload with new base address */
     $('#set-live-base-address').live("keypress", function(e) {
@@ -55,13 +55,13 @@ window.LiveHex = function(binary) {
         }
     });
 
-    $('#select-live-architecture').live("change", (function(){
+    /*$('#select-live-architecture').live("change", (function(){
         var arch = $('#select-live-architecture').val();
-        /* update arch in bottom right hand corner */
+        // update arch in bottom right hand corner
         $('.platform-option').text(arch);
         Reload();
 
-    }));
+    })*/;
 
     $('#set-live-base-address').live("change", (function(){
         Reload();

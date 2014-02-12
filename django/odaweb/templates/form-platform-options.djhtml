@@ -6,6 +6,7 @@
 
         <div class="col-sm-8">
             <select class="platformSelect input-small" id="select-{{ form_type }}-architecture"
+                    platform-option
                     name="select-{{ form_type }}-architecture">
                 {% for a in supported_archs %}
                     <option
