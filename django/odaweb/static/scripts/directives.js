@@ -74,26 +74,26 @@ odaApplication.directive('platformOption', function(odaApi){
                     $('.platform-option-select'), function(v) {return $(v).val();}
                 );
 
-                opts = $.grep(opts, function(e) { return e != "DEFAULT"});
+               opts = $.grep(opts, function(e) { return e != "DEFAULT"});
 
-                form_data = {
+               var form_data = {
                     options: opts,
                     arch : $('#select-live-architecture').val(),
                     base_address : $('#set-live-base-address').val(),
                     hex_val : $('#hex').val(),
                     endian : $('#hex-display .endian-select').val(),
                     disassemble: true
-                };
+               };
 
-                $.post('/odaweb/_set', form_data)
+               $.post('/odaweb/_set', form_data)
                     .done(function(response) {
                     //$('#hex-alert').hide();
                     //$('#live-mode-platform-options-form').html(response.form_html);
                     //Load(binary, true);
-                    odaApi.updatePlatformOptions();
-                }).fail(function(response){
+                    odaApi.updatePlatformOptions(form_data);
+               }).fail(function(response){
                     $('#hex-alert').show();
-                });
+               });
 
 
            });
