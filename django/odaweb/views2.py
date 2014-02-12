@@ -109,6 +109,31 @@ def get_session(request):
         logger.warn("disassembly_token isn't set")
         return None
 
+def options_form(request):
+    oda_master = get_session(request)
+    arch = oda_master.binary.options.architecture
+    baseAddr = oda_master.binary.options.base_address
+    selected_opts = []
+
+    class HexUploadForm(forms.Form):
+        hex_val = forms.CharField(required=False)
+        arch = forms.CharField(required=False)
+        base_address = forms.CharField(required=False)
+        endian = forms.CharField(required=False)
+
+    return render(request, 'form-platform-options.djhtml', {
+                    'arch': arch,
+                    'supported_archs': get_supported_archs(),
+                    'supported_endians': get_supported_endians(),
+                    'options' : get_platform_options(arch),
+                    'base_address': baseAddr,
+                    'selected_opts': selected_opts,
+                    'form': HexUploadForm(),
+                    'form_type': 'live'
+
+    })
+
+
 def set(request):
 
     class HexUploadForm(forms.Form):

@@ -49,6 +49,7 @@
     <script type="text/javascript" src="{% static 'scripts/controllers/SectionsController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/SliderController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/LiveEntryController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/SidebarToolbarController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/StatusController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/SymbolsController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/EditMenuController.js' %}"></script>

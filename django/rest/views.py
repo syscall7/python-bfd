@@ -2,7 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from rest_framework import viewsets
 from rest_framework.response import Response
 from odaweb.disassembler import Disassembler, analyzerFactory
-from odaweb.models import OdaMaster, Comment, BinaryParcel, Function, Label, Symbol, BinaryString
+from odaweb.models import OdaMaster, Comment, BinaryParcel, Function, Label, Symbol, BinaryString, OdaOptions
 from rest.serializers import OdaMasterSerializer, FunctionSerializer, SectionSerializer, StringSerializer, DisplayUnitSerializer, BinaryParcelSerializer, RefSerializer, FindResultsSerializer
 import logging
 
@@ -140,6 +140,19 @@ class LabelsViewSet(viewsets.ModelViewSet):
             queryset = Label.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
 
         return queryset
+
+class OdaOptionsViewSet(viewsets.ModelViewSet):
+    model = OdaOptions
+
+    def get_queryset(self):
+        queryset = OdaOptions.objects.all()
+        short_name = self.request.QUERY_PARAMS.get('short_name', None)
+        revision = self.request.QUERY_PARAMS.get('revision', None)
+        if short_name is not None:
+            queryset = OdaOptions.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
+
+        return queryset
+
 
 class FindViewSet(viewsets.GenericViewSet):
     serializer_class = FindResultsSerializer

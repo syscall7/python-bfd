@@ -129,6 +129,16 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
                 }
             });
         },
+        setOdaOptions: function(id, target, arch) {
+            return $http({
+                method: 'PATCH',
+                url: '/odaweb/api/odaoptions/'+id+"/",
+                data: {
+                  target: target,
+                  architecture: arch
+                }
+            });
+        },
         setComment : function(id, comment) {
             return $http({
                 method: 'PATCH',

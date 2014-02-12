@@ -1,8 +1,27 @@
 <div class="sidebar-content" ng-controller="LiveEntryController" id="hex-sidebar-scroll">
-    <div id="hex-alert" class="alert" style="" ng-show="entryError">
-        <button class="close" data-dismiss="alert" type="button">×</button>
-        <strong>Warning!</strong>
-        You can only disassemble hexadecimal characters, check your inputs.
+    <div class="sidebar-legend">Live View</div>
+
+    <div class="alert alert-info">
+        Set the platform below.  Then watch the disassembly window update as you type hex bytes in the
+        text area.  You can also upload an ELF, PE, COFF, Mach-O, or other executable file from the <em>File</em> menu.
+    </div>
+
+
+    <div class="accordion" id="accordion2">
+        <button type="button" class="btn btn-small btn-danger" data-toggle="collapse" data-target="#collapseTwo">
+            Platform: <span class="platform-option">{{ oda_master.binary.arch }}</span>
+        </button>
+        <div id="collapseTwo" class="accordion-body collapse">
+            <div class="accordion-inner" style="border: 1px solid #e5e5e5; border-radius: 5px; margin-top: 10px;">
+                <div id="live-mode-platform-options-form" ng-include src="'/odaweb/optionsview'">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert" id="hex-alert" style="display:none;">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <strong>Warning!</strong> You can only disassemble hexadecimal characters, check your inputs.
     </div>
 
     <textarea class="sidebar-scroll-container" id="hex"

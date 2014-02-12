@@ -1,5 +1,7 @@
 odaApplication.controller('LiveEntryController', function SectionsController($scope, $http, $window, odaApi) {
 
+    $scope.oda_master = oda_util.getMaster();
+
     $scope.liveEntryText = oda_util.getMaster().binary.text;
 
     var updateText = _.debounce(function() {

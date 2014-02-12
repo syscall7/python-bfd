@@ -57,7 +57,7 @@ var Sidebar = Backbone.Model.extend({
 
     resize : function(elem) {
         var new_offset = $("#sidebarContent").offset().top;
-        var accum_margins = 0; //Not captured by jquery
+        var accum_margins = 25; //Not captured by jquery
         var new_height;
         if ( $(elem).find('table').length )
         {
