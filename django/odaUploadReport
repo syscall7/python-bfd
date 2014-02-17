@@ -145,11 +145,10 @@ def genUploadReport(day):
 
     return t.render(c)
 
-
 # Create a text/plain message
 yesterday=date.today() - timedelta(1)
 day=yesterday
-msg = MIMEText(genUploadReport(day), 'html')
+msg = MIMEText(genUploadReport(day).encode('utf-8'), 'html', _charset='utf-8')
 
 msg['Subject'] = 'ODA Upload Report %s' % day.strftime('%m/%d/%y')
 msg['From'] = SENDER
@@ -159,7 +158,8 @@ print msg
 
 # Send the message via our own SMTP server, but don't include the
 # envelope header.
-s = smtplib.SMTP('localhost')
+s = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
+s.login('avderos', 'TimSGpword7&')
 s.sendmail(SENDER, RECEIVERS, msg.as_string())
 s.quit()
 
