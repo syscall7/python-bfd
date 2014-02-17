@@ -13,24 +13,26 @@
         <button class="btn btn-primary" ng-click="find()">Find</button>
     </div>
 
-    <table class="table table-striped sidebar-table" id="find-results-table">
-        <thead>
-            <tr>
-                <th>Address</th>
-                <th>Section</th>
-            </tr>
-        </thead>
-        <tbody class="scrollContent">
-                <tr ng-repeat="result in results">
-                    <td class="result-offset" align="center">
-                        <span class="clickable" ng-click="setPosition(result.addr)">0x{{ result.addr.toString(16) }}</span>
-                    </td>
-                    <td class="section" align="left">{{ result.section }}</td>
+    <div class="sidebar-scroll-container">
+        <table class="table table-striped sidebar-table" id="find-results-table">
+            <thead>
+                <tr>
+                    <th>Address</th>
+                    <th>Section</th>
                 </tr>
-        </tbody>
-    </table>
+            </thead>
+            <tbody class="scrollContent">
+                    <tr ng-repeat="result in results">
+                        <td class="result-offset" align="center">
+                            <span class="clickable" ng-click="setPosition(result.addr)">0x{{ result.addr.toString(16) }}</span>
+                        </td>
+                        <td class="section" align="left">{{ result.section }}</td>
+                    </tr>
+            </tbody>
+        </table>
 
-    <div ng-show="!results">
-        <em>No results found</em> </div>
-
+        <div ng-show="!results">
+            <em>No results found</em>
+        </div>
+    </div>
 </div>

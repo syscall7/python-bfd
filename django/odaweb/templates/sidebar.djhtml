@@ -29,8 +29,7 @@
                  class="item">
                 <div class="sidebar-legend">Strings</div>
                 <div class="sidebar-content">
-                    <div class="sidebar-scroll-container"
-                         ng-include="'/static2/templates/strings.html'"
+                    <div ng-include="'/static2/templates/strings.html'"
                          id="strings-content">
                     </div>
                 </div>
@@ -40,9 +39,7 @@
             <div id="symbols-display" style="padding:5px; background-color: white;" class="item">
                 <div class="sidebar-legend">Symbols</div>
                 <div class="sidebar-content">
-                    <div class="sidebar-scroll-container"
-
-                         ng-include="'/static2/templates/symbols.html'"
+                    <div ng-include="'/static2/templates/symbols.html'"
                          id="strings-content">
                     </div>
                 </div>
@@ -51,9 +48,7 @@
             <div id="find-results-display" style="padding:5px; background-color: white;" class="item">
                 <div class="sidebar-legend">Find Results</div>
                 <div class="sidebar-content">
-                    <div class="sidebar-scroll-container"
-
-                         ng-include="'/static2/templates/find_results.html'"
+                    <div ng-include="'/static2/templates/find_results.html'"
                          id="results-content">
                     </div>
                 </div>

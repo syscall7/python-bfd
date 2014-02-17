@@ -1,27 +1,28 @@
 <div  ng-controller="StringsController">
     <div class="input-group">
-        <span class="input-group-addon">Search</span>
-        <input type="text" class="form-control" placeholder="Search Filter" ng-model="search.string">
+        <span class="input-group-addon">Filter</span>
+        <input type="text" class="form-control" placeholder="Substring" ng-model="search.string">
     </div>
-    <table class="table table-striped sidebar-table" id="strings-table">
-        <thead>
-            <tr>
-                <th align="center">Offset</th>
-                <th align="center">String</th>
-            </tr>
-        </thead>
-        <tbody class="scrollContent">
-                <tr ng-repeat="string in strings | filter:search | orderBy:'addr'">
-                    <td class="str-offset" align="center">
-                        <span class="clickable" ng-click="setPosition(string.addr)">0x{{ string.addr.toString(16) }}</span>
-                    </td>
-                    <td class="string" align="center">{{ string.string }}</td>
+    <div class="sidebar-scroll-container">
+        <table class="table table-striped sidebar-table" id="strings-table">
+            <thead>
+                <tr>
+                    <th align="center">Offset</th>
+                    <th align="center">String</th>
                 </tr>
-        </tbody>
-    </table>
+            </thead>
+            <tbody class="scrollContent">
+                    <tr ng-repeat="string in strings | filter:search | orderBy:'addr'">
+                        <td class="str-offset" align="center">
+                            <span class="clickable" ng-click="setPosition(string.addr)">0x{{ string.addr.toString(16) }}</span>
+                        </td>
+                        <td class="string" align="center">{{ string.string }}</td>
+                    </tr>
+            </tbody>
+        </table>
 
-    <div ng-show="!strings">
-        <em>No strings found</em>
+        <div ng-show="!strings">
+            <em>No strings found</em>
+        </div>
     </div>
-
 </div>

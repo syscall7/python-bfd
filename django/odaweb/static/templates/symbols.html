@@ -1,30 +1,32 @@
 <div ng-controller="SymbolsController">
     <div class="input-group">
-        <span class="input-group-addon">Search</span>
-        <input type="text" class="form-control" placeholder="Search Filter" ng-model="search.name">
+        <span class="input-group-addon">Filter</span>
+        <input type="text" class="form-control" placeholder="Substring" ng-model="search.name">
     </div>
-    <table class="table table-striped sidebar-table table-condensed" id="symbol-table" style="width:95%">
-        <thead>
-            <tr>
-                <th class="col-sm-4" style="text-align: right;">Address</th>
-                <th class="col-sm-4" style="text-align: center;">Type</th>
-                <th class="col-sm-4" style="text-align: left;">Name</th>
-            </tr>
-        </thead>
-        <tbody class="scrollContent">
-            <tr ng-repeat="symbol in symbols | filter:search | orderBy:'offset'">
-                <td style="text-align: right;">0x{{symbol.offset.toString(16)}}</td>
-                <td style="text-align: center;">{{symbol.type}}</td>
-                <td style="text-align: left;" ng-switch on="symbol.type.toLowerCase()">
-                    <span ng-switch-when="t" class="clickable" ng-click="setPosition(symbol.offset)">{{symbol.name}}</span>
-                    <span ng-switch-default>{{ symbol.name }}</span>
+    <div class="sidebar-scroll-container">
+        <table class="table table-striped sidebar-table table-condensed" id="symbol-table" style="width:95%">
+            <thead>
+                <tr>
+                    <th class="col-sm-4" style="text-align: right;">Address</th>
+                    <th class="col-sm-4" style="text-align: center;">Type</th>
+                    <th class="col-sm-4" style="text-align: left;">Name</th>
+                </tr>
+            </thead>
+            <tbody class="scrollContent">
+                <tr ng-repeat="symbol in symbols | filter:search | orderBy:'offset'">
+                    <td style="text-align: right;">0x{{symbol.offset.toString(16)}}</td>
+                    <td style="text-align: center;">{{symbol.type}}</td>
+                    <td style="text-align: left;" ng-switch on="symbol.type.toLowerCase()">
+                        <span ng-switch-when="t" class="clickable" ng-click="setPosition(symbol.offset)">{{symbol.name}}</span>
+                        <span ng-switch-default>{{ symbol.name }}</span>
 
-                </td>
-            </tr>
-        </tbody>
-    </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
-    <div ng-show="!symbols">
-    <em>No symbols availables</em>
+        <div ng-show="!symbols">
+        <em>No symbols availables</em>
+        </div>
     </div>
 </div>
