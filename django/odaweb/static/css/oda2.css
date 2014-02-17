@@ -74,8 +74,11 @@ body {
     margin-bottom: 15px;
 }
 
-.sidebar-table {
+table.table.sidebar-table > tbody > tr,
+table.table.sidebar-table > tbody > tr > td
+{
     margin-bottom: 0px;
+    line-height: 0.75;
 }
 
 #view {
