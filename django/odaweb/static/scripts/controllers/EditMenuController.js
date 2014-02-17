@@ -71,7 +71,7 @@ odaApplication.controller('EditMenuController', function EditMenuController($q, 
         odaApi.setPosition(position);
     };
 
-    $scope.searchHelp = 'To search for ASCII strings, use double quotes, as in:<br>' +
+    $scope.searchHelp = 'To search for ASCII strings, use <b>double quotes</b>, as in:<br>' +
                         '&nbsp;&nbsp;&nbsp;&nbsp;"this is some long string to find"<br><br>' +
                         'To search for a sequnce of bytes, use one of the following formats:<br>' +
                         '&nbsp;&nbsp;&nbsp;&nbsp;de ad be ef<br>' +

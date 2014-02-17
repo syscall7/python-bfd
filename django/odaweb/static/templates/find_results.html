@@ -1,6 +1,18 @@
 <div  ng-controller="EditMenuController">
 
-    Search pattern: <input type="text" ng-model="search_pattern">
+    <div class="input-append">
+        <label class="control-label" for="search-pattern">Search Pattern</label>
+        <input id="search-pattern" class="input-small" type="text" ng-model="search_pattern"
+            popover="{
+                title: 'Search Pattern',
+                content: searchHelp,
+                trigger:'hover',
+                placement: 'bottom',
+                html: 'true'
+             }">
+        <button class="btn btn-primary" ng-click="find()">Find</button>
+    </div>
+
     <table class="table table-striped sidebar-table" id="find-results-table">
         <thead>
             <tr>
@@ -19,7 +31,6 @@
     </table>
 
     <div ng-show="!results">
-        <em>No results found</em>
-    </div>
+        <em>No results found</em> </div>
 
 </div>
