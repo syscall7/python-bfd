@@ -91,7 +91,7 @@
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">Help<b class="caret"></b></a>
             <ul class="dropdown-menu">
                 <li><a id='whats-oda-btn' href="#" data-toggle="modal">What's ODA?</a></li>
-                <li><a id='tutorial-btn' href="http://onlinedisassembler.com/blog/?p=44">Tutorial</a></li>
+                <li><a id='tutorial-btn' href="http://blog.onlinedisassembler.com/blog/?p=44">Tutorial</a></li>
                 <li class="divider"></li>
                 <li><a id='about-oda-btn' href="#" data-toggle="modal">About</a></li>
             </ul>
@@ -99,7 +99,7 @@
 
         <!-- Blog Menu -->
         <li class="">
-            <a href="http://www.onlinedisassembler.com/blog/">Blog</a>
+            <a href="http://blog.onlinedisassembler.com/blog/">Blog</a>
         </li>
         <!-- Contact Us Menu -->
         <li class="">
