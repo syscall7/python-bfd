@@ -1,17 +1,26 @@
 <div  ng-controller="EditMenuController">
 
-    <div class="input-append">
-        <label class="control-label" for="search-pattern">Search Pattern</label>
-        <input id="search-pattern" class="input-small" type="text" ng-model="search_pattern"
-            popover="{
-                title: 'Search Pattern',
-                content: searchHelp,
-                trigger:'hover',
-                placement: 'bottom',
-                html: 'true'
-             }">
-        <button class="btn btn-primary" ng-click="find()">Find</button>
-    </div>
+    <form ng-submit="find(search_pattern)">
+        <fieldset>
+            <!-- Find Pattern -->
+            <div class="form-group">
+                <div class="input-group">
+                    <input id="search-pattern" name="search-pattern" class="form-control"
+                         placeholder="search pattern" type="text" ng-model="search_pattern"
+                         popover="{
+                            title: 'Search Pattern',
+                            content: searchHelp,
+                            trigger:'hover',
+                            placement: 'bottom',
+                            html: 'true'
+                         }" />
+                    <div class="input-group-btn">
+                        <input type="submit" class="btn btn-primary" value="Find" />
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </form>
 
     <div class="sidebar-scroll-container">
         <table class="table table-striped sidebar-table" id="find-results-table">
@@ -23,7 +32,7 @@
             </thead>
             <tbody class="scrollContent">
                     <tr ng-repeat="result in results">
-                        <td class="result-offset" align="center">
+                        <td class="result-offset" style="width:1%">
                             <span class="clickable" ng-click="setPosition(result.addr)">0x{{ result.addr.toString(16) }}</span>
                         </td>
                         <td class="section" align="left">{{ result.section }}</td>

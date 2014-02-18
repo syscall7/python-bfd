@@ -42,7 +42,7 @@ odaApplication.controller('EditMenuController', function EditMenuController($q, 
         odaApi.setPosition(addr);
     }
 
-    var find = function(bytes)  {
+    $scope.find = function(bytes)  {
         var deferred = $q.defer();
         odaStatus.setStatus("Searching....");
         var master = oda_util.getMaster();
@@ -73,10 +73,9 @@ odaApplication.controller('EditMenuController', function EditMenuController($q, 
 
     $scope.searchHelp = 'To search for ASCII strings, use <b>double quotes</b>, as in:<br>' +
                         '&nbsp;&nbsp;&nbsp;&nbsp;"this is some long string to find"<br><br>' +
-                        'To search for a sequnce of bytes, use one of the following formats:<br>' +
-                        '&nbsp;&nbsp;&nbsp;&nbsp;de ad be ef<br>' +
-                        '&nbsp;&nbsp;&nbsp;&nbsp;deadbeef<br>' +
-                        '&nbsp;&nbsp;&nbsp;&nbsp;0xdeadbeef<br>';
+                        'To search for a sequnce of hex bytes, use one of the following formats:<br><br>' +
+                        '&nbsp;&nbsp;&nbsp;&nbsp;00 01 02 03 de ad be ef<br>' +
+                        '&nbsp;&nbsp;&nbsp;&nbsp;00010203deadbeef<br>';
 
     // TODO: Where should this listener go?
     var listener = new window.keypress.Listener();
