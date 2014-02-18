@@ -2,7 +2,7 @@
     <label class="control-label col-sm-4 upload-form-control" for="endian-select">Endian</label>
 
     <div class="col-sm-8">
-        <select class="platform-option-select endian-select" name="normalSelect">
+        <select class="platform-option-select endian-select" name="normalSelect" platform-option>
             {% for k,v in supported_endians.iteritems %}
                 <option value="{{k}}" {% if k in selected_opts %} selected {% endif %}>{{k}}</option>
             {% endfor %}
@@ -14,7 +14,7 @@
         <div class="form-group">
             <label class="control-label col-sm-4 upload-form-control" for={{widgetName}}>{{title}}</label>
             <div class="col-sm-8">
-                <select class="span2  platform-option-select" id={{widgetName}} name="normalSelect">
+                <select class="span2  platform-option-select" id={{widgetName}} name="normalSelect" platform-option>
                 {% for opt in opts %}
                     <option value="{{opt}}" {% if opt in selected_opts %} selected {% endif %} >{{opt}}</option>
                 {% endfor %}
