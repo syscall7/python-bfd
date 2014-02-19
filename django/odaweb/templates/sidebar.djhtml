@@ -14,7 +14,7 @@
                     data-toggle="tooltip" title="Strings">
                 <span class="glyphicon glyphicon-font"></span>
             </button>
-            <button class="btn nav-btn btn-default" type="button" data-panel="find-results-display" data-toggle="tooltip"
+            <button id="sidebar-find-btn" class="btn nav-btn btn-default" type="button" data-panel="find-results-display" data-toggle="tooltip"
                    title="Find Results">
                 <span class="glyphicon glyphicon-search"></span>
             </button>
@@ -46,7 +46,7 @@
             </div>
 
             <div id="find-results-display" style="padding:5px; background-color: white;" class="item">
-                <div class="sidebar-legend">Find Results</div>
+                <div class="sidebar-legend">Find</div>
                 <div class="sidebar-content">
                     <div ng-include="'/static2/templates/find_results.html'"
                          id="results-content">

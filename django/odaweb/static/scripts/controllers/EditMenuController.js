@@ -79,9 +79,17 @@ odaApplication.controller('EditMenuController', function EditMenuController($q, 
 
     // TODO: Where should this listener go?
     var listener = new window.keypress.Listener();
+
     listener.simple_combo("ctrl g", function() {
         $scope.GoToAddressPrompt();
     }, true);
+
+    listener.simple_combo("ctrl f", function() {
+        $("#sidebar-find-btn").trigger("click");
+        $("#search-pattern").focus();
+    }, true);
+
+
 
     $("html").keypress(function(event) {
         if (String.fromCharCode(event.which) == ';') {
