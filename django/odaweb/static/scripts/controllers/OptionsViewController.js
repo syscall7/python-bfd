@@ -8,6 +8,6 @@ odaApplication.controller('OptionsViewController', function SectionsController($
 
     $scope.$on('platformOptionsChanged', function(event, options){
         console.log(options);
-        arch += options.arch.trim();
+        arch = options.arch.trim();
     });
 });
