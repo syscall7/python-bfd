@@ -5,7 +5,7 @@
         <label class="col-sm-4 control-label upload-form-control" for="select-{{ form_type }}-architecture">Arch</label>
 
         <div class="col-sm-8">
-            <select class="platformSelect input-small" id="select-{{ form_type }}-architecture"
+            <select class="platformSelect input-small form-control" id="select-{{ form_type }}-architecture"
                     platform-option
                     name="select-{{ form_type }}-architecture">
                 {% for a in supported_archs %}
@@ -22,7 +22,7 @@
 
         <div class="col-sm-8">
             <input id="set-{{ form_type }}-base-address" name="base_address"
-                   type="text" placeholder="0x00000000" class="input-small" value="{{ base_address }}">
+                   type="text" placeholder="0x00000000" class="input-small form-control" value="{{ base_address }}">
         </div>
     </div>
     <div id="arch-specific-options">

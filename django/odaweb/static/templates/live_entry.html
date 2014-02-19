@@ -7,14 +7,14 @@
     </div>
 
 
-    <div class="accordion" id="accordion2">
+    <div class="accordion" id="accordion2" style="padding-bottom:10px">
         <button type="button" class="btn btn-small btn-danger" data-toggle="collapse" data-target="#collapseTwo">
             Platform: <span class="platform-option">{{ oda_master.binary.arch }}</span>
         </button>
         <div id="collapseTwo" class="accordion-body collapse">
             <div class="accordion-inner"
                  ng-controller="OptionsViewController"
-                 style="border: 1px solid #e5e5e5; border-radius: 5px; margin-top: 10px;">
+                 style="border: 1px solid #e5e5e5; border-radius: 5px; margin-top: 10px; width:95%;padding: 10px;">
                 <div id="live-mode-platform-options-form" ng-include src="optionsTemplate()">
                 </div>
             </div>
