@@ -77,19 +77,9 @@ odaApplication.controller('EditMenuController', function EditMenuController($q, 
                         '&nbsp;&nbsp;&nbsp;&nbsp;00 01 02 03 de ad be ef<br>' +
                         '&nbsp;&nbsp;&nbsp;&nbsp;00010203deadbeef<br>';
 
-    // TODO: Where should this listener go?
-    var listener = new window.keypress.Listener();
-
-    listener.simple_combo("ctrl g", function() {
+    odaApi.shortcut("ctrl g", function() {
         $scope.GoToAddressPrompt();
-    }, true);
-
-    listener.simple_combo("ctrl f", function() {
-        $("#sidebar-find-btn").trigger("click");
-        $("#search-pattern").focus();
-    }, true);
-
-
+    });
 
     $("html").keypress(function(event) {
         if (String.fromCharCode(event.which) == ';') {

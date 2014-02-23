@@ -55,6 +55,7 @@
     <script type="text/javascript" src="{% static 'scripts/controllers/SymbolsController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/OptionsViewController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/EditMenuController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/FindBytesController.js' %}"></script>
 
     {%  endcompress %}
     <script src="https://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>

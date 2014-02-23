@@ -18,9 +18,13 @@ var oda_util = {
 
 };
 
+/* Bill: Why can't I put this here?
 
+        oda_shortcuts = new window.keypress.Listener();
 
-
+   I get "Cannot read property 'addEventListener' of null".  If I assign it later, everything is fine.
+ */
+var oda_shortcuts = null;
 
 //factory style, more involved but more sophisticated
 odaApplication.factory('socketService', function($rootScope) {
@@ -188,6 +192,13 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
         },
         find : function(short_name, revision, bytes) {
             return $http.get('/odaweb/api/find/?short_name=' + short_name + "&revision=" + revision + "&bytes=" + bytes);
+        },
+        shortcut : function(combo, func) {
+            if (oda_shortcuts == null)
+            {
+                oda_shortcuts = new window.keypress.Listener();
+            }
+            oda_shortcuts.simple_combo(combo, func, true);
         }
     };
 });
