@@ -104,4 +104,13 @@ odaApplication.controller('SliderController', function SliderController($scope, 
     $(document).on("hover", "#listing tr", function(){
         $scope.updateAddrDisplay($(this).attr('addr'));
     });
+
+    odaApi.shortcut(";", function() {
+        if (selectedRow != null) {
+            selectedRow.find('.comment').text('   ');
+            selectedRow.find('.comment').focus();
+        }
+        console.log("<shortcut> ; pressed");
+    });
+
 });

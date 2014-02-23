@@ -50,13 +50,4 @@ odaApplication.controller('EditMenuController', function EditMenuController($q, 
         $scope.GoToAddressPrompt();
     });
 
-    $("html").keypress(function(event) {
-        if (String.fromCharCode(event.which) == ';') {
-
-            if (selectedRow != null) {
-                selectedRow.find('.comment').text('   ');
-                selectedRow.find('.comment').focus();
-            }
-        }
-    });
 });
