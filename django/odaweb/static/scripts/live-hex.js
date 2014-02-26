@@ -47,13 +47,13 @@ window.LiveHex = function(binary) {
     })*/;
 
     /* catch ENTER key and reload with new base address */
-    $('#set-live-base-address').live("keypress", function(e) {
+    /*$('#set-live-base-address').live("keypress", function(e) {
         console.debug(e.keyCode);
         if (e.keyCode == 13) {
-            event.preventDefault();
+            e.preventDefault();
             $('#set-live-base-address').blur();
         }
-    });
+    });\*/
 
     /*$('#select-live-architecture').live("change", (function(){
         var arch = $('#select-live-architecture').val();
@@ -62,10 +62,10 @@ window.LiveHex = function(binary) {
         Reload();
 
     })*/;
-
+/*
     $('#set-live-base-address').live("change", (function(){
         Reload();
-    }));
+    }));*/
 
 
 };
