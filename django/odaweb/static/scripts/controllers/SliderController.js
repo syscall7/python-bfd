@@ -39,7 +39,7 @@ odaApplication.controller('SliderController', function SliderController($scope, 
             $scope.sliderOptions.max = sumAddrRanges;
 
             minAddr = _.min($scope.sections, function(s) {return s.vma});
-            maxAddr = _.max($scope.sections, function(s) {return s.vma});
+            maxAddr = _.max($scope.sections, function(s) {return (s.vma + s.size)});
 
             // set initial position
             window.initialOffset = minAddr;
