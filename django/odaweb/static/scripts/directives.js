@@ -82,7 +82,7 @@ odaApplication.directive('platformOption', function(odaApi){
                     base_address : $('#set-live-base-address').val(),
                     hex_val : $('#hex').val(),
                     endian : $('#hex-display .endian-select').val(),
-                    disassemble: true
+                    disassemble: false
                };
 
                $.post('/odaweb/_set', form_data)

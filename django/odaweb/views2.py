@@ -222,9 +222,9 @@ def set(request):
         oda_master.binary.options.save()
 
         # if we need to disassemble this data for the first time
-        #if form.cleaned_data['disassemble']:
-        #    disassembler = Disassembler(oda_master.binary)
-        #    disassembler.analyze_first_time()
+        if form.cleaned_data['disassemble']:
+            disassembler = Disassembler(oda_master.binary)
+            disassembler.analyze_first_time()
 
     form_html = render_to_string('form-platform-options.djhtml', {
                     'arch' : arch,
