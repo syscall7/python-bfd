@@ -266,7 +266,13 @@ function ResizeHandler() {
         $('#myTabContent').height($(window).height()-157);
 
         $('.sidebar-scroll-container').each( function (i,elem) {
-            $(elem).height( sidebar.resize($(elem)) - 209 );} );
+            $(elem).height( sidebar.resize($(elem))  );
+        });
+
+        $('.sidebar-scroll-container-text').each( function (i,elem) {
+            $(elem).height( sidebar.resize($(elem)) - 241 );
+        });
+
     };
     $(window).resize(resize);
 
