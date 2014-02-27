@@ -16,6 +16,7 @@ def funcFmtAddr(bfd, addr):
     return addrStr
 
 def funcFmtLine(addr, rawData, instr, abfd):
+    #print 'addr: 0x%08x, instr: %s\n' % (addr, instr)
     ret = ''
     if abfd.syms_by_addr.has_key(addr):
         ret += '\n0%08x <%s>:\n' % (addr, abfd.syms_by_addr[addr].name)
@@ -33,8 +34,9 @@ def dump_sec(abfd, sec_name, offset, size):
     dump = abfd.raw_data(text, text.vma + offset, size)
     print binascii.hexlify(dump)
 
-def dump(path, target, arch, numLines):
+def dump(path, target, arch, numLines=None, start=None, end=None):
 
+    print 'dumping %s' % path
     b=bfd.Bfd(path, target, arch)
 
     print '\nFile: %s' % path
@@ -63,22 +65,21 @@ def dump(path, target, arch, numLines):
         sec_name = '.data'
     print '\nDisassembly of %s:\n' % sec_name
     sec = b.sections[sec_name]
-    start = sec.vma
-    (dis,nextAddr, lineCnt) = b.disassemble(sec, start, None, numLines, funcFmtAddr, funcFmtLine, {}, endian=bfd.ENDIAN_LITTLE, options='LITTLE')
-    print 'disassembly is %s' % dis
+    (dis,nextAddr, lineCnt) = b.disassemble(sec, start, end, numLines, funcFmtAddr, funcFmtLine, {})
+    print 'nextAddr is: 0x%08x\n' % nextAddr
+    print 'lineCnt is: 0x%08x\n' % lineCnt
+    print 'disassembly is:\n%s' % dis
     print 'Next address to disassemble is: 0x%08x' % nextAddr
-    #print b.disassemble(sec, start, stop, funcFmtAddr, funcFmtLine, endian=bfd.ENDIAN_BIG)
-
-    print '\nSupported Architectures:\n'
-    print ' '.join(bfd.list_architectures())
-
-    print '\nSupported Targets:\n'
-    print ' '.join(bfd.list_targets())
-
 
 def main():
 
     exe = '/bin/ls'
+
+    #print '\nSupported Architectures:\n'
+    #print ' '.join(bfd.list_architectures())
+
+    #print '\nSupported Targets:\n'
+    #print ' '.join(bfd.list_targets())
 
     if len(sys.argv) > 1:
         exe = sys.argv[1]
@@ -91,8 +92,7 @@ def main():
     target_archs = bfd.guess_target_arch(exe)
     print 'guessed targets: %s' % target_archs
 
-    for target,arch in target_archs:
-        dump(exe, target, arch, numLines)
+    dump(exe, 'binary', 'powerpc:common', numLines=numLines)
 
 if __name__ == '__main__':
     main()
