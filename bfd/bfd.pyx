@@ -222,8 +222,7 @@ cdef extern from "dis-asm.h":
     void init_disassemble_info(disassemble_info* info, void* stream, fprintf_ftype fprintf_func)
     void* disassembler(bfd* abfd)
     void disassembler_usage (void* stream)
-
-
+    void disassemble_init_for_target(disassemble_info * dinfo)
 
 # ------------------------------------------------------------------------------
 # MODULE-LEVEL FUNCTONS
@@ -868,6 +867,16 @@ cdef class Bfd:
         if numLines is None:
             numLines = sys.maxint
 
+        #print 'Section: %s' % section.name
+        #print 'Start Address: 0x%08x' % startAddr
+        #print 'End Address: 0x%08x' % endAddr
+        #print 'Num Lines: %d' % numLines
+        #print 'funcFmtAddr: %s' % funcFmtAddr
+        #print 'funcFmtLine: %s' % funcFmtLine
+        #print 'Endian: %s' % endian
+        #print 'Options: %s' % options
+        #print 'Base Address: 0x%016x' % baseAddr
+ 
         addr = startAddr
 
         lineCnt = 0
@@ -878,6 +887,9 @@ cdef class Bfd:
         self.endian = endian
 
         foffs = 0
+
+        # Allow the target to customize the info structure
+        disassemble_init_for_target(&disasm_info)
         
         while addr < endAddr and lineCnt < numLines:
             instrSize = disassemble_fn(addr, &disasm_info)
