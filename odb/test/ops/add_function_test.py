@@ -4,8 +4,7 @@ from odb.ops.add_function import AddFunction
 
 
 class TestAddFunction(unittest.TestCase):
-
-    def testAdd(self):
+    def test_add(self):
         odb_file = OdbFile()
         add_func_operation = AddFunction(**{'name': 'blah'})
         add_func_operation.operate(odb_file)
@@ -17,8 +16,20 @@ class TestAddFunction(unittest.TestCase):
         self.assertEquals(0, len(odb_file.functions))
 
 
+    def test_multiple_add(self):
+        odb_file = OdbFile()
+        add_func_operation = AddFunction(**{'name': 'blah'})
+        add_func_operation.operate(odb_file)
+
+        add_func_operation2 = AddFunction(**{'name': 'blah2'})
+        add_func_operation2.operate(odb_file)
+
+        self.assertEqual(2, len(odb_file.functions))
+
+        add_func_operation2.invert(odb_file)
+        self.assertEqual(1, len(odb_file.functions))
+        self.assertEqual('blah', odb_file.functions[0].name)
 
 
 if __name__ == "__main__":
-
     unittest.main()
