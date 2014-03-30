@@ -10,7 +10,7 @@ class AddFunction(Operation):
         self.function_object_id = -1
 
     def operate(self, odb_file):
-        func = Function(self.name)
+        func = Function(self.name, odb_file.get_object_id())
         self.function_object_id = func.object_id
         odb_file.functions.append(func)
 

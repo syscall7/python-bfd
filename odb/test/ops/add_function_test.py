@@ -10,11 +10,11 @@ class TestAddFunction(unittest.TestCase):
         add_func_operation.operate(odb_file)
 
         self.assertEquals(1, len(odb_file.functions))
+        self.assertEquals('blah', odb_file.functions[0].name)
 
         add_func_operation.invert(odb_file)
 
         self.assertEquals(0, len(odb_file.functions))
-
 
     def test_multiple_add(self):
         odb_file = OdbFile()
@@ -29,6 +29,9 @@ class TestAddFunction(unittest.TestCase):
         add_func_operation2.invert(odb_file)
         self.assertEqual(1, len(odb_file.functions))
         self.assertEqual('blah', odb_file.functions[0].name)
+
+        add_func_operation.invert(odb_file)
+        self.assertEqual(0, len(odb_file.functions))
 
 
 if __name__ == "__main__":
