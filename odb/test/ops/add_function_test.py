@@ -6,11 +6,17 @@ from odb.ops.add_function import AddFunction
 class TestAddFunction(unittest.TestCase):
 
     def testAdd(self):
-        odbFile = OdbFile()
-        addFuncOperation = AddFunction()
-        addFuncOperation.operate(odbFile)
+        odb_file = OdbFile()
+        add_func_operation = AddFunction(**{'name': 'blah'})
+        add_func_operation.operate(odb_file)
 
-        self.assertEquals(1, len(odbFile.functions))
+        self.assertEquals(1, len(odb_file.functions))
+
+        add_func_operation.invert(odb_file)
+
+        self.assertEquals(0, len(odb_file.functions))
+
+
 
 
 if __name__ == "__main__":
