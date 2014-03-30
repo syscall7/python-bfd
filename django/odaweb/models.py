@@ -1,15 +1,5 @@
-from os import stat, unlink
-from django.db import models
-from django.core.files.storage import FileSystemStorage
-from django.core.files import File
-from django.contrib.auth.models import User
-from django.contrib.contenttypes import generic
-from django.contrib.contenttypes.models import ContentType
-
+from os import unlink
 import os.path
-from datetime import datetime
-from utils import sha1_hash
-import uuid
 import tempfile
 import hashlib
 import json
@@ -18,10 +8,21 @@ import logging
 import types
 import cPickle
 
+from django.db import models
+from django.core.files.storage import FileSystemStorage
+from django.core.files import File
+from django.contrib.auth.models import User
+from django.contrib.contenttypes import generic
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+
+from utils import sha1_hash
+
+
 logger = logging.getLogger(__name__)
 
 # where to store uploaded files on the server's filesystem
-fs = FileSystemStorage(location='/tmp/odaweb2')
+fs = FileSystemStorage(location=settings.UPLOAD_LOCATION)
 
 class OdaMaster(models.Model):
     ''' Complete representation of a disassembled entity '''

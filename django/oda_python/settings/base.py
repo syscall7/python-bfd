@@ -52,6 +52,8 @@ STATIC_URL = '/static2/'
 import os.path
 PROJECT_DIR = os.path.dirname(__file__) # this is not Django setting.
 
+UPLOAD_LOCATION = '/var/oda'
+
 # Additional locations of static files
 STATICFILES_DIRS = (
     #os.path.join(PROJECT_DIR, "../odaweb/static")
@@ -108,8 +110,6 @@ ROOT_URLCONF = 'oda_python.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'oda_python.wsgi.application'
 
-import os.path
-PROJECT_DIR = os.path.dirname(__file__)
 TEMPLATE_DIRS = (
     os.path.join(PROJECT_DIR, "../../odaweb/templates/"),
     os.path.join(PROJECT_DIR, "../../odaweb/templates/allauth/"),
