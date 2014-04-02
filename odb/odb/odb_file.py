@@ -18,7 +18,7 @@ class OdbFile(object):
 
         self.object_id = 0
         self.factory = OdaObjectFactory(self)
-
+        self.operations = []
         self.items = {
             Function: []
         }
@@ -31,6 +31,9 @@ class OdbFile(object):
 
     def remove_item(self, item):
         self.items[item.__class__].remove(item)
+
+    def insert_operation(self, operation):
+        self.operations.append(operation)
 
     def modify_item(self, item):
         for n, i in enumerate(self.items[item.__class__]):

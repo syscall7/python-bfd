@@ -10,6 +10,7 @@ class AddOperation(Operation):
 
     def operate(self, odb_file):
         odb_file.insert_item(self.item)
+        odb_file.insert_operation(self)
 
     def invert(self, odb_file):
         #func = next(x for x in odb_file.functions if x.object_id == self.function_object_id)
