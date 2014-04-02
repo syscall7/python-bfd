@@ -8,7 +8,7 @@ from odb.structures.symbol import Symbol
 class TestLoadOperation(unittest.TestCase):
 
     def testBasicNoOps(self):
-        load_operation = LoadOperation("/bin/ls")
+        load_operation = LoadOperation('test/data/ls')
         odb_file = OdbFile()
         load_operation.operate(odb_file)
 
