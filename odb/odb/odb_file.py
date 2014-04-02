@@ -1,6 +1,12 @@
 from odb.structures.function import Function
+from odb.structures.section import Section
+from odb.structures.symbol import Symbol
 
 __author__ = 'davis'
+
+STRUCTURE_TYPES = [
+    Function, Section, Symbol
+]
 
 
 class OdaObjectFactory(object):
@@ -8,8 +14,9 @@ class OdaObjectFactory(object):
         self.oda_file = oda_file
 
     def create(self, type_name, parameters):
-        if type_name == 'Function':
-            return Function(self.oda_file.get_object_id(), **parameters)
+        for t in STRUCTURE_TYPES:
+            if t.__name__ == type_name:
+                return t(self.oda_file.get_object_id(), **parameters)
         raise Exception(object + ' Not Found')
 
 
@@ -19,9 +26,8 @@ class OdbFile(object):
         self.object_id = 0
         self.factory = OdaObjectFactory(self)
         self.operations = []
-        self.items = {
-            Function: []
-        }
+        self.items = {k: [] for k in STRUCTURE_TYPES}
+
 
     def create_item(self, type_name, parameters):
         return self.factory.create(type_name, parameters)
