@@ -26,23 +26,28 @@ class TestAddFunction(unittest.TestCase):
 
         self.assertEquals(0, len(odb_file.items[Function]))
 
-    # def test_multiple_add(self):
-    #     odb_file = OdbFile()
-    #     add_func_operation = AddFunction(**{'name': 'blah'})
-    #     add_func_operation.operate(odb_file)
-    #
-    #     add_func_operation2 = AddFunction(**{'name': 'blah2'})
-    #     add_func_operation2.operate(odb_file)
-    #
-    #     self.assertEqual(2, len(odb_file.functions))
-    #
-    #     add_func_operation2.invert(odb_file)
-    #     self.assertEqual(1, len(odb_file.functions))
-    #     self.assertEqual('blah', odb_file.functions[0].name)
-    #
-    #     add_func_operation.invert(odb_file)
-    #     self.assertEqual(0, len(odb_file.functions))
+    def test_multiple_add(self):
+        odb_file = OdbFile()
+        item = odb_file.create_item('Function', {
+            'name': 'FUNCTION TEST NAME1'
+        })
+        add_operation = AddOperation(item)
+        add_operation.operate(odb_file)
 
+        item2 = odb_file.create_item('Function', {
+            'name': 'FUNCTION TEST NAME2'
+        })
+        add_operation2 = AddOperation(item)
+        add_operation2.operate(odb_file)
+
+        self.assertEquals(2, len(odb_file.items[Function]))
+
+        add_operation2.invert(odb_file)
+        self.assertEquals(1, len(odb_file.items[Function]))
+        self.assertEquals('FUNCTION TEST NAME1', odb_file.items[Function][0].name)
+
+        add_operation.invert(odb_file)
+        self.assertEquals(0, len(odb_file.items[Function]))
 
 if __name__ == "__main__":
     unittest.main()
