@@ -37,7 +37,7 @@ class TestAddFunction(unittest.TestCase):
         item2 = odb_file.create_item('Function', {
             'name': 'FUNCTION TEST NAME2'
         })
-        add_operation2 = AddOperation(item)
+        add_operation2 = AddOperation(item2)
         add_operation2.operate(odb_file)
 
         self.assertEquals(2, len(odb_file.items[Function]))
@@ -48,6 +48,12 @@ class TestAddFunction(unittest.TestCase):
 
         add_operation.invert(odb_file)
         self.assertEquals(0, len(odb_file.items[Function]))
+
+    def test_add_same_id_fails(self):
+        pass
+
+    def invert_not_last_fails(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()
