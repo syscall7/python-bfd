@@ -4,6 +4,6 @@ __author__ = 'davis'
 
 
 class Function(OdaObject):
-    def __init__(self, name, object_id):
+    def __init__(self, object_id, **kwargs):
         super(Function, self).__init__(object_id)
-        self.name = name
+        self.name = kwargs['name']

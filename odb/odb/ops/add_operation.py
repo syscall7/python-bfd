@@ -12,8 +12,8 @@ class AddOperation(Operation):
         odb_file.insert_item(self.item)
 
     def invert(self, odb_file):
-        func = next(x for x in odb_file.functions if x.object_id == self.function_object_id)
-        odb_file.functions.remove(func)
+        #func = next(x for x in odb_file.functions if x.object_id == self.function_object_id)
+        odb_file.remove_item(self.item)
 
 
 

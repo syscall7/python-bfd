@@ -9,7 +9,7 @@ class OdaObjectFactory(object):
 
     def create(self, type_name, parameters):
         if type_name == 'Function':
-            return Function(self.oda_file.get_object_id(), parameters)
+            return Function(self.oda_file.get_object_id(), **parameters)
         raise Exception(object + ' Not Found')
 
 
@@ -20,17 +20,23 @@ class OdbFile(object):
         self.factory = OdaObjectFactory(self)
 
         self.items = {
-            Function.__class__: []
+            Function: []
         }
 
     def create_item(self, type_name, parameters):
-        self.factory.create(type_name, parameters)
+        return self.factory.create(type_name, parameters)
 
     def insert_item(self, item):
         self.items[item.__class__].append(item)
 
     def remove_item(self, item):
         self.items[item.__class__].remove(item)
+
+    def modify_item(self, item):
+        for n, i in enumerate(self.items[item.__class__]):
+            if n == item:
+                self.items[item.__class__][i] = item
+                break
 
     def get_object_id(self):
         self.object_id += 1
