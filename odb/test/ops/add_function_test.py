@@ -9,7 +9,10 @@ class TestAddFunction(unittest.TestCase):
         odb_file = OdbFile()
 
         item = odb_file.create_item('Function', {
-            'name': 'FUNCTION TEST NAME'
+            'name': 'FUNCTION TEST NAME',
+            'offset': 0,
+            'type': 'U'
+
         })
         add_operation = AddOperation(item)
 
@@ -29,13 +32,17 @@ class TestAddFunction(unittest.TestCase):
     def test_multiple_add(self):
         odb_file = OdbFile()
         item = odb_file.create_item('Function', {
-            'name': 'FUNCTION TEST NAME1'
+            'name': 'FUNCTION TEST NAME1',
+            'offset': 0,
+            'type': 'U'
         })
         add_operation = AddOperation(item)
         add_operation.operate(odb_file)
 
         item2 = odb_file.create_item('Function', {
-            'name': 'FUNCTION TEST NAME2'
+            'name': 'FUNCTION TEST NAME2',
+            'offset': 0,
+            'type': 'U'
         })
         add_operation2 = AddOperation(item2)
         add_operation2.operate(odb_file)

@@ -1,14 +1,18 @@
 from odb.bfd import ofd
 import logging
+from odb.structures.function import Function
+from odb.structures.parcel import Parcel
 from odb.structures.section import Section
 from odb.structures.symbol import Symbol
 
 logger = logging.getLogger(__name__)
 
+
 class Options(object):
     def __init__(self):
         self.target = None
         self.architecture = None
+
 
 class LoadOperation(object):
     def __init__(self, filename):
@@ -19,7 +23,6 @@ class LoadOperation(object):
         filename = self.filename
 
         class Binary(object):
-
             def __init__(self):
                 self.options = Options()
 
@@ -27,18 +30,55 @@ class LoadOperation(object):
             def file_handle():
                 return open(filename)
 
+        analyzer = ofd.Ofd(Binary())
 
-        o = ofd.Ofd(Binary())
+        loader = Loader(odb_file, analyzer)
 
-        for section in o.sections:
-            odb_file.items[Section].append(odb_file.create_item('Section', {
+        loader.load()
+
+
+class Loader(object):
+    def __init__(self, odb_file, analyzer):
+        self.odb_file = odb_file
+        self.analyzer = analyzer
+
+    def load(self):
+        self.load_symbols()
+        self.load_sections()
+        self.load_functions()
+        self.load_parcels()
+
+    def load_symbols(self):
+        #Load Symbols
+        for symbol in self.analyzer.symbols():
+            self.odb_file.items[Symbol].append(self.odb_file.create_item('Symbol', {
+                'name': symbol.name,
+                'base': symbol.base,
+                'type': symbol.type,
+                'value': symbol.value
+            }))
+
+    def load_sections(self):
+        #Load Sections
+        for section in self.analyzer.sections:
+            self.odb_file.items[Section].append(self.odb_file.create_item('Section', {
                 'name': section.name
             }))
 
-        for symbol in o.symbols():
-            odb_file.items[Symbol].append(odb_file.create_item('Symbol', {
-                'name': symbol.name
+    def load_functions(self):
+        funcs = filter(lambda x: x.type == 'T' or x.type == 't', self.analyzer.symbols())
+        self.odb_file.items[Function] = [self.odb_file.create_item('Function', {
+            'name': f.name,
+            'offset': f.value,
+            'type': f.type,
+            'xrefs': []
+        }) for f in funcs]
+
+    def load_parcels(self):
+        for sec in self.analyzer.get_loadable_sections().sections:
+            is_code = self.analyzer.is_code_section(sec)
+            self.odb_file.items[Parcel].append(self.odb_file.create_item('Parcel', {
+                'start': sec.vma,
+                'end': sec.vma + sec.size,
+                'is_code': is_code
             }))
-
-
-
