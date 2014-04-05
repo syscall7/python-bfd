@@ -99,23 +99,23 @@ def parseEverything(addr, rawData, instr, abfd, self, displayUnits, section_name
             self.computeTargetAddr(du)
 
             # save all branches
-            if du.instType == instructionType.branch:
+            if du.instType == InstructionType.branch:
                 self.branches.append(branch.Branch(du))
 
             # Check if we need to create a label or function
             if du.isTargetAddrValid:
 
                 # Create a new label for branch instructions
-                if du.targetAddr not in self.labels and du.instType == instructionType.branch:
+                if du.targetAddr not in self.labels and du.instType == InstructionType.branch:
                     self.labels.append(du.targetAddr)
-                elif du.instType == instructionType.call:
+                elif du.instType == InstructionType.call:
                     if du.targetAddr not in self.functions:
                         self.functions[du.targetAddr] = Function(du.targetAddr, 'func_%0.8x' % (du.targetAddr), 't', set([du.offset]))
                     else:
                         # Add new cross reference to set
                         self.functions[du.targetAddr].xrefs.update([du.offset])
 
-            if du.instType == instructionType.call or du.instType == instructionType.branch:
+            if du.instType == InstructionType.call or du.instType == InstructionType.branch:
 
                 # If the branch target address is invalid
                 if du.callType == callType.direct:
@@ -169,7 +169,7 @@ def parseFunctionsOnly(addr, rawData, instr, abfd, self):
         self.computeTargetAddr(du)
 
         # If we need to create a function
-        if du.isTargetAddrValid and du.instType == instructionType.call:
+        if du.isTargetAddrValid and du.instType == InstructionType.call:
 
             # If this is a new Function
             if du.targetAddr not in self.functions:
@@ -416,7 +416,7 @@ class defaultAnalyzer(object):
     def getInstructionType(self,opcode):
         if opcode in self.opcodeTypes:
             return self.opcodeTypes[opcode]
-        return instructionType.normal
+        return InstructionType.normal
 
     def computeTargetAddr(self,inst):
         pass

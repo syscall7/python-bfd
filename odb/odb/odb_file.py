@@ -25,6 +25,10 @@ class Options(object):
     def __init__(self):
         self.target = None
         self.architecture = None
+        self.base_address = 0
+
+    def get_endian(self):
+        return 'DEFAULT'
 
 
 class OdbFile(object):

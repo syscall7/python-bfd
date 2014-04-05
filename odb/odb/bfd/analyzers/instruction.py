@@ -4,7 +4,7 @@ Created on Jul 7, 2012
 @author: Owner
 '''
 
-class instructionType:
+class InstructionType:
     normal = 0
     branch = 1
     call = 2
@@ -44,7 +44,7 @@ class DisplayUnit(object):
         self.listing = ''
         self.isError = False
         self.isTargetAddrValid = False
-        self.instType = instructionType.undefined
+        self.instType = InstructionType.undefined
         self.callType = None
         self.byteLength = 0
         self.data = ''
