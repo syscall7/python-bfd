@@ -17,4 +17,4 @@ class TestScanOperation(unittest.TestCase):
         scan_operation = ScanOperation()
         scan_operation.operate(odb_file)
 
-        self.assertEqual(2, len(odb_file.items[Function]))
+        self.assertEqual(921, len(odb_file.items[Function]))

@@ -89,3 +89,7 @@ class ScanOperation(Operation):
                                 funcFmtLineArgs={
                                     'self': self,
                                 })
+
+        for f in function_scanner.functions:
+            func = odb_file.create_item('Function', f)
+            odb_file.items[Function].append(func)
