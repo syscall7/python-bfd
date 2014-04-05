@@ -21,9 +21,16 @@ class OdaObjectFactory(object):
         raise Exception(repr(object) + ' Not Found')
 
 
+class Options(object):
+    def __init__(self):
+        self.target = None
+        self.architecture = None
+
+
 class OdbFile(object):
     def __init__(self):
 
+        self.filename = None
         self.object_id = 0
         self.factory = OdaObjectFactory(self)
         self.operations = []
@@ -50,6 +57,19 @@ class OdbFile(object):
     def get_object_id(self):
         self.object_id += 1
         return self.object_id
+
+    def get_binary(self):
+        assert(self.filename is not None)
+
+        class Binary(object):
+            def __init__(self):
+                self.options = Options()
+
+            @staticmethod
+            def file_handle():
+                return open(self.filename)
+
+        return Binary()
 
 
 def scan():

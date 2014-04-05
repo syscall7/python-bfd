@@ -7,30 +7,16 @@ from odb.structures.symbol import Symbol
 
 logger = logging.getLogger(__name__)
 
-
-class Options(object):
-    def __init__(self):
-        self.target = None
-        self.architecture = None
-
-
 class LoadOperation(object):
     def __init__(self, filename):
         self.filename = filename
 
     def operate(self, odb_file):
         logger.info("Loading %s".format(odb_file))
-        filename = self.filename
 
-        class Binary(object):
-            def __init__(self):
-                self.options = Options()
+        odb_file.filename = self.filename
 
-            @staticmethod
-            def file_handle():
-                return open(filename)
-
-        analyzer = ofd.Ofd(Binary())
+        analyzer = ofd.Ofd(odb_file.get_binary())
 
         loader = Loader(odb_file, analyzer)
 
