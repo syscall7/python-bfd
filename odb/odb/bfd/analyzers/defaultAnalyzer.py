@@ -9,7 +9,6 @@ import re
 import branch
 import bfd
 import logging
-import odaweb.models
 import string
 
 logger = logging.getLogger(__name__)

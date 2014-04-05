@@ -4,9 +4,8 @@ Created on Jun 12, 2012
 @author: Owner
 '''
 import re
-
-from odaweb.analyzers.defaultAnalyzer import defaultAnalyzer
-from odaweb.analyzers.instruction import instructionType, callType
+from odb.bfd.analyzers.defaultAnalyzer import defaultAnalyzer
+from odb.bfd.analyzers.instruction import InstructionType, callType
 
 
 class i386(defaultAnalyzer):
@@ -19,41 +18,41 @@ class i386(defaultAnalyzer):
         
         self.errorInstRegExStr = "\(bad\)"
         self.branchTargetRegEx = re.compile("\w+\s+(0x[0-9a-f]+)")
-        self.opcodeTypes = { "jne" : instructionType.branch, 
-                             "jo" : instructionType.branch, 
-                             "js" : instructionType.branch,
-                               "jns" : instructionType.branch,
-                               "je" : instructionType.branch,
-                               "jz" : instructionType.branch,
-                               "jnz": instructionType.branch,
-                               "jb": instructionType.branch,
-                               "jnae": instructionType.branch,
-                               "jc": instructionType.branch,
-                               "jnb": instructionType.branch,
-                               "jae": instructionType.branch,
-                               "jnc": instructionType.branch,
-                               "jbe": instructionType.branch,
-                               "jna": instructionType.branch,
-                               "ja": instructionType.branch,
-                               "jnbe": instructionType.branch,
-                               "jl": instructionType.branch,
-                               "jnge": instructionType.branch,
-                               "jge": instructionType.branch,
-                               "jnl": instructionType.branch,
-                               "jle": instructionType.branch,
-                               "jng": instructionType.branch,
-                               "jg": instructionType.branch,
-                               "jnle": instructionType.branch,
-                               "jp": instructionType.branch,
-                               "jpe": instructionType.branch,
-                               "jnp": instructionType.branch,
-                               "jpo": instructionType.branch,
-                               "jcxz": instructionType.branch,
-                               "jecxz": instructionType.branch,
-                               "jmp": instructionType.branch,
-                               "jmpq": instructionType.branch,
-                               "call" : instructionType.call,
-                               "callq" : instructionType.call
+        self.opcodeTypes = { "jne" : InstructionType.branch,
+                             "jo" : InstructionType.branch,
+                             "js" : InstructionType.branch,
+                               "jns" : InstructionType.branch,
+                               "je" : InstructionType.branch,
+                               "jz" : InstructionType.branch,
+                               "jnz": InstructionType.branch,
+                               "jb": InstructionType.branch,
+                               "jnae": InstructionType.branch,
+                               "jc": InstructionType.branch,
+                               "jnb": InstructionType.branch,
+                               "jae": InstructionType.branch,
+                               "jnc": InstructionType.branch,
+                               "jbe": InstructionType.branch,
+                               "jna": InstructionType.branch,
+                               "ja": InstructionType.branch,
+                               "jnbe": InstructionType.branch,
+                               "jl": InstructionType.branch,
+                               "jnge": InstructionType.branch,
+                               "jge": InstructionType.branch,
+                               "jnl": InstructionType.branch,
+                               "jle": InstructionType.branch,
+                               "jng": InstructionType.branch,
+                               "jg": InstructionType.branch,
+                               "jnle": InstructionType.branch,
+                               "jp": InstructionType.branch,
+                               "jpe": InstructionType.branch,
+                               "jnp": InstructionType.branch,
+                               "jpo": InstructionType.branch,
+                               "jcxz": InstructionType.branch,
+                               "jecxz": InstructionType.branch,
+                               "jmp": InstructionType.branch,
+                               "jmpq": InstructionType.branch,
+                               "call" : InstructionType.call,
+                               "callq" : InstructionType.call
                               }
         self.options = [
             ('Syntax Style', 'Switch between AT&T and Intel syntax', 'CHOICE', ('DEFAULT', 'intel-mnemonic', 'att-mnemonic')),
@@ -66,8 +65,8 @@ class i386(defaultAnalyzer):
     def computeTargetAddr(self,inst):       
         #print repr( inst.opcode + " " + str(inst.instType) + " " + inst.operands)
         # Simple targets
-        if (( inst.instType == instructionType.call or \
-              inst.instType == instructionType.branch) and \
+        if (( inst.instType == InstructionType.call or \
+              inst.instType == InstructionType.branch) and \
               len(inst.operands)>0 ):
             inst.isTargetAddrValid = False
             try: 

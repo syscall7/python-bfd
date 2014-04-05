@@ -6,7 +6,7 @@ Created on November 7, 2012
 import re
 
 from odaweb.analyzers.defaultAnalyzer import defaultAnalyzer
-from odaweb.analyzers.instruction import instructionType, callType
+from odaweb.analyzers.instruction import InstructionType, callType
 
 
 class mips(defaultAnalyzer):
@@ -33,22 +33,22 @@ class mips(defaultAnalyzer):
         ]
         
         self.opcodeTypes = {   
-                               "b" : instructionType.branch,
-                               "bal" : instructionType.branch,                                
-                               "beq" : instructionType.branch,
-                               "beqz" : instructionType.branch,
-                               "bgez" : instructionType.branch,
-                               "bgezal" : instructionType.branch,
-                               "bgtz" : instructionType.branch,
-                               "blez" : instructionType.branch,
-                               "bltz" : instructionType.branch,
-                               "bltzal" : instructionType.branch,
-                               "bne" : instructionType.branch,
-                               "bnez" : instructionType.branch,
-                               "j" : instructionType.branch,
-                               "jal" : instructionType.call,
-                               "jalr" : instructionType.call,
-                               "jr" : instructionType.call,                     
+                               "b" : InstructionType.branch,
+                               "bal" : InstructionType.branch,
+                               "beq" : InstructionType.branch,
+                               "beqz" : InstructionType.branch,
+                               "bgez" : InstructionType.branch,
+                               "bgezal" : InstructionType.branch,
+                               "bgtz" : InstructionType.branch,
+                               "blez" : InstructionType.branch,
+                               "bltz" : InstructionType.branch,
+                               "bltzal" : InstructionType.branch,
+                               "bne" : InstructionType.branch,
+                               "bnez" : InstructionType.branch,
+                               "j" : InstructionType.branch,
+                               "jal" : InstructionType.call,
+                               "jalr" : InstructionType.call,
+                               "jr" : InstructionType.call,
                               }
 
     def processOptions(self, options):
@@ -94,8 +94,8 @@ class mips(defaultAnalyzer):
     def computeTargetAddr(self,inst):       
         
         # Simple targets
-        if (( inst.instType == instructionType.call or \
-              inst.instType == instructionType.branch) and \
+        if (( inst.instType == InstructionType.call or \
+              inst.instType == InstructionType.branch) and \
               len(inst.operands)>0 ):
             inst.isTargetAddrValid = False
             operands = inst.operands.split(',')
