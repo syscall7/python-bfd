@@ -3,6 +3,7 @@ import re
 
 from odb.bfd import ofd
 from odb.bfd.analyzer import analyzer_factory
+from odb.bfd.analyzers import branch
 from odb.bfd.analyzers.instruction import DisplayUnit, InstructionType
 from odb.ops.operation import Operation
 from odb.structures.function import Function
@@ -13,6 +14,34 @@ __author__ = 'davis'
 
 logger = logging.getLogger(__name__)
 
+
+
+def create_display_unit(analyzer, match_obj,addr):
+    du = DisplayUnit()
+    du.offset = addr
+    du.opcode = match_obj.group(1)
+    du.instType = analyzer.getInstructionType(du.opcode)
+    du.operands = match_obj.group(2)
+
+    analyzer.computeTargetAddr(du)
+
+    return du
+
+
+class BranchScanner(object):
+    def __init__(self, analyzer):
+        self.analyzer = analyzer
+
+        self.opcode_regex = re.compile(analyzer.opcodeRegExStr)
+        self.branches = []
+
+    def instruction(self, addr, rawData, instr, abfd):
+        match_obj = self.opcode_regex.match(instr)
+        if match_obj:
+
+            du = create_display_unit(self.analyzer, match_obj, addr)
+            if du.instType == InstructionType.branch:
+                    self.branches.append(branch.Branch(du))
 
 class FunctionScanner(object):
 
@@ -33,13 +62,7 @@ class FunctionScanner(object):
         # Get the Opcode
         match_obj = self.opcode_regex.match(instr)
         if match_obj:
-            du = DisplayUnit()
-            du.offset = addr
-            du.opcode = match_obj.group(1)
-            du.instType = self.analyzer.getInstructionType(du.opcode)
-            du.operands = match_obj.group(2)
-
-            self.analyzer.computeTargetAddr(du)
+            du = create_display_unit(self.analyzer, match_obj, addr)
 
             # If we need to create a function
             if du.isTargetAddrValid and du.instType == InstructionType.call:
@@ -68,9 +91,11 @@ class ScanOperation(Operation):
         assert (len(odb_file.items[Parcel]) > 0)
 
         function_scanner = FunctionScanner(analyzer_factory('i386'))
+        branch_scanner = BranchScanner(analyzer_factory('i386'))
 
         scanners = [
-            function_scanner
+            function_scanner,
+            branch_scanner
         ]
 
         for parcel in [p for p in odb_file.items[Parcel] if p.is_code]:
