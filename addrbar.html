@@ -1,0 +1,155 @@
+<html>
+  <head>
+    <title>Canvas tutorial</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+        
+            var ARROW_YOFFSET;
+            var ARROW_HEIGHT;
+            var ARROW_WIDTH;
+
+            var BAR_WIDTH;
+            var BAR_YOFFSET;
+            var BAR_HEIGHT;
+
+            var TEXT_YOFFSET;
+            var TEXT_WIDTH;
+            var TEXT_HEIGHT;
+
+            var CANVAS_WIDTH;
+            var CANVAS_HEIGHT;
+
+            // run function when browser resizes
+            $(window).resize( respondCanvas );
+
+            // define some sections
+            var sections = [
+                { 
+                    'name' : '.plt',
+                    'vma' : 0x400000,
+                    'size' : 0x4000,
+                },
+                {
+                    'name' : '.text',
+                    'vma' : 0x500000,
+                    'size' : 0x40000,
+                },
+                {
+                    'name' : '.data',
+                    'vma' : 0x550000,
+                    'size' : 0x80000,
+                }
+            ];
+
+            // get the canvas and context
+            var c = $('#addr-bar-canvas');
+            var canvas = c.get(0);
+            var ctx = canvas.getContext('2d');
+
+            // get the parent container
+            var container = $(c).parent();
+    
+            var INTER_SECTION_GAP = 2;
+
+            function getMousePosition(canvas, evt) {
+                var rect = canvas.getBoundingClientRect();
+                return {
+                  x: evt.clientX - rect.left,
+                  y: evt.clientY - rect.top
+                };
+            }
+
+            function clearText() {
+                ctx.clearRect (0, BAR_YOFFSET + BAR_HEIGHT, TEXT_WIDTH, TEXT_HEIGHT);
+            }
+
+            function drawArrow(x) {
+
+                ctx.clearRect (0, ARROW_YOFFSET, BAR_WIDTH, ARROW_HEIGHT);
+                ctx.beginPath();
+                ctx.moveTo(x, BAR_YOFFSET);
+                ctx.lineTo(x+ARROW_WIDTH/2, BAR_YOFFSET-ARROW_HEIGHT);
+                ctx.lineTo(x-ARROW_WIDTH/2, BAR_YOFFSET-ARROW_HEIGHT);
+                ctx.lineTo(x, BAR_YOFFSET);
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            canvas.addEventListener('mousedown', function(evt) {
+                var pos = getMousePosition(canvas, evt);
+            });
+
+            canvas.addEventListener('mouseout', function(evt) {
+                var pos = getMousePosition(canvas, evt);
+                clearText();
+            });
+
+            canvas.addEventListener('mousemove', function(evt) {
+                var pos = getMousePosition(canvas, evt);
+
+                clearText();
+                ctx.fillStyle = "rgb(0,0,0)";
+                ctx.font = TEXT_HEIGHT.toString() + "px Monospace";
+                ctx.fillText('0x' + pos.x.toString(16), pos.x, TEXT_YOFFSET + TEXT_HEIGHT);
+                
+                drawArrow(pos.x);
+            });
+
+
+            function respondCanvas(){ 
+                var x = 0;
+
+                // calculate canvas dimensions
+
+                CANVAS_WIDTH = $(container).width() // use width of parent
+                ARROW_WIDTH = 10;
+                BAR_WIDTH = CANVAS_WIDTH;
+                TEXT_WIDTH = BAR_WIDTH;
+
+                ARROW_YOFFSET = 0;
+                ARROW_HEIGHT = 10;
+
+                BAR_YOFFSET = ARROW_YOFFSET + ARROW_HEIGHT;
+                BAR_HEIGHT = 15;
+
+                TEXT_YOFFSET = BAR_YOFFSET + BAR_HEIGHT;
+                TEXT_HEIGHT = 15;
+
+                CANVAS_HEIGHT = TEXT_YOFFSET + TEXT_HEIGHT;
+
+                // set height and width
+                c.attr('width', CANVAS_WIDTH);
+                c.attr('height', CANVAS_HEIGHT);
+
+                var sumAddrRanges = _.reduce(sections, function(memo, section) {return memo+section.size}, 0);
+                console.log('Sum addr ranges is 0x' + sumAddrRanges.toString(16));
+
+                for (var i = 0; i < sections.length; i++)
+                {
+                    var width = sections[i].size / sumAddrRanges * BAR_WIDTH;
+                    console.log('Drawing section ' + sections[i].name);
+
+                    // draw section
+                    ctx.fillStyle = "rgb(200,0,0)";
+                    ctx.fillRect (x, BAR_YOFFSET, width, BAR_HEIGHT);
+                    
+                    x += width + INTER_SECTION_GAP;
+                }
+                ctx.save();
+            }
+
+            // initial call 
+            respondCanvas();
+
+        });
+    </script>
+    <style type="text/css">canvas { border: 0px solid black; }</style>
+  </head>
+  <body>
+    <div>
+        <canvas id="addr-bar-canvas">You need to upgrade your browser to see this!</canvas>
+    <div>
+  </body>
+</html>
