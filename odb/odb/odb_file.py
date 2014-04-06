@@ -1,3 +1,4 @@
+import pickle
 from odb.structures.data_string import DataString
 from odb.structures.branch import Branch
 from odb.structures.function import Function
@@ -65,7 +66,7 @@ class OdbFile(object):
         return self.object_id
 
     def get_binary(self):
-        assert(self.filename is not None)
+        assert (self.filename is not None)
 
         class Binary(object):
             def __init__(self):
@@ -76,6 +77,17 @@ class OdbFile(object):
                 return open(self.filename)
 
         return Binary()
+
+
+class DefaultOdbSerializer(object):
+    def dumps(self, odb_file):
+        return pickle.dumps({
+            'version': 1,
+            'odb_file': odb_file
+        })
+
+    def load(self, serialized):
+        return pickle.loads(serialized)['odb_file']
 
 
 def scan():
