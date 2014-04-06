@@ -12,7 +12,6 @@ STRUCTURE_TYPES = [
     Function, Section, Symbol, Parcel, Branch, DataString
 ]
 
-
 class OdaObjectFactory(object):
     def __init__(self, oda_file):
         self.oda_file = oda_file
@@ -53,6 +52,10 @@ class OdbFile(object):
         self.items[item.__class__].remove(item)
 
     def insert_operation(self, operation):
+        # see if an operation with this object_id already exists
+        dup_op = next((op for op in self.operations if op.object_id == operation.object_id), None)
+        if dup_op:
+            raise Exception('Duplicate Operation')
         self.operations.append(operation)
 
     def modify_item(self, item):

@@ -56,8 +56,19 @@ class TestAddFunction(unittest.TestCase):
         add_operation.invert(odb_file)
         self.assertEquals(0, len(odb_file.items[Function]))
 
-    def test_add_same_id_fails(self):
+    def test_add_same_func_name_fails(self):
         pass
+
+    def test_add_same_id_fails(self):
+        odb_file = OdbFile()
+        item = odb_file.create_item('Function', {
+            'name': 'FUNCTION TEST NAME1',
+            'offset': 0,
+            'type': 'U'
+        })
+        add_operation = AddOperation(item)
+        add_operation.operate(odb_file)
+        self.assertRaises(Exception, add_operation.operate, odb_file)
 
     def invert_not_last_fails(self):
         pass
