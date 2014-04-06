@@ -5,7 +5,12 @@
     <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
+
+        function AddressNavBar(canvasId, sections) {
         
+            /* -------------------------------------------------------------- *
+             *              P R I V A T E   P R O P E R T I E S
+             * -------------------------------------------------------------- */
             var ARROW_YOFFSET;
             var ARROW_HEIGHT;
             var ARROW_WIDTH;
@@ -26,28 +31,6 @@
             var curArrowPosX = 0;
             var roamArrowPosX = 0;
 
-            // run function when browser resizes
-            $(window).resize( respondCanvas );
-
-            // define some sections
-            var sections = [
-                { 
-                    'name' : '.plt',
-                    'vma' : 0x400000,
-                    'size' : 0x4000,
-                },
-                {
-                    'name' : '.text',
-                    'vma' : 0x500000,
-                    'size' : 0x40000,
-                },
-                {
-                    'name' : '.data',
-                    'vma' : 0x550000,
-                    'size' : 0x80000,
-                }
-            ];
-
             // get the canvas and context
             var c = $('#addr-bar-canvas');
             var canvas = c.get(0);
@@ -57,6 +40,18 @@
             var container = $(c).parent();
     
             var INTER_SECTION_GAP = 2;
+
+            var sections = sections;
+
+            // draw now
+            draw();
+
+            // re-draw when browser resizes
+            $(window).resize( draw );
+            
+            /* -------------------------------------------------------------- *
+             *              P R I V A T E   M E T H O D S
+             * -------------------------------------------------------------- */
 
             /* Get the canvas X,Y position */
             function getMousePosition(canvas, evt) {
@@ -143,9 +138,7 @@
                 drawArrow(curArrowPosX, curColor);
             }
 
-
-
-            function respondCanvas(){ 
+            function draw() {
                 var x = 0;
 
                 // calculate canvas and object dimensions
@@ -180,16 +173,42 @@
                     // draw section
                     ctx.fillStyle = "rgb(200,0,0)";
                     ctx.fillRect (x, BAR_YOFFSET, width, BAR_HEIGHT);
+
+                    // TODO: Handle sections that are too small to be displayed
                     
                     x += width + INTER_SECTION_GAP;
                 }
                 ctx.save();
             }
 
-            // initial call 
-            respondCanvas();
+            /* -------------------------------------------------------------- *
+             *                  P U B L I C   M E T H O D S
+             * -------------------------------------------------------------- */
+        }
 
-        });
+        // define some sections
+        var sections = [
+            { 
+                'name' : '.plt',
+                'vma' : 0x400000,
+                'size' : 0x500,
+            },
+            {
+                'name' : '.text',
+                'vma' : 0x500000,
+                'size' : 0x40000,
+            },
+            {
+                'name' : '.data',
+                'vma' : 0x550000,
+                'size' : 0x80000,
+            }
+        ];
+
+        // instantiate the address nav bar
+        addrBar = new AddressNavBar('#addr-bar-canvas', sections)
+
+    });
     </script>
     <style type="text/css">canvas { border: 0px solid black; }</style>
   </head>
