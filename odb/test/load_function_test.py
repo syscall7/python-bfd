@@ -18,3 +18,6 @@ class TestLoadOperation(unittest.TestCase):
         self.assertEquals(120, len(odb_file.items[Symbol]))
 
         self.assertEquals(2, len(odb_file.items[Function]))
+
+        self.assertEquals(1, len([x for x in odb_file.items[Function] if x.name == '_init']))
+        self.assertEquals(1, len([x for x in odb_file.items[Function] if x.name == '_fini']))

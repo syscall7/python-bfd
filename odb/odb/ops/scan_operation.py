@@ -62,7 +62,7 @@ class FunctionScanner(object):
         self.error_instruction_regex = re.compile(analyzer.errorInstRegExStr)
         self.opcode_regex = re.compile(analyzer.opcodeRegExStr)
 
-        self.functions = []
+        self.functions = {}
 
     def instruction(self, addr, rawData, instr, abfd):
         ''' Disassembly line parser optimized for finding functions '''
@@ -78,12 +78,18 @@ class FunctionScanner(object):
             # If we need to create a function
             if du.isTargetAddrValid and du.instType == InstructionType.call:
 
-                self.functions.append({
-                    'name': 'func_%0.8x' % du.targetAddr,
-                    'offset': du.targetAddr,
-                    'type': 't',
-                    'xrefs':  set([du.offset])
-                })
+                # If this is a new Function
+                if du.targetAddr not in self.functions:
+
+                    self.functions[du.targetAddr] = {
+                        'name': 'func_%0.8x' % du.targetAddr,
+                        'offset': du.targetAddr,
+                        'type': 't',
+                        'xrefs':  set([du.offset])
+                    }
+                else:
+                    # Else, update a pre-existing Function, add a new cross reference
+                    self.functions[du.targetAddr]['xrefs'].update([du.offset])
 
                 # If this is a new Function
                 #if du.targetAddr not in self.functions:
@@ -126,7 +132,7 @@ class ScanOperation(Operation):
                                     'self': self,
                                 })
 
-        for f in function_scanner.functions:
+        for addr, f in function_scanner.functions.iteritems():
             func = odb_file.create_item('Function', f)
             odb_file.items[Function].append(func)
 

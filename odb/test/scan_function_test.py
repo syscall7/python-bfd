@@ -9,7 +9,6 @@ __author__ = 'davis'
 
 
 class TestScanOperation(unittest.TestCase):
-
     def test_basic_scan(self):
         load_operation = LoadOperation('test/data/ls')
         odb_file = OdbFile()
@@ -18,6 +17,9 @@ class TestScanOperation(unittest.TestCase):
         scan_operation = ScanOperation()
         scan_operation.operate(odb_file)
 
-        self.assertEqual(921, len(odb_file.items[Function]))
+        self.assertEqual(215, len(odb_file.items[Function]))
+
+        for f in odb_file.items[Function]:
+            print(f.name)
 
         self.assertEqual(2814, len(odb_file.items[Branch]))
