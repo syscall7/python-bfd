@@ -1,3 +1,4 @@
+from odb.structures.branch import Branch
 from odb.structures.function import Function
 from odb.structures.parcel import Parcel
 from odb.structures.section import Section
@@ -6,7 +7,7 @@ from odb.structures.symbol import Symbol
 __author__ = 'davis'
 
 STRUCTURE_TYPES = [
-    Function, Section, Symbol, Parcel
+    Function, Section, Symbol, Parcel, Branch
 ]
 
 

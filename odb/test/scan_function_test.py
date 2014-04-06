@@ -2,6 +2,7 @@ import unittest
 from odb.odb_file import OdbFile
 from odb.ops.load_operation import LoadOperation
 from odb.ops.scan_operation import ScanOperation
+from odb.structures.branch import Branch
 from odb.structures.function import Function
 
 __author__ = 'davis'
@@ -18,3 +19,5 @@ class TestScanOperation(unittest.TestCase):
         scan_operation.operate(odb_file)
 
         self.assertEqual(921, len(odb_file.items[Function]))
+
+        self.assertEqual(2814, len(odb_file.items[Branch]))

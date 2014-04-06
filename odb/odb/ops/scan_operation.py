@@ -6,6 +6,7 @@ from odb.bfd.analyzer import analyzer_factory
 from odb.bfd.analyzers import branch
 from odb.bfd.analyzers.instruction import DisplayUnit, InstructionType
 from odb.ops.operation import Operation
+from odb.structures.branch import Branch
 from odb.structures.function import Function
 from odb.structures.parcel import Parcel
 
@@ -34,6 +35,7 @@ class BranchScanner(object):
 
         self.opcode_regex = re.compile(analyzer.opcodeRegExStr)
         self.branches = []
+        self.labels = []
 
     def instruction(self, addr, rawData, instr, abfd):
         match_obj = self.opcode_regex.match(instr)
@@ -41,7 +43,16 @@ class BranchScanner(object):
 
             du = create_display_unit(self.analyzer, match_obj, addr)
             if du.instType == InstructionType.branch:
-                    self.branches.append(branch.Branch(du))
+                    self.branches.append({
+                        'instr': du
+                    })
+                # Check if we need to create a label or function
+
+            if du.isTargetAddrValid:
+
+                # Create a new label for branch instructions
+                if du.targetAddr not in self.labels and du.instType == InstructionType.branch:
+                    self.labels.append(du.targetAddr)
 
 class FunctionScanner(object):
 
@@ -118,3 +129,7 @@ class ScanOperation(Operation):
         for f in function_scanner.functions:
             func = odb_file.create_item('Function', f)
             odb_file.items[Function].append(func)
+
+        for b in branch_scanner.branches:
+            branch = odb_file.create_item('Branch', b)
+            odb_file.items[Branch].append(branch)
