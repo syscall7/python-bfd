@@ -21,6 +21,8 @@
             var CANVAS_WIDTH;
             var CANVAS_HEIGHT;
 
+            var sumAddRanges;
+
             // run function when browser resizes
             $(window).resize( respondCanvas );
 
@@ -61,6 +63,27 @@
                 };
             }
 
+            function pixelToAddr(xPos) {
+                var x = 0;
+                console.log('in: ' + xPos);
+                for (var i = 0; i < sections.length; i++)
+                {
+                    var width = sections[i].size / sumAddrRanges * BAR_WIDTH;
+
+                    if (xPos < (x + width)) {
+                        console.log('found in section ' + sections[i].name);
+                        var addr = Math.floor(sections[i].vma + ((xPos - x) / width)*sections[i].size);
+                        console.log('addr: ' + addr.toString(16));
+                        return addr;
+                    } else if (xPos < (x + width + INTER_SECTION_GAP)) {
+                        console.log('found on boundary section ' + sections[i].name);
+                        return -1;
+                    }
+                    x += width+INTER_SECTION_GAP;
+                }
+                return -1; 
+            }
+
             function clearText() {
                 ctx.clearRect (0, BAR_YOFFSET + BAR_HEIGHT, TEXT_WIDTH, TEXT_HEIGHT);
             }
@@ -88,13 +111,16 @@
 
             canvas.addEventListener('mousemove', function(evt) {
                 var pos = getMousePosition(canvas, evt);
+                var addr = pixelToAddr(pos.x);
 
-                clearText();
-                ctx.fillStyle = "rgb(0,0,0)";
-                ctx.font = TEXT_HEIGHT.toString() + "px Monospace";
-                ctx.fillText('0x' + pos.x.toString(16), pos.x, TEXT_YOFFSET + TEXT_HEIGHT);
-                
-                drawArrow(pos.x);
+                if (addr >= 0) {
+                    clearText();
+                    ctx.fillStyle = "rgb(0,0,0)";
+                    ctx.font = TEXT_HEIGHT.toString() + "px Monospace";
+                    ctx.fillText('0x' + addr.toString(16), pos.x, TEXT_YOFFSET + TEXT_HEIGHT);
+                    
+                    drawArrow(pos.x);
+                }
             });
 
 
@@ -123,7 +149,7 @@
                 c.attr('width', CANVAS_WIDTH);
                 c.attr('height', CANVAS_HEIGHT);
 
-                var sumAddrRanges = _.reduce(sections, function(memo, section) {return memo+section.size}, 0);
+                sumAddrRanges = _.reduce(sections, function(memo, section) {return memo+section.size}, 0);
                 console.log('Sum addr ranges is 0x' + sumAddrRanges.toString(16));
 
                 for (var i = 0; i < sections.length; i++)
