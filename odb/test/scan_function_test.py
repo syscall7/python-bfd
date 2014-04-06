@@ -10,7 +10,7 @@ __author__ = 'davis'
 
 class TestScanOperation(unittest.TestCase):
 
-    def testBasicScan(self):
+    def test_basic_scan(self):
         load_operation = LoadOperation('test/data/ls')
         odb_file = OdbFile()
         load_operation.operate(odb_file)
