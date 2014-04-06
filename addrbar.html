@@ -23,6 +23,9 @@
 
             var sumAddRanges;
 
+            var curArrowPosX = 0;
+            var roamArrowPosX = 0;
+
             // run function when browser resizes
             $(window).resize( respondCanvas );
 
@@ -55,6 +58,7 @@
     
             var INTER_SECTION_GAP = 2;
 
+            /* Get the canvas X,Y position */
             function getMousePosition(canvas, evt) {
                 var rect = canvas.getBoundingClientRect();
                 return {
@@ -63,50 +67,39 @@
                 };
             }
 
+            /* Convert an X pixel location to an address */
             function pixelToAddr(xPos) {
                 var x = 0;
-                console.log('in: ' + xPos);
+
                 for (var i = 0; i < sections.length; i++)
                 {
                     var width = sections[i].size / sumAddrRanges * BAR_WIDTH;
 
+                    // if we're clearly in a section
                     if (xPos < (x + width)) {
-                        console.log('found in section ' + sections[i].name);
                         var addr = Math.floor(sections[i].vma + ((xPos - x) / width)*sections[i].size);
-                        console.log('addr: ' + addr.toString(16));
                         return addr;
+                    // else, if we're on a section boundary
                     } else if (xPos < (x + width + INTER_SECTION_GAP)) {
-                        console.log('found on boundary section ' + sections[i].name);
                         return -1;
                     }
+
                     x += width+INTER_SECTION_GAP;
                 }
                 return -1; 
             }
 
-            function clearText() {
-                ctx.clearRect (0, BAR_YOFFSET + BAR_HEIGHT, TEXT_WIDTH, TEXT_HEIGHT);
-            }
-
-            function drawArrow(x) {
-
-                ctx.clearRect (0, ARROW_YOFFSET, BAR_WIDTH, ARROW_HEIGHT);
-                ctx.beginPath();
-                ctx.moveTo(x, BAR_YOFFSET);
-                ctx.lineTo(x+ARROW_WIDTH/2, BAR_YOFFSET-ARROW_HEIGHT);
-                ctx.lineTo(x-ARROW_WIDTH/2, BAR_YOFFSET-ARROW_HEIGHT);
-                ctx.lineTo(x, BAR_YOFFSET);
-                ctx.fill();
-                ctx.closePath();
-            }
-
             canvas.addEventListener('mousedown', function(evt) {
                 var pos = getMousePosition(canvas, evt);
+                curArrowPosX = pos.x;
+                drawArrows();
             });
 
             canvas.addEventListener('mouseout', function(evt) {
                 var pos = getMousePosition(canvas, evt);
                 clearText();
+                roamArrowPosX = -1;
+                drawArrows();
             });
 
             canvas.addEventListener('mousemove', function(evt) {
@@ -119,16 +112,43 @@
                     ctx.font = TEXT_HEIGHT.toString() + "px Monospace";
                     ctx.fillText('0x' + addr.toString(16), pos.x, TEXT_YOFFSET + TEXT_HEIGHT);
                     
-                    drawArrow(pos.x);
+                    roamArrowPosX = pos.x;
+                    drawArrows();
                 }
             });
+
+            function clearText() {
+                ctx.clearRect (0, BAR_YOFFSET + BAR_HEIGHT, TEXT_WIDTH, TEXT_HEIGHT);
+            }
+
+            function drawArrows() {
+                var roamColor = "#A3A3A3";
+                var curColor = "#000000";
+
+                function drawArrow(x, color) {
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.moveTo(x, BAR_YOFFSET);
+                    ctx.lineTo(x+ARROW_WIDTH/2, BAR_YOFFSET-ARROW_HEIGHT);
+                    ctx.lineTo(x-ARROW_WIDTH/2, BAR_YOFFSET-ARROW_HEIGHT);
+                    ctx.lineTo(x, BAR_YOFFSET);
+                    ctx.fill();
+                    ctx.closePath();
+                };
+
+                ctx.clearRect (0, ARROW_YOFFSET, BAR_WIDTH, ARROW_HEIGHT);
+                if (roamArrowPosX >= 0) {
+                    drawArrow(roamArrowPosX, roamColor);
+                }
+                drawArrow(curArrowPosX, curColor);
+            }
+
 
 
             function respondCanvas(){ 
                 var x = 0;
 
-                // calculate canvas dimensions
-
+                // calculate canvas and object dimensions
                 CANVAS_WIDTH = $(container).width() // use width of parent
                 ARROW_WIDTH = 10;
                 BAR_WIDTH = CANVAS_WIDTH;
@@ -145,7 +165,7 @@
 
                 CANVAS_HEIGHT = TEXT_YOFFSET + TEXT_HEIGHT;
 
-                // set height and width
+                // set canvas height and width
                 c.attr('width', CANVAS_WIDTH);
                 c.attr('height', CANVAS_HEIGHT);
 
