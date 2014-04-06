@@ -25,6 +25,7 @@
 
             var CANVAS_WIDTH;
             var CANVAS_HEIGHT;
+            var INTER_SECTION_GAP = 2;
 
             var sumAddRanges;
 
@@ -39,15 +40,14 @@
             // get the parent container
             var container = $(c).parent();
     
-            var INTER_SECTION_GAP = 2;
-
             var sections = sections;
+            var sumAddrRanges = _.reduce(sections, function(memo, section) {return memo+section.size}, 0);
 
-            // draw now
-            draw();
+            // force an initial drawing
+            resize();
 
-            // re-draw when browser resizes
-            $(window).resize( draw );
+            // re-draw ourselves when browser resizes
+            $(window).resize(resize);
             
             /* -------------------------------------------------------------- *
              *              P R I V A T E   M E T H O D S
@@ -87,14 +87,13 @@
             canvas.addEventListener('mousedown', function(evt) {
                 var pos = getMousePosition(canvas, evt);
                 curArrowPosX = pos.x;
-                drawArrows();
+                draw();
             });
 
             canvas.addEventListener('mouseout', function(evt) {
                 var pos = getMousePosition(canvas, evt);
-                clearText();
                 roamArrowPosX = -1;
-                drawArrows();
+                draw();
             });
 
             canvas.addEventListener('mousemove', function(evt) {
@@ -102,46 +101,17 @@
                 var addr = pixelToAddr(pos.x);
 
                 if (addr >= 0) {
-                    clearText();
-                    ctx.fillStyle = "rgb(0,0,0)";
-                    ctx.font = TEXT_HEIGHT.toString() + "px Monospace";
-                    ctx.fillText('0x' + addr.toString(16), pos.x, TEXT_YOFFSET + TEXT_HEIGHT);
-                    
                     roamArrowPosX = pos.x;
-                    drawArrows();
+                    draw();
                 }
             });
 
-            function clearText() {
-                ctx.clearRect (0, BAR_YOFFSET + BAR_HEIGHT, TEXT_WIDTH, TEXT_HEIGHT);
-            }
-
             function drawArrows() {
-                var roamColor = "#A3A3A3";
-                var curColor = "#000000";
-
-                function drawArrow(x, color) {
-                    ctx.fillStyle = color;
-                    ctx.beginPath();
-                    ctx.moveTo(x, BAR_YOFFSET);
-                    ctx.lineTo(x+ARROW_WIDTH/2, BAR_YOFFSET-ARROW_HEIGHT);
-                    ctx.lineTo(x-ARROW_WIDTH/2, BAR_YOFFSET-ARROW_HEIGHT);
-                    ctx.lineTo(x, BAR_YOFFSET);
-                    ctx.fill();
-                    ctx.closePath();
-                };
-
-                ctx.clearRect (0, ARROW_YOFFSET, BAR_WIDTH, ARROW_HEIGHT);
-                if (roamArrowPosX >= 0) {
-                    drawArrow(roamArrowPosX, roamColor);
-                }
-                drawArrow(curArrowPosX, curColor);
             }
 
-            function draw() {
-                var x = 0;
+            function resize() {
 
-                // calculate canvas and object dimensions
+                // calculate canvas and object dimensions (for when window is resized)
                 CANVAS_WIDTH = $(container).width() // use width of parent
                 ARROW_WIDTH = 10;
                 BAR_WIDTH = CANVAS_WIDTH;
@@ -162,13 +132,20 @@
                 c.attr('width', CANVAS_WIDTH);
                 c.attr('height', CANVAS_HEIGHT);
 
-                sumAddrRanges = _.reduce(sections, function(memo, section) {return memo+section.size}, 0);
-                console.log('Sum addr ranges is 0x' + sumAddrRanges.toString(16));
+                // redraw now that size has changed
+                draw();
+            }
 
+            function draw() {
+                var x = 0;
+
+                // tabula rasa
+                ctx.clearRect (0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+                // draw the sections
                 for (var i = 0; i < sections.length; i++)
                 {
                     var width = sections[i].size / sumAddrRanges * BAR_WIDTH;
-                    console.log('Drawing section ' + sections[i].name);
 
                     // draw section
                     ctx.fillStyle = "rgb(200,0,0)";
@@ -178,7 +155,33 @@
                     
                     x += width + INTER_SECTION_GAP;
                 }
-                ctx.save();
+
+                // draw the arrows
+                var roamColor = "#A3A3A3";
+                var curColor = "#000000";
+
+                function drawArrow(x, color) {
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.moveTo(x, BAR_YOFFSET);
+                    ctx.lineTo(x+ARROW_WIDTH/2, BAR_YOFFSET-ARROW_HEIGHT);
+                    ctx.lineTo(x-ARROW_WIDTH/2, BAR_YOFFSET-ARROW_HEIGHT);
+                    ctx.lineTo(x, BAR_YOFFSET);
+                    ctx.fill();
+                    ctx.closePath();
+                };
+                
+                // the current position
+                drawArrow(curArrowPosX, curColor);
+
+                // draw the roaming arrow and roaming text
+                var addr = pixelToAddr(roamArrowPosX);
+                if (roamArrowPosX >= 0) {
+                    drawArrow(roamArrowPosX, roamColor);
+                    ctx.fillStyle = "rgb(0,0,0)";
+                    ctx.font = TEXT_HEIGHT.toString() + "px Monospace";
+                    ctx.fillText('0x' + addr.toString(16), roamArrowPosX, TEXT_YOFFSET + TEXT_HEIGHT);
+                }
             }
 
             /* -------------------------------------------------------------- *
