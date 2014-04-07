@@ -6,6 +6,9 @@
     <script type="text/javascript">
         $(document).ready(function(){
 
+        /* ------------------------------------------------------------------ *
+         *                             C L A S S
+         * ------------------------------------------------------------------ */
         function AddressNavBar(canvasId, sections) {
         
             /* -------------------------------------------------------------- *
@@ -30,7 +33,7 @@
             var sumAddRanges;
 
             var curArrowPosX = 0;
-            var roamArrowPosX = 0;
+            var roamArrowPosX = -1;
 
             // get the canvas and context
             var c = $('#addr-bar-canvas');
@@ -40,13 +43,17 @@
             // get the parent container
             var container = $(c).parent();
     
-            var sections = sections;
-            var sumAddrRanges = _.reduce(sections, function(memo, section) {return memo+section.size}, 0);
+            var sections;
+            var sumAddrRanges;
+
+            var moving = false;
+
+            setSections(sections);
 
             // force an initial drawing
             resize();
 
-            // re-draw ourselves when browser resizes
+            // register to re-draw ourselves when browser resizes
             $(window).resize(resize);
             
             /* -------------------------------------------------------------- *
@@ -87,6 +94,14 @@
             canvas.addEventListener('mousedown', function(evt) {
                 var pos = getMousePosition(canvas, evt);
                 curArrowPosX = pos.x;
+                moving = true;
+                draw();
+            });
+
+            canvas.addEventListener('mouseup', function(evt) {
+                var pos = getMousePosition(canvas, evt);
+                curArrowPosX = pos.x;
+                moving = false;
                 draw();
             });
 
@@ -104,10 +119,12 @@
                     roamArrowPosX = pos.x;
                     draw();
                 }
-            });
 
-            function drawArrows() {
-            }
+                if (moving) {
+                    curArrowPosX = pos.x;
+                    draw();
+                }
+            });
 
             function resize() {
 
@@ -170,9 +187,6 @@
                     ctx.fill();
                     ctx.closePath();
                 };
-                
-                // the current position
-                drawArrow(curArrowPosX, curColor);
 
                 // draw the roaming arrow and roaming text
                 var addr = pixelToAddr(roamArrowPosX);
@@ -182,11 +196,19 @@
                     ctx.font = TEXT_HEIGHT.toString() + "px Monospace";
                     ctx.fillText('0x' + addr.toString(16), roamArrowPosX, TEXT_YOFFSET + TEXT_HEIGHT);
                 }
+                
+                // draw the current arrow
+                drawArrow(curArrowPosX, curColor);
             }
 
             /* -------------------------------------------------------------- *
              *                  P U B L I C   M E T H O D S
              * -------------------------------------------------------------- */
+            function setSections(s) {
+                sections = s; 
+                sumAddrRanges = _.reduce(sections, function(memo, section) {return memo+section.size}, 0);
+            }
+            this.setSections = setSections;
         }
 
         // define some sections
