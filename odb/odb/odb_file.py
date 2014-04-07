@@ -55,6 +55,10 @@ class OdbFile(object):
     def get_structure_list(self, name):
         return self._items[name]
 
+    def get_arch(self):
+        #TODO Durp
+        return 'i386'
+
     def insert_operation(self, operation):
         # see if an operation with this object_id already exists
         dup_op = next((op for op in self.operations if op.object_id == operation.object_id), None)

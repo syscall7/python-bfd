@@ -1,12 +1,9 @@
 import re
-from odb.bfd import ofd
 import logging
-from odb.structures.data_string import DataString
-from odb.structures.function import Function
-from odb.structures.parcel import Parcel
-from odb.structures.section import Section
-from odb.structures.symbol import Symbol
+
+from odb.bfd import ofd
 from odb.ops.operation import Operation
+
 
 logger = logging.getLogger(__name__)
 

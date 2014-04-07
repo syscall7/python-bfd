@@ -107,8 +107,8 @@ class ScanOperation(Operation):
     def operate(self, odb_file):
         assert (len(odb_file.get_structure_list(Parcel)) > 0)
 
-        function_scanner = FunctionScanner(analyzer_factory('i386'))
-        branch_scanner = BranchScanner(analyzer_factory('i386'))
+        function_scanner = FunctionScanner(analyzer_factory(odb_file.get_arch()))
+        branch_scanner = BranchScanner(analyzer_factory(odb_file.get_arch()))
 
         scanners = [
             function_scanner,
