@@ -20,7 +20,7 @@ import types
 logger = logging.getLogger(__name__)
 
 
-fs = FileSystemStorage(location='/tmp/odaweb2')
+fs = FileSystemStorage(location='/var/oda')
 
 # Create your models here.
 class OdaFile(models.Model):
