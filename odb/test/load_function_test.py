@@ -14,16 +14,16 @@ class TestLoadOperation(unittest.TestCase):
         odb_file = OdbFile()
         load_operation.operate(odb_file)
 
-        self.assertEquals(26, len(odb_file.items[Section]))
+        self.assertEquals(26, len(odb_file.get_structure_list(Section)))
 
-        self.assertEquals(120, len(odb_file.items[Symbol]))
+        self.assertEquals(120, len(odb_file.get_structure_list(Symbol)))
 
-        self.assertEquals(2, len(odb_file.items[Function]))
+        self.assertEquals(2, len(odb_file.get_structure_list(Function)))
 
-        self.assertEquals(1, len([x for x in odb_file.items[Function] if x.name == '_init']))
-        self.assertEquals(1, len([x for x in odb_file.items[Function] if x.name == '_fini']))
+        self.assertEquals(1, len([x for x in odb_file.get_structure_list(Function) if x.name == '_init']))
+        self.assertEquals(1, len([x for x in odb_file.get_structure_list(Function) if x.name == '_fini']))
 
-        self.assertEquals(1304, len(odb_file.items[DataString]))
+        self.assertEquals(1304, len(odb_file.get_structure_list(DataString)))
 
-        self.assertEquals(1, len([s for s in odb_file.items[DataString] if s.value == 'hide-control-chars']))
-        self.assertEquals(1, len([s for s in odb_file.items[DataString] if s.value == 'error initializing month strings']))
+        self.assertEquals(1, len([s for s in odb_file.get_structure_list(DataString) if s.value == 'hide-control-chars']))
+        self.assertEquals(1, len([s for s in odb_file.get_structure_list(DataString) if s.value == 'error initializing month strings']))

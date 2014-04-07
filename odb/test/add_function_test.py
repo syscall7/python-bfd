@@ -21,13 +21,13 @@ class TestAddFunction(unittest.TestCase):
         #add_func_operation = AddFunction(**{'name': 'blah'})
         #add_func_operation.operate(odb_file)
 
-        self.assertEquals(1, len(odb_file.items[Function]))
-        f = odb_file.items[Function][0]
-        self.assertEquals('FUNCTION TEST NAME', odb_file.items[Function][0].name)
+        self.assertEquals(1, len(odb_file.get_structure_list(Function)))
+        f = odb_file.get_structure_list(Function)[0]
+        self.assertEquals('FUNCTION TEST NAME', odb_file.get_structure_list(Function)[0].name)
 
         add_operation.invert(odb_file)
 
-        self.assertEquals(0, len(odb_file.items[Function]))
+        self.assertEquals(0, len(odb_file.get_structure_list(Function)))
 
     def test_multiple_add(self):
         odb_file = OdbFile()
@@ -47,14 +47,14 @@ class TestAddFunction(unittest.TestCase):
         add_operation2 = AddOperation(item2)
         add_operation2.operate(odb_file)
 
-        self.assertEquals(2, len(odb_file.items[Function]))
+        self.assertEquals(2, len(odb_file.get_structure_list(Function)))
 
         add_operation2.invert(odb_file)
-        self.assertEquals(1, len(odb_file.items[Function]))
-        self.assertEquals('FUNCTION TEST NAME1', odb_file.items[Function][0].name)
+        self.assertEquals(1, len(odb_file.get_structure_list(Function)))
+        self.assertEquals('FUNCTION TEST NAME1', odb_file.get_structure_list(Function)[0].name)
 
         add_operation.invert(odb_file)
-        self.assertEquals(0, len(odb_file.items[Function]))
+        self.assertEquals(0, len(odb_file.get_structure_list(Function)))
 
     def test_add_same_func_name_fails(self):
         pass

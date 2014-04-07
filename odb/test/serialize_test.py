@@ -17,7 +17,7 @@ class TestSerialize(unittest.TestCase):
 
         loaded_odb_file = DefaultOdbSerializer().load(serialized)
 
-        self.assertEqual(len(odb_file.items[Function]), len(loaded_odb_file.items[Function]))
+        self.assertEqual(len(odb_file.get_structure_list(Function)), len(loaded_odb_file.get_structure_list(Function)))
 
 
 

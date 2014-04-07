@@ -105,7 +105,7 @@ class FunctionScanner(object):
 class ScanOperation(Operation):
 
     def operate(self, odb_file):
-        assert (len(odb_file.items[Parcel]) > 0)
+        assert (len(odb_file.get_structure_list(Parcel)) > 0)
 
         function_scanner = FunctionScanner(analyzer_factory('i386'))
         branch_scanner = BranchScanner(analyzer_factory('i386'))
@@ -115,7 +115,7 @@ class ScanOperation(Operation):
             branch_scanner
         ]
 
-        for parcel in [p for p in odb_file.items[Parcel] if p.is_code]:
+        for parcel in [p for p in odb_file.get_structure_list(Parcel) if p.is_code]:
             logger.debug("parcel start=0x%08x parcel.end=0x%08x" % (parcel.start, parcel.end))
 
             the_ofd = ofd.Ofd(odb_file.get_binary())
@@ -134,8 +134,8 @@ class ScanOperation(Operation):
 
         for addr, f in function_scanner.functions.iteritems():
             func = odb_file.create_item('Function', f)
-            odb_file.items[Function].append(func)
+            odb_file.get_structure_list(Function).append(func)
 
         for b in branch_scanner.branches:
             branch = odb_file.create_item('Branch', b)
-            odb_file.items[Branch].append(branch)
+            odb_file.get_structure_list(Branch).append(branch)
