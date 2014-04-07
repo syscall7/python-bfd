@@ -46,6 +46,8 @@
 
             var moving = false;
 
+            var onChangeHandlers = [];
+
             setSections(sections);
 
             // force an initial drawing
@@ -112,6 +114,22 @@
                 return xpos;
             }
 
+            /* Internal function called when current position changes */
+            function curArrowPosChanged(newPosX) {
+
+                curArrowPosX = newPosX;
+
+                if (onChangeHandlers.length > 0) {
+                    var addr = pixelToAddr(newPosX);
+                    if (0 > addr) {
+                        return;
+                    }
+                    for (var i = 0; i < onChangeHandlers.length; i++) {
+                        onChangeHandlers[i](addr);
+                    }
+                }
+            }
+
             canvas.addEventListener('mousedown', function(evt) {
                 var pos = getMousePosition(canvas, evt);
                 curArrowPosX = pos.x;
@@ -121,8 +139,8 @@
 
             canvas.addEventListener('mouseup', function(evt) {
                 var pos = getMousePosition(canvas, evt);
-                curArrowPosX = pos.x;
                 moving = false;
+                curArrowPosChanged(pos.x);
                 draw();
             });
 
@@ -248,11 +266,17 @@
                     return false;
                 }
 
-                curArrowPosX = xpos;
+                curArrowPosChanged(xpos);
                 draw();
                 return true;
             }
             this.setAddress = setAddress;
+
+            /* Allow event handler registration for onChange of address */
+            function onChange(handler) {
+                onChangeHandlers.push(handler);
+            }
+            this.onChange = onChange;
         }
 
         // define some sections
@@ -274,8 +298,14 @@
             }
         ];
 
+        /* ------------------------------------------------------------------ *
+         *                           E X A M P L E
+         * ------------------------------------------------------------------ */
         // instantiate the address nav bar
         addrBar = new AddressNavBar('#addr-bar-canvas', sections);
+        addrBar.onChange(function(a) {
+            console.log('My handler: ' + a.toString(16));
+        });
         addrBar.setAddress(0x520000);
 
     });
