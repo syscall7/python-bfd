@@ -4,6 +4,7 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
     <script type="text/javascript">
+
         $(document).ready(function(){
 
         /* ------------------------------------------------------------------ *
@@ -40,9 +41,6 @@
             var canvas = c.get(0);
             var ctx = canvas.getContext('2d');
 
-            // get the parent container
-            var container = $(c).parent();
-    
             var sections;
             var sumAddrRanges;
 
@@ -91,6 +89,29 @@
                 return -1; 
             }
 
+            /* Convert an address to the X pixel location */
+            function addrToPixel(addr) {
+
+                var xpos = -1;
+
+                for (var i = 0; i < sections.length; i++)
+                {
+                    var width = sections[i].size / sumAddrRanges * BAR_WIDTH;
+
+                    if ((addr >= sections[i].vma) &&
+                        (addr < (sections[i].vma + sections[i].size)))
+                    {
+                        xpos = (addr - sections[i].vma) / 
+                               sections[i].size *
+                               sections[i].width +
+                               sections[i].xpos;
+                        break;
+                    }
+                }
+
+                return xpos;
+            }
+
             canvas.addEventListener('mousedown', function(evt) {
                 var pos = getMousePosition(canvas, evt);
                 curArrowPosX = pos.x;
@@ -128,6 +149,9 @@
 
             function resize() {
 
+                // get the parent container
+                var container = $(c).parent();
+    
                 // calculate canvas and object dimensions (for when window is resized)
                 CANVAS_WIDTH = $(container).width() // use width of parent
                 ARROW_WIDTH = 10;
@@ -170,6 +194,10 @@
 
                     // TODO: Handle sections that are too small to be displayed
                     
+                    // store some info with each section
+                    sections[i].width = width;
+                    sections[i].xpos = x;
+
                     x += width + INTER_SECTION_GAP;
                 }
 
@@ -204,11 +232,27 @@
             /* -------------------------------------------------------------- *
              *                  P U B L I C   M E T H O D S
              * -------------------------------------------------------------- */
+
+            /* Update the sections represented in this navigation bar */
             function setSections(s) {
                 sections = s; 
                 sumAddrRanges = _.reduce(sections, function(memo, section) {return memo+section.size}, 0);
             }
             this.setSections = setSections;
+
+            /* Set the current address */
+            function setAddress(a) {
+                var xpos = addrToPixel(a);
+                console.log("xpos is " + xpos);
+                if (xpos < 0) {
+                    return false;
+                }
+
+                curArrowPosX = xpos;
+                draw();
+                return true;
+            }
+            this.setAddress = setAddress;
         }
 
         // define some sections
@@ -231,7 +275,8 @@
         ];
 
         // instantiate the address nav bar
-        addrBar = new AddressNavBar('#addr-bar-canvas', sections)
+        addrBar = new AddressNavBar('#addr-bar-canvas', sections);
+        addrBar.setAddress(0x520000);
 
     });
     </script>
