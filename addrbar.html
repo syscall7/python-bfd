@@ -71,23 +71,23 @@
             }
 
             /* Convert an X pixel location to an address */
-            function pixelToAddr(xPos) {
-                var x = 0;
+            function pixelToAddr(posX) {
 
+                posX = Math.floor(posX);
                 for (var i = 0; i < sections.length; i++)
                 {
-                    var width = sections[i].size / sumAddrRanges * BAR_WIDTH;
+                    var secWidth = sections[i].width;
+                    var secPosX = sections[i].posX;
+                    console.log('start: ' + secPosX + ' cur: ' + posX);
 
                     // if we're clearly in a section
-                    if (xPos < (x + width)) {
-                        var addr = Math.floor(sections[i].vma + ((xPos - x) / width)*sections[i].size);
+                    if (posX < (secPosX + secWidth)) {
+                        var addr = Math.floor(sections[i].vma + ((posX - secPosX) / secWidth)*sections[i].size);
                         return addr;
                     // else, if we're on a section boundary
-                    } else if (xPos < (x + width + INTER_SECTION_GAP)) {
+                    } else if (posX < (secPosX + secWidth + INTER_SECTION_GAP)) {
                         return -1;
                     }
-
-                    x += width+INTER_SECTION_GAP;
                 }
                 return -1; 
             }
@@ -95,7 +95,7 @@
             /* Convert an address to the X pixel location */
             function addrToPixel(addr) {
 
-                var xpos = -1;
+                var posX = -1;
 
                 for (var i = 0; i < sections.length; i++)
                 {
@@ -104,15 +104,15 @@
                     if ((addr >= sections[i].vma) &&
                         (addr < (sections[i].vma + sections[i].size)))
                     {
-                        xpos = (addr - sections[i].vma) / 
+                        posX = (addr - sections[i].vma) / 
                                sections[i].size *
                                sections[i].width +
-                               sections[i].xpos;
+                               sections[i].posX;
                         break;
                     }
                 }
 
-                return xpos;
+                return posX;
             }
 
             /* Internal function called when current position changes */
@@ -139,8 +139,8 @@
 
             canvas.addEventListener('mousedown', function(evt) {
                 var pos = getMousePosition(canvas, evt);
-                curArrowPosX = pos.x;
                 dragging = true;
+                curArrowPosChanged(pos.x);
                 draw();
             });
 
@@ -212,7 +212,7 @@
                 // draw the sections
                 for (var i = 0; i < sections.length; i++)
                 {
-                    var width = sections[i].size / sumAddrRanges * BAR_WIDTH;
+                    var width = Math.floor(sections[i].size / sumAddrRanges * BAR_WIDTH);
 
                     // draw section
                     ctx.fillStyle = "rgb(200,0,0)";
@@ -222,7 +222,7 @@
                     
                     // store some info with each section
                     sections[i].width = width;
-                    sections[i].xpos = x;
+                    sections[i].posX = x;
 
                     x += width + INTER_SECTION_GAP;
                 }
@@ -268,13 +268,13 @@
 
             /* Set the current address */
             function setAddress(a) {
-                var xpos = addrToPixel(a);
-                console.log("xpos is " + xpos);
-                if (xpos < 0) {
+                var posX = addrToPixel(a);
+                console.log("posX is " + posX);
+                if (posX < 0) {
                     return false;
                 }
 
-                curArrowPosChanged(xpos);
+                curArrowPosChanged(posX);
                 draw();
                 return true;
             }
