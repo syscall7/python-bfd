@@ -44,9 +44,10 @@
             var sections;
             var sumAddrRanges;
 
-            var moving = false;
+            var dragging = false;
 
             var onChangeHandlers = [];
+            var onDragHandlers = [];
 
             setSections(sections);
 
@@ -117,13 +118,19 @@
             /* Internal function called when current position changes */
             function curArrowPosChanged(newPosX) {
 
+                var addr = pixelToAddr(newPosX);
+                if (0 > addr) {
+                    return;
+                }
+
                 curArrowPosX = newPosX;
 
-                if (onChangeHandlers.length > 0) {
-                    var addr = pixelToAddr(newPosX);
-                    if (0 > addr) {
-                        return;
+                if (dragging) {
+                    for (var i = 0; i < onDragHandlers.length; i++) {
+                        onDragHandlers[i](addr);
                     }
+
+                } else {
                     for (var i = 0; i < onChangeHandlers.length; i++) {
                         onChangeHandlers[i](addr);
                     }
@@ -133,13 +140,13 @@
             canvas.addEventListener('mousedown', function(evt) {
                 var pos = getMousePosition(canvas, evt);
                 curArrowPosX = pos.x;
-                moving = true;
+                dragging = true;
                 draw();
             });
 
             canvas.addEventListener('mouseup', function(evt) {
                 var pos = getMousePosition(canvas, evt);
-                moving = false;
+                dragging = false;
                 curArrowPosChanged(pos.x);
                 draw();
             });
@@ -154,13 +161,14 @@
                 var pos = getMousePosition(canvas, evt);
                 var addr = pixelToAddr(pos.x);
 
+                // if we are not on a section boundary
                 if (addr >= 0) {
                     roamArrowPosX = pos.x;
                     draw();
                 }
 
-                if (moving) {
-                    curArrowPosX = pos.x;
+                if (dragging) {
+                    curArrowPosChanged(pos.x);
                     draw();
                 }
             });
@@ -277,7 +285,17 @@
                 onChangeHandlers.push(handler);
             }
             this.onChange = onChange;
-        }
+
+            /* Allow event handler registration for onDrag of address */
+            function onDrag(handler) {
+                onDragHandlers.push(handler);
+            }
+            this.onDrag = onDrag;
+       }
+
+        /* ------------------------------------------------------------------ *
+         *                           E X A M P L E
+         * ------------------------------------------------------------------ */
 
         // define some sections
         var sections = [
@@ -298,15 +316,15 @@
             }
         ];
 
-        /* ------------------------------------------------------------------ *
-         *                           E X A M P L E
-         * ------------------------------------------------------------------ */
         // instantiate the address nav bar
         addrBar = new AddressNavBar('#addr-bar-canvas', sections);
         addrBar.onChange(function(a) {
-            console.log('My handler: ' + a.toString(16));
+            console.log('My change handler: ' + a.toString(16));
         });
-        addrBar.setAddress(0x520000);
+        addrBar.onDrag(function(a) {
+            console.log('My drag handler: ' + a.toString(16));
+        });
+       addrBar.setAddress(0x520000);
 
     });
     </script>
