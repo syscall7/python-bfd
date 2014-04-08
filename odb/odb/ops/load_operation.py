@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 
 class LoadOperation(Operation):
     def __init__(self, filename):
+        super(LoadOperation, self).__init__()
+
         self.filename = filename
 
     def operate(self, odb_file):

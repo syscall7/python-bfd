@@ -32,7 +32,6 @@ class Options(object):
     def get_endian(self):
         return 'DEFAULT'
 
-
 class OdbFile(object):
     def __init__(self):
 
@@ -59,12 +58,18 @@ class OdbFile(object):
         #TODO Durp
         return 'i386'
 
-    def insert_operation(self, operation):
-        # see if an operation with this object_id already exists
+    def execute(self, operation):
+
+        operation.validate(self)
+
+        operation.operate(self)
+
         dup_op = next((op for op in self.operations if op.object_id == operation.object_id), None)
         if dup_op:
             raise Exception('Duplicate Operation')
         self.operations.append(operation)
+
+
 
     def modify_item(self, item):
         for n, i in enumerate(self._items[item.__class__]):

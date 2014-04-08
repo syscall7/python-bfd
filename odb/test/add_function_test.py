@@ -1,6 +1,7 @@
 import unittest
 from odb.odb_file import OdbFile
 from odb.ops.add_operation import AddOperation
+from odb.structures import function
 from odb.structures.function import Function
 
 
@@ -14,9 +15,9 @@ class TestAddFunction(unittest.TestCase):
             'type': 'U'
 
         })
-        add_operation = AddOperation(item, [])
+        add_operation = function.generate_operation(AddOperation, item)
 
-        add_operation.operate(odb_file)
+        odb_file.execute(add_operation)
 
         #add_func_operation = AddFunction(**{'name': 'blah'})
         #add_func_operation.operate(odb_file)
@@ -36,16 +37,16 @@ class TestAddFunction(unittest.TestCase):
             'offset': 0,
             'type': 'U'
         })
-        add_operation = AddOperation(item, [])
-        add_operation.operate(odb_file)
+        add_operation = function.generate_operation(AddOperation, item)
+        odb_file.execute(add_operation)
 
         item2 = odb_file.create_item('Function', {
             'name': 'FUNCTION TEST NAME2',
             'offset': 0,
             'type': 'U'
         })
-        add_operation2 = AddOperation(item2, [])
-        add_operation2.operate(odb_file)
+        add_operation2 = function.generate_operation(AddOperation, item2)
+        odb_file.execute(add_operation2)
 
         self.assertEquals(2, len(odb_file.get_structure_list(Function)))
 
@@ -66,12 +67,13 @@ class TestAddFunction(unittest.TestCase):
             'offset': 0,
             'type': 'U'
         })
-        add_operation = AddOperation(item, [])
-        add_operation.operate(odb_file)
-        self.assertRaises(Exception, add_operation.operate, odb_file)
+        add_operation = function.generate_operation(AddOperation, item)
+        odb_file.execute(add_operation)
+        self.assertRaises(Exception, lambda: odb_file.execute(add_operation), odb_file)
 
     def invert_not_last_fails(self):
         pass
+
 
 if __name__ == "__main__":
     unittest.main()

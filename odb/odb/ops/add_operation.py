@@ -1,5 +1,4 @@
 from odb.ops.operation import Operation
-from odb.structures.function import Function
 
 __author__ = 'davis'
 
@@ -14,7 +13,6 @@ class AddOperation(Operation):
     def operate(self, odb_file):
         self.object_id = odb_file.get_object_id()
         odb_file.insert_item(self.item)
-        odb_file.insert_operation(self)
 
     def invert(self, odb_file):
         if odb_file.operations[-1] != self:

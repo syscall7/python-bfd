@@ -12,7 +12,8 @@ class TestLoadOperation(unittest.TestCase):
     def test_basic_loader(self):
         load_operation = LoadOperation('test/data/ls')
         odb_file = OdbFile()
-        load_operation.operate(odb_file)
+
+        odb_file.execute(load_operation)
 
         self.assertEquals(26, len(odb_file.get_structure_list(Section)))
 
