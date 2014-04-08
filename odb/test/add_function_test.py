@@ -14,7 +14,7 @@ class TestAddFunction(unittest.TestCase):
             'type': 'U'
 
         })
-        add_operation = AddOperation(item)
+        add_operation = AddOperation(item, [])
 
         add_operation.operate(odb_file)
 
@@ -36,7 +36,7 @@ class TestAddFunction(unittest.TestCase):
             'offset': 0,
             'type': 'U'
         })
-        add_operation = AddOperation(item)
+        add_operation = AddOperation(item, [])
         add_operation.operate(odb_file)
 
         item2 = odb_file.create_item('Function', {
@@ -44,7 +44,7 @@ class TestAddFunction(unittest.TestCase):
             'offset': 0,
             'type': 'U'
         })
-        add_operation2 = AddOperation(item2)
+        add_operation2 = AddOperation(item2, [])
         add_operation2.operate(odb_file)
 
         self.assertEquals(2, len(odb_file.get_structure_list(Function)))
@@ -66,7 +66,7 @@ class TestAddFunction(unittest.TestCase):
             'offset': 0,
             'type': 'U'
         })
-        add_operation = AddOperation(item)
+        add_operation = AddOperation(item, [])
         add_operation.operate(odb_file)
         self.assertRaises(Exception, add_operation.operate, odb_file)
 

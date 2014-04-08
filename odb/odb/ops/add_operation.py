@@ -5,7 +5,9 @@ __author__ = 'davis'
 
 
 class AddOperation(Operation):
-    def __init__(self, item):
+    def __init__(self, item, validators):
+        super(AddOperation, self).__init__(validators)
+
         self.item = item
         self.object_id = -1
 
