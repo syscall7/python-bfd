@@ -219,10 +219,10 @@
                 TEXT_WIDTH = BAR_WIDTH;
 
                 ARROW_YOFFSET = 0;
-                ARROW_HEIGHT = 10;
+                ARROW_HEIGHT = 6;
 
                 BAR_YOFFSET = ARROW_YOFFSET + ARROW_HEIGHT;
-                BAR_HEIGHT = 15;
+                BAR_HEIGHT = 17;
 
                 TEXT_YOFFSET = BAR_YOFFSET + BAR_HEIGHT;
                 TEXT_HEIGHT = 15;
@@ -259,7 +259,7 @@
                     }
                 }
 
-                // calculate how much BAR_WIDTH we really have to work with for scaling
+                // calculate how much BAR_WIDTH we really have to work with for scaling purposes
                 EFFECTIVE_BAR_WIDTH = BAR_WIDTH - runtPadding - (sections.length-1)*INTER_SECTION_GAP;
  
                 // make a second pass to assign widths to each section
@@ -271,11 +271,9 @@
                     }
 
                     // draw section
-                    ctx.fillStyle = "rgb(200,0,0)";
+                    ctx.fillStyle = "rgb(0,110,255)";
                     ctx.fillRect (x, BAR_YOFFSET, width, BAR_HEIGHT);
 
-                    // TODO: Handle sections that are too small to be displayed
-                    
                     // store some info with each section
                     sections[i].width = width;
                     sections[i].posX = x;
@@ -284,11 +282,27 @@
                 }
 
                 // draw the arrows
-                var roamColor = "#A3A3A3";
                 var curColor = "#000000";
 
-                function drawArrow(x, color) {
-                    ctx.fillStyle = color;
+                function drawArrow(x, opacityFactor) {
+                    var ARROW_BOX_WIDTH = 20;
+
+                    // draw the yellow box below the arrow
+                    ctx.beginPath();
+                    ctx.rect(x - ARROW_BOX_WIDTH/2, BAR_YOFFSET-1, ARROW_BOX_WIDTH, BAR_HEIGHT+2);
+                    ctx.fillStyle = "rgba(255,255,0, " + 0.40*opacityFactor + ")";
+                    ctx.fill();
+                    ctx.strokeStyle = "rgba(255,255,0, " + 1.0*opacityFactor + ")";
+                    ctx.stroke();
+
+                    // draw the yellow line centered in the box
+                    ctx.moveTo(x, BAR_YOFFSET);
+                    ctx.lineTo(x, BAR_YOFFSET+BAR_HEIGHT);
+                    ctx.strokeStyle = "rgba(255,255,0, " + 1.0*opacityFactor + ")";
+                    ctx.stroke();
+
+                    // draw the arrow itself
+                    ctx.fillStyle = "rgba(0,0,0, " + 1.0*opacityFactor + ")";
                     ctx.beginPath();
                     ctx.moveTo(x, BAR_YOFFSET);
                     ctx.lineTo(x+ARROW_WIDTH/2, BAR_YOFFSET-ARROW_HEIGHT);
@@ -296,19 +310,20 @@
                     ctx.lineTo(x, BAR_YOFFSET);
                     ctx.fill();
                     ctx.closePath();
+
                 };
 
                 // draw the roaming arrow and roaming text
                 var addr = pixelToAddr(roamArrowPosX);
                 if (roamArrowPosX >= 0) {
-                    drawArrow(roamArrowPosX, roamColor);
+                    drawArrow(roamArrowPosX, 0.4);
                     ctx.fillStyle = "rgb(0,0,0)";
                     ctx.font = TEXT_HEIGHT.toString() + "px Monospace";
                     ctx.fillText('0x' + addr.toString(16), roamArrowPosX, TEXT_YOFFSET + TEXT_HEIGHT);
                 }
                 
                 // draw the current arrow
-                drawArrow(curArrowPosX, curColor);
+                drawArrow(curArrowPosX, 1);
             }
 
             /* -------------------------------------------------------------- *
