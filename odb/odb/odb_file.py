@@ -1,4 +1,8 @@
+import logging
+from os import unlink
 import pickle
+import tempfile
+import types
 
 from odb.ops.operation import ValidationError
 from odb.structures.comment import Comment
@@ -11,6 +15,8 @@ from odb.structures.symbol import Symbol
 
 
 __author__ = 'davis'
+
+logger = logging.getLogger(__name__)
 
 STRUCTURE_TYPES = [
     Function, Section, Symbol, Parcel, Branch, DataString, Comment
@@ -36,10 +42,64 @@ class Options(object):
     def get_endian(self):
         return 'DEFAULT'
 
+
+class BinaryFileFactory(object):
+    def __init__(self, filename):
+        self.filename = filename
+
+    def get_binary(self):
+        class Binary(object):
+            def __init__(self):
+                self.options = Options()
+
+            @staticmethod
+            def file_handle():
+                return open(self.filename)
+
+        return Binary()
+
+
+class BinaryStringFactory(object):
+    def __init__(self, binary_string):
+        self.binary_string = binary_string
+
+    def get_binary(self):
+        class Binary(object):
+            def __init__(self):
+                self.options = Options()
+                self.options.target = 'binary'
+
+            @staticmethod
+            def file_handle():
+                try:
+                    byte_array = self.binary_string.decode("hex")
+                except TypeError:
+                    logger.exception("Failed to decode hex %s" % self.binary_string)
+
+                # Create a file containing the BinaryString for passing to BFD
+                #  Must use delete=False because bfd expects a file name
+                t = tempfile.NamedTemporaryFile(bufsize = 0, delete = False)
+                t.write(byte_array)
+
+                # Dynamic function that deletes the temp file when we are done with it
+                def done(self):
+                    # Close the file in case it isn't already closed
+                    self.close()
+
+                    # Delete the temporary file permanently
+                    unlink(self.name)
+
+                # Add the done function dynamically to the File instance
+                #f = open(t)
+                t.done = types.MethodType(done, t)
+
+                return t
+        return Binary()
+
 class OdbFile(object):
     def __init__(self):
 
-        self.filename = None
+        self.binary_factory = None
         self.object_id = 0
         self.factory = OdaObjectFactory(self)
         self.operations = []
@@ -87,17 +147,11 @@ class OdbFile(object):
         return self.object_id
 
     def get_binary(self):
-        assert (self.filename is not None)
+        assert (self.binary_factory is not None)
 
-        class Binary(object):
-            def __init__(self):
-                self.options = Options()
+        return self.binary_factory.get_binary()
 
-            @staticmethod
-            def file_handle():
-                return open(self.filename)
 
-        return Binary()
 
 
 class DefaultOdbSerializer(object):

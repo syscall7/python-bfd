@@ -2,21 +2,37 @@ import re
 import logging
 
 from odb.bfd import ofd
+from odb.odb_file import BinaryFileFactory, BinaryStringFactory
 from odb.ops.operation import Operation
 
 
 logger = logging.getLogger(__name__)
 
+
+class LoadOperationFactory(object):
+
+    @staticmethod
+    def load_from_file(filename):
+        return LoadOperation(BinaryFileFactory(filename))
+
+    @staticmethod
+    def load_from_string(binary_string):
+
+        cleaned_string = ''.join(binary_string.split())
+        return LoadOperation(BinaryStringFactory(cleaned_string))
+
 class LoadOperation(Operation):
-    def __init__(self, filename):
+    def __init__(self, binary_factory):
         super(LoadOperation, self).__init__()
 
-        self.filename = filename
+        assert binary_factory.get_binary
+
+        self.binary_factory = binary_factory
 
     def operate(self, odb_file):
         logger.info("Loading %s".format(odb_file))
 
-        odb_file.filename = self.filename
+        odb_file.binary_factory = self.binary_factory
 
         analyzer = ofd.Ofd(odb_file.get_binary())
 

@@ -45,6 +45,11 @@ class Ofd(object):
         if hasattr(self, 'bfd'):
             self.bfd.close()
             self.bfd_file_handle.close()
+            try:
+                self.bfd_file_handle.done()
+            except AttributeError:
+                #Doesn't have done, maybe doesn't need it?
+                pass
 
     def sectionFlagsInfo(self):
         return bfd.FLAGS

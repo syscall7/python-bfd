@@ -1,7 +1,9 @@
 import unittest
+
 from odb.odb_file import OdbFile, DefaultOdbSerializer
-from odb.ops.load_operation import LoadOperation
+from odb.ops.load_operation import LoadOperationFactory
 from odb.structures.function import Function
+
 
 __author__ = 'davis'
 
@@ -9,7 +11,7 @@ __author__ = 'davis'
 class TestSerialize(unittest.TestCase):
 
     def test_serialize(self):
-        load_operation = LoadOperation('test/data/ls')
+        load_operation = LoadOperationFactory.load_from_file('test/data/ls')
         odb_file = OdbFile()
         load_operation.operate(odb_file)
 
