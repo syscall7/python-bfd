@@ -3,7 +3,6 @@ import re
 
 from odb.bfd import ofd
 from odb.bfd.analyzer import analyzer_factory
-from odb.bfd.analyzers import branch
 from odb.bfd.analyzers.instruction import DisplayUnit, InstructionType
 from odb.ops.operation import Operation
 from odb.structures.branch import Branch
@@ -54,6 +53,11 @@ class BranchScanner(object):
                 if du.targetAddr not in self.labels and du.instType == InstructionType.branch:
                     self.labels.append(du.targetAddr)
 
+    def commit(self, odb_file):
+        for b in self.branches:
+            branch = odb_file.create_item('Branch', b)
+            odb_file.get_structure_list(Branch).append(branch)
+
 class FunctionScanner(object):
 
     def __init__(self, analyzer):
@@ -101,6 +105,11 @@ class FunctionScanner(object):
                  #   # Add new cross reference to set
                   #  self.functions[du.targetAddr].xrefs.update([du.offset])
 
+    def commit(self, odb_file):
+        for addr, f in self.functions.iteritems():
+            func = odb_file.create_item('Function', f)
+            odb_file.get_structure_list(Function).append(func)
+
 
 class ScanOperation(Operation):
 
@@ -132,10 +141,5 @@ class ScanOperation(Operation):
                                     'self': self,
                                 })
 
-        for addr, f in function_scanner.functions.iteritems():
-            func = odb_file.create_item('Function', f)
-            odb_file.get_structure_list(Function).append(func)
-
-        for b in branch_scanner.branches:
-            branch = odb_file.create_item('Branch', b)
-            odb_file.get_structure_list(Branch).append(branch)
+        for scanner in scanners:
+            scanner.commit(odb_file)
