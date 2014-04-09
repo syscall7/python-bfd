@@ -31,6 +31,10 @@
             var CANVAS_HEIGHT;
             var INTER_SECTION_GAP = 2;
 
+            var EFFECTIVE_BAR_WIDTH;
+            var RUNT_PIXEL_THRESHOLD = 3;
+            var RUNT_MIN_WIDTH = 3;
+
             var sumAddRanges;
 
             var curArrowPosX = 0;
@@ -207,6 +211,22 @@
                 }
             });
 
+            /* Runt section calculations - needs to be done on resize or adding sections */
+            function calcRuntSectionSizes() {
+                var runtPadding = 0;
+
+                // calculate how much space we need for runt padding
+                for (var i = 0; i < sections.length; i++) {
+                    var width = Math.floor(sections[i].size / sumAddrRanges * BAR_WIDTH);
+                    if (width < RUNT_PIXEL_THRESHOLD) {
+                        runtPadding += RUNT_MIN_WIDTH - width;
+                    }
+                }
+
+                // calculate how much BAR_WIDTH we really have to work with for scaling purposes
+                EFFECTIVE_BAR_WIDTH = BAR_WIDTH - runtPadding - (sections.length-1)*INTER_SECTION_GAP;
+            }
+
             function resize() {
 
                 // get the parent container
@@ -233,16 +253,14 @@
                 c.attr('width', CANVAS_WIDTH);
                 c.attr('height', CANVAS_HEIGHT);
 
+                calcRuntSectionSizes();
+
                 // redraw now that size has changed
                 draw();
             }
 
             function draw() {
-                var RUNT_PIXEL_THRESHOLD = 3;
-                var RUNT_MIN_WIDTH = 3;
-                var runtPadding = 0;
                 var x = 0;
-                var EFFECTIVE_BAR_WIDTH;
 
                 // tabula rasa
                 ctx.clearRect (0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -251,17 +269,6 @@
                  * draw the sections
                  */
                 
-                // calculate how much space we need for runt padding
-                for (var i = 0; i < sections.length; i++) {
-                    var width = Math.floor(sections[i].size / sumAddrRanges * BAR_WIDTH);
-                    if (width < RUNT_PIXEL_THRESHOLD) {
-                        runtPadding += RUNT_MIN_WIDTH - width;
-                    }
-                }
-
-                // calculate how much BAR_WIDTH we really have to work with for scaling purposes
-                EFFECTIVE_BAR_WIDTH = BAR_WIDTH - runtPadding - (sections.length-1)*INTER_SECTION_GAP;
- 
                 // make a second pass to assign widths to each section
                 for (var i = 0; i < sections.length; i++) {
                     var width = Math.floor(sections[i].size / sumAddrRanges * (EFFECTIVE_BAR_WIDTH));
@@ -282,8 +289,6 @@
                 }
 
                 // draw the arrows
-                var curColor = "#000000";
-
                 function drawArrow(x, opacityFactor) {
                     var ARROW_BOX_WIDTH = 20;
 
@@ -316,13 +321,17 @@
                 // draw the roaming arrow and roaming text
                 var addr = pixelToAddr(roamArrowPosX);
                 if (roamArrowPosX >= 0) {
+
+                    // draw roaming arrow that is slightly transparent
                     drawArrow(roamArrowPosX, 0.4);
+                    
+                    // draw address text
                     ctx.fillStyle = "rgb(0,0,0)";
                     ctx.font = TEXT_HEIGHT.toString() + "px Monospace";
                     ctx.fillText('0x' + addr.toString(16), roamArrowPosX, TEXT_YOFFSET + TEXT_HEIGHT);
                 }
                 
-                // draw the current arrow
+                // draw the current position indicator
                 drawArrow(curArrowPosX, 1);
             }
 
@@ -334,6 +343,8 @@
             function setSections(s) {
                 sections = s; 
                 sumAddrRanges = _.reduce(sections, function(memo, section) {return memo+section.size}, 0);
+
+                calcRuntSectionSizes();
             }
             this.setSections = setSections;
 
