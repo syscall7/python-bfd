@@ -1,6 +1,7 @@
 import pickle
 
 from odb.ops.operation import ValidationError
+from odb.structures.comment import Comment
 from odb.structures.data_string import DataString
 from odb.structures.branch import Branch
 from odb.structures.function import Function
@@ -12,7 +13,7 @@ from odb.structures.symbol import Symbol
 __author__ = 'davis'
 
 STRUCTURE_TYPES = [
-    Function, Section, Symbol, Parcel, Branch, DataString
+    Function, Section, Symbol, Parcel, Branch, DataString, Comment
 ]
 
 class OdaObjectFactory(object):
