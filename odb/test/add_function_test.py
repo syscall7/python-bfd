@@ -1,6 +1,8 @@
 import unittest
+
 from odb.odb_file import OdbFile
 from odb.ops.add_operation import AddOperation
+from odb.ops.operation import ValidationError
 from odb.structures import function
 from odb.structures.function import Function
 
@@ -58,7 +60,25 @@ class TestAddFunction(unittest.TestCase):
         self.assertEquals(0, len(odb_file.get_structure_list(Function)))
 
     def test_add_same_func_name_fails(self):
-        pass
+        odb_file = OdbFile()
+        item = odb_file.create_item('Function', {
+            'name': 'FUNCTION TEST NAME1',
+            'offset': 0,
+            'type': 'U'
+        })
+        add_operation = function.generate_operation(AddOperation, item)
+        odb_file.execute(add_operation)
+
+        item = odb_file.create_item('Function', {
+            'name': 'FUNCTION TEST NAME1',
+            'offset': 0,
+            'type': 'U'
+        })
+        add_operation = function.generate_operation(AddOperation, item)
+        self.assertRaises(ValidationError, odb_file.execute, add_operation)
+
+
+
 
     def test_add_same_id_fails(self):
         odb_file = OdbFile()
@@ -69,7 +89,14 @@ class TestAddFunction(unittest.TestCase):
         })
         add_operation = function.generate_operation(AddOperation, item)
         odb_file.execute(add_operation)
-        self.assertRaises(Exception, lambda: odb_file.execute(add_operation), odb_file)
+
+        #This is a little forced, since the add_operation.item should really be immutable
+        add_operation.item = odb_file.create_item('Function', {
+            'name': 'FUNCTION TEST NAME2',
+            'offset': 0,
+            'type': 'U'
+        })
+        self.assertRaises(ValidationError, odb_file.execute, add_operation)
 
     def invert_not_last_fails(self):
         pass

@@ -1,6 +1,10 @@
 __author__ = 'davis'
 
 
+class ValidationError(Exception):
+    def __init__(self, message, code=None, params=None):
+        self.message = message
+
 class Validator(object):
     def validate(self, odb_file):
         return True

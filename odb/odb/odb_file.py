@@ -1,10 +1,13 @@
 import pickle
+
+from odb.ops.operation import ValidationError
 from odb.structures.data_string import DataString
 from odb.structures.branch import Branch
 from odb.structures.function import Function
 from odb.structures.parcel import Parcel
 from odb.structures.section import Section
 from odb.structures.symbol import Symbol
+
 
 __author__ = 'davis'
 
@@ -66,7 +69,8 @@ class OdbFile(object):
 
         dup_op = next((op for op in self.operations if op.object_id == operation.object_id), None)
         if dup_op:
-            raise Exception('Duplicate Operation')
+            raise ValidationError('Duplicate Operation')
+
         self.operations.append(operation)
 
 
