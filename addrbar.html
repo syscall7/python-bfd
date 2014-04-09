@@ -64,10 +64,38 @@
             /* Get the canvas X,Y position */
             function getMousePosition(canvas, evt) {
                 var rect = canvas.getBoundingClientRect();
-                return {
+                var coords = {
                   x: evt.clientX - rect.left,
                   y: evt.clientY - rect.top
                 };
+
+                // snap to the nearest section boundary if in between sections
+                var posX = Math.floor(coords.x);
+                for (var i = 0; i < sections.length; i++)
+                {
+                    var secWidth = sections[i].width;
+                    var secPosX = sections[i].posX;
+
+                    // if we're clearly in a section
+                    if (posX < (secPosX + secWidth)) {
+                        break;
+                    // else, if we're in the dead space between sections
+                    } else if (posX < (secPosX + secWidth + INTER_SECTION_GAP)) {
+                        var leaning = posX - (secPosX + secWidth);
+                        
+                        // snap to whichever side we're closest to
+                        if (leaning < INTER_SECTION_GAP/2) {
+                            coords.x = secPosX + secWidth - 1;
+                        } else if (i < (sections.length - 1)){
+                            coords.x = secPosX + secWidth + INTER_SECTION_GAP;
+                        } else {
+                            // extending beyond last section?
+                        }
+                        break;
+                    }
+                }
+
+                return coords;
             }
 
             /* Convert an X pixel location to an address */
@@ -85,7 +113,16 @@
                         return addr;
                     // else, if we're in the dead space between sections
                     } else if (posX < (secPosX + secWidth + INTER_SECTION_GAP)) {
-                        return -1;
+                        var leaning = posX - (secPosX + secWidth);
+                        
+                        // snap to whichever side we're closest to
+                        if (leaning < INTER_SECTION_GAP/2) {
+                            return sections[i].vma + sections[i].size - 1;
+                        } else if (i < (sections.length - 1)){
+                            return sections[i+1].vma;
+                        } else {
+                            return -1; 
+                        }
                     }
                 }
                 return -1; 
@@ -158,15 +195,15 @@
                 var pos = getMousePosition(canvas, evt);
                 var addr = pixelToAddr(pos.x);
 
-                // if we are not on a section boundary
                 if (addr >= 0) {
+                    pos.x = addrToPixel(addr);
                     roamArrowPosX = pos.x;
                     draw();
-                }
 
-                if (dragging) {
-                    curArrowPosChanged(pos.x);
-                    draw();
+                    if (dragging) {
+                        curArrowPosChanged(pos.x);
+                        draw();
+                    }
                 }
             });
 
