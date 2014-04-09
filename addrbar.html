@@ -78,13 +78,12 @@
                 {
                     var secWidth = sections[i].width;
                     var secPosX = sections[i].posX;
-                    console.log('start: ' + secPosX + ' cur: ' + posX);
 
                     // if we're clearly in a section
                     if (posX < (secPosX + secWidth)) {
                         var addr = Math.floor(sections[i].vma + ((posX - secPosX) / secWidth)*sections[i].size);
                         return addr;
-                    // else, if we're on a section boundary
+                    // else, if we're in the dead space between sections
                     } else if (posX < (secPosX + secWidth + INTER_SECTION_GAP)) {
                         return -1;
                     }
@@ -99,8 +98,6 @@
 
                 for (var i = 0; i < sections.length; i++)
                 {
-                    var width = sections[i].size / sumAddrRanges * BAR_WIDTH;
-
                     if ((addr >= sections[i].vma) &&
                         (addr < (sections[i].vma + sections[i].size)))
                     {
@@ -204,15 +201,37 @@
             }
 
             function draw() {
+                var RUNT_PIXEL_THRESHOLD = 3;
+                var RUNT_MIN_WIDTH = 3;
+                var runtPadding = 0;
                 var x = 0;
+                var EFFECTIVE_BAR_WIDTH;
 
                 // tabula rasa
                 ctx.clearRect (0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-                // draw the sections
-                for (var i = 0; i < sections.length; i++)
-                {
+                /*
+                 * draw the sections
+                 */
+                
+                // calculate how much space we need for runt padding
+                for (var i = 0; i < sections.length; i++) {
                     var width = Math.floor(sections[i].size / sumAddrRanges * BAR_WIDTH);
+                    if (width < RUNT_PIXEL_THRESHOLD) {
+                        runtPadding += RUNT_MIN_WIDTH - width;
+                    }
+                }
+
+                // calculate how much BAR_WIDTH we really have to work with for scaling
+                EFFECTIVE_BAR_WIDTH = BAR_WIDTH - runtPadding - (sections.length-1)*INTER_SECTION_GAP;
+ 
+                // make a second pass to assign widths to each section
+                for (var i = 0; i < sections.length; i++) {
+                    var width = Math.floor(sections[i].size / sumAddrRanges * (EFFECTIVE_BAR_WIDTH));
+
+                    if (width < RUNT_PIXEL_THRESHOLD) {
+                        width = RUNT_MIN_WIDTH;
+                    }
 
                     // draw section
                     ctx.fillStyle = "rgb(200,0,0)";
@@ -300,6 +319,16 @@
         // define some sections
         var sections = [
             { 
+                'name' : '.small0',
+                'vma' : 0x300000,
+                'size' : 0x5,
+            },
+            { 
+                'name' : '.small1',
+                'vma' : 0x300100,
+                'size' : 0x5,
+            },
+            { 
                 'name' : '.plt',
                 'vma' : 0x400000,
                 'size' : 0x500,
@@ -310,9 +339,24 @@
                 'size' : 0x40000,
             },
             {
+                'name' : '.text_small',
+                'vma' : 0x540000,
+                'size' : 0x00050,
+            },
+            {
                 'name' : '.data',
                 'vma' : 0x550000,
                 'size' : 0x80000,
+            },
+            { 
+                'name' : '.small2',
+                'vma' : 0x600000,
+                'size' : 0x5,
+            },
+            { 
+                'name' : '.small3',
+                'vma' : 0x800100,
+                'size' : 0x5,
             }
         ];
 
