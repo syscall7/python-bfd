@@ -99,12 +99,13 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
                 cache: true
             });
         },
-        getDisplayUnits : function(short_name, revision, addr) {
+        getDisplayUnits : function(short_name, revision, addr, quantity) {
             return $http.get('/odaweb/api/displayunits/?', {
                 params: {
                     short_name : short_name,
                     revision : revision,
-                    addr : addr
+                    addr : addr,
+                    units : quantity
                 }/*,
                 cache: true*/
             });

@@ -25,11 +25,27 @@ odaApplication.directive('whenScrolled', function() {
       },
       link: function(scope, elm, attrs) {
         var raw = elm[0];
+        var scrollActivationDistance = 1000;
+        //var height = raw.height;
 
         elm.bind('scroll', function() {
-            if (raw.scrollTop + raw.offsetHeight >= raw.scrollHeight) {
-                //scope.$apply(attr.whenScrolled);
-                scope.callback({mode:'UP'});
+            if (raw.scrollTop + raw.offsetHeight + scrollActivationDistance >= raw.scrollHeight) {
+                var row = getTopVisibleAssemblyRow();
+                var addrStr = row.getAttribute("addr");
+                var address = parseInt(addrStr);
+                var id = row.id;
+                scope.callback({mode:'DOWN',addr:address,id:id});
+            }
+            else if ( raw.scrollTop <= scrollActivationDistance ) {
+                var row = getTopVisibleAssemblyRow();
+                var addrStr = row.getAttribute("addr");
+                var address = parseInt(addrStr);
+                var id = row.id;
+                scope.callback({mode:'UP',addr:address,id:id});
+            }
+            else
+            {
+                scope.callback({mode:'NONE'});
             }
         });
       }

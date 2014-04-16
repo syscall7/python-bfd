@@ -138,9 +138,13 @@ class Disassembler(object):
 
         return parcels
 
-    def symbols(self):
+    def symbols(self, start=None, end=None):
         ctype = ContentType.objects.get_for_model(self.binary)
-        symbols = Symbol.objects.filter(content_type=ctype.id, object_id=self.binary.id)
+        if start == None and end == None:
+            symbols = Symbol.objects.filter(content_type=ctype.id, object_id=self.binary.id)
+        elif start != None and end != None:
+            symbols = Symbol.objects.filter(content_type=ctype.id, object_id=self.binary.id, offset__lte = start, offset__gt = end)
+
         for sym in symbols:
             sym.xrefs=set(sym.get_xrefs())
 
@@ -149,12 +153,16 @@ class Disassembler(object):
     def analyze(self, start, lines):
 
         ctype = ContentType.objects.get_for_model(self.binary)
-        parcels = BinaryParcel.objects.filter(content_type=ctype.id, object_id= self.binary.id, end__gte = start)[:]
 
         architecture = self.binary.options.architecture
         analyzer = analyzerFactory(architecture)
 
-        analyzer.analyze( self, parcels, start=start, maxLines=lines)
+        if lines >= 0:
+            parcels = BinaryParcel.objects.filter(content_type=ctype.id, object_id= self.binary.id, end__gte = start)[:]
+        else:
+            parcels = BinaryParcel.objects.filter(content_type=ctype.id, object_id= self.binary.id, start__lte = start)[:]
+
+        analyzer.analyze( self, parcels, start=start, maxUnits=lines)
         sorted_du = analyzer.displayUnits.values()
         sorted_du.sort(key=lambda x: x.offset, reverse=False)
         return sorted_du
@@ -169,11 +177,15 @@ class Disassembler(object):
             parcels.delete()
             #return
 
-        # Disassemble the entire file, one section at a time, dividing it into disassembly chunks
+        # Disassemble the entire file, one section at a time, dividing it into disassembly parcels
         parcels = self.get_parcels()
         if not parcels:
             # TODO: What shoud we do if there is nothing for us to disassemble? Is this file empty?
             logger.warn('No code sections found to disassemble')
+
+        architecture = self.binary.options.architecture
+        analyzer = analyzerFactory(architecture)
+        analyzer.analyze_first_time(self, parcels)
 
         # Save parcels to database
         for parcel in parcels:
@@ -183,11 +195,8 @@ class Disassembler(object):
                 is_code = parcel.is_code,
                 binary=self.binary
                 )
+            p.set_offsetSamples(parcel.sampleOffsets)
             p.save()
-
-        architecture = self.binary.options.architecture
-        analyzer = analyzerFactory(architecture)
-        analyzer.analyze_first_time(self, parcels)
 
         # Save symbols to database
         for symbol in analyzer.functions.values():

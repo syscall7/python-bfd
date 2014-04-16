@@ -1,7 +1,7 @@
 <div ng-controller="DisassemblyController">
 
 <div id="assembly-scroll" class="tabbed-scroll assembly"
-     when-scrolled="loadMore(mode)"
+     when-scrolled="loadMore(mode,addr,id)"
      resize
      style="display: block; overflow:scroll;" >
     <div ng-show="!displayUnits">Loading...</div>
@@ -12,7 +12,7 @@
         <!-- FUNCTION -->
 
         <!-- empty line before the function -->
-        <tr ng-if="isFunction(du)" id="addr-{{ du.offset }}" addr="{{ du.offset }}">
+        <tr ng-if="isFunction(du)" id="funcempty-{{ du.offset }}" addr={{du.offset}}>
             <td class="branchLines" ng-bind-html="du.branch_label"></td>
             <td class="offset">{{du.section_name}}:0x{{ du.offset | hex:8 }}</td>
             <td></td>
@@ -20,14 +20,14 @@
             <td></td>
         </tr>
 
-        <tr ng-if="isFunction(du)" addr="{{du.offset }}">
+        <tr ng-if="isFunction(du)" id="funchdr-{{ du.offset }}" addr="{{du.offset}}">
             <td class="branchLines" ng-bind-html="du.branch_label"></td>
             <td class="offset">{{du.section_name}}:0x{{ du.offset | hex:8 }}</td>
             <td></td>
             <td class="function" colspan="2">; =============== F U N C T I O N ==================</td>
         </tr>
 
-        <tr ng-repeat="xref in du.crossRef" addr="{{ du.offset }}">
+        <tr ng-repeat="(xrefIndex, xref) in du.crossRef" id="xref-{{ du.offset }}-{{ xrefIndex }}" addr={{du.offset}}>
             <td class="branchLines" ng-bind-html="du.branch_label"></td>
             <td class="offset">{{du.section_name}}:0x{{ du.offset | hex:8 }}</td>
             <td></td>
@@ -39,7 +39,7 @@
         </tr>
 
         <!-- empty line before the label -->
-        <tr ng-if="isLabeled(du)" addr="{{ du.offset }}">
+        <tr ng-if="isLabeled(du)" id="lblempty-{{ du.offset }}" addr={{du.offset}}>
             <td class="branchLines" ng-bind-html="du.branch_label"></td>
             <td class="offset">{{du.section_name}}:0x{{ du.offset | hex:8 }}</td>
             <td></td>
@@ -48,7 +48,7 @@
         </tr>
 
         <!-- Function Function or Label Name -->
-        <tr ng-if="isLabeled(du)" addr="{{ du.offset }}">
+        <tr ng-if="isLabeled(du)" id="lbl-{{ du.offset }} "addr="{{du.offset}}">
             <td class="branchLines" ng-bind-html="du.branch_label"></td>
             <td class="offset">{{du.section_name}}:0x{{ du.offset | hex:8 }}</td>
             <td></td>
@@ -73,7 +73,8 @@
             <td></td>
         </tr>
 
-        <tr id="addr-{{ du.offset }}" addr="{{ du.offset }}">
+        <tr id="addr-{{ du.offset }}"
+            addr="{{du.offset}}">
             <td class="branchLines" ng-bind-html="du.branch"></td>
             <td class="offset"><a name="#{{ du.offset }}">{{ du.section_name }}:0x{{ du.offset | hex:8 }}</a></td>
             <td class="raw">{{ du.rawBytes }}</td>

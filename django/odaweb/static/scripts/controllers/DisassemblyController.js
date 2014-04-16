@@ -3,12 +3,15 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
     var master = oda_util.getMaster();
 
     var minAddress = -1;
-    var maxAddress = -1
+    var maxAddress = -1;
+    var topVisAddress = -1;
+    var displayUnitsPerWindow = 600;
+    var displayUnitsPerPage = 150;
 
     var loadDisassembly = function(addr)  {
         var deferred = $q.defer();
         odaStatus.setStatus("Loading....");
-        odaApi.getDisplayUnits(master.short_name, master.revision, addr).success(function(data){
+        odaApi.getDisplayUnits(master.short_name, master.revision, addr, displayUnitsPerWindow).success(function(data){
             odaStatus.setStatus("Loaded");
             $scope.displayUnits = data;
             minAddress = $scope.displayUnits[0].offset;
@@ -22,24 +25,56 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
     };
 
     var loadingMore = false;
-    $scope.loadMore = function(mode) {
+    var lastDisplayId = "";
+    $scope.loadMore = function(mode,addr,id) {
+
+        lastDisplayId = id;
         if (loadingMore) return;
 
-        odaStatus.setStatus("Loading....");
-        loadingMore = true;
-        odaApi.getDisplayUnits(master.short_name, master.revision, maxAddress).success(function(data){
-            odaStatus.setStatus("Loaded");
-            if (data.length == 1) {
-                //TODO HACK, to avoid dealing with single returns happening in live view
-                return;
-            }
-            if ($scope.displayUnits.length > 200) {
-                $scope.displayUnits = $scope.displayUnits.slice(100);
-            }
-            $scope.displayUnits = $scope.displayUnits.concat(data);
-            maxAddress = $scope.displayUnits[$scope.displayUnits.length-1].offset;
-            loadingMore = false;
-        });
+        if ( mode == "UP" ) {
+            odaStatus.setStatus("Loading....");
+            loadingMore = true;
+            odaApi.getDisplayUnits(master.short_name, master.revision, minAddress, -displayUnitsPerPage).success(function(data){
+                odaStatus.setStatus("Loaded");
+                if (data.length <= 1) {
+                    //TODO HACK, to avoid dealing with single returns happening in live view
+                    loadingMore = false;
+                    return;
+                }
+                $scope.displayUnits = $scope.displayUnits.slice(0,-data.length);
+                $scope.displayUnits = data.concat($scope.displayUnits);
+                maxAddress = $scope.displayUnits[$scope.displayUnits.length-1].offset;
+                minAddress = $scope.displayUnits[0].offset;
+                $location.hash(lastDisplayId);
+                $anchorScroll();
+                loadingMore = false;
+            });
+        }
+        else if ( mode == "DOWN" )
+        {
+            odaStatus.setStatus("Loading....");
+            loadingMore = true;
+            odaApi.getDisplayUnits(master.short_name, master.revision, maxAddress, displayUnitsPerPage).success(function(data){
+                odaStatus.setStatus("Loaded");
+                if (data.length <= 1) {
+                    //TODO HACK, to avoid dealing with single returns happening in live view
+                    loadingMore = false;
+                    return;
+                }
+                $scope.displayUnits = $scope.displayUnits.slice(data.length);
+                $scope.displayUnits = $scope.displayUnits.concat(data);
+                maxAddress = $scope.displayUnits[$scope.displayUnits.length-1].offset;
+                minAddress = $scope.displayUnits[0].offset;
+                $location.hash(lastDisplayId);
+                $anchorScroll();
+                loadingMore = false;
+            });
+        }
+        else if ( mode == "NONE" ) {
+            // Keep track of the changing position
+            //loadingMore = true;
+            //loadingMore = false;
+        }
     };
 
     var commentsRequest = odaApi.getComments(master.short_name, master.revision);

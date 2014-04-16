@@ -248,18 +248,31 @@ class Symbol(BinaryAddressFeature):
 
     def get_xrefs(self):
         if len(self.xrefs_internal) > 0:
-            return cPickle.loads(self.xrefs_internal)
+            return cPickle.loads(bytes(self.xrefs_internal))
         else:
             return []
 
     def set_xrefs(self, xrefs):
         self.xrefs_internal = cPickle.dumps(xrefs)
 
+    class Meta:
+        ordering = ['offset']
+
 class BinaryParcel(BinaryFeature):
     ''' Represents a contiguous chunk of code or a single data '''
     start = models.BigIntegerField()
     end = models.BigIntegerField()
     is_code = models.NullBooleanField()
+    offsetSamples_internal = models.BinaryField()
+
+    def get_offsetSamples(self):
+        if len(self.offsetSamples_internal) > 0:
+            return cPickle.loads(bytes(self.offsetSamples_internal))
+        else:
+            return []
+
+    def set_offsetSamples(self, samples):
+        self.offsetSamples_internal = cPickle.dumps(samples)
 
     class Meta:
         ordering = ['start']

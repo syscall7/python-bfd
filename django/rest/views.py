@@ -72,14 +72,17 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
     def list(self, request):
 
         start = 0
+        units = 100
         if request.QUERY_PARAMS.get('addr'):
             start = int(request.QUERY_PARAMS.get('addr'),10)
+        if request.QUERY_PARAMS.get('units'):
+            units = int(request.QUERY_PARAMS.get('units'),10)
 
         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
                                   revision=request.QUERY_PARAMS.get('revision'))
 
         dasm = Disassembler(oda.binary)
-        dunits = dasm.analyze(start, 100)
+        dunits = dasm.analyze(start, units)
 
         logger.debug("DisplayUnitsViewSet: Generate serialized data")
         serializer = self.get_serializer(dunits, many=True)
