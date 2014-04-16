@@ -60,14 +60,18 @@ class BinaryFileFactory(object):
 
 
 class BinaryStringFactory(object):
-    def __init__(self, binary_string):
+    def __init__(self, binary_string, arch):
         self.binary_string = binary_string
+        self.arch = arch
 
     def get_binary(self):
+        arch = self.arch
+
         class Binary(object):
             def __init__(self):
                 self.options = Options()
                 self.options.target = 'binary'
+                self.options.architecture = arch
 
             @staticmethod
             def file_handle():

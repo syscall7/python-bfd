@@ -113,8 +113,14 @@ class FunctionScanner(object):
 
 class ScanOperation(Operation):
 
+    def __init__(self):
+        super(ScanOperation, self).__init__()
+        self.object_id = -1
+
     def operate(self, odb_file):
         assert (len(odb_file.get_structure_list(Parcel)) > 0)
+
+        self.object_id = odb_file.get_object_id()
 
         function_scanner = FunctionScanner(analyzer_factory(odb_file.get_arch()))
         branch_scanner = BranchScanner(analyzer_factory(odb_file.get_arch()))

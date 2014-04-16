@@ -16,14 +16,16 @@ class LoadOperationFactory(object):
         return LoadOperation(BinaryFileFactory(filename))
 
     @staticmethod
-    def load_from_string(binary_string):
+    def load_from_string(binary_string, arch):
 
         cleaned_string = ''.join(binary_string.split())
-        return LoadOperation(BinaryStringFactory(cleaned_string))
+        return LoadOperation(BinaryStringFactory(cleaned_string, arch))
 
 class LoadOperation(Operation):
     def __init__(self, binary_factory):
         super(LoadOperation, self).__init__()
+
+        self.object_id = -1
 
         assert binary_factory.get_binary
 
@@ -31,6 +33,7 @@ class LoadOperation(Operation):
 
     def operate(self, odb_file):
         logger.info("Loading %s".format(odb_file))
+        self.object_id = odb_file.get_object_id()
 
         odb_file.binary_factory = self.binary_factory
 
