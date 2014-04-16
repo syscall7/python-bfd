@@ -1,5 +1,5 @@
 odaApplication.controller('HexController', function HexController($q, $scope, $http, $location, $anchorScroll,
-                                                                                  $window, $sanitize, socketService, odaApi, odaStatus) {
+                                                                                  $window, socketService, odaApi, odaStatus) {
 
     function mouseoverBytes(e) {
         var currentId = e.target.id;

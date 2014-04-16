@@ -28,5 +28,9 @@ odaApplication.controller('SectionsController', function SectionsController($sco
         var s = flag.split('_');
         return s[s.length-1];
     };
+
+    $scope.setPosition = function(position) {
+        odaApi.setPosition(position);
+    }
 });
 

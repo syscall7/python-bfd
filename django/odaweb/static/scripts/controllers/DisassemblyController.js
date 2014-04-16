@@ -1,5 +1,5 @@
 odaApplication.controller('DisassemblyController', function DisassemblyController($q, $scope, $http, $location, $anchorScroll,
-                                                                                  $window, $sanitize, socketService, odaApi, odaStatus) {
+                                                                                  $window, socketService, odaApi, odaStatus) {
     var master = oda_util.getMaster();
 
     var minAddress = -1;
@@ -13,7 +13,7 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
             $scope.displayUnits = data;
             minAddress = $scope.displayUnits[0].offset;
             maxAddress = $scope.displayUnits[$scope.displayUnits.length-1].offset;
-            console.log("minAddress:"+ minAddress + " maxAddress:"+maxAddress);
+            console.log("minAddress: 0x"+ minAddress.toString(16) + " maxAddress: 0x"+maxAddress.toString(16));
             deferred.resolve(data);
         }).error(function(data, status){
             deferred.reject(data);

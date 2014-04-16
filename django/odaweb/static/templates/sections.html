@@ -8,7 +8,7 @@
     </tr>
     
         <tr class="even" ng-repeat="section in sections">
-            <td>{{ section.name }}</td>
+            <td><span class="clickable" ng-click="setPosition(section.vma)">{{ section.name }}</span></td>
             <td align="right">{{ section.size }} bytes</td>
             <td align="right">{{ section.vma | hex:8 }} </td>
             <td align="left">

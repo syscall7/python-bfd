@@ -23,7 +23,7 @@ odaApplication.controller('SliderController', function SliderController($scope, 
     addrBar = new AddressNavBar('#addr-bar-canvas', $scope.sections);
     addrBar.onChange(function(a) {
         console.log('My change handler: ' + a.toString(16));
-        $scope.$apply(function(){$scope.address = a;});
+        //$scope.$apply(function(){$scope.address = a;});
         odaApi.setPosition(a);
     });
     addrBar.onDrag(function(a) {

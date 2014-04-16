@@ -159,7 +159,36 @@ function AddressNavBar(canvasId, sections) {
     }
 
     /* Internal function called when current position changes */
-    function curArrowPosChanged(newPosX) {
+    function doCurArrowCallbacks() {
+
+        if (dragging) {
+            for (var i = 0; i < onDragHandlers.length; i++) {
+                onDragHandlers[i](curArrowAddr);
+            }
+
+        } else {
+            for (var i = 0; i < onChangeHandlers.length; i++) {
+                onChangeHandlers[i](curArrowAddr);
+            }
+        }
+    }
+
+    /* Internal function called when current position changes */
+    function curArrowAddrChanged(newAddr) {
+
+        var xpos = addrToPixel(newAddr);
+
+        if ((0 > xpos) || (newAddr == curArrowAddr)) {
+            return;
+        }
+
+        curArrowPosX = xpos;
+        curArrowAddr = newAddr;
+        doCurArrowCallbacks();
+    }
+
+    /* Internal function called when current position changes */
+    function curArrowXChanged(newPosX) {
 
         var addr = pixelToAddr(newPosX);
 
@@ -169,17 +198,7 @@ function AddressNavBar(canvasId, sections) {
 
         curArrowPosX = newPosX;
         curArrowAddr = addr;
-
-        if (dragging) {
-            for (var i = 0; i < onDragHandlers.length; i++) {
-                onDragHandlers[i](addr);
-            }
-
-        } else {
-            for (var i = 0; i < onChangeHandlers.length; i++) {
-                onChangeHandlers[i](addr);
-            }
-        }
+        doCurArrowCallbacks();
     }
 
     canvas.addEventListener('mousedown', function(evt) {
@@ -190,14 +209,14 @@ function AddressNavBar(canvasId, sections) {
         if (addr == curArrowAddr) {
             dragging = true;
         }
-        curArrowPosChanged(pos.x);
+        curArrowXChanged(pos.x);
         draw();
     });
 
     canvas.addEventListener('mouseup', function(evt) {
         var pos = getMousePosition(canvas, evt);
         dragging = false;
-        curArrowPosChanged(pos.x);
+        curArrowXChanged(pos.x);
         draw();
     });
 
@@ -222,7 +241,7 @@ function AddressNavBar(canvasId, sections) {
             draw();
 
             if (dragging) {
-                curArrowPosChanged(pos.x);
+                curArrowXChanged(pos.x);
                 draw();
             }
         }
@@ -382,7 +401,7 @@ function AddressNavBar(canvasId, sections) {
                 return false;
             }
 
-            curArrowPosChanged(posX);
+            curArrowAddrChanged(a);
             draw();
         }
 
