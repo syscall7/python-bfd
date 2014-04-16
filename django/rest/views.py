@@ -1,8 +1,8 @@
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import viewsets
 from rest_framework.response import Response
-from odaweb.disassembler import Disassembler, analyzerFactory
-from odaweb.models import OdaMaster, Comment, BinaryParcel, Function, Label, Symbol, BinaryString, OdaOptions
+from odaweb.disassembler import Disassembler
+
 from rest.serializers import OdaMasterSerializer, FunctionSerializer, SectionSerializer, StringSerializer, DisplayUnitSerializer, BinaryParcelSerializer, RefSerializer, FindResultsSerializer
 import logging
 

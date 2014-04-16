@@ -1,7 +1,7 @@
 import json
-from odaweb.models import OdaMaster, Comment, BinaryFile, BinaryString, BinaryParcel, Function
 from rest_framework import serializers
-
+from odaweb.models import OdaMaster
+from odb.structures.function import Function
 
 
 class BinaryFileSerializer(serializers.HyperlinkedModelSerializer):

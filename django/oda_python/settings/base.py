@@ -10,10 +10,11 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+import os
 import sys
-from path import path
-PROJECT_ROOT = path(__file__).abspath().dirname().dirname()
-sys.path.append(PROJECT_ROOT / 'lib')
+PROJECT_ROOT = os.path.dirname(__file__)
+sys.path.insert(0, os.path.abspath(os.path.join(PROJECT_ROOT, "../../libs")))
+print(sys.path)
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
