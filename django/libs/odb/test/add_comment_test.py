@@ -1,10 +1,8 @@
 import unittest
-
 from odb.odb_file import OdbFile
 from odb.ops.add_operation import AddOperation
 from odb.structures import comment
 from odb.structures.comment import Comment
-
 
 __author__ = 'davis'
 

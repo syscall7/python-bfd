@@ -1,5 +1,4 @@
 import unittest
-
 from odb.odb_file import OdbFile
 from odb.ops.load_operation import LoadOperationFactory
 from odb.ops.scan_operation import ScanOperation

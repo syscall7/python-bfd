@@ -1,5 +1,7 @@
 # Django settings for oda_python project.
 
+
+
 ADMINS = (
     ('Anthony', 'anthony@onlinedisassembler.com'),
     ('Davis', 'davis@onlinedisassembler.com'),
@@ -7,6 +9,11 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
+
+import sys
+from path import path
+PROJECT_ROOT = path(__file__).abspath().dirname().dirname()
+sys.path.append(PROJECT_ROOT / 'lib')
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
