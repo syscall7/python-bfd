@@ -137,7 +137,7 @@ odaApplication.controller('HexController', function HexController($q, $scope, $h
     loadHex();
 
     $scope.$on('position', function(event, position) {
-        console.log('position changed' + position);
+        console.log('hex position changed ' + position.toString(16));
 
         var handleScroll = function() {
             //$location.hash("addr-" + $scope.location);

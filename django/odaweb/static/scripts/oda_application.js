@@ -165,6 +165,7 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
         },
         setPosition: function(newPosition) {
             if (position != newPosition) {
+                console.log("setting new position to " + newPosition.toString(16));
                 position = newPosition;
                 $rootScope.$broadcast("position", position);
             }

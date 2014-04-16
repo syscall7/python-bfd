@@ -1,3 +1,4 @@
+/*
 odaApplication.directive('slider', function ($parse) {
    return {
        restrict: 'A',
@@ -15,6 +16,7 @@ odaApplication.directive('slider', function ($parse) {
        }
    };
 });
+*/
 
 odaApplication.directive('whenScrolled', function() {
    return {

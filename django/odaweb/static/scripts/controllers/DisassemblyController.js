@@ -164,7 +164,7 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
     });
 
     $scope.$on('position', function(event, position) {
-        console.log('position changed' + position);
+        console.log('position changed ' + position.toString(16));
 
         var handleScroll = function() {
             var id = "addr-" + $scope.location;
