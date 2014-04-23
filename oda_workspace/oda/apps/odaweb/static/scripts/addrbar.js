@@ -173,7 +173,7 @@ function AddressNavBar(canvasId, sections) {
         }
     }
 
-    /* Internal function called when current position changes */
+    /* Internal function called when current position changes via setting the address */
     function curArrowAddrChanged(newAddr) {
 
         var xpos = addrToPixel(newAddr);
@@ -184,10 +184,16 @@ function AddressNavBar(canvasId, sections) {
 
         curArrowPosX = xpos;
         curArrowAddr = newAddr;
-        doCurArrowCallbacks();
+
+        /* Don't do callbacks when position changes by address, because it means we are being notified via the
+           odaapi position broadcast.  Anybody else who cares about our current position will get that broadcast too,
+           so we don't have to bother calling them back.
+
+           doCurArrowCallbacks();
+         */
     }
 
-    /* Internal function called when current position changes */
+    /* Internal function called when current position changes via setting the slider position */
     function curArrowXChanged(newPosX) {
 
         var addr = pixelToAddr(newPosX);
