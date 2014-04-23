@@ -107,6 +107,18 @@ class StringsTest(APITestCase):
         self.assertIsNotNone(rd[0]['addr'])
         self.assertIsNotNone(rd[0]['string'])
 
+class BinaryStringTest(APITestCase):
+    urls = 'oda.urls'
+
+    def test_strings(self):
+        response = self.client.patch('/odaweb/api/binarystrings/1/', {
+            'binary_string': 'ABCD'
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['binary_string'], 'ABCD')
+
+
 
 
 
