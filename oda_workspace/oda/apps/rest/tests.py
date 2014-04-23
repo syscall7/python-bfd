@@ -91,6 +91,23 @@ class SymbolsTest(APITestCase):
         self.assertIsNotNone(rd[0]['type'])
 
 
+class StringsTest(APITestCase):
+    urls = 'oda.urls'
+
+    def test_symbols(self):
+        response = self.client.get('/odaweb/api/strings/',
+                               {'revision': 0, 'short_name': 'mkdir'},
+                               format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        rd = response.data
+
+        self.assertIsNotNone(rd)
+        self.assertEquals(259, len(rd))
+        self.assertIsNotNone(rd[0]['addr'])
+        self.assertIsNotNone(rd[0]['string'])
+
+
 
 
 
