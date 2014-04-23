@@ -52,3 +52,45 @@ class DisplayUnitTest(APITestCase):
         self.assertIsNotNone(rd[0]['comment'])
         self.assertIsNotNone(rd[0]['offset'])
 
+
+class SectionsTest(APITestCase):
+    urls = 'oda.urls'
+
+    def test_sections(self):
+        response = self.client.get('/odaweb/api/sections/',
+                               {'revision': 0, 'short_name': 'mkdir'},
+                               format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        rd = response.data
+
+        self.assertIsNotNone(rd)
+        self.assertEqual(24, len(rd))
+        self.assertIsNotNone(rd[0]['flags'])
+        self.assertGreater(len(rd[0]['flags']), 0)
+        self.assertIsNotNone(rd[0]['name'])
+        self.assertIsNotNone(rd[0]['size'])
+        self.assertIsNotNone(rd[0]['vma'])
+
+
+class SymbolsTest(APITestCase):
+    urls = 'oda.urls'
+
+    def test_symbols(self):
+        response = self.client.get('/odaweb/api/symbols/',
+                               {'revision': 0, 'short_name': 'mkdir'},
+                               format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        rd = response.data
+
+        self.assertIsNotNone(rd)
+        self.assertEqual(150, len(rd))
+        self.assertIsNotNone(rd[0]['name'])
+        self.assertIsNotNone(rd[0]['offset'])
+        self.assertIsNotNone(rd[0]['type'])
+
+
+
+
+
