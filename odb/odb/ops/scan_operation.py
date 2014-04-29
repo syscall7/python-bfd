@@ -27,6 +27,26 @@ def create_display_unit(analyzer, match_obj,addr):
 
     return du
 
+class ParcelOffsetScanner(object):
+    def __init__(self):
+        self.inst_sample_interval = 50
+        self.sample_offset_count = 0
+        self.last_parcel = None
+
+    def instruction(self, parcel, addr, rawData, instr, abfd):
+
+        if parcel != self.last_parcel:
+            self.sample_offset_count = 0
+            self.last_parcel = parcel
+
+        if self.sample_offset_count == self.inst_sample_interval:
+            parcel.sample_offsets.append(addr)
+            self.sample_offset_count = 0
+        else:
+            self.sample_offset_count += 1
+
+    def commit(self, odb_file):
+        pass
 
 class BranchScanner(object):
     def __init__(self, analyzer):
@@ -36,7 +56,7 @@ class BranchScanner(object):
         self.branches = []
         self.labels = []
 
-    def instruction(self, addr, rawData, instr, abfd):
+    def instruction(self, parcel, addr, rawData, instr, abfd):
         match_obj = self.opcode_regex.match(instr)
         if match_obj:
 
@@ -68,7 +88,7 @@ class FunctionScanner(object):
 
         self.functions = {}
 
-    def instruction(self, addr, rawData, instr, abfd):
+    def instruction(self, parcel, addr, rawData, instr, abfd):
         ''' Disassembly line parser optimized for finding functions '''
 
         if self.error_instruction_regex.match(instr):
@@ -124,10 +144,12 @@ class ScanOperation(Operation):
 
         function_scanner = FunctionScanner(analyzer_factory(odb_file.get_arch()))
         branch_scanner = BranchScanner(analyzer_factory(odb_file.get_arch()))
+        parcel_scanner = ParcelOffsetScanner()
 
         scanners = [
             function_scanner,
-            branch_scanner
+            branch_scanner,
+            parcel_scanner
         ]
 
         for parcel in [p for p in odb_file.get_structure_list(Parcel) if p.is_code]:
@@ -138,7 +160,7 @@ class ScanOperation(Operation):
 
             def callback(addr, rawData, instr, abfd, self):
                 for scanner in scanners:
-                    scanner.instruction(addr, rawData, instr, abfd)
+                    scanner.instruction(parcel, addr, rawData, instr, abfd)
 
 
             the_ofd.disassemble(section.name, [], parcel.start, parcel.end,
