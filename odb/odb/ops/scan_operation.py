@@ -35,6 +35,7 @@ class ParcelOffsetScanner(object):
 
     def instruction(self, parcel, addr, rawData, instr, abfd):
 
+        #we've advanced to the next parcel, reset the counter
         if parcel != self.last_parcel:
             self.sample_offset_count = 0
             self.last_parcel = parcel
