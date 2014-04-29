@@ -1,5 +1,5 @@
 import json
-from oda.apps.odaweb.models import OdaMaster, Comment, BinaryFile, BinaryString, BinaryParcel, Function
+from oda.apps.odaweb.models import OdaMaster
 from rest_framework import serializers
 
 
