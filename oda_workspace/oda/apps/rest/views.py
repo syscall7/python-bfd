@@ -6,11 +6,12 @@ from rest_framework.views import APIView
 from oda.apps.odaweb.models import OdaMaster
 
 from oda.apps.rest.serializers import OdaMasterSerializer, SectionSerializer, StringSerializer, DisplayUnitSerializer, BinaryParcelSerializer, \
-    FindResultsSerializer, CommentSerializer, FunctionSerializer, DataStringSerializer
+    FindResultsSerializer, CommentSerializer, FunctionSerializer, DataStringSerializer, SymbolSerializer
 from oda.libs.odb.structures.comment import Comment
 from oda.libs.odb.structures.data_string import DataString
 from oda.libs.odb.structures.function import Function
 from oda.libs.odb.structures.section import Section
+from oda.libs.odb.structures.symbol import Symbol
 
 
 logger = logging.getLogger(__name__)
@@ -32,6 +33,9 @@ class OdaStructureViewSet(viewsets.GenericViewSet):
     def get_structure_list(self):
         return self.odb_file.get_structure_list(self.structure)
 
+    def map_item(self, item):
+        return item
+
     def list(self, request, format=None):
         short_name = request.QUERY_PARAMS.get('short_name', None)
         revision = request.QUERY_PARAMS.get('revision', None)
@@ -40,8 +44,8 @@ class OdaStructureViewSet(viewsets.GenericViewSet):
         self.odb_file = oda.odb()
 
         structure_list = self.get_structure_list()
-
-        serializer = self.get_serializer(structure_list, many=True)
+        mapped_structure_list = [self.map_item(i) for i in structure_list]
+        serializer = self.get_serializer(mapped_structure_list, many=True)
         return Response(serializer.data)
 
 class CommentViewSet(OdaStructureViewSet):
@@ -60,12 +64,19 @@ class SectionsViewSet(OdaStructureViewSet):
         sections = self.odb_file.get_structure_list(Section)
         return filter(lambda s: s.is_loadable(), sections)
 
-
-
-
 class StringsViewSet(OdaStructureViewSet):
     serializer_class = DataStringSerializer
     structure = DataString
+
+    def map_item(self, item):
+        return {
+            'string': item.value,
+            'addr': item.addr
+        }
+
+class SymbolsViewSet(OdaStructureViewSet):
+    serializer_class = SymbolSerializer
+    structure = Symbol
 
 # class ParcelsViewSet(viewsets.GenericViewSet):
 #     serializer_class = BinaryParcelSerializer

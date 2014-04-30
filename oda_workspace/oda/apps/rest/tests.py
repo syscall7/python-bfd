@@ -47,7 +47,6 @@ class OdaTestCase(APITestCase):
     def setUp(self):
         load_examples()
 
-
 class CommentUnitTest(OdaTestCase):
     urls = 'oda.urls'
     def test_comments(self):

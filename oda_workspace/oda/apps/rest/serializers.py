@@ -19,6 +19,10 @@ class DataStringSerializer(serializers.Serializer):
 class BinaryStringSerializer(serializers.Serializer):
     binary_string = serializers.CharField()
 
+class SymbolSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    offset = serializers.IntegerField()
+    type = serializers.CharField()
 
 class OdaMasterSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

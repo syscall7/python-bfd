@@ -63,7 +63,7 @@ class Loader(object):
         for symbol in self.analyzer.symbols():
             self.odb_file.insert_item(self.odb_file.create_item('Symbol', {
                 'name': symbol.name,
-                'base': symbol.base,
+                'offset': symbol.base,
                 'type': symbol.type,
                 'value': symbol.value
             }))

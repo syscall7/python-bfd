@@ -7,4 +7,4 @@ class Symbol(OdaObject):
         super(Symbol, self).__init__(object_id)
         self.name = kwargs['name']
         self.type = kwargs['type']
-        self.base = kwargs['base']
+        self.offset = kwargs['offset']
