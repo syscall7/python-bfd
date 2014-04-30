@@ -9,3 +9,7 @@ class Section(OdaObject):
         self.size = kwargs['size']
         self.vma = kwargs['vma']
         self.flags = kwargs['flags']
+
+    def is_loadable(self):
+        names = [f.name for f in self.flags]
+        return set(['SEC_LOAD']).issubset(names)

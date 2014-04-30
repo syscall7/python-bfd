@@ -24,14 +24,23 @@ class OdaMasterViewSet(viewsets.ModelViewSet):
     paginate_by = 10
 
 class OdaStructureViewSet(viewsets.GenericViewSet):
+
+    def __init__(self, **kwargs):
+        super(OdaStructureViewSet, self).__init__(**kwargs)
+        self.odb_file = None
+
+    def get_structure_list(self):
+        return self.odb_file.get_structure_list(self.structure)
+
     def list(self, request, format=None):
         short_name = request.QUERY_PARAMS.get('short_name', None)
         revision = request.QUERY_PARAMS.get('revision', None)
 
         oda = OdaMaster.objects.get(short_name=short_name, revision=revision)
-        odb_file = oda.odb()
+        self.odb_file = oda.odb()
 
-        structure_list = odb_file.get_structure_list(self.structure)
+        structure_list = self.get_structure_list()
+
         serializer = self.get_serializer(structure_list, many=True)
         return Response(serializer.data)
 
@@ -46,6 +55,13 @@ class FunctionViewSet(OdaStructureViewSet):
 class SectionsViewSet(OdaStructureViewSet):
     serializer_class = SectionSerializer
     structure = Section
+
+    def get_structure_list(self):
+        sections = self.odb_file.get_structure_list(Section)
+        return filter(lambda s: s.is_loadable(), sections)
+
+
+
 
 class StringsViewSet(OdaStructureViewSet):
     serializer_class = DataStringSerializer
