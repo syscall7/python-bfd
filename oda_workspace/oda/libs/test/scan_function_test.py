@@ -1,10 +1,10 @@
 import unittest
 
-from odb.odb_file import OdbFile
-from odb.ops.load_operation import LoadOperationFactory
-from odb.ops.scan_operation import ScanOperation
-from odb.structures.branch import Branch
-from odb.structures.function import Function
+from oda.libs.odb.odb_file import OdbFile
+from oda.libs.odb.ops.load_operation import LoadOperationFactory
+from oda.libs.odb.ops.scan_operation import ScanOperation
+from oda.libs.odb.structures.branch import Branch
+from oda.libs.odb.structures.function import Function
 
 
 __author__ = 'davis'

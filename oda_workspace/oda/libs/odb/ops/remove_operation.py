@@ -1,4 +1,4 @@
-from odb.ops.operation import Operation
+from oda.libs.odb.ops.operation import Operation
 
 __author__ = 'davis'
 

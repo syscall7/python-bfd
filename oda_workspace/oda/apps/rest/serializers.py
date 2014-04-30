@@ -4,46 +4,24 @@ from rest_framework import serializers
 
 
 
-class BinaryFileSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = BinaryFile
-        fields = ('filename', 'filesize', 'hash')
+class BinaryFileSerializer(serializers.Serializer):
+    filename = serializers.CharField(max_length=128)
+    filesize = serializers.IntegerField()
+    hash = serializers.CharField(max_length=128)
 
-class BinaryStringSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = BinaryString
-        fields = ['binary_string']
+class BinaryStringSerializer(serializers.Serializer):
+    binary_string = serializers.CharField()
 
-class BinaryObjectRelatedField(serializers.RelatedField):
-    """
-    A custom field to use for the `tagged_object` generic relationship.
-    """
-
-    def to_native(self, value):
-        """
-        Serialize tagged objects to a simple textual representation.
-        """
-        if isinstance(value, BinaryFile):
-            serializer = BinaryFileSerializer(value)
-        elif isinstance(value, BinaryString):
-            serializer = BinaryStringSerializer(value)
-        else:
-            raise Exception('Unexpected type of ' + value.__class__.__name__)
-
-        return serializer.data
 
 class OdaMasterSerializer(serializers.HyperlinkedModelSerializer):
-    binary = BinaryObjectRelatedField()
-
     class Meta:
         model = OdaMaster
-        fields = ('project_name', 'short_name', 'revision', 'creation_date', 'binary')
-
+        fields = ('project_name', 'short_name', 'revision', 'creation_date')
 
 class FunctionSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Function
-        fields = ('retval', 'args', 'offset')
+    retval = serializers.CharField()
+    args = serializers.CharField()
+    offset = serializers.IntegerField()
 
 class StringListField(serializers.WritableField):
     def to_native(self, obj):

@@ -1,14 +1,14 @@
 import unittest
 
-from odb.odb_file import OdbFile
-from odb.ops.load_operation import LoadOperationFactory
-from odb.ops.scan_operation import ScanOperation
-from odb.structures.branch import Branch
-from odb.structures.data_string import DataString
-from odb.structures.function import Function
-from odb.structures.parcel import Parcel
-from odb.structures.section import Section
-from odb.structures.symbol import Symbol
+from oda.libs.odb.odb_file import OdbFile
+from oda.libs.odb.ops.load_operation import LoadOperationFactory
+from oda.libs.odb.ops.scan_operation import ScanOperation
+from oda.libs.odb.structures.branch import Branch
+from oda.libs.odb.structures.data_string import DataString
+from oda.libs.odb.structures.function import Function
+from oda.libs.odb.structures.parcel import Parcel
+from oda.libs.odb.structures.section import Section
+from oda.libs.odb.structures.symbol import Symbol
 
 
 class TestLoadOperation(unittest.TestCase):

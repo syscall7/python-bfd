@@ -1,8 +1,8 @@
 import unittest
 
-from odb.odb_file import OdbFile, DefaultOdbSerializer
-from odb.ops.load_operation import LoadOperationFactory
-from odb.structures.function import Function
+from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer
+from oda.libs.odb.ops.load_operation import LoadOperationFactory
+from oda.libs.odb.structures.function import Function
 
 
 __author__ = 'davis'

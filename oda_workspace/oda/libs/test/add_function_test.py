@@ -1,10 +1,10 @@
 import unittest
 
-from odb.odb_file import OdbFile
-from odb.ops.add_operation import AddOperation
-from odb.ops.operation import ValidationError
-from odb.structures import function
-from odb.structures.function import Function
+from oda.libs.odb.odb_file import OdbFile
+from oda.libs.odb.ops.add_operation import AddOperation
+from oda.libs.odb.ops.operation import ValidationError
+from oda.libs.odb.structures import function
+from oda.libs.odb.structures.function import Function
 
 
 class TestAddFunction(unittest.TestCase):

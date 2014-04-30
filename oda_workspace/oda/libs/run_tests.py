@@ -5,6 +5,10 @@ import sys
 
 from pkg_resources import load_entry_point
 
+import os.path
+import sys
+PROJECT_DIR = os.path.dirname(__file__) # this is not Django setting.
+sys.path.insert(0, os.path.join(PROJECT_DIR, "../.."))
 
 if __name__ == '__main__':
     sys.exit(

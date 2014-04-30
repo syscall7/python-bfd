@@ -2,9 +2,8 @@ import logging
 
 from rest_framework import viewsets
 from rest_framework.response import Response
+from oda.apps.odaweb.models import OdaMaster
 
-from oda.apps.odaweb.disassembler import Disassembler
-from oda.apps.odaweb.models import OdaMaster, Comment, Function, Label, Symbol, BinaryString, OdaOptions
 from oda.apps.rest.serializers import OdaMasterSerializer, SectionSerializer, StringSerializer, DisplayUnitSerializer, BinaryParcelSerializer, \
     FindResultsSerializer
 
@@ -19,7 +18,7 @@ class OdaMasterViewSet(viewsets.ModelViewSet):
     serializer_class = OdaMasterSerializer
     paginate_by = 10
 
-class CommentViewSet(viewsets.ModelViewSet):
+class CommentViewSet(viewsets.GenericViewSet):
     #queryset = Comment.objects.all()
     #serializer_class = CommentSerializer
     model = Comment
@@ -34,130 +33,130 @@ class CommentViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-class FunctionViewSet(viewsets.ModelViewSet):
-    #serializer_class = FunctionSerializer
-    model = Function
+# class FunctionViewSet(viewsets.ModelViewSet):
+#     #serializer_class = FunctionSerializer
+#     model = Function
+#
+#     def get_queryset(self):
+#         oda = OdaMaster.objects.get(short_name=self.request.QUERY_PARAMS.get('short_name'),
+#                                     revision=self.request.QUERY_PARAMS.get('revision'))
+#
+#         return Function.get_for_binary(oda.binary)
 
-    def get_queryset(self):
-        oda = OdaMaster.objects.get(short_name=self.request.QUERY_PARAMS.get('short_name'),
-                                    revision=self.request.QUERY_PARAMS.get('revision'))
+# class SectionsViewSet(viewsets.GenericViewSet):
+#     serializer_class = SectionSerializer
+#
+#     def list(self, request):
+#         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
+#                                   revision=request.QUERY_PARAMS.get('revision'))
+#         d = Disassembler(oda.binary)
+#         section_info = d.ofd.get_loadable_sections()
+#         serializer = self.get_serializer(section_info.sections, many=True)
+#         return Response(serializer.data)
 
-        return Function.get_for_binary(oda.binary)
+# class ParcelsViewSet(viewsets.GenericViewSet):
+#     serializer_class = BinaryParcelSerializer
+#
+#     def list(self, request):
+#         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
+#                                   revision=request.QUERY_PARAMS.get('revision'))
+#
+#         binary = oda.binary
+#         jcp = JsonChunkProcessor(binary)
+#         parcels = jcp.get_all_parcels()
+#
+#         serializer = self.get_serializer(parcels, many=True)
+#         return Response(serializer.data)
+#
+# class DisplayUnitsViewSet(viewsets.GenericViewSet):
+#     serializer_class = DisplayUnitSerializer
+#
+#     def list(self, request):
+#
+#         start = 0
+#         units = 100
+#         if request.QUERY_PARAMS.get('addr'):
+#             start = int(request.QUERY_PARAMS.get('addr'),10)
+#         if request.QUERY_PARAMS.get('units'):
+#             units = int(request.QUERY_PARAMS.get('units'),10)
+#
+#         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
+#                                   revision=request.QUERY_PARAMS.get('revision'))
+#
+#         dasm = Disassembler(oda.binary)
+#         dunits = dasm.analyze(start, units)
+#
+#         logger.debug("DisplayUnitsViewSet: Generate serialized data")
+#         serializer = self.get_serializer(dunits, many=True)
+#         serialData = Response(serializer.data)
+#         logger.debug("DisplayUnitsViewSet: Serial data complete")
+#         return serialData
+#
+#
+# class StringsViewSet(viewsets.GenericViewSet):
+#     serializer_class = StringSerializer
+#
+#     def list(self, request):
+#         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
+#                                     revision=request.QUERY_PARAMS.get('revision'))
+#
+#         binary = oda.binary
+#         dasm = Disassembler(binary)
+#         strings = [{'addr': key, 'string': value} for key, value in sorted(dasm.strings().items(), key=lambda s: s[0])]
+#         serializer = self.get_serializer(strings, many=True)
+#         return Response(serializer.data)
 
-class SectionsViewSet(viewsets.GenericViewSet):
-    serializer_class = SectionSerializer
-
-    def list(self, request):
-        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-                                  revision=request.QUERY_PARAMS.get('revision'))
-        d = Disassembler(oda.binary)
-        section_info = d.ofd.get_loadable_sections()
-        serializer = self.get_serializer(section_info.sections, many=True)
-        return Response(serializer.data)
-
-class ParcelsViewSet(viewsets.GenericViewSet):
-    serializer_class = BinaryParcelSerializer
-
-    def list(self, request):
-        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-                                  revision=request.QUERY_PARAMS.get('revision'))
-
-        binary = oda.binary
-        jcp = JsonChunkProcessor(binary)
-        parcels = jcp.get_all_parcels()
-
-        serializer = self.get_serializer(parcels, many=True)
-        return Response(serializer.data)
-
-class DisplayUnitsViewSet(viewsets.GenericViewSet):
-    serializer_class = DisplayUnitSerializer
-
-    def list(self, request):
-
-        start = 0
-        units = 100
-        if request.QUERY_PARAMS.get('addr'):
-            start = int(request.QUERY_PARAMS.get('addr'),10)
-        if request.QUERY_PARAMS.get('units'):
-            units = int(request.QUERY_PARAMS.get('units'),10)
-
-        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-                                  revision=request.QUERY_PARAMS.get('revision'))
-
-        dasm = Disassembler(oda.binary)
-        dunits = dasm.analyze(start, units)
-
-        logger.debug("DisplayUnitsViewSet: Generate serialized data")
-        serializer = self.get_serializer(dunits, many=True)
-        serialData = Response(serializer.data)
-        logger.debug("DisplayUnitsViewSet: Serial data complete")
-        return serialData
-
-
-class StringsViewSet(viewsets.GenericViewSet):
-    serializer_class = StringSerializer
-
-    def list(self, request):
-        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-                                    revision=request.QUERY_PARAMS.get('revision'))
-
-        binary = oda.binary
-        dasm = Disassembler(binary)
-        strings = [{'addr': key, 'string': value} for key, value in sorted(dasm.strings().items(), key=lambda s: s[0])]
-        serializer = self.get_serializer(strings, many=True)
-        return Response(serializer.data)
-
-class SymbolsViewSet(viewsets.ModelViewSet):
-    model = Symbol
-
-    def get_queryset(self):
-        queryset = Symbol.objects.all()
-        short_name = self.request.QUERY_PARAMS.get('short_name', None)
-        revision = self.request.QUERY_PARAMS.get('revision', None)
-        if short_name is not None:
-            queryset = Symbol.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
-
-        return queryset
+# class SymbolsViewSet(viewsets.ModelViewSet):
+#     model = Symbol
+#
+#     def get_queryset(self):
+#         queryset = Symbol.objects.all()
+#         short_name = self.request.QUERY_PARAMS.get('short_name', None)
+#         revision = self.request.QUERY_PARAMS.get('revision', None)
+#         if short_name is not None:
+#             queryset = Symbol.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
+#
+#         return queryset
 
 
-class BinaryStringViewSet(viewsets.ModelViewSet):
-    model = BinaryString
+# class BinaryStringViewSet(viewsets.ModelViewSet):
+#     model = BinaryString
+#
+# class FunctionsViewSet(viewsets.ModelViewSet):
+#     model = Function
+#
+#     def get_queryset(self):
+#         queryset = Function.objects.all()
+#         short_name = self.request.QUERY_PARAMS.get('short_name', None)
+#         revision = self.request.QUERY_PARAMS.get('revision', None)
+#         if short_name is not None:
+#             queryset = Function.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
+#
+#         return queryset
+#
+# class LabelsViewSet(viewsets.ModelViewSet):
+#     model = Label
+#
+#     def get_queryset(self):
+#         queryset = Label.objects.all()
+#         short_name = self.request.QUERY_PARAMS.get('short_name', None)
+#         revision = self.request.QUERY_PARAMS.get('revision', None)
+#         if short_name is not None:
+#             queryset = Label.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
+#
+#         return queryset
 
-class FunctionsViewSet(viewsets.ModelViewSet):
-    model = Function
-
-    def get_queryset(self):
-        queryset = Function.objects.all()
-        short_name = self.request.QUERY_PARAMS.get('short_name', None)
-        revision = self.request.QUERY_PARAMS.get('revision', None)
-        if short_name is not None:
-            queryset = Function.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
-
-        return queryset
-
-class LabelsViewSet(viewsets.ModelViewSet):
-    model = Label
-
-    def get_queryset(self):
-        queryset = Label.objects.all()
-        short_name = self.request.QUERY_PARAMS.get('short_name', None)
-        revision = self.request.QUERY_PARAMS.get('revision', None)
-        if short_name is not None:
-            queryset = Label.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
-
-        return queryset
-
-class OdaOptionsViewSet(viewsets.ModelViewSet):
-    model = OdaOptions
-
-    def get_queryset(self):
-        queryset = OdaOptions.objects.all()
-        short_name = self.request.QUERY_PARAMS.get('short_name', None)
-        revision = self.request.QUERY_PARAMS.get('revision', None)
-        if short_name is not None:
-            queryset = OdaOptions.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
-
-        return queryset
+# class OdaOptionsViewSet(viewsets.ModelViewSet):
+#     model = OdaOptions
+#
+#     def get_queryset(self):
+#         queryset = OdaOptions.objects.all()
+#         short_name = self.request.QUERY_PARAMS.get('short_name', None)
+#         revision = self.request.QUERY_PARAMS.get('revision', None)
+#         if short_name is not None:
+#             queryset = OdaOptions.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
+#
+#         return queryset
 
 
 class FindViewSet(viewsets.GenericViewSet):

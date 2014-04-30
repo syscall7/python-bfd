@@ -1,13 +1,13 @@
 import logging
 import re
 
-from odb.bfd import ofd
-from odb.bfd.analyzer import analyzer_factory
-from odb.bfd.analyzers.instruction import DisplayUnit, InstructionType
-from odb.ops.operation import Operation
-from odb.structures.branch import Branch
-from odb.structures.function import Function
-from odb.structures.parcel import Parcel
+from oda.libs.odb.bfd import ofd
+from oda.libs.odb.bfd.analyzer import analyzer_factory
+from oda.libs.odb.bfd.analyzers.instruction import DisplayUnit, InstructionType
+from oda.libs.odb.ops.operation import Operation
+from oda.libs.odb.structures.branch import Branch
+from oda.libs.odb.structures.function import Function
+from oda.libs.odb.structures.parcel import Parcel
 
 
 __author__ = 'davis'

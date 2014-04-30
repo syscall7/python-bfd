@@ -4,15 +4,15 @@ import pickle
 import tempfile
 import types
 
-from odb.ops.operation import ValidationError
-from odb.structures.comment import Comment
-from odb.structures.data_string import DataString
-from odb.structures.branch import Branch
-from odb.structures.function import Function
-from odb.structures.parcel import Parcel
-from odb.structures.section import Section
-from odb.structures.symbol import Symbol
-from odb.structures.label import Label
+from oda.libs.odb.ops.operation import ValidationError
+from oda.libs.odb.structures.comment import Comment
+from oda.libs.odb.structures.data_string import DataString
+from oda.libs.odb.structures.branch import Branch
+from oda.libs.odb.structures.function import Function
+from oda.libs.odb.structures.parcel import Parcel
+from oda.libs.odb.structures.section import Section
+from oda.libs.odb.structures.symbol import Symbol
+from oda.libs.odb.structures.label import Label
 
 
 __author__ = 'davis'

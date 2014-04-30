@@ -1,9 +1,9 @@
 import unittest
 
-from odb.odb_file import OdbFile
-from odb.ops.add_operation import AddOperation
-from odb.structures import comment
-from odb.structures.comment import Comment
+from oda.libs.odb.odb_file import OdbFile
+from oda.libs.odb.ops.add_operation import AddOperation
+from oda.libs.odb.structures import comment
+from oda.libs.odb.structures.comment import Comment
 
 
 __author__ = 'davis'

@@ -52,8 +52,6 @@ STATIC_URL = '/static2/'
 import os.path
 import sys
 PROJECT_DIR = os.path.dirname(__file__) # this is not Django setting.
-sys.path.insert(0, os.path.join(PROJECT_DIR, "../libs"))
-
 
 UPLOAD_LOCATION = '/var/oda'
 

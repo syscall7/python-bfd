@@ -1,9 +1,9 @@
 import re
 import logging
 
-from odb.bfd import ofd
-from odb.odb_file import BinaryFileFactory, BinaryStringFactory
-from odb.ops.operation import Operation
+from oda.libs.odb.bfd import ofd
+from oda.libs.odb.odb_file import BinaryFileFactory, BinaryStringFactory
+from oda.libs.odb.ops.operation import Operation
 
 
 logger = logging.getLogger(__name__)
