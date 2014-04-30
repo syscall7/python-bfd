@@ -9,8 +9,7 @@ import oda
 from odb.odb_file import OdbFile
 from odb.ops.add_operation import AddOperation
 from odb.ops.load_operation import LoadOperationFactory
-from odb.structures import comment
-from odb.structures import label
+from odb import structures
 
 
 def load_examples():
@@ -43,7 +42,7 @@ def load_examples():
                     'offset': offset
                 })
 
-                odb_file.execute(comment.generate_operation(AddOperation, item))
+                odb_file.execute(structures.comment.generate_operation(AddOperation, item))
 
                 print "Adding Comment %s To %s" % (str(item), str(odb_file))
 
@@ -53,7 +52,7 @@ def load_examples():
                     'name': labelName,
                     'offset': offset
                 })
-                odb_file.execute(label.generate_operation(AddOperation, item))
+                odb_file.execute(structures.label.generate_operation(AddOperation, item))
                 print "Saving label %s To %s" % (str(item), str(odb_file))
 
         oda_master = OdaMaster(short_name=short_name, project_name=example['project_name'])
