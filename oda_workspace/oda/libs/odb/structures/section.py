@@ -6,3 +6,6 @@ class Section(OdaObject):
     def __init__(self, object_id, **kwargs):
         super(Section, self).__init__(object_id)
         self.name = kwargs['name']
+        self.size = kwargs['size']
+        self.vma = kwargs['vma']
+        self.flags = kwargs['flags']

@@ -3,11 +3,18 @@ from oda.apps.odaweb.models import OdaMaster
 from rest_framework import serializers
 
 
+class CommentSerializer(serializers.Serializer):
+    comment = serializers.CharField()
+    offset = serializers.IntegerField()
 
 class BinaryFileSerializer(serializers.Serializer):
     filename = serializers.CharField(max_length=128)
     filesize = serializers.IntegerField()
     hash = serializers.CharField(max_length=128)
+
+class DataStringSerializer(serializers.Serializer):
+    string = serializers.CharField()
+    addr = serializers.IntegerField()
 
 class BinaryStringSerializer(serializers.Serializer):
     binary_string = serializers.CharField()

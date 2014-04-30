@@ -6,10 +6,10 @@ from oda.apps.odaweb.examples import Examples
 from django.contrib.contenttypes.models import ContentType
 from oda.apps.odaweb.models import OdaMaster, InstDoc
 import oda
-from odb.odb_file import OdbFile
-from odb.ops.add_operation import AddOperation
-from odb.ops.load_operation import LoadOperationFactory
-from odb import structures
+from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer
+from oda.libs.odb.ops.add_operation import AddOperation
+from oda.libs.odb.ops.load_operation import LoadOperationFactory
+from oda.libs.odb import structures
 
 
 def load_examples():
@@ -33,7 +33,9 @@ def load_examples():
 
             odb_file.execute(load_operation)
         elif 'file_name' in example:
-            pass
+            load_operation = LoadOperationFactory.load_from_file(os.path.join(EXAMPLES_DIR, example['file_name']))
+            odb_file.execute(load_operation)
+
 
         if 'comments' in example:
             for offset, msg in example['comments']:
@@ -55,7 +57,8 @@ def load_examples():
                 odb_file.execute(structures.label.generate_operation(AddOperation, item))
                 print "Saving label %s To %s" % (str(item), str(odb_file))
 
-        oda_master = OdaMaster(short_name=short_name, project_name=example['project_name'])
+        oda_master = OdaMaster(short_name=short_name, project_name=example['project_name'],
+                               odb_file=DefaultOdbSerializer().dumps(odb_file))
         oda_master.save()
 
 

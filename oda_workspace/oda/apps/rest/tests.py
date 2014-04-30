@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APITestCase
+from oda.apps.odaweb.management.commands.setup_oda import load_examples
 
 from oda.apps.odaweb.models import OdaMaster
 
@@ -42,6 +43,13 @@ class DisplayUnitTest(APITestCase):
         self.assertEqual(0, rd[0]['offset'])
         self.assertEqual('ebp', rd[0]['operands'])
 
+class OdaTestCase(APITestCase):
+    def setUp(self):
+        load_examples()
+
+
+class CommentUnitTest(OdaTestCase):
+    urls = 'oda.urls'
     def test_comments(self):
         response = self.client.get('/odaweb/api/comments/',
                                    {'revision': 0, 'short_name': 'strcpy_x86'},
@@ -53,7 +61,7 @@ class DisplayUnitTest(APITestCase):
         self.assertIsNotNone(rd[0]['offset'])
 
 
-class SectionsTest(APITestCase):
+class SectionsTest(OdaTestCase):
     urls = 'oda.urls'
 
     def test_sections(self):
@@ -73,7 +81,7 @@ class SectionsTest(APITestCase):
         self.assertIsNotNone(rd[0]['vma'])
 
 
-class SymbolsTest(APITestCase):
+class SymbolsTest(OdaTestCase):
     urls = 'oda.urls'
 
     def test_symbols(self):
@@ -91,10 +99,10 @@ class SymbolsTest(APITestCase):
         self.assertIsNotNone(rd[0]['type'])
 
 
-class StringsTest(APITestCase):
+class StringsTest(OdaTestCase):
     urls = 'oda.urls'
 
-    def test_symbols(self):
+    def test_strings(self):
         response = self.client.get('/odaweb/api/strings/',
                                {'revision': 0, 'short_name': 'mkdir'},
                                format='json')
@@ -107,7 +115,7 @@ class StringsTest(APITestCase):
         self.assertIsNotNone(rd[0]['addr'])
         self.assertIsNotNone(rd[0]['string'])
 
-class BinaryStringTest(APITestCase):
+class BinaryStringTest(OdaTestCase):
     urls = 'oda.urls'
 
     def test_strings(self):

@@ -15,6 +15,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes import generic
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from oda.libs.odb.odb_file import DefaultOdbSerializer
 
 from utils import sha1_hash
 
@@ -29,11 +30,12 @@ class OdaMaster(models.Model):
 
     ipAddress = models.CharField(max_length=64, default='')
     project_name = models.CharField(max_length=64, default='')
-    short_name = models.CharField(max_length=12, db_index = True)
+    short_name = models.CharField(max_length=12, db_index=True)
     revision = models.IntegerField(default=0)
     owner = models.ForeignKey(User, null=True)
-    creation_date = models.DateTimeField(auto_now_add = True)
+    creation_date = models.DateTimeField(auto_now_add=True)
     copy = models.ForeignKey('OdaMaster', null=True)
+    odb_file = models.BinaryField(blank=False)
 
     def file_handle(self):
         return self.content_object.file_handle()
@@ -48,6 +50,11 @@ class OdaMaster(models.Model):
 
     def details(self):
         return self.binary.options.target + " " + self.binary.options.architecture
+
+    def odb(self):
+        return DefaultOdbSerializer().load(self.odb_file)
+
+
 
 class InstDoc(models.Model):
     ''' Help for an assembly instruction '''

@@ -2,10 +2,15 @@ import logging
 
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from oda.apps.odaweb.models import OdaMaster
 
 from oda.apps.rest.serializers import OdaMasterSerializer, SectionSerializer, StringSerializer, DisplayUnitSerializer, BinaryParcelSerializer, \
-    FindResultsSerializer
+    FindResultsSerializer, CommentSerializer, FunctionSerializer, DataStringSerializer
+from oda.libs.odb.structures.comment import Comment
+from oda.libs.odb.structures.data_string import DataString
+from oda.libs.odb.structures.function import Function
+from oda.libs.odb.structures.section import Section
 
 
 logger = logging.getLogger(__name__)
@@ -18,41 +23,33 @@ class OdaMasterViewSet(viewsets.ModelViewSet):
     serializer_class = OdaMasterSerializer
     paginate_by = 10
 
-class CommentViewSet(viewsets.GenericViewSet):
-    #queryset = Comment.objects.all()
-    #serializer_class = CommentSerializer
-    model = Comment
+class OdaStructureViewSet(viewsets.GenericViewSet):
+    def list(self, request, format=None):
+        short_name = request.QUERY_PARAMS.get('short_name', None)
+        revision = request.QUERY_PARAMS.get('revision', None)
 
-    def get_queryset(self):
-        queryset = Comment.objects.all()
-        short_name = self.request.QUERY_PARAMS.get('short_name', None)
-        revision = self.request.QUERY_PARAMS.get('revision', None)
-        if short_name is not None:
-            oda = OdaMaster.objects.get(short_name=short_name, revision=revision)
-            return Comment.get_for_binary(oda.binary)
+        oda = OdaMaster.objects.get(short_name=short_name, revision=revision)
+        odb_file = oda.odb()
 
-        return queryset
+        structure_list = odb_file.get_structure_list(self.structure)
+        serializer = self.get_serializer(structure_list, many=True)
+        return Response(serializer.data)
 
-# class FunctionViewSet(viewsets.ModelViewSet):
-#     #serializer_class = FunctionSerializer
-#     model = Function
-#
-#     def get_queryset(self):
-#         oda = OdaMaster.objects.get(short_name=self.request.QUERY_PARAMS.get('short_name'),
-#                                     revision=self.request.QUERY_PARAMS.get('revision'))
-#
-#         return Function.get_for_binary(oda.binary)
+class CommentViewSet(OdaStructureViewSet):
+    serializer_class = CommentSerializer
+    structure = Comment
 
-# class SectionsViewSet(viewsets.GenericViewSet):
-#     serializer_class = SectionSerializer
-#
-#     def list(self, request):
-#         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-#                                   revision=request.QUERY_PARAMS.get('revision'))
-#         d = Disassembler(oda.binary)
-#         section_info = d.ofd.get_loadable_sections()
-#         serializer = self.get_serializer(section_info.sections, many=True)
-#         return Response(serializer.data)
+class FunctionViewSet(OdaStructureViewSet):
+    serializer_class = FunctionSerializer
+    structure = Function
+
+class SectionsViewSet(OdaStructureViewSet):
+    serializer_class = SectionSerializer
+    structure = Section
+
+class StringsViewSet(OdaStructureViewSet):
+    serializer_class = DataStringSerializer
+    structure = DataString
 
 # class ParcelsViewSet(viewsets.GenericViewSet):
 #     serializer_class = BinaryParcelSerializer
@@ -93,18 +90,7 @@ class CommentViewSet(viewsets.GenericViewSet):
 #         return serialData
 #
 #
-# class StringsViewSet(viewsets.GenericViewSet):
-#     serializer_class = StringSerializer
-#
-#     def list(self, request):
-#         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-#                                     revision=request.QUERY_PARAMS.get('revision'))
-#
-#         binary = oda.binary
-#         dasm = Disassembler(binary)
-#         strings = [{'addr': key, 'string': value} for key, value in sorted(dasm.strings().items(), key=lambda s: s[0])]
-#         serializer = self.get_serializer(strings, many=True)
-#         return Response(serializer.data)
+
 
 # class SymbolsViewSet(viewsets.ModelViewSet):
 #     model = Symbol

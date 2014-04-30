@@ -72,7 +72,10 @@ class Loader(object):
         #Load Sections
         for section in self.analyzer.sections:
             self.odb_file.insert_item(self.odb_file.create_item('Section', {
-                'name': section.name
+                'name': section.name,
+                'size': section.size,
+                'vma': section.vma,
+                'flags': section.flags
             }))
 
     def load_functions(self):
