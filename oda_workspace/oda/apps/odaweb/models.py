@@ -9,7 +9,6 @@ import types
 import cPickle
 
 from django.db import models
-from django.core.files.storage import FileSystemStorage
 from django.core.files import File
 from django.contrib.auth.models import User
 from django.contrib.contenttypes import generic
@@ -20,9 +19,6 @@ from utils import sha1_hash
 
 
 logger = logging.getLogger(__name__)
-
-# where to store uploaded files on the server's filesystem
-fs = FileSystemStorage(location=settings.UPLOAD_LOCATION)
 
 class OdaMaster(models.Model):
     ''' Complete representation of a disassembled entity '''
@@ -165,12 +161,16 @@ class BinaryString(Binary):
     def binary_string_display(self):
         return " ".join(self.binary_string[i:i+2] for i in range(0, len(self.binary_string), 2))
 
+# this is where we'll cache the GoogleStorage files locally
+LOCAL_CACHE_DIR=os.path.join(settings.MEDIA_ROOT, 'cache')
+
 class BinaryFile(Binary):
     ''' Represents a disassembled entity that was uploaded as a file '''
-    the_file = models.FileField(storage=fs, upload_to="uploads")
+    the_file = models.FileField(upload_to="uploads")
     filename = models.CharField(max_length=255)
     filesize = models.IntegerField()
     hash = models.CharField(max_length=128)
+    local_path = None
 
     def file_handle(self):
 
@@ -179,8 +179,23 @@ class BinaryFile(Binary):
             # BinaryFiles need to exist indefinitely. Nothing to do here
             pass
 
-        self.the_file.file.done = types.MethodType(done, self.the_file.file)
-        return self.the_file.file
+        # if we haven't written the file locally yet
+        if not self.local_path:
+            self.local_path = os.path.join(LOCAL_CACHE_DIR, self.hash)
+
+            # if the file does not exist locally
+            if not os.path.exists(self.local_path):
+
+                # write it out
+                with open(self.local_path, 'wb') as f:
+                    self.the_file.open('rb')
+                    f.write(self.the_file.read())
+                    self.the_file.close()
+
+        # return a reference to the local copy
+        f = File(open(self.local_path))
+        f.done = types.MethodType(done, f)
+        return f
 
     def name(self):
         return self.filename
@@ -190,12 +205,15 @@ class BinaryFile(Binary):
 
     def create(f, options):
         u = BinaryFile()
+        u.filename = f.name
+        f.open('rb')
+        u.hash = sha1_hash(f)
+        f.close()
+        f.name = u.hash
+
         u.the_file = File(f)
-        filename = u.the_file.name
-        u.filename = os.path.basename(filename)
-        u.filesize = u.the_file.size
         u.the_file.open('rb')
-        u.hash = sha1_hash(u.the_file)
+        u.filesize = u.the_file.size
         u.options = options
         return u
 
