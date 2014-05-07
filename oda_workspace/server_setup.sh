@@ -40,4 +40,10 @@ sudo chgrp -R www-data /tmp/odaweb2
 sudo chown -R www-data /var/www/oda2
 sudo chgrp -R www-data /var/www/oda2
 
+# for gsutil
+sudo apt-get install libffi-dev
+sudo pip install gsutil
+
+# for django google storage
+pip install django-google-storage
 
