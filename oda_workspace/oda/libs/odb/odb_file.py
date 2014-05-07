@@ -47,7 +47,6 @@ class Options(object):
     def get_extra_options(self):
         return {"flags": []}
 
-
 class BinaryFileFactory(object):
     def __init__(self, filename):
         self.filename = filename
@@ -73,6 +72,11 @@ class BinaryStringFactory(object):
         arch = self.arch
 
         class Binary(object):
+
+            @property
+            def is_live_mode(self):
+                return True
+
             def __init__(self):
                 self.options = Options()
                 self.options.target = 'binary'
