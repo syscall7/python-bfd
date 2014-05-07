@@ -38,7 +38,7 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = '/var/oda'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -52,8 +52,6 @@ STATIC_URL = '/static2/'
 import os.path
 import sys
 PROJECT_DIR = os.path.dirname(__file__) # this is not Django setting.
-
-UPLOAD_LOCATION = '/var/oda'
 
 # Additional locations of static files
 STATICFILES_DIRS = (

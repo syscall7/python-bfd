@@ -35,3 +35,6 @@ ALLOWED_HOSTS = (
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
 STATIC_ROOT = ''
+
+# For development, use the local file system instead of GoogleStorage
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
