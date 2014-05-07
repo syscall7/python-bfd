@@ -23,6 +23,7 @@ STRUCTURE_TYPES = [
     Function, Section, Symbol, Parcel, Branch, DataString, Comment, Label
 ]
 
+
 class OdaObjectFactory(object):
     def __init__(self, oda_file):
         self.oda_file = oda_file
@@ -42,6 +43,9 @@ class Options(object):
 
     def get_endian(self):
         return 'DEFAULT'
+
+    def get_extra_options(self):
+        return {"flags": []}
 
 
 class BinaryFileFactory(object):
@@ -83,7 +87,7 @@ class BinaryStringFactory(object):
 
                 # Create a file containing the BinaryString for passing to BFD
                 #  Must use delete=False because bfd expects a file name
-                t = tempfile.NamedTemporaryFile(bufsize = 0, delete = False)
+                t = tempfile.NamedTemporaryFile(bufsize=0, delete=False)
                 t.write(byte_array)
 
                 # Dynamic function that deletes the temp file when we are done with it
@@ -99,7 +103,9 @@ class BinaryStringFactory(object):
                 t.done = types.MethodType(done, t)
 
                 return t
+
         return Binary()
+
 
 class OdbFile(object):
     def __init__(self):
@@ -140,7 +146,6 @@ class OdbFile(object):
         self.operations.append(operation)
 
 
-
     def modify_item(self, item):
         for n, i in enumerate(self._items[item.__class__]):
             if n == item:
@@ -155,8 +160,6 @@ class OdbFile(object):
         assert (self.binary_factory is not None)
 
         return self.binary_factory.get_binary()
-
-
 
 
 class DefaultOdbSerializer(object):

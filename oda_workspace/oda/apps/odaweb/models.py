@@ -23,7 +23,7 @@ from utils import sha1_hash
 logger = logging.getLogger(__name__)
 
 # where to store uploaded files on the server's filesystem
-fs = FileSystemStorage(location=settings.UPLOAD_LOCATION)
+# fs = FileSystemStorage(location=settings.UPLOAD_LOCATION)
 
 class OdaMaster(models.Model):
     ''' Complete representation of a disassembled entity '''
@@ -36,6 +36,15 @@ class OdaMaster(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     copy = models.ForeignKey('OdaMaster', null=True)
     odb_file = models.BinaryField(blank=False)
+
+
+    @property
+    def object_id(self):
+        return 0
+
+    @property
+    def content_id(self):
+        return 0
 
     def file_handle(self):
         return self.content_object.file_handle()

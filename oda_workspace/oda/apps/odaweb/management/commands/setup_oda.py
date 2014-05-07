@@ -51,7 +51,7 @@ def load_examples():
         if 'labels' in example:
             for offset, labelName in example['labels']:
                 item = odb_file.create_item('Label', {
-                    'name': labelName,
+                    'label': labelName,
                     'offset': offset
                 })
                 odb_file.execute(structures.label.generate_operation(AddOperation, item))

@@ -44,8 +44,30 @@ class DisplayUnitTest(OdaTestCase):
         self.assertEqual(False, rd[0]['isBranch'])
         self.assertEqual(False, rd[0]['isFunction'])
         self.assertEqual(0, rd[0]['offset'])
-        self.assertEqual('ebp', rd[0]['operands'])
+        self.assertEqual('%ebp', rd[0]['operands'])
 
+class LabelUnitTest(OdaTestCase):
+    urls = 'oda.urls'
+
+    def test_labels(self):
+        response = self.client.get('/odaweb/api/labels/',
+                                   {'revision': 0, 'short_name': 'strcpy_x86'},
+                                   format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        rd = response.data
+
+
+class FunctionUnitTest(OdaTestCase):
+    urls = 'oda.urls'
+
+    def test_functions(self):
+        response = self.client.get('/odaweb/api/functions/',
+                                   {'revision': 0, 'short_name': 'strcpy_x86'},
+                                   format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        rd = response.data
 
 class CommentUnitTest(OdaTestCase):
     urls = 'oda.urls'

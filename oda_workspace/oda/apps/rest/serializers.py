@@ -24,12 +24,16 @@ class SymbolSerializer(serializers.Serializer):
     offset = serializers.IntegerField()
     type = serializers.CharField()
 
+class LabelSerializer(serializers.Serializer):
+    label = serializers.CharField()
+    offset = serializers.IntegerField()
+
 class OdaMasterSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = OdaMaster
         fields = ('project_name', 'short_name', 'revision', 'creation_date')
 
-class FunctionSerializer(serializers.HyperlinkedModelSerializer):
+class FunctionSerializer(serializers.Serializer):
     retval = serializers.CharField()
     args = serializers.CharField()
     offset = serializers.IntegerField()

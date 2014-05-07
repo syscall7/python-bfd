@@ -18,4 +18,4 @@ class Label(OdaObject):
     def __init__(self, object_id, **kwargs):
         super(Label, self).__init__(object_id)
         self.offset = kwargs['offset']
-        self.name = kwargs['name']
+        self.label = kwargs['label']

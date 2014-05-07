@@ -10,11 +10,12 @@ from django.http import HttpResponse, HttpResponseServerError
 from django.utils import simplejson
 
 from oda.apps.odaweb.models import OdaMaster, InstDoc
-from oda.libs.odb.bfd.disassembler import  get_supported_archs, get_supported_endians
+from oda.libs.odb.bfd.disassembler import  get_supported_archs, get_supported_endians, get_platform_options
 #from disassembler import Disassembler, get_supported_archs, \
 #    copy_disassembly, get_supported_endians, get_platform_options
 from examples import Examples
 import dns.resolver
+from oda.libs.odb.bfd.ofd import Ofd
 from oda.libs.odb.structures.section import Section
 
 
@@ -42,20 +43,20 @@ def index(request, disassembly_id, version=0):
 
     if oda_master:
         #d = Disassembler(oda_master.binary)
-        section_info = oda_master.odb().get_structure_list(Section)
+        section_info = Ofd(oda_master.odb().get_binary()).get_loadable_sections()
         context['master'] = oda_master
         context['section_info'] = section_info
-        context['binary'] = None #oda_master.binary
+        context['binary'] = oda_master.odb().get_binary()
         context['project_name'] = oda_master.project_name
         context['disassembly_id'] = oda_master.short_name
         context['share_url'] = request.build_absolute_uri()
         context['examples'] = Examples
         context['supported_archs'] = get_supported_archs()
-        context['arch'] = None #oda_master.binary.options.architecture
+        context['arch'] = oda_master.odb().get_binary().options.architecture #oda_master.binary.options.architecture
         context['saved'] = saved
 
         context['supported_endians'] = get_supported_endians()
-        context['options'] = {} #get_platform_options(oda_master.binary.options.architecture)
+        context['options'] = get_platform_options(oda_master.odb().get_binary().options.architecture )
         context['defaults'] = []
         context['user'] = request.user
         context['form_type'] = 'live'
@@ -88,13 +89,15 @@ def create_session(request, to_copy_id, to_copy_version):
     oda_master = OdaMaster.objects.get(short_name=to_copy_id, revision=to_copy_version)
     oda_master.id = None
     oda_master.short_name = id_generator()
-
+    oda_master.save()
     request.session["disassembly_token"] = {
         'id': oda_master.short_name,
         'version': oda_master.revision
     }
     logger.info(
         '%s(%d)' % (request.session["disassembly_token"]['id'], request.session['disassembly_token']['version']))
+
+
 
     return oda_master
 

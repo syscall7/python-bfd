@@ -7,13 +7,15 @@ from oda.apps.odaweb.models import OdaMaster
 
 from oda.apps.rest.serializers import OdaMasterSerializer, SectionSerializer, StringSerializer, DisplayUnitSerializer, \
     BinaryParcelSerializer, \
-    FindResultsSerializer, CommentSerializer, FunctionSerializer, DataStringSerializer, SymbolSerializer
+    FindResultsSerializer, CommentSerializer, FunctionSerializer, DataStringSerializer, SymbolSerializer, \
+    LabelSerializer
 from oda.libs.odb.bfd.disassembler import Disassembler
 from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer
 from oda.libs.odb.ops.load_operation import LoadOperationFactory
 from oda.libs.odb.structures.comment import Comment
 from oda.libs.odb.structures.data_string import DataString
 from oda.libs.odb.structures.function import Function
+from oda.libs.odb.structures.label import Label
 from oda.libs.odb.structures.section import Section
 from oda.libs.odb.structures.symbol import Symbol
 
@@ -83,6 +85,10 @@ class StringsViewSet(OdaStructureViewSet):
             'addr': item.addr
         }
 
+
+class LabelsViewSet(OdaStructureViewSet):
+    serializer_class = LabelSerializer
+    structure = Label
 
 class SymbolsViewSet(OdaStructureViewSet):
     serializer_class = SymbolSerializer
