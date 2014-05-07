@@ -77,7 +77,7 @@ class BinaryStringFactory(object):
                 self.options = Options()
                 self.options.target = 'binary'
                 self.options.architecture = arch
-
+                self.id = 0
                 self.is_live_mode = True
                 self.binary_string_display = binary_string
 
