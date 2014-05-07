@@ -5,8 +5,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from oda.apps.odaweb.models import OdaMaster
 
-from oda.apps.rest.serializers import OdaMasterSerializer, SectionSerializer, StringSerializer, DisplayUnitSerializer, BinaryParcelSerializer, \
+from oda.apps.rest.serializers import OdaMasterSerializer, SectionSerializer, StringSerializer, DisplayUnitSerializer, \
+    BinaryParcelSerializer, \
     FindResultsSerializer, CommentSerializer, FunctionSerializer, DataStringSerializer, SymbolSerializer
+from oda.libs.odb.bfd.disassembler import Disassembler
+from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer
+from oda.libs.odb.ops.load_operation import LoadOperationFactory
 from oda.libs.odb.structures.comment import Comment
 from oda.libs.odb.structures.data_string import DataString
 from oda.libs.odb.structures.function import Function
@@ -16,6 +20,7 @@ from oda.libs.odb.structures.symbol import Symbol
 
 logger = logging.getLogger(__name__)
 
+
 class OdaMasterViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
@@ -24,8 +29,8 @@ class OdaMasterViewSet(viewsets.ModelViewSet):
     serializer_class = OdaMasterSerializer
     paginate_by = 10
 
-class OdaStructureViewSet(viewsets.GenericViewSet):
 
+class OdaStructureViewSet(viewsets.GenericViewSet):
     def __init__(self, **kwargs):
         super(OdaStructureViewSet, self).__init__(**kwargs)
         self.odb_file = None
@@ -48,13 +53,16 @@ class OdaStructureViewSet(viewsets.GenericViewSet):
         serializer = self.get_serializer(mapped_structure_list, many=True)
         return Response(serializer.data)
 
+
 class CommentViewSet(OdaStructureViewSet):
     serializer_class = CommentSerializer
     structure = Comment
 
+
 class FunctionViewSet(OdaStructureViewSet):
     serializer_class = FunctionSerializer
     structure = Function
+
 
 class SectionsViewSet(OdaStructureViewSet):
     serializer_class = SectionSerializer
@@ -63,6 +71,7 @@ class SectionsViewSet(OdaStructureViewSet):
     def get_structure_list(self):
         sections = self.odb_file.get_structure_list(Section)
         return filter(lambda s: s.is_loadable(), sections)
+
 
 class StringsViewSet(OdaStructureViewSet):
     serializer_class = DataStringSerializer
@@ -74,102 +83,52 @@ class StringsViewSet(OdaStructureViewSet):
             'addr': item.addr
         }
 
+
 class SymbolsViewSet(OdaStructureViewSet):
     serializer_class = SymbolSerializer
     structure = Symbol
 
-# class ParcelsViewSet(viewsets.GenericViewSet):
-#     serializer_class = BinaryParcelSerializer
-#
-#     def list(self, request):
-#         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-#                                   revision=request.QUERY_PARAMS.get('revision'))
-#
-#         binary = oda.binary
-#         jcp = JsonChunkProcessor(binary)
-#         parcels = jcp.get_all_parcels()
-#
-#         serializer = self.get_serializer(parcels, many=True)
-#         return Response(serializer.data)
-#
-# class DisplayUnitsViewSet(viewsets.GenericViewSet):
-#     serializer_class = DisplayUnitSerializer
-#
-#     def list(self, request):
-#
-#         start = 0
-#         units = 100
-#         if request.QUERY_PARAMS.get('addr'):
-#             start = int(request.QUERY_PARAMS.get('addr'),10)
-#         if request.QUERY_PARAMS.get('units'):
-#             units = int(request.QUERY_PARAMS.get('units'),10)
-#
-#         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-#                                   revision=request.QUERY_PARAMS.get('revision'))
-#
-#         dasm = Disassembler(oda.binary)
-#         dunits = dasm.analyze(start, units)
-#
-#         logger.debug("DisplayUnitsViewSet: Generate serialized data")
-#         serializer = self.get_serializer(dunits, many=True)
-#         serialData = Response(serializer.data)
-#         logger.debug("DisplayUnitsViewSet: Serial data complete")
-#         return serialData
-#
-#
+
+class BinaryStringViewSet(viewsets.GenericViewSet):
+    def partial_update(self, request, pk):
+        oda_master = OdaMaster.objects.get(short_name=request.DATA['short_name'], revision=request.DATA['revision'])
+
+        load_operation = LoadOperationFactory.load_from_string(
+            request.DATA['binary_string'], 'i386:x86-64'
+        )
+        odb_file = OdbFile()
+        odb_file.execute(load_operation)
+        oda_master.odb_file = DefaultOdbSerializer().dumps(odb_file)
+        oda_master.save()
+
+        logger.info("updating...")
+
+        return Response({'binary_string': request.DATA['binary_string']})
 
 
-# class SymbolsViewSet(viewsets.ModelViewSet):
-#     model = Symbol
-#
-#     def get_queryset(self):
-#         queryset = Symbol.objects.all()
-#         short_name = self.request.QUERY_PARAMS.get('short_name', None)
-#         revision = self.request.QUERY_PARAMS.get('revision', None)
-#         if short_name is not None:
-#             queryset = Symbol.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
-#
-#         return queryset
+class DisplayUnitsViewSet(viewsets.GenericViewSet):
+    serializer_class = DisplayUnitSerializer
 
+    def list(self, request):
 
-# class BinaryStringViewSet(viewsets.ModelViewSet):
-#     model = BinaryString
-#
-# class FunctionsViewSet(viewsets.ModelViewSet):
-#     model = Function
-#
-#     def get_queryset(self):
-#         queryset = Function.objects.all()
-#         short_name = self.request.QUERY_PARAMS.get('short_name', None)
-#         revision = self.request.QUERY_PARAMS.get('revision', None)
-#         if short_name is not None:
-#             queryset = Function.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
-#
-#         return queryset
-#
-# class LabelsViewSet(viewsets.ModelViewSet):
-#     model = Label
-#
-#     def get_queryset(self):
-#         queryset = Label.objects.all()
-#         short_name = self.request.QUERY_PARAMS.get('short_name', None)
-#         revision = self.request.QUERY_PARAMS.get('revision', None)
-#         if short_name is not None:
-#             queryset = Label.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
-#
-#         return queryset
+        start = 0
+        units = 100
+        if request.QUERY_PARAMS.get('addr'):
+            start = int(request.QUERY_PARAMS.get('addr'), 10)
+        if request.QUERY_PARAMS.get('units'):
+            units = int(request.QUERY_PARAMS.get('units'), 10)
 
-# class OdaOptionsViewSet(viewsets.ModelViewSet):
-#     model = OdaOptions
-#
-#     def get_queryset(self):
-#         queryset = OdaOptions.objects.all()
-#         short_name = self.request.QUERY_PARAMS.get('short_name', None)
-#         revision = self.request.QUERY_PARAMS.get('revision', None)
-#         if short_name is not None:
-#             queryset = OdaOptions.get_for_binary(OdaMaster.objects.get(short_name=short_name, revision=revision).binary)
-#
-#         return queryset
+        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
+                                    revision=request.QUERY_PARAMS.get('revision'))
+
+        dasm = Disassembler(oda.odb())
+        dunits = dasm.analyze(start, units)
+
+        logger.debug("DisplayUnitsViewSet: Generate serialized data")
+        serializer = self.get_serializer(dunits, many=True)
+        serialData = Response(serializer.data)
+        logger.debug("DisplayUnitsViewSet: Serial data complete")
+        return serialData
 
 
 class FindViewSet(viewsets.GenericViewSet):
@@ -182,7 +141,8 @@ class FindViewSet(viewsets.GenericViewSet):
 
         binary = oda.binary
         dasm = Disassembler(binary)
-        results = [{'addr': key, 'section': value} for key, value in sorted(dasm.find(bytes).items(), key=lambda s: s[0])]
+        results = [{'addr': key, 'section': value} for key, value in
+                   sorted(dasm.find(bytes).items(), key=lambda s: s[0])]
         serializer = self.get_serializer(results, many=True)
         return Response(serializer.data)
 

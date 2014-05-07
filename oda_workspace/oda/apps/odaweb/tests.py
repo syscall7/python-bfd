@@ -6,9 +6,10 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
+from oda.apps.rest.tests import OdaTestCase
 
 
-class IndexTest(TestCase):
+class IndexTest(OdaTestCase):
     def test_index(self):
         response = self.client.get('/odaweb/')
 

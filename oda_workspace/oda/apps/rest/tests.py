@@ -22,12 +22,15 @@ class SimpleTest(TestCase):
         self.assertEqual(1 + 1, 2)
 
 
-class DisplayUnitTest(APITestCase):
+class OdaTestCase(APITestCase):
+    def setUp(self):
+        load_examples()
 
+
+class DisplayUnitTest(OdaTestCase):
     urls = 'oda.urls'
 
     def test_display_units(self):
-
         response = self.client.get('/odaweb/api/displayunits/',
                                    {'revision': 0, 'short_name': 'strcpy_x86'},
                                    format='json')
@@ -43,12 +46,10 @@ class DisplayUnitTest(APITestCase):
         self.assertEqual(0, rd[0]['offset'])
         self.assertEqual('ebp', rd[0]['operands'])
 
-class OdaTestCase(APITestCase):
-    def setUp(self):
-        load_examples()
 
 class CommentUnitTest(OdaTestCase):
     urls = 'oda.urls'
+
     def test_comments(self):
         response = self.client.get('/odaweb/api/comments/',
                                    {'revision': 0, 'short_name': 'strcpy_x86'},
@@ -65,8 +66,8 @@ class SectionsTest(OdaTestCase):
 
     def test_sections(self):
         response = self.client.get('/odaweb/api/sections/',
-                               {'revision': 0, 'short_name': 'mkdir'},
-                               format='json')
+                                   {'revision': 0, 'short_name': 'mkdir'},
+                                   format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         rd = response.data
@@ -85,14 +86,14 @@ class SymbolsTest(OdaTestCase):
 
     def test_symbols(self):
         response = self.client.get('/odaweb/api/symbols/',
-                               {'revision': 0, 'short_name': 'mkdir'},
-                               format='json')
+                                   {'revision': 0, 'short_name': 'mkdir'},
+                                   format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         rd = response.data
 
         self.assertIsNotNone(rd)
-        self.assertEqual(150, len(rd))
+        self.assertEqual(415, len(rd))
         self.assertIsNotNone(rd[0]['name'])
         self.assertIsNotNone(rd[0]['offset'])
         self.assertIsNotNone(rd[0]['type'])
@@ -103,8 +104,8 @@ class StringsTest(OdaTestCase):
 
     def test_strings(self):
         response = self.client.get('/odaweb/api/strings/',
-                               {'revision': 0, 'short_name': 'mkdir'},
-                               format='json')
+                                   {'revision': 0, 'short_name': 'mkdir'},
+                                   format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         rd = response.data
@@ -114,12 +115,15 @@ class StringsTest(OdaTestCase):
         self.assertIsNotNone(rd[0]['addr'])
         self.assertIsNotNone(rd[0]['string'])
 
+
 class BinaryStringTest(OdaTestCase):
     urls = 'oda.urls'
 
-    def test_strings(self):
+    def test_binary_strings(self):
         response = self.client.patch('/odaweb/api/binarystrings/1/', {
-            'binary_string': 'ABCD'
+            'binary_string': 'ABCD',
+            'short_name': 'strcpy_x86',
+            'revision': 0
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

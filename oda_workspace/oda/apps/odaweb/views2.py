@@ -9,11 +9,13 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseServerError
 from django.utils import simplejson
 
-from oda.apps.odaweb.models import OdaMaster, BinaryFile, OdaOptions, Comment, InstDoc
-from disassembler import Disassembler, get_supported_archs, \
-    copy_disassembly, get_supported_endians, get_platform_options
+from oda.apps.odaweb.models import OdaMaster, InstDoc
+from oda.libs.odb.bfd.disassembler import  get_supported_archs, get_supported_endians
+#from disassembler import Disassembler, get_supported_archs, \
+#    copy_disassembly, get_supported_endians, get_platform_options
 from examples import Examples
 import dns.resolver
+from oda.libs.odb.structures.section import Section
 
 
 logger = logging.getLogger(__name__)
@@ -39,21 +41,21 @@ def index(request, disassembly_id, version=0):
     #    return redirect('/odaweb/')
 
     if oda_master:
-        d = Disassembler(oda_master.binary)
-        section_info = d.ofd.get_loadable_sections()
+        #d = Disassembler(oda_master.binary)
+        section_info = oda_master.odb().get_structure_list(Section)
         context['master'] = oda_master
         context['section_info'] = section_info
-        context['binary'] = oda_master.binary
+        context['binary'] = None #oda_master.binary
         context['project_name'] = oda_master.project_name
         context['disassembly_id'] = oda_master.short_name
         context['share_url'] = request.build_absolute_uri()
         context['examples'] = Examples
         context['supported_archs'] = get_supported_archs()
-        context['arch'] = oda_master.binary.options.architecture
+        context['arch'] = None #oda_master.binary.options.architecture
         context['saved'] = saved
 
         context['supported_endians'] = get_supported_endians()
-        context['options'] = get_platform_options(oda_master.binary.options.architecture)
+        context['options'] = {} #get_platform_options(oda_master.binary.options.architecture)
         context['defaults'] = []
         context['user'] = request.user
         context['form_type'] = 'live'
@@ -77,36 +79,39 @@ def save(request):
 
 
 def create_session(request, to_copy_id, to_copy_version):
-
     request.session['files'] = []
 
     if not to_copy_id:
         to_copy_id = 'strcpy_x86'
-        to_copy_version =  0
+        to_copy_version = 0
 
-
-    oda_master = copy_disassembly(to_copy_id, to_copy_version, request.user, request.META.get('REMOTE_ADDR'))
+    oda_master = OdaMaster.objects.get(short_name=to_copy_id, revision=to_copy_version)
+    oda_master.id = None
+    oda_master.short_name = id_generator()
 
     request.session["disassembly_token"] = {
         'id': oda_master.short_name,
         'version': oda_master.revision
     }
-    logger.info('%s(%d)' % (request.session["disassembly_token"]['id'], request.session['disassembly_token']['version']))
+    logger.info(
+        '%s(%d)' % (request.session["disassembly_token"]['id'], request.session['disassembly_token']['version']))
 
     return oda_master
+
 
 def get_session(request):
     try:
         o_id = request.session["disassembly_token"]['id']
         version = request.session["disassembly_token"]['version']
 
-        logger.info("LOADING %s %s",o_id, str(version))
-        o = OdaMaster.objects.get(short_name = o_id, revision = version)
+        logger.info("LOADING %s %s", o_id, str(version))
+        o = OdaMaster.objects.get(short_name=o_id, revision=version)
         logger.info("FOUND $$$$ " + str(o))
         return o
     except KeyError:
         logger.warn("disassembly_token isn't set")
         return None
+
 
 def options_form(request):
     oda_master = get_session(request)
@@ -121,20 +126,19 @@ def options_form(request):
         endian = forms.CharField(required=False)
 
     return render(request, 'form-platform-options.djhtml', {
-                    'arch': arch,
-                    'supported_archs': get_supported_archs(),
-                    'supported_endians': get_supported_endians(),
-                    'options' : get_platform_options(arch),
-                    'base_address': baseAddr,
-                    'selected_opts': selected_opts,
-                    'form': HexUploadForm(),
-                    'form_type': 'live'
+        'arch': arch,
+        'supported_archs': get_supported_archs(),
+        'supported_endians': get_supported_endians(),
+        'options': get_platform_options(arch),
+        'base_address': baseAddr,
+        'selected_opts': selected_opts,
+        'form': HexUploadForm(),
+        'form_type': 'live'
 
     })
 
 
 def set(request):
-
     class HexUploadForm(forms.Form):
         hex_val = forms.CharField(required=False)
         arch = forms.CharField(required=False)
@@ -170,7 +174,7 @@ def set(request):
             arch = self.cleaned_data['arch']
             return arch.strip()
 
-    form = HexUploadForm(request.POST) # A form bound to the POST data
+    form = HexUploadForm(request.POST)  # A form bound to the POST data
 
     # initialize base_address with whatever was in the form data, even if it is invalid
     baseAddr = 0
@@ -191,7 +195,7 @@ def set(request):
             try:
                 cleaned_hex_string.decode("hex")
             except (TypeError, UnicodeEncodeError) as e:
-                    return HttpResponseServerError('<div>NON HEX DIGIT</div>')
+                return HttpResponseServerError('<div>NON HEX DIGIT</div>')
 
             oda_master.binary.binary_string = cleaned_hex_string
             oda_master.binary.save()
@@ -226,27 +230,29 @@ def set(request):
             disassembler.analyze_first_time()
 
     form_html = render_to_string('form-platform-options.djhtml', {
-                    'arch' : arch,
-                    'supported_archs' : get_supported_archs(),
-                    'supported_endians': get_supported_endians(),
-                    'options' : get_platform_options(arch),
-                    'base_address' : baseAddr,
-                    'selected_opts' : selected_opts,
-                    'form': form,
-                    'oda_master': oda_master,
-                    'form_type': formType
+        'arch': arch,
+        'supported_archs': get_supported_archs(),
+        'supported_endians': get_supported_endians(),
+        'options': get_platform_options(arch),
+        'base_address': baseAddr,
+        'selected_opts': selected_opts,
+        'form': form,
+        'oda_master': oda_master,
+        'form_type': formType
     })
 
     return HttpResponse(simplejson.dumps({
         'form_html': form_html,
     }), mimetype='application/json')
 
+
 class ShowOptionsForm(forms.Form):
     platformId = forms.CharField()
     options = forms.CharField(required=False)
 
+
 def show_options(request):
-    form = ShowOptionsForm(request.POST) # A form bound to the POST data
+    form = ShowOptionsForm(request.POST)  # A form bound to the POST data
     if form.is_valid():
         #print "Show_options"
         platform = form.cleaned_data['platformId']
@@ -259,10 +265,10 @@ def show_options(request):
 
         #print opts_defaults
 
-        return render(request, 'show_options.djhtml',{
+        return render(request, 'show_options.djhtml', {
             'supported_endians': get_supported_endians,
-            'options' : get_platform_options(platform),
-            'defaults' : opts_defaults
+            'options': get_platform_options(platform),
+            'defaults': opts_defaults
         })
 
     return HttpResponse(status=400)
@@ -270,6 +276,7 @@ def show_options(request):
 
 def hex(request):
     pass
+
 
 def fileinfo(request):
     oda_master = get_session(request)
@@ -283,7 +290,7 @@ def fileinfo(request):
 
     # lookup in malware hash registry
     try:
-        [cymru_record,] = dns.resolver.query('%s.malware.hash.cymru.com' % binary.md5(), 'TXT')
+        [cymru_record, ] = dns.resolver.query('%s.malware.hash.cymru.com' % binary.md5(), 'TXT')
         malware = True
         logger.info('cymru is %s' % cymru_record)
     # if the name does not exist, this binary is not recognized as malware
@@ -313,17 +320,17 @@ def fileinfo(request):
         'binary': binary,
         'malware': malware,
         'benign': benign,
-        'project_name' : oda_master.project_name,
-        })
+        'project_name': oda_master.project_name,
+    })
 
     # Return the new disassembly
     return HttpResponse(simplejson.dumps({
-        'fileinfo_tab' : fileinfo_tab,
+        'fileinfo_tab': fileinfo_tab,
         #'section_flags' : dasm.sectionFlagsInfo(),
     }), mimetype='application/json')
 
-def instdoc(request):
 
+def instdoc(request):
     class InstDocForm(forms.Form):
         mnemonic = forms.CharField()
 
@@ -336,7 +343,7 @@ def instdoc(request):
         logger.info('Getting instruction documentation for "%s"' % (mnemonic))
 
         # TODO: Get the actual platform
-        result = InstDoc.objects.filter(platform = 'i386', mnemonic = mnemonic.upper())
+        result = InstDoc.objects.filter(platform='i386', mnemonic=mnemonic.upper())
         if result:
             doc = result[0]
 
@@ -345,11 +352,12 @@ def instdoc(request):
 
             instdoc_html = render_to_string('inst-doc-content.djhtml', {
                 'description': doc.short,
-                })
+            })
 
         return HttpResponse(simplejson.dumps({
-            'instdoc' : instdoc_html,
+            'instdoc': instdoc_html,
         }), mimetype='application/json')
+
 
 #def sections(request):
 #    oda_master = get_session(request)
@@ -417,11 +425,12 @@ class UploadFileForm(forms.Form):
     project_name = forms.CharField(max_length=64)
 
     def clean_filedata(self):
-        if self.cleaned_data['filedata'].size > self.MAX_UPLOAD_SIZE_KB*1024:
+        if self.cleaned_data['filedata'].size > self.MAX_UPLOAD_SIZE_KB * 1024:
             raise forms.ValidationError("File must be less than %d KB!" % self.MAX_UPLOAD_SIZE_KB)
 
         # always return the cleaned data, whether you have changed it or not
         return self.cleaned_data['filedata']
+
 
 def upload(request):
     form = UploadFileForm(request.POST, request.FILES)
@@ -439,7 +448,7 @@ def upload(request):
         binary_file = BinaryFile.create(request.FILES['filedata'], options)
         binary_file.save()
 
-        oda_master = OdaMaster(short_name = id_generator(), project_name=project_name,
+        oda_master = OdaMaster(short_name=id_generator(), project_name=project_name,
                                binary=binary_file, ipAddress=request.META.get('REMOTE_ADDR'))
         if request.user.is_authenticated():
             oda_master.owner = request.user
@@ -463,7 +472,7 @@ def upload(request):
 
     else:
         html = render_to_string('modal-open.djhtml', {
-                    'form': form
+            'form': form
         })
 
     return HttpResponse(simplejson.dumps({
@@ -472,7 +481,7 @@ def upload(request):
         'target': target,
         'id': id,
         'msg': msg
-        }), mimetype='application/json')
+    }), mimetype='application/json')
 
 
 def refresh_hex(request):
@@ -482,7 +491,7 @@ def refresh_hex(request):
 
     binary = oda_master.binary
 
-    addr = int(request.POST.get('addr','0'))
+    addr = int(request.POST.get('addr', '0'))
     logger.info("TotalRefreshHex: 0x%08x" % (addr))
 
     jcp = JsonChunkProcessor(binary)
@@ -491,18 +500,19 @@ def refresh_hex(request):
     jcp.process_chunks_hex(superchunks)
     chunk_list = jcp.get_chunk_list(superchunks)
 
-    hex = render_to_string('hex_listing.djhtml', { 'chunks' : superchunks } )
+    hex = render_to_string('hex_listing.djhtml', {'chunks': superchunks})
 
-    return HttpResponse(simplejson.dumps({'hex_dump' : hex,
-                                          'chunks' : chunk_list })  , mimetype='application/json')
+    return HttpResponse(simplejson.dumps({'hex_dump': hex,
+                                          'chunks': chunk_list}), mimetype='application/json')
+
 
 def refresh_disassembly(request):
     oda_master = get_session(request)
 
     binary = oda_master.binary
 
-    addr = int(request.POST.get('addr','0'))
-    logger.info("TotalRefresh: addr %s",addr)
+    addr = int(request.POST.get('addr', '0'))
+    logger.info("TotalRefresh: addr %s", addr)
 
     jcp = JsonChunkProcessor(binary)
 
@@ -510,11 +520,12 @@ def refresh_disassembly(request):
     jcp.process_chunks_disassembly(superchunks)
     chunk_list = jcp.get_chunk_list(superchunks)
 
-    dis = render_to_string('listing.djhtml', { 'chunks' : superchunks, 'functions' : [] } )
+    dis = render_to_string('listing.djhtml', {'chunks': superchunks, 'functions': []})
 
     # Return the new disassembly
-    return HttpResponse(simplejson.dumps({'disassembly' : dis,
-                                          'chunks' : chunk_list })  , mimetype='application/json')
+    return HttpResponse(simplejson.dumps({'disassembly': dis,
+                                          'chunks': chunk_list}), mimetype='application/json')
+
 
 def partial_refresh_hex(request):
     oda_master = get_session(request)
@@ -523,12 +534,12 @@ def partial_refresh_hex(request):
 
     binary = oda_master.binary
 
-    start =int(request.POST.get('start','0'))
-    end=int(request.POST.get('end', '0'))
-    count=int(request.POST.get('count', '0'))
-    direction=int(request.POST.get('dir', '0'))
+    start = int(request.POST.get('start', '0'))
+    end = int(request.POST.get('end', '0'))
+    count = int(request.POST.get('count', '0'))
+    direction = int(request.POST.get('dir', '0'))
 
-    logger.info("PartialRefreshHex: START 0x%08x COUNT %d DIR %d" % (start,count,direction))
+    logger.info("PartialRefreshHex: START 0x%08x COUNT %d DIR %d" % (start, count, direction))
 
     jcp = JsonChunkProcessor(binary)
 
@@ -536,7 +547,7 @@ def partial_refresh_hex(request):
     jcp.process_chunks_hex(superchunks)
     chunk_list = jcp.get_chunk_list(superchunks)
 
-    hex = render_to_string('hex_listing.djhtml', { 'chunks' : superchunks } )
+    hex = render_to_string('hex_listing.djhtml', {'chunks': superchunks})
 
     logger.info("PartialRefreshHex: Disassembly", hex[:128])
 
@@ -544,8 +555,8 @@ def partial_refresh_hex(request):
         logger.info("CHUNK: ADDR=0x%08x BOUNDARY=%d" % (chunk['startOffset'], chunk['isBoundary']))
 
     # Return the new disassembly
-    return HttpResponse(simplejson.dumps({'hex_dump' : hex,
-                                          'chunks' : chunk_list })  , mimetype='application/json')
+    return HttpResponse(simplejson.dumps({'hex_dump': hex,
+                                          'chunks': chunk_list}), mimetype='application/json')
 
 
 def partial_refresh_disassembly(request):
@@ -555,12 +566,12 @@ def partial_refresh_disassembly(request):
 
     binary = oda_master.binary
 
-    start =int(request.POST.get('start','0'))
-    end=int(request.POST.get('end', '0'))
-    count=int(request.POST.get('count', '0'))
-    direction=int(request.POST.get('dir', '0'))
+    start = int(request.POST.get('start', '0'))
+    end = int(request.POST.get('end', '0'))
+    count = int(request.POST.get('count', '0'))
+    direction = int(request.POST.get('dir', '0'))
 
-    logger.info("PartialRefresh: START 0x%08x COUNT %d DIR %d" % (start,count,direction))
+    logger.info("PartialRefresh: START 0x%08x COUNT %d DIR %d" % (start, count, direction))
 
     jcp = JsonChunkProcessor(binary)
 
@@ -568,7 +579,7 @@ def partial_refresh_disassembly(request):
     jcp.process_chunks_disassembly(superchunks)
     chunk_list = jcp.get_chunk_list(superchunks)
 
-    dis = render_to_string('listing.djhtml', { 'chunks' : superchunks, 'functions' : [] } )
+    dis = render_to_string('listing.djhtml', {'chunks': superchunks, 'functions': []})
 
     #logger.info("PartialRefresh: Disassembly", dis[:128])
 
@@ -576,12 +587,11 @@ def partial_refresh_disassembly(request):
         logger.info("CHUNK: ADDR=0x%08x BOUNDARY=%d" % (chunk['startOffset'], chunk['isBoundary']))
 
     # Return the new disassembly
-    return HttpResponse(simplejson.dumps({'disassembly' : dis,
-                                          'chunks' : chunk_list })  , mimetype='application/json')
+    return HttpResponse(simplejson.dumps({'disassembly': dis,
+                                          'chunks': chunk_list}), mimetype='application/json')
 
 
 def comment(request):
-
     class CommentForm(forms.Form):
         comment = forms.CharField()
         offset = forms.CharField()
@@ -598,12 +608,14 @@ def comment(request):
         binary = oda_master.binary
         ctype = ContentType.objects.get_for_model(binary)
 
-        comment = Comment(content_type=ctype, object_id=binary.id, comment = form.cleaned_data['comment'], offset = int(form.cleaned_data['offset'],16))
+        comment = Comment(content_type=ctype, object_id=binary.id, comment=form.cleaned_data['comment'],
+                          offset=int(form.cleaned_data['offset'], 16))
         comment.save()
         #return render_to_json({"status" : "ok"})
         return HttpResponse()
     else:
         return HttpResponse("Session Not Initialized", status=400)
+
 
 def convert_to_data(request):
     class ConvertDataForm(forms.Form):
@@ -630,15 +642,16 @@ def convert_to_data(request):
     else:
         return HttpResponse("Session Not Initialized", status=400)
 
-def owned_files(request):
 
+def owned_files(request):
     files = [OdaMaster.objects.filter(short_name=short_name) for short_name in request.session['files']]
 
     owned_files = [{'name': f.binary.name, 'short_name': f.short_name} for f in files]
 
-    file_list =  render_to_string('open-existing-list.djhtml', {'files' : owned_files})
+    file_list = render_to_string('open-existing-list.djhtml', {'files': owned_files})
 
-    return HttpResponse(simplejson.dumps({'file_list_html' : file_list}), mimetype='application/json')
+    return HttpResponse(simplejson.dumps({'file_list_html': file_list}), mimetype='application/json')
+
 
 def download_text_listing(request):
     oda_master = get_session(request)

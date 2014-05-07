@@ -4,7 +4,7 @@ __author__ = 'davis'
 def analyzer_factory(arch):
     # for now, ignore everything after the colon
     arch = arch.split(':')[0]
-    name = 'odb.bfd.analyzers.' + arch
+    name = 'oda.libs.odb.bfd.analyzers.' + arch
     try:
         mod = __import__(name)
     except ImportError:
