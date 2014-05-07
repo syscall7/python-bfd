@@ -118,8 +118,8 @@ def get_session(request):
 
 def options_form(request):
     oda_master = get_session(request)
-    arch = oda_master.binary.options.architecture
-    baseAddr = oda_master.binary.options.base_address
+    arch = oda_master.odb().get_binary().options.architecture
+    baseAddr = oda_master.odb().get_binary().options.base_address
     selected_opts = []
 
     class HexUploadForm(forms.Form):
