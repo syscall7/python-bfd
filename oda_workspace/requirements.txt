@@ -15,3 +15,6 @@ requests==2.2.1
 requests-oauthlib==0.4.0
 six==1.6.1
 wsgiref==0.1.2
+gsutil==3.42
+django-google-storage==0.3
+
