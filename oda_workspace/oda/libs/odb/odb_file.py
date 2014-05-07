@@ -73,14 +73,13 @@ class BinaryStringFactory(object):
 
         class Binary(object):
 
-            @property
-            def is_live_mode(self):
-                return True
-
-            def __init__(self):
+            def __init__(self, binary_string):
                 self.options = Options()
                 self.options.target = 'binary'
                 self.options.architecture = arch
+
+                self.is_live_mode = True
+                self.binary_string_display = binary_string
 
             @staticmethod
             def file_handle():
@@ -108,7 +107,7 @@ class BinaryStringFactory(object):
 
                 return t
 
-        return Binary()
+        return Binary(self.binary_string)
 
 
 class OdbFile(object):
