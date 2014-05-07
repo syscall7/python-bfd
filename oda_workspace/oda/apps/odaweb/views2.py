@@ -84,6 +84,8 @@ def create_session(request, to_copy_id, to_copy_version):
 
     if not to_copy_id:
         to_copy_id = 'strcpy_x86'
+
+    if not to_copy_version:
         to_copy_version = 0
 
     oda_master = OdaMaster.objects.get(short_name=to_copy_id, revision=to_copy_version)

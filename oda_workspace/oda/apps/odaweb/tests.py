@@ -17,3 +17,8 @@ class IndexTest(OdaTestCase):
 
         self.assertTrue('master' in response.context)
         self.assertTrue('supported_archs' in response.context)
+
+    def test_mkdir(self):
+        response = self.client.get('/odaweb/mkdir/')
+
+        self.assertEqual(response.status_code, 200)
