@@ -394,8 +394,8 @@ class defaultAnalyzer(object):
             for parcel in reversed(parcels):
                 if parcel.start < start and parcel.is_code:
                     # Disassemble starting at the next offset interval in reverse order
-                    s = self.disassembler.ofd.get_section_from_addr(parcel.start)
-                    offsets = parcel.get_offsetSamples().sort(reverse=True)
+                    s = self.ofd.get_section_from_addr(parcel.start)
+                    offsets = parcel.sample_offsets.sort(reverse=True)
                     if offsets:
                         for offset in offsets:
                             if offset <= dis_end:
@@ -420,7 +420,7 @@ class defaultAnalyzer(object):
                         if parcel.end < dis_end:
                             dis_end = parcel.end
 
-                        (_, _, lines) = self.disassembler.ofd.disassemble(s.name, options, parcel.start, dis_end,
+                        (_, _, lines) = self.ofd.disassemble(s.name, options, parcel.start, dis_end,
                                                       funcFmtLine=parseEverything,
                                                       funcFmtLineArgs={
                                                           'self': self,
