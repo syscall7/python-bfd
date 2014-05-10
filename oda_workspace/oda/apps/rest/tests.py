@@ -46,6 +46,22 @@ class DisplayUnitTest(OdaTestCase):
         self.assertEqual(0, rd[0]['offset'])
         self.assertEqual('%ebp', rd[0]['operands'])
 
+    def test_display_units_mkdir(self):
+        response = self.client.get('/odaweb/api/displayunits/',
+                                   {'revision': 0, 'short_name': 'mkdir'},
+                                   format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        rd = response.data
+        self.assertIsNotNone(rd)
+        # self.assertEqual(17, len(rd))
+        # self.assertEqual('.data', rd[0]['section_name'])
+        # self.assertEqual('55', rd[0]['rawBytes'])
+        # self.assertEqual(False, rd[0]['isBranch'])
+        # self.assertEqual(False, rd[0]['isFunction'])
+        # self.assertEqual(0, rd[0]['offset'])
+        # self.assertEqual('%ebp', rd[0]['operands'])
+
 class LabelUnitTest(OdaTestCase):
     urls = 'oda.urls'
 
@@ -64,6 +80,14 @@ class FunctionUnitTest(OdaTestCase):
     def test_functions(self):
         response = self.client.get('/odaweb/api/functions/',
                                    {'revision': 0, 'short_name': 'strcpy_x86'},
+                                   format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        rd = response.data
+
+    def test_functions_mkdir(self):
+        response = self.client.get('/odaweb/api/functions/',
+                                   {'revision': 0, 'short_name': 'mkdir'},
                                    format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -36,10 +36,10 @@ class OdaObjectFactory(object):
 
 
 class Options(object):
-    def __init__(self):
-        self.target = None
-        self.architecture = None
-        self.base_address = 0
+    def __init__(self, target, architecture, base_address):
+        self.target = target
+        self.architecture = architecture
+        self.base_address = base_address
 
     def get_endian(self):
         return 'DEFAULT'
@@ -48,13 +48,15 @@ class Options(object):
         return {"flags": []}
 
 class BinaryFileFactory(object):
-    def __init__(self, filename):
+    def __init__(self, filename, target, architecture):
         self.filename = filename
+        self.options = Options(target, architecture, 0)
 
     def get_binary(self):
+        options = self.options
         class Binary(object):
             def __init__(self):
-                self.options = Options()
+                self.options = options
 
             @staticmethod
             def file_handle():
@@ -74,9 +76,7 @@ class BinaryStringFactory(object):
         class Binary(object):
 
             def __init__(self, binary_string):
-                self.options = Options()
-                self.options.target = 'binary'
-                self.options.architecture = arch
+                self.options = Options('binary', arch, 0)
                 self.id = 0
                 self.is_live_mode = True
                 self.binary_string_display = binary_string
@@ -163,6 +163,9 @@ class OdbFile(object):
         assert (self.binary_factory is not None)
 
         return self.binary_factory.get_binary()
+
+    def options(self):
+        return self.binary_factory.get_binary().options
 
 
 class DefaultOdbSerializer(object):

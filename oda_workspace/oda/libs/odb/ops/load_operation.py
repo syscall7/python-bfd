@@ -2,7 +2,7 @@ import re
 import logging
 
 from oda.libs.odb.bfd import ofd
-from oda.libs.odb.odb_file import BinaryFileFactory, BinaryStringFactory
+from oda.libs.odb.odb_file import BinaryFileFactory, BinaryStringFactory, Options
 from oda.libs.odb.ops.operation import Operation
 
 
@@ -12,8 +12,8 @@ logger = logging.getLogger(__name__)
 class LoadOperationFactory(object):
 
     @staticmethod
-    def load_from_file(filename):
-        return LoadOperation(BinaryFileFactory(filename))
+    def load_from_file(filename, target, architecture):
+        return LoadOperation(BinaryFileFactory(filename, target, architecture))
 
     @staticmethod
     def load_from_string(binary_string, arch):
@@ -65,7 +65,8 @@ class Loader(object):
                 'name': symbol.name,
                 'offset': symbol.base,
                 'type': symbol.type,
-                'value': symbol.value
+                'value': symbol.value,
+                'xrefs': []
             }))
 
     def load_sections(self):
@@ -84,7 +85,9 @@ class Loader(object):
             'name': f.name,
             'offset': f.value,
             'type': f.type,
-            'xrefs': []
+            'xrefs': [],
+            'retval': '',
+            'args': ''
         }) for f in funcs]
 
         for f in odb_funcs:

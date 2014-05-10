@@ -390,7 +390,7 @@ class defaultAnalyzer(object):
         else:
             # Negative Lines. Need to retrieve maxLines before the given address
             dis_end = start
-            options = self.processOptions(self.disassembler.binary.options.get_extra_options())
+            options = self.processOptions(self.odb_file.get_binary().options.get_extra_options())
             for parcel in reversed(parcels):
                 if parcel.start < start and parcel.is_code:
                     # Disassemble starting at the next offset interval in reverse order

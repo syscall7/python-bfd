@@ -29,3 +29,5 @@ class Function(OdaObject):
         self.offset = kwargs['offset']
         self.xrefs = kwargs.get('xrefs', [])
         self.type = kwargs['type']
+        self.retval = kwargs['retval']
+        self.args = kwargs['args']

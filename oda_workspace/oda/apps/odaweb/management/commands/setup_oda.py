@@ -33,7 +33,10 @@ def load_examples():
 
             odb_file.execute(load_operation)
         elif 'file_name' in example:
-            load_operation = LoadOperationFactory.load_from_file(os.path.join(EXAMPLES_DIR, example['file_name']))
+            load_operation = LoadOperationFactory.load_from_file(
+                os.path.join(EXAMPLES_DIR, example['file_name']),
+                example['options']['target'],
+                example['options']['architecture'])
             odb_file.execute(load_operation)
 
 

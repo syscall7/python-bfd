@@ -34,7 +34,7 @@ class OdaMasterSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('project_name', 'short_name', 'revision', 'creation_date')
 
 class FunctionSerializer(serializers.Serializer):
-    retval = serializers.CharField()
+    retval = serializers.CharField(required=False)
     args = serializers.CharField()
     offset = serializers.IntegerField()
 
