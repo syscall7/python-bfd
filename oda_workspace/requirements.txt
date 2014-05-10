@@ -1,7 +1,6 @@
 Cython==0.20.1
 Django==1.6.2
 MySQL-python==1.2.5
-PythonBFD==1.0
 argparse==1.2.1
 django-allauth==0.16.1
 django-appconf==0.6
