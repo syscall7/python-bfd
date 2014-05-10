@@ -1,49 +1,92 @@
 These are rough notes, and you must not mindlessly follow them.
 
-Build BFD library
-    sudo apt-get install texinfo
-    ./build_bfd.sh 
+# Upgrade the server
+sudo apt-get update
+sudo apt-get upgrade
 
-Build BFD module
-    sudo apt-get install python-dev
-    sudo /var/www/oda/env/bin/pip install cython
-    sudo /var/www/oda/env/bin/python setup.py install
-    
-sudo apt-get install apache2
-sudo apt-get install libapache2-mod-wsgi
-sudo apt-get install mysql-server
+# Install subversion
+sudo apt-get install subversion
+
+# Build BFD library
+sudo apt-get install texinfo
+sudo apt-get install patch
+sudo apt-get install bzip2
+sudo apt-get install gcc make autoconf
+cd ~
+svn co svn://svn.onlinedisassembler.com/oda/ODA/trunk/bfd
+cd bfd
+sudo ./build_bfd.sh
+
+# Setup apache and mysql
+sudo apt-get install apache2 libapache2-mod-wsgi mysql-server libmysqlclient-dev
+sudo usermod -aG www-data anthony
+
+# Setup the python environment
 sudo apt-get install python-pip
 sudo apt-get install python-virtualenv
-sudo apt-get install subversion
-cd /var/www
-sudo mkdir oda
-cd oda
-sudo virtualenv env
-source env/bin/activate
-sudo env/bin/pip install Django==1.5.1
-sudo apt-get install python-dev
-sudo apt-get install libmysqlclient-dev
-sudo ./env/bin/pip install mysql-python
-sudo svn co svn://onlinedisassembler.com/oda/ODA/trunk/django webapp
-export DJANGO_SETTINGS_MODULE=oda_python.settings.production
-sudo wget https://github.com/pennersr/django-allauth/archive/0.14.2.zip
-sudo ../../env/bin/python setup.py  install
-sudo ../env/bin/pip install djangorestframework
-sudo ../env/bin/pip install django_compressor
-sudo ../env/bin/pip install dnspython
+sudo mkdir /var/www/oda2
+sudo chown www-data /var/www/oda2
+sudo chgrp www-data /var/www/oda2
+sudo virtualenv /var/www/oda2/env
+sudo chown -R www-data /var/www/oda2/env/
+sudo chgrp -R www-data /var/www/oda2/env/
+sudo apt-get install libffi-dev # for gsutil
+sudo /var/www/oda2/env/bin/pip install -r requirements.txt
+
+# Build BFD module
+cd ~/bfd
+sudo apt-get install python-dev cython
+sudo /var/www/oda2/env/bin/python setup.py install
+
+# Create database
+mysql -u root -p
+create database odapython2;
+exit;
+
+# Setup webapp
+sudo svn co svn://svn.onlinedisassembler.com/oda/ODA/tags/v1.2.3/django webapp
+sudo chown -R www-data webapp
+sudo chgrp -R www-data webapp
+# edit webapp/oda_python/settings/production.py and add the server's IP address to ALLOWED_HOSTS
+cd /var/www/oda2/webapp
 sudo ../env/bin/python manage.py syncdb --settings=oda_python.settings.production
 sudo ../env/bin/python manage.py setup_oda --settings=oda_python.settings.production
 sudo ../env/bin/python manage.py setup_openid --settings=oda_python.settings.production -m prod
-sudo cp /etc/apache2/sites-available/default /etc/apache2/sites-available/onlinedisassembler.com
-sudo chown -R www-data /tmp/odaweb2
-sudo chgrp -R www-data /tmp/odaweb2
+
+sudo vim /etc/apache2/sites-available/default
+    <VirtualHost *:80>
+            ServerAdmin admin@onlinedisassembler.com
+
+            Alias /static/ /var/www/oda2/webapp/odaweb/static/
+            Alias /static2/ /var/www/oda2/webapp/odaweb/static/
+            WSGIScriptAlias / /var/www/oda2/webapp/oda.wsgi
+
+            # AVD 4/9/13 - hard limit for file upload size
+            LimitRequestBody 7097152
+
+            ErrorLog ${APACHE_LOG_DIR}/error.log
+
+            # Possible values include: debug, info, notice, warn, error, crit,
+            # alert, emerg.
+            LogLevel warn
+
+            CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>
+
+sudo mkdir -p /var/oda/uploads
+sudo mkdir -p /var/oda/cache
+
+sudo chown -R www-data /var/oda
+sudo chgrp -R www-data /var/oda
+
 sudo chown -R www-data /var/www/oda2
 sudo chgrp -R www-data /var/www/oda2
 
-# for gsutil
-sudo apt-get install libffi-dev
-sudo pip install gsutil
+sudo chown www-data /tmp/oda.log
+sudo chgrp www-data /tmp/oda.log
 
-# for django google storage
-pip install django-google-storage
+sudo a2ensite default
+sudo service apache2 reload
+
+
 
