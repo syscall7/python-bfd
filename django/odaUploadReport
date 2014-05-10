@@ -27,7 +27,7 @@ settings.configure() # We have to do this to use django templates standalone - s
 # http://stackoverflow.com/questions/98135/how-do-i-use-django-templates-without-the-rest-of-django
 
 # pointer to upload directory
-UPLOAD_DIR = '/tmp/odaweb2/uploads'
+UPLOAD_DIR = '/var/oda/cache'
 
 # email addresses of sender and receivers
 SENDER = 'admin@onlinedisassembler.com'
@@ -73,7 +73,7 @@ Unique IPs: {{ unique_ips }}<br>
             <td style="padding: 2px 15px;"><a href=http://www.onlinedisassembler.com/odaweb/{{ upload.shortname }}>{{ upload.filename }}</a></td>
             <td style="padding: 2px 15px;">{{ upload.size|filesizeformat }}</td>
             <td style="padding: 2px 15px;">{{ upload.desc }}</td>
-            <td style="padding: 2px 15px; font-family:monospace">{{ upload.md5 }}</td>
+            <td style="padding: 2px 15px; font-family:monospace">{{ upload.sha1 }}</td>
             <td style="padding: 2px 15px;">{{ upload.ip }}</td>
             <td style="padding: 2px 15px;">{{ upload.date }}</td>
         </tr>
@@ -90,7 +90,7 @@ def genUploadReport(day):
     conn = MySQLdb.connect(host = 'localhost', user = 'root', passwd = 'password', db = 'odapython2')
     cursor = conn.cursor ()
     cursor.execute(
-        'select m.creation_date, m.short_name, b.filename, m.ipAddress ' +
+        'select m.creation_date, m.short_name, b.filename, m.ipAddress, b.hash ' +
         'from odaweb_odamaster m inner join odaweb_binaryfile b ' + 
         'where m.object_id=b.id and m.creation_date >= "%s" and ' % day.strftime('%y-%m-%d') +
         'm.creation_date < "%s"' % date.today().strftime('%y-%m-%d'))
@@ -98,39 +98,39 @@ def genUploadReport(day):
     rows = cursor.fetchall()
     
     unique_ips = []
-    unique_md5s = []
+    unique_sha1s = []
     total_bytes = 0
     uploads = []
-    Upload = namedtuple('Upload', 'date shortname filename ip desc size md5')
+    Upload = namedtuple('Upload', 'date shortname filename ip desc size sha1')
     for row in rows:
-        filename = os.path.join(UPLOAD_DIR, row[2])
+        sha1 = row[4]
+        path = os.path.join(UPLOAD_DIR, sha1)
 
-        if os.path.exists(filename):
+        if os.path.exists(path):
             # run the program 'file' on it
-            desc = Popen(['file', '-b', filename], stdout=PIPE).communicate()[0]
+            desc = Popen(['file', '-b', path], stdout=PIPE).communicate()[0]
             desc = desc[0:48]
 
             # size of upload
-            size = os.stat(filename).st_size
+            size = os.stat(path).st_size
             total_bytes += size
 
-            # md5 (abbreviated)
-            md5 = hashlib.md5(open(filename, 'r').read()).hexdigest()
-            if md5 not in unique_md5s:
-                unique_md5s.append(md5)
-            md5 = "%s...%s" % (md5[0:6], md5[-6:])
+            # sha1 (abbreviated)
+            if sha1 not in unique_sha1s:
+                unique_sha1s.append(sha1)
+            sha1 = "%s...%s" % (sha1[0:6], sha1[-6:])
         else:
-            desc = 'File not found'
+            desc = 'File in cache'
             size = 0
-            md5 = 'File not found'
+            sha1 = 'File in cache'
 
         timestamp = row[0].strftime('%I:%M:%S %p')
-        (short, fn, ip) = row[1:]
+        (short, fn, ip, hash) = row[1:]
 
         if ip not in unique_ips:
             unique_ips.append(ip)
 
-        u = Upload(timestamp, short, fn, ip, desc=desc, size=size, md5=md5)
+        u = Upload(timestamp, short, fn, ip, desc=desc, size=size, sha1=sha1)
         uploads.append(u)
 
     t = Template(template)
@@ -139,7 +139,7 @@ def genUploadReport(day):
             'date': day.strftime('%A, %B %d, %Y'),
             'total_uploads': len(rows),
             'total_bytes': total_bytes,
-            'unique_files': len(unique_md5s),
+            'unique_files': len(unique_sha1s),
             'unique_ips': len(unique_ips),
     })
 

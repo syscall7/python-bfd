@@ -19,6 +19,8 @@ DATABASES = {
 }
 
 ALLOWED_HOSTS = (
+    '23.236.58.138',
+    'coda.onlinedisassembler.com',
     'onlinedisassembler.com',
     'www.onlinedisassembler.com',
 )
@@ -28,3 +30,11 @@ ALLOWED_HOSTS = (
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
 STATIC_ROOT = '/var/www/oda2/webapp/odaweb/static/'
+
+# File storage settings
+# NOTE: In order for GoogleStorage to work, you have to add the IP address of the server that will be accessing Google
+#       Storage to the Google access key referenced below.  This is doen via the GoogleStorage console.
+DEFAULT_FILE_STORAGE = 'django-google-storage.storage.GoogleStorage'
+os.environ.get('ODA_GOOGLE_STORAGE_ACCESS_KEY_ID')
+os.environ.get('ODA_GOOGLE_STORAGE_SECRET_ACCESS_KEY')
+os.environ.get('ODA_GOOGLE_STORAGE_BUCKET_NAME', 'oda')

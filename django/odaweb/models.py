@@ -1,10 +1,10 @@
 from os import stat, unlink
 from django.db import models
-from django.core.files.storage import FileSystemStorage
 from django.core.files import File
 from django.contrib.auth.models import User
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
+from django.conf import settings
 
 import os.path
 from datetime import datetime
@@ -20,11 +20,9 @@ import types
 logger = logging.getLogger(__name__)
 
 
-fs = FileSystemStorage(location='/var/oda')
-
 # Create your models here.
 class OdaFile(models.Model):
-    the_file = models.FileField(storage=fs, upload_to="uploads")
+    the_file = models.FileField(upload_to="uploads")
     filename = models.CharField(max_length=255)
     filesize = models.IntegerField()
     hash = models.CharField(max_length=128)
@@ -256,11 +254,15 @@ class Label(models.Model):
         ctype = ContentType.objects.get_for_model(binary)
         return Label.objects.filter(content_type=ctype.id, object_id = binary.id)
 
+# this is where we'll cache the GoogleStorage files locally
+LOCAL_CACHE_DIR=os.path.join(settings.MEDIA_ROOT, 'cache')
+
 class BinaryFile(Binary):
-    the_file = models.FileField(storage=fs, upload_to="uploads")
+    the_file = models.FileField(upload_to="uploads")
     filename = models.CharField(max_length=255)
     filesize = models.IntegerField()
     hash = models.CharField(max_length=128)
+    local_path = None
 
     def file_handle(self):
         
@@ -269,8 +271,32 @@ class BinaryFile(Binary):
             # BinaryFiles need to exist indefinitely. Nothing to do here
             pass
 
-        self.the_file.file.done = types.MethodType(done, self.the_file.file)
-        return self.the_file.file
+        logger.info('Creating file handle for %s' % self.filename)
+        logger.info('  hash is %s' % self.hash)
+
+        # if we haven't written the file locally yet
+        if not self.local_path:
+            self.local_path = os.path.join(LOCAL_CACHE_DIR, self.hash)
+
+            logger.info('  checking if path %s exists' % self.local_path)
+
+            # if the file does not exist locally
+            if not os.path.exists(self.local_path):
+
+                logger.info('  local path %s does not yet exist' % self.local_path)
+ 
+                # write it out
+                with open(self.local_path, 'wb') as f:
+                    self.the_file.open('rb')
+                    self.the_file.seek(0)
+	            logger.info('  writing out file')
+                    f.write(self.the_file.read())
+                    self.the_file.close()
+
+        # return a reference to the local copy
+        f = File(open(self.local_path))
+        f.done = types.MethodType(done, f)
+        return f
 
     def name(self):
         return self.filename
@@ -279,13 +305,16 @@ class BinaryFile(Binary):
         return self.filesize
 
     def create(f, options):
+
         u = BinaryFile()
+        u.filename = f.name
+        f.open('rb')
+        u.hash = sha1_hash(f)
+        f.close()
+        f.name = u.hash
         u.the_file = File(f)
-        filename = u.the_file.name
-        u.filename = os.path.basename(filename)
-        u.filesize = u.the_file.size
         u.the_file.open('rb')
-        u.hash = sha1_hash(u.the_file)
+        u.filesize = u.the_file.size
         u.options = options
         return u
 
