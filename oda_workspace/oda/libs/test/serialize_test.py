@@ -11,7 +11,7 @@ __author__ = 'davis'
 class TestSerialize(unittest.TestCase):
 
     def test_serialize(self):
-        load_operation = LoadOperationFactory.load_from_file('test/data/ls')
+        load_operation = LoadOperationFactory.load_from_file('test/data/ls', 'elf64-x86-64', 'i386:x86-64')
         odb_file = OdbFile()
         load_operation.operate(odb_file)
 

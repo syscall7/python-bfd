@@ -14,7 +14,7 @@ from oda.libs.odb.structures.symbol import Symbol
 class TestLoadOperation(unittest.TestCase):
 
     def test_basic_loader(self):
-        load_operation = LoadOperationFactory.load_from_file('test/data/ls')
+        load_operation = LoadOperationFactory.load_from_file('test/data/ls', 'elf64-x86-64', 'i386:x86-64')
         odb_file = OdbFile()
 
         odb_file.execute(load_operation)

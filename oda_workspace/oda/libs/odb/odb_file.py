@@ -70,14 +70,15 @@ class BinaryStringFactory(object):
     def __init__(self, binary_string, arch):
         self.binary_string = binary_string
         self.arch = arch
+        self.options = Options('binary', arch, 0)
 
     def get_binary(self):
-        arch = self.arch
+        options = self.options
 
         class Binary(object):
 
             def __init__(self, binary_string):
-                self.options = Options('binary', arch, 0)
+                self.options = options
                 self.id = 0
                 self.is_live_mode = True
                 self.binary_string_display = binary_string
@@ -159,6 +160,9 @@ class OdbFile(object):
     def get_object_id(self):
         self.object_id += 1
         return self.object_id
+
+    def get_options(self):
+        return self.binary_factory.options
 
     def get_binary(self):
         assert (self.binary_factory is not None)

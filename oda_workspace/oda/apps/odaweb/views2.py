@@ -18,6 +18,7 @@ import dns.resolver
 from oda.libs.odb.bfd.ofd import Ofd
 from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer
 from oda.libs.odb.ops.load_operation import LoadOperationFactory
+from oda.libs.odb.ops.modify_settings import ModifySettingsFactory
 from oda.libs.odb.structures.section import Section
 
 
@@ -206,11 +207,9 @@ def set(request):
 
             #oda_master.binary.binary_string = cleaned_hex_string
             #form.cleaned_data['base_address']
-            odb_file = OdbFile()
-            load_operation = LoadOperationFactory.load_from_string(
-                cleaned_hex_string, form.cleaned_data['arch']
-            )
-            odb_file.execute(load_operation)
+            odb_file = oda_master.odb()
+            odb_file.execute(ModifySettingsFactory.set_architecture(form.cleaned_data['arch']))
+            odb_file.execute(ModifySettingsFactory.set_base_address(baseAddr))
             oda_master.odb_file = DefaultOdbSerializer().dumps(odb_file)
             oda_master.save()
             formType = "live"
