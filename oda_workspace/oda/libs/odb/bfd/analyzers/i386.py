@@ -4,8 +4,8 @@ Created on Jun 12, 2012
 @author: Owner
 '''
 import re
-from odb.bfd.analyzers.defaultAnalyzer import defaultAnalyzer
-from odb.bfd.analyzers.instruction import InstructionType, callType
+from oda.libs.odb.bfd.analyzers.defaultAnalyzer import defaultAnalyzer
+from oda.libs.odb.bfd.analyzers.defaultAnalyzer import InstructionType, callType
 
 
 class i386(defaultAnalyzer):

@@ -139,7 +139,7 @@ class SymbolsTest(OdaTestCase):
         rd = response.data
 
         self.assertIsNotNone(rd)
-        self.assertEqual(415, len(rd))
+        self.assertEqual(153, len(rd))
         self.assertIsNotNone(rd[0]['name'])
         self.assertIsNotNone(rd[0]['offset'])
         self.assertIsNotNone(rd[0]['type'])

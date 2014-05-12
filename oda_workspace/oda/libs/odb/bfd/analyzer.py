@@ -7,7 +7,7 @@ def analyzer_factory(arch):
     name = 'oda.libs.odb.bfd.analyzers.' + arch
     try:
         mod = __import__(name)
-    except ImportError:
+    except ImportError as e:
         return analyzer_factory('defaultAnalyzer')
 
     components = name.split('.')

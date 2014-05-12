@@ -12,6 +12,7 @@ import logging
 import string
 from oda.libs.odb.bfd.ofd import Ofd
 from oda.libs.odb.structures import symbol
+from oda.libs.odb.structures import branch as branch2
 logger = logging.getLogger(__name__)
 
 class Function(object):
@@ -69,6 +70,18 @@ def parseDataLine(section_name, start_addr, end_addr, self, displayUnits, is_dat
 
     return numLines
 
+def create_branch(instr):
+    args = {}
+    args['srcAddr'] = instr.offset
+    args['targetAddr'] = instr.targetAddr
+    args['branchDown'] = args['srcAddr'] <= args['targetAddr']
+    args['startAddr'] = args['srcAddr'] if args['branchDown'] else args['targetAddr']
+    args['stopAddr'] = args['targetAddr'] if ['branchDown'] else ['srcAddr']
+    args['span'] = args['stopAddr'] - args['startAddr']
+    args['tag'] = None
+    args['instr'] = instr
+    return branch2.Branch(0, **args)
+
 def parseEverything(addr, rawData, instr, abfd, self, displayUnits, section_name):
 
     du = DisplayUnit()
@@ -100,7 +113,7 @@ def parseEverything(addr, rawData, instr, abfd, self, displayUnits, section_name
 
             # save all branches
             if du.instType == InstructionType.branch:
-                self.branches.append(branch.Branch(du))
+                self.branches.append(create_branch(du))
 
             # Check if we need to create a label or function
             if du.isTargetAddrValid:

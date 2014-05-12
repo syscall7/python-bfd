@@ -101,7 +101,9 @@ class Ofd(object):
 
     def symbols(self):
         '''Returns a list of Symbols sorted by increasing address'''
-        return [sym for (name, sym) in sorted(self.bfd.syms_by_name.iteritems(), key=lambda (name, sym): sym.value)]
+        # syms = [sym for (name, sym) in sorted(self.bfd.syms_by_name.iteritems(), key=lambda (name, sym): sym.value)]
+        syms = sorted([sym for (name, sym) in self.bfd.syms_by_name.iteritems()])
+        return syms
 
     def is_code_section(self, sec):
 

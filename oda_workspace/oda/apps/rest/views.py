@@ -94,6 +94,9 @@ class SymbolsViewSet(OdaStructureViewSet):
     serializer_class = SymbolSerializer
     structure = Symbol
 
+    def get_structure_list(self):
+        return [x for x in self.odb_file.get_structure_list(Symbol) if x.type == 't' or x.type=='T']
+
 
 class BinaryStringViewSet(viewsets.GenericViewSet):
     def partial_update(self, request, pk):
