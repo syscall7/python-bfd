@@ -45,7 +45,8 @@ class Options(object):
         return 'DEFAULT'
 
     def get_extra_options(self):
-        return {"flags": []}
+        #return {"flags": []}
+        return []
 
 class BinaryFileFactory(object):
     def __init__(self, filename, target, architecture):

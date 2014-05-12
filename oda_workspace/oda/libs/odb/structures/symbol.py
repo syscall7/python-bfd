@@ -8,4 +8,4 @@ class Symbol(OdaObject):
         self.name = kwargs['name']
         self.type = kwargs['type']
         self.offset = kwargs['offset']
-        self.xrefs = kwargs['xrefs']
+        self.xrefs = set(kwargs['xrefs'])

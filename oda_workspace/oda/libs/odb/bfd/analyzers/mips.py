@@ -5,8 +5,8 @@ Created on November 7, 2012
 '''
 import re
 
-from odaweb.analyzers.defaultAnalyzer import defaultAnalyzer
-from odaweb.analyzers.instruction import InstructionType, callType
+from oda.libs.odb.bfd.analyzers.defaultAnalyzer import defaultAnalyzer
+from oda.libs.odb.bfd.analyzers.defaultAnalyzer import InstructionType, callType
 
 
 class mips(defaultAnalyzer):
