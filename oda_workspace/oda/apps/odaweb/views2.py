@@ -9,8 +9,9 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseServerError
 from django.utils import simplejson
 
-from oda.apps.odaweb.models import OdaMaster, InstDoc
-from oda.libs.odb.bfd.disassembler import  get_supported_archs, get_supported_endians, get_platform_options
+from oda.apps.odaweb.models import OdaMaster, InstDoc, BinaryFile
+from oda.libs.odb.bfd.disassembler import  get_supported_archs, get_supported_endians, get_platform_options, \
+    Disassembler
 #from disassembler import Disassembler, get_supported_archs, \
 #    copy_disassembly, get_supported_endians, get_platform_options
 from examples import Examples
@@ -450,14 +451,14 @@ def upload(request):
     if form.is_valid():
 
         project_name = form.cleaned_data['project_name']
-        options = OdaOptions(target='', architecture='')
-        options.save()
+        #options = OdaOptions(target='', architecture='')
+        #options.save()
 
-        binary_file = BinaryFile.create(request.FILES['filedata'], options)
+        binary_file = BinaryFile.create(request.FILES['filedata'])
         binary_file.save()
 
         oda_master = OdaMaster(short_name=id_generator(), project_name=project_name,
-                               binary=binary_file, ipAddress=request.META.get('REMOTE_ADDR'))
+                               ipAddress=request.META.get('REMOTE_ADDR'))
         if request.user.is_authenticated():
             oda_master.owner = request.user
 
@@ -468,14 +469,15 @@ def upload(request):
         request.session["disassembly_token"]['version'] = 0
 
         arch, target = Disassembler.guess_bfd_arch(binary_file.file_handle().name)
-        oda_master.binary.options.architecture = arch
-        oda_master.binary.options.target = target
-        oda_master.binary.options.save()
+        binary_file.architecture = arch
+        binary_file.target = target
+        binary_file.save()
+
         id = oda_master.short_name
         msg = render_to_string('alert-platform-options.djhtml', {
             'arch': arch,
             'target': target,
-            'file_format': oda_master.binary.desc()
+            'file_format': binary_file.desc()
         })
 
     else:
