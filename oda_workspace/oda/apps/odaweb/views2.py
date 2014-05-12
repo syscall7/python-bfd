@@ -16,6 +16,8 @@ from oda.libs.odb.bfd.disassembler import  get_supported_archs, get_supported_en
 from examples import Examples
 import dns.resolver
 from oda.libs.odb.bfd.ofd import Ofd
+from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer
+from oda.libs.odb.ops.load_operation import LoadOperationFactory
 from oda.libs.odb.structures.section import Section
 
 
@@ -202,37 +204,39 @@ def set(request):
             except (TypeError, UnicodeEncodeError) as e:
                 return HttpResponseServerError('<div>NON HEX DIGIT</div>')
 
-            oda_master.binary.binary_string = cleaned_hex_string
-            oda_master.binary.save()
+            #oda_master.binary.binary_string = cleaned_hex_string
+            #form.cleaned_data['base_address']
+            odb_file = OdbFile()
+            load_operation = LoadOperationFactory.load_from_string(
+                cleaned_hex_string, form.cleaned_data['arch']
+            )
+            odb_file.execute(load_operation)
+            oda_master.odb_file = DefaultOdbSerializer().dumps(odb_file)
+            oda_master.save()
             formType = "live"
         else:
             formType = "open"
 
-        if form.cleaned_data['arch']:
-            arch = form.cleaned_data['arch']
-            oda_master.binary.options.architecture = arch
-            oda_master.binary.options.reset_extra_options()
-            oda_master.binary.options.save()
+        #if form.cleaned_data['arch']:
 
-        if form.cleaned_data['base_address']:
-            baseAddr = form.cleaned_data['base_address']
+            #oda_master.binary.options.architecture = arch
+            #oda_master.binary.options.reset_extra_options()
+            #oda_master.binary.options.save()
 
-        oda_master.binary.options.base_address = baseAddr
-        oda_master.binary.options.save()
 
-        selected_opts = request.POST.getlist('options[]')
-        oda_master.binary.options.set_extra_options(selected_opts)
+        #selected_opts = request.POST.getlist('options[]')
+        #oda_master.binary.options.set_extra_options(selected_opts)
 
-        endian = request.POST.get('endian')
-        if (endian):
-            oda_master.binary.options.set_endian(endian)
+        #endian = request.POST.get('endian')
+        #if (endian):
+        #    oda_master.binary.options.set_endian(endian)
 
-        oda_master.binary.options.save()
+        #oda_master.binary.options.save()
 
         # if we need to disassemble this data for the first time
-        if form.cleaned_data['disassemble']:
-            disassembler = Disassembler(oda_master.binary)
-            disassembler.analyze_first_time()
+        #if form.cleaned_data['disassemble']:
+        #    disassembler = Disassembler(oda_master.binary)
+        #    disassembler.analyze_first_time()
 
     form_html = render_to_string('form-platform-options.djhtml', {
         'arch': arch,
