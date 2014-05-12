@@ -93,6 +93,6 @@ sudo chgrp www-data /tmp/oda.log
 sudo a2ensite default
 sudo service apache2 reload
 
-# Setup mail
+# Setup mai
 create sendgrid account (Anthony has one to use)
 
