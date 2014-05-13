@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from oda.libs.odb.odb_file import OdbFile
@@ -12,7 +13,8 @@ __author__ = 'davis'
 
 class TestScanOperation(unittest.TestCase):
     def test_basic_scan(self):
-        load_operation = LoadOperationFactory.load_from_file('test/data/ls', 'elf64-x86-64', 'i386:x86-64')
+        cwd = os.path.dirname(os.path.realpath(__file__))
+        load_operation = LoadOperationFactory.load_from_file(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64')
         odb_file = OdbFile()
         load_operation.operate(odb_file)
 
