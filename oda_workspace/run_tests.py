@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # EASY-INSTALL-ENTRY-SCRIPT: 'nose==1.3.1','console_scripts','nosetests'
+
+
+
 __requires__ = 'nose==1.3.1'
 import sys
 
@@ -12,6 +15,11 @@ import sys
 
 if __name__ == '__main__':
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "oda.settings.development")
+    from django.test.utils import setup_test_environment
+    setup_test_environment()
+    #setup_databases()
+
+
     sys.exit(
         load_entry_point('nose==1.3.1', 'console_scripts', 'nosetests')()
     )
