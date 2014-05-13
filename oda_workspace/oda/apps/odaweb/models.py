@@ -1,22 +1,14 @@
-from os import unlink
 import os.path
-import tempfile
-import hashlib
-import json
 import commands
 import logging
 import types
-import cPickle
 
 from django.db import models
-from django.core.files.storage import FileSystemStorage
 from django.core.files import File
 from django.contrib.auth.models import User
-from django.contrib.contenttypes import generic
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from oda.libs.odb.odb_file import DefaultOdbSerializer, Options
 
+from oda.libs.odb.odb_file import DefaultOdbSerializer, Options
 from utils import sha1_hash
 
 
