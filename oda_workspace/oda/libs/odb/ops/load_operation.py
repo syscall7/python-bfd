@@ -1,6 +1,5 @@
 import re
 import logging
-from oda.apps.odaweb.models import BinaryFileFromModelFactory
 
 from oda.libs.odb.bfd import ofd
 from oda.libs.odb.odb_file import BinaryFileFactory, BinaryStringFactory, Options
