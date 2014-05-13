@@ -1,5 +1,6 @@
 import re
 import logging
+from oda.apps.odaweb.models import BinaryFileFromModelFactory
 
 from oda.libs.odb.bfd import ofd
 from oda.libs.odb.odb_file import BinaryFileFactory, BinaryStringFactory, Options
@@ -19,7 +20,7 @@ class LoadOperationFactory(object):
     def load_from_string(binary_string, arch):
 
         cleaned_string = ''.join(binary_string.split())
-        return LoadOperation(BinaryStringFactory(cleaned_string, arch))
+        return LoadOperation(BinaryFileFromModelFactory(cleaned_string, arch))
 
 class LoadOperation(Operation):
     def __init__(self, binary_factory):

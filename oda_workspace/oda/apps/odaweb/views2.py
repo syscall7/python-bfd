@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseServerError
 from django.utils import simplejson
 
-from oda.apps.odaweb.models import OdaMaster, InstDoc, BinaryFile
+from oda.apps.odaweb.models import OdaMaster, InstDoc, BinaryFile, BinaryFileFromModelFactory
 from oda.libs.odb.bfd.disassembler import  get_supported_archs, get_supported_endians, get_platform_options, \
     Disassembler
 #from disassembler import Disassembler, get_supported_archs, \
@@ -18,7 +18,7 @@ from examples import Examples
 import dns.resolver
 from oda.libs.odb.bfd.ofd import Ofd
 from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer
-from oda.libs.odb.ops.load_operation import LoadOperationFactory
+from oda.libs.odb.ops.load_operation import LoadOperationFactory, LoadOperation
 from oda.libs.odb.ops.modify_settings import ModifySettingsFactory
 from oda.libs.odb.structures.section import Section
 
@@ -472,6 +472,11 @@ def upload(request):
         binary_file.architecture = arch
         binary_file.target = target
         binary_file.save()
+
+        odb = OdbFile()
+        odb.execute(LoadOperation(BinaryFileFromModelFactory(binary_file.id)))
+        oda_master.odb_file = DefaultOdbSerializer().dumps(odb)
+        oda_master.save()
 
         id = oda_master.short_name
         msg = render_to_string('alert-platform-options.djhtml', {

@@ -66,7 +66,7 @@ class BinaryFileFactory(object):
         return Binary()
 
 
-class BinaryStringFactory(object):
+class   BinaryStringFactory(object):
     def __init__(self, binary_string, arch):
         self.binary_string = binary_string
         self.arch = arch

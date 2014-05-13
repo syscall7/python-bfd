@@ -15,7 +15,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes import generic
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from oda.libs.odb.odb_file import DefaultOdbSerializer
+from oda.libs.odb.odb_file import DefaultOdbSerializer, Options
 
 from utils import sha1_hash
 
@@ -67,6 +67,13 @@ class OdaMaster(models.Model):
 # this is where we'll cache the GoogleStorage files locally
 LOCAL_CACHE_DIR=os.path.join(settings.MEDIA_ROOT, 'cache')
 
+class BinaryFileFromModelFactory(object):
+    def __init__(self, id):
+        self.binary_file_id = id
+
+    def get_binary(self):
+        return BinaryFile.objects.get(id=self.binary_file_id)
+
 class BinaryFile(models.Model):
     ''' Represents a disassembled entity that was uploaded as a file '''
     the_file = models.FileField(upload_to="uploads")
@@ -79,6 +86,10 @@ class BinaryFile(models.Model):
     architecture = models.CharField(max_length=128)
     extra_options = models.CharField(max_length=256, default='{"flags" : [] }')
     base_address = models.CharField(max_length=18)
+
+    @property
+    def options(self):
+        return Options(self.target, self.architecture, self.base_address)
 
 
     def file_handle(self):
