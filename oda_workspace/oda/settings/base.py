@@ -50,6 +50,7 @@ MEDIA_URL = ''
 STATIC_URL = '/static2/'
 
 import os.path
+import sys
 PROJECT_DIR = os.path.dirname(__file__) # this is not Django setting.
 
 # Additional locations of static files

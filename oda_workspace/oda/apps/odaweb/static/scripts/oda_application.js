@@ -178,7 +178,9 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
                 method: 'PATCH',
                 url: '/odaweb/api/binarystrings/'+oda_util.getMaster().binary.id+"/",
                 data: {
-                  binary_string: liveEntryText.replace(/\s/g, '')
+                  binary_string: liveEntryText.replace(/\s/g, ''),
+                  short_name: oda_util.getMaster().short_name,
+                  revision: oda_util.getMaster().revision
                 }
             }).success(function(data){
                 $rootScope.$broadcast("liveEntryText", position);

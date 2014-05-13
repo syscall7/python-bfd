@@ -2,15 +2,18 @@ import os
 import re
 import subprocess
 from django.core.management.base import BaseCommand, CommandError
-import oda.apps.odaweb.disassembler
-from oda.apps.odaweb.disassembler import Disassembler
 from oda.apps.odaweb.examples import Examples
-from oda.apps.odaweb.models import BinaryParcel, Binary, BinaryString, BinaryFile, OdaMaster, OdaOptions, InstDoc, Comment, Label
 from django.contrib.contenttypes.models import ContentType
+from oda.apps.odaweb.models import OdaMaster, InstDoc
+import oda
+from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer
+from oda.libs.odb.ops.add_operation import AddOperation
+from oda.libs.odb.ops.load_operation import LoadOperationFactory
+from oda.libs.odb import structures
+
 
 def load_examples():
-
-    EXAMPLES_DIR = os.path.join(os.path.dirname(oda.apps.odaweb.disassembler.__file__), 'examples')
+    EXAMPLES_DIR = os.path.join(os.path.dirname(oda.apps.odaweb.examples.__file__), 'examples')
 
     for example in Examples:
         short_name = example['short_name']
@@ -20,39 +23,46 @@ def load_examples():
 
         print 'Adding example %s to database' % short_name
 
-        options = example['options']
-        options.save()
+        odb_file = OdbFile()
 
-        if example['binary_type'] is 'file':
-            f = open(os.path.join(EXAMPLES_DIR, example['file_name']),'rb')
-            binary = BinaryFile.create(f, options)
-            binary.save()
-            alwaysTreatAsCode = False
-        elif example['binary_type'] is 'string':
-            binary = BinaryString()
-            binary.binary_string = ''.join(example['data'].split())
-            binary.options = options
-            binary.save()
-            alwaysTreatAsCode = True
+        if 'data' in example:
+            example_data = ''.join(example['data'].split())
+            load_operation = LoadOperationFactory.load_from_string(
+                example_data, example['options']['architecture']
+            )
 
-        oda_master = OdaMaster(short_name = short_name, project_name = example['project_name'], binary = binary)
-        oda_master.save()
+            odb_file.execute(load_operation)
+        elif 'file_name' in example:
+            load_operation = LoadOperationFactory.load_from_file(
+                os.path.join(EXAMPLES_DIR, example['file_name']),
+                example['options']['target'],
+                example['options']['architecture'])
+            odb_file.execute(load_operation)
 
-        ctype = ContentType.objects.get_for_model(binary)
+
         if 'comments' in example:
-            for offset,msg in example['comments']:
-                comment = Comment(content_type=ctype, object_id=binary.id, comment = msg, offset = offset)
-                comment.save()
-                print "Adding Comment %s To %s" % (comment.comment, binary.id)
+            for offset, msg in example['comments']:
+                item = odb_file.create_item('Comment', {
+                    'comment': msg,
+                    'offset': offset
+                })
+
+                odb_file.execute(structures.comment.generate_operation(AddOperation, item))
+
+                print "Adding Comment %s To %s" % (str(item), str(odb_file))
 
         if 'labels' in example:
             for offset, labelName in example['labels']:
-                label = Label(content_type=ctype, object_id=binary.id, label = labelName, offset = offset)
-                label.save()
-                print "Saving label %s To %s" % (label.label, binary.id)
+                item = odb_file.create_item('Label', {
+                    'label': labelName,
+                    'offset': offset
+                })
+                odb_file.execute(structures.label.generate_operation(AddOperation, item))
+                print "Saving label %s To %s" % (str(item), str(odb_file))
 
-        disassembler = Disassembler(binary)
-        disassembler.analyze_first_time()
+        oda_master = OdaMaster(short_name=short_name, project_name=example['project_name'],
+                               odb_file=DefaultOdbSerializer().dumps(odb_file))
+        oda_master.save()
 
 
 # ------------------------------------------------------------------------------
@@ -71,7 +81,7 @@ class TmpSubCode:
         else:
             self.short += ' ' + more_short
 
-        #print 'New short is "%s"' % self.short
+            #print 'New short is "%s"' % self.short
 
     mnemonic = property()
     short = property()
@@ -119,7 +129,8 @@ class TmpInstDoc:
         except OSError:
             pass
 
-        subprocess.check_call('pdftoppm -png -f %d -l %d intel_ref.pdf %s' % (self.page_start, self.page_start+self.num_pages-1, os.path.join(directory, name)), shell=True)
+        subprocess.check_call('pdftoppm -png -f %d -l %d intel_ref.pdf %s' % (
+            self.page_start, self.page_start + self.num_pages - 1, os.path.join(directory, name)), shell=True)
 
     def gen_pdf(self, directory, name):
         try:
@@ -127,12 +138,14 @@ class TmpInstDoc:
         except OSError:
             pass
 
-        subprocess.check_call('pdftk intel_ref.pdf cat %d-%d output %s.pdf' % (self.page_start, self.page_start+self.num_pages-1, os.path.join(directory, name)), shell=True)
+        subprocess.check_call('pdftk intel_ref.pdf cat %d-%d output %s.pdf' % (
+            self.page_start, self.page_start + self.num_pages - 1, os.path.join(directory, name)), shell=True)
 
 
     mnemonic = property()
     short = property()
     long = property()
+
 
 # ------------------------------------------------------------------------------
 # Purpose: Standalone executable to scrape Intel instruction reference
@@ -145,17 +158,16 @@ class TmpInstDoc:
 #   The pdftotext utility is distributed with xpdf.
 # ------------------------------------------------------------------------------
 def load_instdocs():
-
     # read in text file and extract pages
     with open(os.path.join(os.path.dirname(__file__), 'intel_ref.latin'), 'r') as f:
         txt = f.read()
         pages = txt.split('\f')
 
     # states
-    STATE_FIND_START         = 1
-    STATE_FIND_SUBCODES      = 2
-    STATE_FIND_DESC          = 3
-    STATE_GATHER_DESC        = 4
+    STATE_FIND_START = 1
+    STATE_FIND_SUBCODES = 2
+    STATE_FIND_DESC = 3
+    STATE_GATHER_DESC = 4
 
     state = STATE_FIND_START
 
@@ -174,7 +186,7 @@ def load_instdocs():
             if inst_ref.match(lines[0]):
 
                 # we already know what the first line of each page looks like, so skip it
-                for i in range(1,len(lines)):
+                for i in range(1, len(lines)):
 
                     line = lines[i]
                     inst_match = inst_start.match(line)
@@ -185,8 +197,8 @@ def load_instdocs():
                     # NOTE: The only exception when 'Opcode' did not appear within the next
                     #       two lines was for 'MOVS/MOVSB/MOVSW/MOVSD/MOVSQ', which I manually
                     #       fixed up by deleting some empty lines in the input file.
-                    elif inst_match and 'Opcode' in '\n'.join(lines[i+1:i+2]):
-                        cur_inst = TmpInstDoc(page_num+1)
+                    elif inst_match and 'Opcode' in '\n'.join(lines[i + 1:i + 2]):
+                        cur_inst = TmpInstDoc(page_num + 1)
                         cur_inst.mnemonic = inst_match.group('mnemonic')
                         cur_inst.short = inst_match.group('short')
                         inst_docs.append(cur_inst)
@@ -199,7 +211,7 @@ def load_instdocs():
 
             cur_inst.num_pages += 1
 
-            for i in range(1,len(lines)):
+            for i in range(1, len(lines)):
                 line = lines[i]
 
                 if state == STATE_FIND_SUBCODES:
@@ -219,11 +231,10 @@ def load_instdocs():
                             short = fields[5].strip()
                             cur_inst.sub_codes.append(TmpSubCode(mnemonic, short))
                         # catch any part of the description that wrapped to the next line
-                        elif (len(fields) == 2) and fields[0] == '' and lines[i-1].strip() != '':
+                        elif (len(fields) == 2) and fields[0] == '' and lines[i - 1].strip() != '':
                             print fields[1]
                             # add the text to the last sub code added
                             cur_inst.sub_codes[-1].update_short(fields[1])
-
 
                 if state == STATE_FIND_DESC:
                     desc_match = desc_start.match(line)
@@ -237,7 +248,7 @@ def load_instdocs():
                     else:
                         cur_inst.update_long(line)
 
-    for (i,inst) in enumerate(inst_docs):
+    for (i, inst) in enumerate(inst_docs):
 
         # split mnemonic_a/mnemonic_b/mnemonic_c apart
         for mnemonic in inst.mnemonic.split('/'):
@@ -251,7 +262,7 @@ def load_instdocs():
                 platform='i386',
                 mnemonic=mnemonic,
                 short=inst.short.decode('latin-1').encode('utf-8'),
-                long= inst.long.decode('latin-1').encode('utf-8'))
+                long=inst.long.decode('latin-1').encode('utf-8'))
 
             inst_doc.save()
 
@@ -267,16 +278,16 @@ def load_instdocs():
                 platform='i386',
                 mnemonic=sub.mnemonic,
                 short=sub.short.decode('latin-1').encode('utf-8'),
-                long= inst.long.decode('latin-1').encode('utf-8'))
+                long=inst.long.decode('latin-1').encode('utf-8'))
 
             inst_doc.save()
+
 
 class Command(BaseCommand):
     args = '<>'
     help = 'Setup ODA'
 
     def handle(self, *args, **options):
-
         load_examples()
         load_instdocs()
         print '\nODA setup was successful!'

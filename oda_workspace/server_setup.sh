@@ -73,11 +73,6 @@ sudo vim /etc/apache2/sites-available/default
             CustomLog ${APACHE_LOG_DIR}/access.log combined
     </VirtualHost>
 
-# TODO: Add notes about setting up ssl
-copy default-ssl from server
-a2enmod ssl
-sudo service apache2 reload
-
 sudo mkdir -p /var/oda/uploads
 sudo mkdir -p /var/oda/cache
 
@@ -93,6 +88,5 @@ sudo chgrp www-data /tmp/oda.log
 sudo a2ensite default
 sudo service apache2 reload
 
-# Setup mai
-create sendgrid account (Anthony has one to use)
+
 

@@ -1,49 +1,42 @@
 import json
-from oda.apps.odaweb.models import OdaMaster, Comment, BinaryFile, BinaryString, BinaryParcel, Function
+from oda.apps.odaweb.models import OdaMaster
 from rest_framework import serializers
 
 
+class CommentSerializer(serializers.Serializer):
+    comment = serializers.CharField()
+    offset = serializers.IntegerField()
 
-class BinaryFileSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = BinaryFile
-        fields = ('filename', 'filesize', 'hash')
+class BinaryFileSerializer(serializers.Serializer):
+    filename = serializers.CharField(max_length=128)
+    filesize = serializers.IntegerField()
+    hash = serializers.CharField(max_length=128)
 
-class BinaryStringSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = BinaryString
-        fields = ['binary_string']
+class DataStringSerializer(serializers.Serializer):
+    string = serializers.CharField()
+    addr = serializers.IntegerField()
 
-class BinaryObjectRelatedField(serializers.RelatedField):
-    """
-    A custom field to use for the `tagged_object` generic relationship.
-    """
+class BinaryStringSerializer(serializers.Serializer):
+    binary_string = serializers.CharField()
 
-    def to_native(self, value):
-        """
-        Serialize tagged objects to a simple textual representation.
-        """
-        if isinstance(value, BinaryFile):
-            serializer = BinaryFileSerializer(value)
-        elif isinstance(value, BinaryString):
-            serializer = BinaryStringSerializer(value)
-        else:
-            raise Exception('Unexpected type of ' + value.__class__.__name__)
+class SymbolSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    offset = serializers.IntegerField()
+    type = serializers.CharField()
 
-        return serializer.data
+class LabelSerializer(serializers.Serializer):
+    label = serializers.CharField()
+    offset = serializers.IntegerField()
 
 class OdaMasterSerializer(serializers.HyperlinkedModelSerializer):
-    binary = BinaryObjectRelatedField()
-
     class Meta:
         model = OdaMaster
-        fields = ('project_name', 'short_name', 'revision', 'creation_date', 'binary')
+        fields = ('project_name', 'short_name', 'revision', 'creation_date')
 
-
-class FunctionSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Function
-        fields = ('retval', 'args', 'offset')
+class FunctionSerializer(serializers.Serializer):
+    retval = serializers.CharField(required=False)
+    args = serializers.CharField()
+    offset = serializers.IntegerField()
 
 class StringListField(serializers.WritableField):
     def to_native(self, obj):

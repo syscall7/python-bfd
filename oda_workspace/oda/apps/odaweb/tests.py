@@ -6,9 +6,10 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
+from oda.apps.rest.tests import OdaTestCase
 
 
-class IndexTest(TestCase):
+class IndexTest(OdaTestCase):
     def test_index(self):
         response = self.client.get('/odaweb/')
 
@@ -16,3 +17,16 @@ class IndexTest(TestCase):
 
         self.assertTrue('master' in response.context)
         self.assertTrue('supported_archs' in response.context)
+
+    def test_mkdir(self):
+        response = self.client.get('/odaweb/mkdir/')
+
+        self.assertEqual(response.status_code, 200)
+
+    #def test_set(self):
+    #    response = self.client.patch('/odaweb/_set', {
+    #        'arch': 'i386:x86-64:intel',
+    #        'base_address': '0'
+    #    })
+    #
+    #    self.assertEqual(response.status_code, 200)
