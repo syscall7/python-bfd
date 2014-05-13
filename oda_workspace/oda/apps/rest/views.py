@@ -102,8 +102,10 @@ class BinaryStringViewSet(viewsets.GenericViewSet):
     def partial_update(self, request, pk):
         oda_master = OdaMaster.objects.get(short_name=request.DATA['short_name'], revision=request.DATA['revision'])
 
+        previous_odb = oda_master.odb()
+
         load_operation = LoadOperationFactory.load_from_string(
-            request.DATA['binary_string'], 'i386:x86-64'
+            request.DATA['binary_string'], previous_odb.get_binary().options.architecture
         )
         odb_file = OdbFile()
         odb_file.execute(load_operation)

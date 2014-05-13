@@ -20,7 +20,7 @@ class LoadOperationFactory(object):
     def load_from_string(binary_string, arch):
 
         cleaned_string = ''.join(binary_string.split())
-        return LoadOperation(BinaryFileFromModelFactory(cleaned_string, arch))
+        return LoadOperation(BinaryStringFactory(cleaned_string, arch))
 
 class LoadOperation(Operation):
     def __init__(self, binary_factory):
