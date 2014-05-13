@@ -209,8 +209,11 @@ def set(request):
             #oda_master.binary.binary_string = cleaned_hex_string
             #form.cleaned_data['base_address']
             odb_file = oda_master.odb()
-            odb_file.execute(ModifySettingsFactory.set_architecture(form.cleaned_data['arch']))
-            odb_file.execute(ModifySettingsFactory.set_base_address(baseAddr))
+            odb_file.execute(ModifySettingsFactory.set_values({
+                'architecture': form.cleaned_data['arch'],
+                'base_address': baseAddr,
+                'endian': form.cleaned_data['endian']
+            }))
             oda_master.odb_file = DefaultOdbSerializer().dumps(odb_file)
             oda_master.save()
             formType = "live"

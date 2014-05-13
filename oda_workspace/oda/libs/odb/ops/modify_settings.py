@@ -13,6 +13,14 @@ class ModifySettingsFactory(object):
     def set_base_address(base_address):
         return ModifySettingsOperation({'base_address': base_address})
 
+    @staticmethod
+    def set_endian(endian):
+        return ModifySettingsOperation({'endian': endian})
+
+    @staticmethod
+    def set_values(values):
+        return ModifySettingsOperation(values)
+
 
 
 class ModifySettingsOperation(Operation):
@@ -35,3 +43,6 @@ class ModifySettingsOperation(Operation):
 
         if self.options.get('base_address'):
             options.base_address = self.options.get('base_address')
+
+        if self.options.get('endian'):
+            options.endian = self.options.get('endian')

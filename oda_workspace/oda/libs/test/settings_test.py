@@ -45,3 +45,11 @@ class TestSettings(unittest.TestCase):
         options = binary.options
         self.assertEquals("1000", options.base_address)
 
+        modify = ModifySettingsFactory.set_endian('BIG')
+        odb.execute(modify)
+        binary = odb.get_binary()
+        options = binary.options
+        self.assertEquals("BIG", options.endian)
+
+
+

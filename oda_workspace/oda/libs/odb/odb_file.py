@@ -40,9 +40,10 @@ class Options(object):
         self.target = target
         self.architecture = architecture
         self.base_address = base_address
+        self.endian = 'DEFAULT'
 
     def get_endian(self):
-        return 'DEFAULT'
+        return self.endian
 
     def get_extra_options(self):
         #return {"flags": []}

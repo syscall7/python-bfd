@@ -22,3 +22,11 @@ class IndexTest(OdaTestCase):
         response = self.client.get('/odaweb/mkdir/')
 
         self.assertEqual(response.status_code, 200)
+
+    #def test_set(self):
+    #    response = self.client.patch('/odaweb/_set', {
+    #        'arch': 'i386:x86-64:intel',
+    #        'base_address': '0'
+    #    })
+    #
+    #    self.assertEqual(response.status_code, 200)
