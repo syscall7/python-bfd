@@ -66,7 +66,8 @@ odaApplication.directive('scroll', []).directive('whenScrolled', function() {
 */
 odaApplication.directive('resize', function ($window) {
     return function (scope, element) {
-        $(element).height($(window).height()-157);
+        ResizeHandler();
+        //$(element).height($(window).height()-172);
     }
 });
 

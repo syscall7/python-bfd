@@ -62,7 +62,7 @@ var Sidebar = Backbone.Model.extend({
         if ( $(elem).find('table').length )
         {
             // Table header height
-            new_offset += 36;
+            new_offset += 9;
             new_offset += $("#sidebar").offset().top + accum_margins;
             new_height = $(window).height()-new_offset;            
         }
@@ -263,7 +263,8 @@ function ResizeHandler() {
         $('#vertSplitter').height($(window).height()-47);
 
         // TODO: Hardcoded Height incluees footer, banner, and tabs
-        $('#myTabContent').height($(window).height()-157);
+        $('#myTabContent').height($(window).height()-172);
+        $('#assembly-scroll').height($(window).height()-172);
 
         $('.sidebar-scroll-container').each( function (i,elem) {
             $(elem).height( sidebar.resize($(elem))  );
