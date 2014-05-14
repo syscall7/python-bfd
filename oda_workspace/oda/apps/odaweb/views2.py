@@ -471,8 +471,10 @@ def upload(request):
         oda_master.save()
 
         request.session["disassembly_id"] = oda_master.short_name
-        request.session["disassembly_token"]['id'] = oda_master.short_name
-        request.session["disassembly_token"]['version'] = 0
+        request.session["disassembly_token"] = {
+            'id': oda_master.short_name,
+            'version': 0
+        }
 
         arch, target = Disassembler.guess_bfd_arch(binary_file.file_handle().name)
         binary_file.architecture = arch

@@ -4,10 +4,12 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
+import os
 
 from django.test import TestCase
 from oda.apps.rest.tests import OdaTestCase
 
+cwd = os.path.dirname(os.path.realpath(__file__))
 
 class IndexTest(OdaTestCase):
     def test_index(self):
@@ -22,6 +24,28 @@ class IndexTest(OdaTestCase):
         response = self.client.get('/odaweb/mkdir/')
 
         self.assertEqual(response.status_code, 200)
+
+    def test_upload_elf(self):
+        f = open(os.path.join(cwd, 'examples/mkdir'))
+        response = self.client.post('/odaweb/_upload', {
+            'project_name': 'test',
+            'filedata': f
+        })
+        f.close()
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_rando_binary(self):
+        f = open(os.path.join(cwd, 'examples/ls.bin.x86-64'))
+        response = self.client.post('/odaweb/_upload', {
+            'project_name': 'test',
+            'filedata': f
+        })
+        f.close()
+
+        self.assertEqual(response.status_code, 200)
+
+
 
     #def test_set(self):
     #    response = self.client.patch('/odaweb/_set', {
