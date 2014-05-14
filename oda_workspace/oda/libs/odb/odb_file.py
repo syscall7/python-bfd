@@ -41,12 +41,16 @@ class Options(object):
         self.architecture = architecture
         self.base_address = base_address
         self.endian = 'DEFAULT'
+        self.selected_opts = []
 
     def get_endian(self):
         return self.endian
 
     def get_extra_options(self):
         #return {"flags": []}
+        if hasattr(self, 'selected_opts'):
+            return self.selected_opts
+
         return []
 
 class BinaryFileFactory(object):

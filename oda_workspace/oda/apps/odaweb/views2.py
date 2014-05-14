@@ -206,13 +206,16 @@ def set(request):
             except (TypeError, UnicodeEncodeError) as e:
                 return HttpResponseServerError('<div>NON HEX DIGIT</div>')
 
+            selected_opts = request.POST.getlist('options[]')
             #oda_master.binary.binary_string = cleaned_hex_string
             #form.cleaned_data['base_address']
             odb_file = oda_master.odb()
             odb_file.execute(ModifySettingsFactory.set_values({
                 'architecture': form.cleaned_data['arch'],
                 'base_address': baseAddr,
-                'endian': form.cleaned_data['endian']
+                'endian': form.cleaned_data['endian'],
+                'selected_opts': selected_opts
+
             }))
             oda_master.odb_file = DefaultOdbSerializer().dumps(odb_file)
             oda_master.save()

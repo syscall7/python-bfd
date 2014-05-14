@@ -46,3 +46,6 @@ class ModifySettingsOperation(Operation):
 
         if self.options.get('endian'):
             options.endian = self.options.get('endian')
+
+        if self.options.get('selected_opts'):
+            options.selected_opts = self.options.get('selected_opts')
