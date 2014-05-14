@@ -51,5 +51,14 @@ class TestSettings(unittest.TestCase):
         options = binary.options
         self.assertEquals("BIG", options.endian)
 
+        modify = ModifySettingsFactory.set_values({'selected_opts': ["intel-mnemonic"]})
+        odb.execute(modify)
+        binary = odb.get_binary()
+        options = binary.options
+        self.assertEquals(1, len(options.get_extra_options()))
+        self.assertEquals('intel-mnemonic', options.get_extra_options()[0])
+
+
+
 
 
