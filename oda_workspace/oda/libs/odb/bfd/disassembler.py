@@ -5,6 +5,7 @@ from oda.libs.odb.structures.parcel import Parcel
 
 __author__ = 'davis'
 
+UNKNOWN_ARCH = 'UNKNOWN!'
 
 def get_supported_archs():
     '''Return a list of all architectures supported
@@ -82,7 +83,7 @@ class Disassembler(object):
         ''' Returns our best guess at target (file format) and architecture '''
 
         # use defaults these default when we can't detect the arch/target
-        arch = 'UNKNOWN!'
+        arch = UNKNOWN_ARCH
         target = 'binary'
         try:
             target_archs = bfd.guess_target_arch(filename)
