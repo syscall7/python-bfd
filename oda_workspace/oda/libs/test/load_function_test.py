@@ -35,6 +35,21 @@ class TestLoadOperation(unittest.TestCase):
         self.assertEquals(1, len([s for s in odb_file.get_structure_list(DataString) if s.value == 'hide-control-chars']))
         self.assertEquals(1, len([s for s in odb_file.get_structure_list(DataString) if s.value == 'error initializing month strings']))
 
+    def test_basic_binary_loader(self):
+        cwd = os.path.dirname(os.path.realpath(__file__))
+        load_operation = LoadOperationFactory.load_from_file(os.path.join(cwd, 'data/ls.bin.x86-64'), 'binary', 'i386:x86-64')
+        odb_file = OdbFile()
+
+        odb_file.execute(load_operation)
+
+        self.assertEquals(1, len(odb_file.get_structure_list(Section)))
+
+        self.assertEquals(0, len(odb_file.get_structure_list(Symbol)))
+
+        self.assertEquals(0, len(odb_file.get_structure_list(Function)))
+
+        self.assertEquals(857, len(odb_file.get_structure_list(DataString)))
+
     def test_load_string(self):
         odb_file = OdbFile()
 
