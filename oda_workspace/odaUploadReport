@@ -166,7 +166,7 @@ print msg
 # Send the message via our own SMTP server, but don't include the
 # envelope header.
 s = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
-s.login('avderos', 'TimSGpword7&')
+s.login('avderos', 'waPupkQLKN3ZI')
 s.sendmail(SENDER, RECEIVERS, msg.as_string())
 s.quit()
 
