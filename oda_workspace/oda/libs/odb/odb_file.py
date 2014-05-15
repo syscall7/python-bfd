@@ -73,7 +73,7 @@ class BinaryFileFactory(object):
 
 class   BinaryStringFactory(object):
     def __init__(self, binary_string, arch):
-        self.binary_string = binary_string
+        self.binary_string = ''.join(binary_string.split())
         self.arch = arch
         self.options = Options('binary', arch, 0)
 
@@ -118,9 +118,13 @@ class   BinaryStringFactory(object):
 
 
 class OdbFile(object):
-    def __init__(self):
+    def __init__(self, binary_factory=None):
 
-        self.binary_factory = None
+        if binary_factory:
+            assert(hasattr(binary_factory, 'get_binary'))
+            assert(type(getattr(binary_factory, 'get_binary')) == types.MethodType)
+
+        self.binary_factory = binary_factory
         self.object_id = 0
         self.factory = OdaObjectFactory(self)
         self.operations = []

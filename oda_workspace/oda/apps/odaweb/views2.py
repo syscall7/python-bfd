@@ -18,7 +18,7 @@ from examples import Examples
 import dns.resolver
 from oda.libs.odb.bfd.ofd import Ofd
 from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer
-from oda.libs.odb.ops.load_operation import LoadOperationFactory, LoadOperation
+from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.modify_settings import ModifySettingsFactory
 from oda.libs.odb.structures.section import Section
 
@@ -481,8 +481,8 @@ def upload(request):
         binary_file.target = target
         binary_file.save()
 
-        odb = OdbFile()
-        odb.execute(LoadOperation(BinaryFileFromModelFactory(binary_file.id)))
+        odb = OdbFile(BinaryFileFromModelFactory(binary_file.id))
+        odb.execute(LoadOperation())
         oda_master.odb_file = DefaultOdbSerializer().dumps(odb)
         oda_master.save()
 

@@ -8,9 +8,9 @@ from oda.apps.odaweb.models import OdaMaster, InstDoc
 import oda
 from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer
 from oda.libs.odb.ops.add_operation import AddOperation
-from oda.libs.odb.ops.load_operation import LoadOperationFactory
+from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb import structures
-
+from oda.libs.odb.odb_file import BinaryFileFactory, BinaryStringFactory
 
 def load_examples():
     EXAMPLES_DIR = os.path.join(os.path.dirname(oda.apps.odaweb.examples.__file__), 'examples')
@@ -23,22 +23,17 @@ def load_examples():
 
         print 'Adding example %s to database' % short_name
 
-        odb_file = OdbFile()
 
         if 'data' in example:
             example_data = ''.join(example['data'].split())
-            load_operation = LoadOperationFactory.load_from_string(
-                example_data, example['options']['architecture']
-            )
-
-            odb_file.execute(load_operation)
+            odb_file = OdbFile(BinaryStringFactory(example_data, example['options']['architecture']))
+            odb_file.execute(LoadOperation())
         elif 'file_name' in example:
-            load_operation = LoadOperationFactory.load_from_file(
+            odb_file = OdbFile(BinaryFileFactory(
                 os.path.join(EXAMPLES_DIR, example['file_name']),
                 example['options']['target'],
-                example['options']['architecture'])
-            odb_file.execute(load_operation)
-
+                example['options']['architecture']))
+            odb_file.execute(LoadOperation())
 
         if 'comments' in example:
             for offset, msg in example['comments']:

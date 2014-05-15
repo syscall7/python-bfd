@@ -11,13 +11,14 @@ from oda.apps.rest.serializers import OdaMasterSerializer, SectionSerializer, St
     LabelSerializer
 from oda.libs.odb.bfd.disassembler import Disassembler
 from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer
-from oda.libs.odb.ops.load_operation import LoadOperationFactory
+from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.structures.comment import Comment
 from oda.libs.odb.structures.data_string import DataString
 from oda.libs.odb.structures.function import Function
 from oda.libs.odb.structures.label import Label
 from oda.libs.odb.structures.section import Section
 from oda.libs.odb.structures.symbol import Symbol
+from oda.libs.odb.odb_file import BinaryFileFactory, BinaryStringFactory
 
 
 logger = logging.getLogger(__name__)
@@ -104,11 +105,8 @@ class BinaryStringViewSet(viewsets.GenericViewSet):
 
         previous_odb = oda_master.odb()
 
-        load_operation = LoadOperationFactory.load_from_string(
-            request.DATA['binary_string'], previous_odb.get_binary().options.architecture
-        )
-        odb_file = OdbFile()
-        odb_file.execute(load_operation)
+        odb_file = OdbFile(BinaryStringFactory(request.DATA['binary_string'], previous_odb.get_binary().options.architecture))
+        odb_file.execute(LoadOperation())
         oda_master.odb_file = DefaultOdbSerializer().dumps(odb_file)
         oda_master.save()
 

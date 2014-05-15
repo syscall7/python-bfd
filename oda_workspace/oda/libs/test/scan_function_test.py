@@ -2,11 +2,11 @@ import os
 import unittest
 
 from oda.libs.odb.odb_file import OdbFile
-from oda.libs.odb.ops.load_operation import LoadOperationFactory
+from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.scan_operation import ScanOperation
 from oda.libs.odb.structures.branch import Branch
 from oda.libs.odb.structures.function import Function
-
+from oda.libs.odb.odb_file import BinaryFileFactory, BinaryStringFactory
 
 __author__ = 'davis'
 
@@ -14,12 +14,10 @@ __author__ = 'davis'
 class TestScanOperation(unittest.TestCase):
     def test_basic_scan(self):
         cwd = os.path.dirname(os.path.realpath(__file__))
-        load_operation = LoadOperationFactory.load_from_file(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64')
-        odb_file = OdbFile()
-        load_operation.operate(odb_file)
 
-        scan_operation = ScanOperation()
-        scan_operation.operate(odb_file)
+        odb_file = OdbFile(BinaryFileFactory(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64'))
+        odb_file.execute(LoadOperation())
+        odb_file.execute(ScanOperation())
 
         self.assertEqual(215, len(odb_file.get_structure_list(Function)))
 

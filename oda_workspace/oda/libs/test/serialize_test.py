@@ -2,9 +2,9 @@ import os
 import unittest
 
 from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer
-from oda.libs.odb.ops.load_operation import LoadOperationFactory
+from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.structures.function import Function
-
+from oda.libs.odb.odb_file import BinaryFileFactory, BinaryStringFactory
 
 __author__ = 'davis'
 
@@ -13,9 +13,9 @@ class TestSerialize(unittest.TestCase):
 
     def test_serialize(self):
         cwd = os.path.dirname(os.path.realpath(__file__))
-        load_operation = LoadOperationFactory.load_from_file(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64')
-        odb_file = OdbFile()
-        load_operation.operate(odb_file)
+
+        odb_file = OdbFile(BinaryFileFactory(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64'))
+        odb_file.execute(LoadOperation())
 
         serialized = DefaultOdbSerializer().dumps(odb_file)
 
