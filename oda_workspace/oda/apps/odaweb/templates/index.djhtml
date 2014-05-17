@@ -17,7 +17,7 @@
             stop_addr : {{ section_info.stop_addr }}
         },
         binary : {
-            id : '{{ binary.id }}',
+            id : '0',
             liveMode : {{ binary.is_live_mode|jsonify  }},
             arch : '{{ arch }}',
             size : '{{ binary.size|filesizeformat }}',

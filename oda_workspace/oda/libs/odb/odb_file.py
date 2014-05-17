@@ -80,8 +80,10 @@ class BinaryFile(Binary):
 
 class BinaryString(Binary):
     def __init__(self, binary_string, arch):
+        self.binary_string_display = binary_string
         self.binary_string = ''.join(binary_string.split())
         self.arch = arch
+        self.is_live_mode = True
         self._options = Options('binary', arch, 0)
 
     @property
