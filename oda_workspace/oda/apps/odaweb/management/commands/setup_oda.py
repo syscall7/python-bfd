@@ -6,11 +6,10 @@ from oda.apps.odaweb.examples import Examples
 from django.contrib.contenttypes.models import ContentType
 from oda.apps.odaweb.models import OdaMaster, InstDoc
 import oda
-from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer
+from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer, BinaryString, BinaryFile
 from oda.libs.odb.ops.add_operation import AddOperation
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb import structures
-from oda.libs.odb.odb_file import BinaryFileFactory, BinaryStringFactory
 
 def load_examples():
     EXAMPLES_DIR = os.path.join(os.path.dirname(oda.apps.odaweb.examples.__file__), 'examples')
@@ -26,10 +25,10 @@ def load_examples():
 
         if 'data' in example:
             example_data = ''.join(example['data'].split())
-            odb_file = OdbFile(BinaryStringFactory(example_data, example['options']['architecture']))
+            odb_file = OdbFile(BinaryString(example_data, example['options']['architecture']))
             odb_file.execute(LoadOperation())
         elif 'file_name' in example:
-            odb_file = OdbFile(BinaryFileFactory(
+            odb_file = OdbFile(BinaryFile(
                 os.path.join(EXAMPLES_DIR, example['file_name']),
                 example['options']['target'],
                 example['options']['architecture']))

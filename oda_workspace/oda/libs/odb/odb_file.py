@@ -1,3 +1,4 @@
+from abc import abstractmethod, abstractproperty
 import logging
 from os import unlink
 import pickle
@@ -53,78 +54,74 @@ class Options(object):
 
         return []
 
-class BinaryFileFactory(object):
+
+class Binary(object):
+    @abstractmethod
+    def file_handle(self):
+        pass
+
+    @abstractproperty
+    def options(self):
+        pass
+
+
+class BinaryFile(Binary):
     def __init__(self, filename, target, architecture):
         self.filename = filename
-        self.options = Options(target, architecture, 0)
+        self._options = Options(target, architecture, 0)
 
-    def get_binary(self):
-        options = self.options
-        class Binary(object):
-            def __init__(self):
-                self.options = options
+    @property
+    def options(self):
+        return self._options
 
-            @staticmethod
-            def file_handle():
-                return open(self.filename)
-
-        return Binary()
+    def file_handle(self):
+        return open(self.filename)
 
 
-class   BinaryStringFactory(object):
+class BinaryString(Binary):
     def __init__(self, binary_string, arch):
         self.binary_string = ''.join(binary_string.split())
         self.arch = arch
-        self.options = Options('binary', arch, 0)
+        self._options = Options('binary', arch, 0)
 
-    def get_binary(self):
-        options = self.options
+    @property
+    def options(self):
+        return self._options
 
-        class Binary(object):
+    def file_handle(self):
+        try:
+            byte_array = self.binary_string.decode("hex")
+        except TypeError:
+            logger.exception("Failed to decode hex %s" % self.binary_string)
 
-            def __init__(self, binary_string):
-                self.options = options
-                self.id = 0
-                self.is_live_mode = True
-                self.binary_string_display = binary_string
+        # Create a file containing the BinaryString for passing to BFD
+        #  Must use delete=False because bfd expects a file name
+        t = tempfile.NamedTemporaryFile(bufsize=0, delete=False)
+        t.write(byte_array)
 
-            @staticmethod
-            def file_handle():
-                try:
-                    byte_array = self.binary_string.decode("hex")
-                except TypeError:
-                    logger.exception("Failed to decode hex %s" % self.binary_string)
+        # Dynamic function that deletes the temp file when we are done with it
+        def done(self):
+            # Close the file in case it isn't already closed
+            self.close()
 
-                # Create a file containing the BinaryString for passing to BFD
-                #  Must use delete=False because bfd expects a file name
-                t = tempfile.NamedTemporaryFile(bufsize=0, delete=False)
-                t.write(byte_array)
+            # Delete the temporary file permanently
+            unlink(self.name)
 
-                # Dynamic function that deletes the temp file when we are done with it
-                def done(self):
-                    # Close the file in case it isn't already closed
-                    self.close()
+        # Add the done function dynamically to the File instance
+        #f = open(t)
+        t.done = types.MethodType(done, t)
 
-                    # Delete the temporary file permanently
-                    unlink(self.name)
-
-                # Add the done function dynamically to the File instance
-                #f = open(t)
-                t.done = types.MethodType(done, t)
-
-                return t
-
-        return Binary(self.binary_string)
+        return t
 
 
 class OdbFile(object):
-    def __init__(self, binary_factory=None):
+    def __init__(self, binary=None):
 
-        if binary_factory:
-            assert(hasattr(binary_factory, 'get_binary'))
-            assert(type(getattr(binary_factory, 'get_binary')) == types.MethodType)
+        if binary:
+            assert (hasattr(binary, 'file_handle'))
+            assert (type(getattr(binary, 'file_handle')) == types.MethodType)
 
-        self.binary_factory = binary_factory
+        self.binary = binary
         self.object_id = 0
         self.factory = OdaObjectFactory(self)
         self.operations = []
@@ -171,12 +168,12 @@ class OdbFile(object):
         return self.object_id
 
     def get_options(self):
-        return self.binary_factory.options
+        return self.binary.options
 
     def get_binary(self):
-        assert (self.binary_factory is not None)
+        assert (self.binary is not None)
 
-        return self.binary_factory.get_binary()
+        return self.binary
 
     def options(self):
         return self.binary_factory.get_binary().options

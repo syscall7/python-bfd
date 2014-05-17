@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseServerError
 from django.utils import simplejson
 
-from oda.apps.odaweb.models import OdaMaster, InstDoc, BinaryFile, BinaryFileFromModelFactory
+from oda.apps.odaweb.models import OdaMaster, InstDoc, BinaryFile, BinaryFileModel
 from oda.libs.odb.bfd.disassembler import  get_supported_archs, get_supported_endians, get_platform_options, \
     Disassembler
 #from disassembler import Disassembler, get_supported_archs, \
@@ -481,8 +481,8 @@ def upload(request):
         binary_file.target = target
         binary_file.save()
 
-        odb = OdbFile(BinaryFileFromModelFactory(binary_file.id))
-        odb.execute(LoadOperation())
+        odb = OdbFile(BinaryFileModel(binary_file.id))
+#        odb.execute(LoadOperation())
         oda_master.odb_file = DefaultOdbSerializer().dumps(odb)
         oda_master.save()
 
