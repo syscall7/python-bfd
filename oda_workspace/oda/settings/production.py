@@ -12,8 +12,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'odapython2'    ,
         'USER': 'root',                      # Not used with sqlite3.
-        'PASSWORD': 'password',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+        'PASSWORD': '***REMOVED***',                  # Not used with sqlite3.
+        'HOST': '173.194.245.8',         # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
