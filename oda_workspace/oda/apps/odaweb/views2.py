@@ -231,6 +231,7 @@ def set(request):
                 'selected_opts': selected_opts
 
             }))
+            odb_file.execute(LoadOperation())
             oda_master.odb_file = DefaultOdbSerializer().dumps(odb_file)
             oda_master.save()
 

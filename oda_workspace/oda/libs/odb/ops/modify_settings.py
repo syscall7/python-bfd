@@ -49,3 +49,5 @@ class ModifySettingsOperation(Operation):
 
         if self.options.get('selected_opts'):
             options.selected_opts = self.options.get('selected_opts')
+
+        odb_file.get_binary().options = options

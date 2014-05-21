@@ -70,6 +70,15 @@ class BinaryFileModel(Binary):
     def options(self):
         return BinaryFile.objects.get(id=self.binary_file_id).options
 
+    @options.setter
+    def options(self, options):
+        binary_file = BinaryFile.objects.get(id=self.binary_file_id)
+        binary_file.target = options.target
+        binary_file.architecture = options.architecture
+        binary_file.extra_options = options.get_extra_options()
+        binary_file.base_address = options.base_address
+        binary_file.save()
+
 class BinaryFile(models.Model):
     ''' Represents a disassembled entity that was uploaded as a file '''
     the_file = models.FileField(upload_to="uploads")
