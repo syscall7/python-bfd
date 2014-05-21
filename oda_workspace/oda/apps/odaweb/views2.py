@@ -231,6 +231,8 @@ def set(request):
                 'selected_opts': selected_opts
 
             }))
+            oda_master.odb_file = DefaultOdbSerializer().dumps(odb_file)
+            oda_master.save()
 
         #if form.cleaned_data['arch']:
 
