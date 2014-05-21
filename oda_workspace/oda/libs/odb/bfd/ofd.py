@@ -32,7 +32,7 @@ class Ofd(object):
         filename = self.bfd_file_handle.name
 
         # internal BFD object
-        assert(binary.options.architecture != UNKNOWN_ARCH)
+        assert(binary.options.architecture != UNKNOWN_ARCH, "binary.options.architecture==UNKNOWN")
         self.bfd = bfd.Bfd(filename, binary.options.target, binary.options.architecture)
 
         # process sections

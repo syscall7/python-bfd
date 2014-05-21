@@ -222,6 +222,15 @@ def set(request):
             formType = "live"
         else:
             formType = "open"
+            odb_file = oda_master.odb()
+            selected_opts = request.POST.getlist('options[]')
+            odb_file.execute(ModifySettingsFactory.set_values({
+                'architecture': form.cleaned_data['arch'],
+                'base_address': baseAddr,
+                'endian': form.cleaned_data['endian'],
+                'selected_opts': selected_opts
+
+            }))
 
         #if form.cleaned_data['arch']:
 
