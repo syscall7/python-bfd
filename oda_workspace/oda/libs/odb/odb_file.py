@@ -91,6 +91,10 @@ class BinaryString(Binary):
     def options(self):
         return self._options
 
+    @options.setter
+    def options(self, options):
+        self._options = options
+
     def file_handle(self):
         try:
             byte_array = self.binary_string.decode("hex")
