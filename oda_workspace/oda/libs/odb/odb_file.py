@@ -4,6 +4,7 @@ from os import unlink
 import cPickle
 import tempfile
 import types
+import zlib
 
 from oda.libs.odb.ops.operation import ValidationError
 from oda.libs.odb.structures.comment import Comment
@@ -183,13 +184,13 @@ class OdbFile(object):
 
 class DefaultOdbSerializer(object):
     def dumps(self, odb_file):
-        return cPickle.dumps({
+        return zlib.compress(cPickle.dumps({
             'version': 1,
             'odb_file': odb_file
-        })
+        }))
 
     def load(self, serialized):
-        return cPickle.loads(str(serialized))['odb_file']
+        return cPickle.loads(str(zlib.decompress(serialized)))['odb_file']
 
 
 def scan():

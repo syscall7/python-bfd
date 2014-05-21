@@ -62,13 +62,14 @@ LOCAL_CACHE_DIR=os.path.join(settings.MEDIA_ROOT, 'cache')
 class BinaryFileModel(Binary):
     def __init__(self, id):
         self.binary_file_id = id
+        self._options = BinaryFile.objects.get(id=self.binary_file_id).options
 
     def file_handle(self):
         return BinaryFile.objects.get(id=self.binary_file_id).file_handle()
 
     @property
     def options(self):
-        return BinaryFile.objects.get(id=self.binary_file_id).options
+        return self._options
 
     @options.setter
     def options(self, options):
@@ -78,6 +79,7 @@ class BinaryFileModel(Binary):
         binary_file.extra_options = options.get_extra_options()
         binary_file.base_address = options.base_address
         binary_file.save()
+        self._options = binary_file.options
 
 class BinaryFile(models.Model):
     ''' Represents a disassembled entity that was uploaded as a file '''
