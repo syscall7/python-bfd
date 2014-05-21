@@ -13,6 +13,7 @@ import string
 from oda.libs.odb.bfd.ofd import Ofd
 from oda.libs.odb.structures import symbol
 from oda.libs.odb.structures import branch as branch2
+from oda.libs.odb.structures import function as function2
 logger = logging.getLogger(__name__)
 
 class Function(object):
@@ -334,9 +335,12 @@ class defaultAnalyzer(object):
         self.symbols = self.odb_file.get_structure_list(symbol.Symbol)
 
         # Add symbols from the database to the functions list
-        for sym in self.symbols:
-            if sym.type == 'T' or sym.type == 't':
-                self.functions[sym.offset] = Function(sym.offset, sym.name, sym.type, sym.xrefs)
+        for f in self.odb_file.get_structure_list(function2.Function):
+            self.functions[f.offset] = f
+
+        #for sym in self.symbols:
+        #    if sym.type == 'T' or sym.type == 't':
+        #        self.functions[sym.offset] = Function(sym.offset, sym.name, sym.type, sym.xrefs)
 
         # Make a first pass at parsing for organizing the instructions
         logger.debug("Analyze: START FIRST PASS FOR INSTRUCTIONS")
