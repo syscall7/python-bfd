@@ -75,6 +75,10 @@ class BinaryFile(Binary):
     def options(self):
         return self._options
 
+    @options.setter
+    def options(self, options):
+        self._options = options
+
     def file_handle(self):
         return open(self.filename)
 
