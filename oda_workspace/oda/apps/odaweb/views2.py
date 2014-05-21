@@ -232,10 +232,12 @@ def set(request):
                 'selected_opts': selected_opts
 
             }))
-            odb_file.execute(LoadOperation())
-            odb_file.execute(ScanOperation())
-            oda_master.odb_file = DefaultOdbSerializer().dumps(odb_file)
-            oda_master.save()
+
+            if form.cleaned_data['disassemble']:
+                odb_file.execute(LoadOperation())
+                odb_file.execute(ScanOperation())
+                oda_master.odb_file = DefaultOdbSerializer().dumps(odb_file)
+                oda_master.save()
 
         #if form.cleaned_data['arch']:
 
