@@ -1,7 +1,7 @@
 from abc import abstractmethod, abstractproperty
 import logging
 from os import unlink
-import pickle
+import cPickle
 import tempfile
 import types
 
@@ -183,13 +183,13 @@ class OdbFile(object):
 
 class DefaultOdbSerializer(object):
     def dumps(self, odb_file):
-        return pickle.dumps({
+        return cPickle.dumps({
             'version': 1,
             'odb_file': odb_file
         })
 
     def load(self, serialized):
-        return pickle.loads(serialized)['odb_file']
+        return cPickle.loads(str(serialized))['odb_file']
 
 
 def scan():

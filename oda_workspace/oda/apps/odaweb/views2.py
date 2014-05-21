@@ -20,6 +20,7 @@ from oda.libs.odb.bfd.ofd import Ofd
 from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.modify_settings import ModifySettingsFactory
+from oda.libs.odb.ops.scan_operation import ScanOperation
 from oda.libs.odb.structures.section import Section
 
 
@@ -232,6 +233,7 @@ def set(request):
 
             }))
             odb_file.execute(LoadOperation())
+            odb_file.execute(ScanOperation())
             oda_master.odb_file = DefaultOdbSerializer().dumps(odb_file)
             oda_master.save()
 
