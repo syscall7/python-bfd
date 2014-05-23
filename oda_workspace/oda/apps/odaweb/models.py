@@ -71,6 +71,10 @@ class BinaryFileModel(Binary):
     def options(self):
         return self._options
 
+    @property
+    def name(self):
+        return BinaryFile.objects.get(id=self.binary_file_id).filename
+
     @options.setter
     def options(self, options):
         binary_file = BinaryFile.objects.get(id=self.binary_file_id)

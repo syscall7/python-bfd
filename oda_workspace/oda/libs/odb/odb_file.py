@@ -68,6 +68,10 @@ class Binary(object):
     def options(self):
         pass
 
+    @abstractproperty
+    def name(self):
+        pass
+
     def md5(self):
         f = self.file_handle()
         md5 = hashlib.md5(f.read()).hexdigest()
@@ -103,12 +107,15 @@ class Binary(object):
 class BinaryFile(Binary):
     def __init__(self, filename, target, architecture):
         self.filename = filename
-        self.name = filename
         self._options = Options(target, architecture, 0)
 
     @property
     def options(self):
         return self._options
+
+    @property
+    def name(self):
+        return self.filename
 
     @options.setter
     def options(self, options):
@@ -126,6 +133,10 @@ class BinaryString(Binary):
         self.arch = arch
         self.is_live_mode = True
         self._options = Options('binary', arch, 0)
+
+    @property
+    def name(self):
+        return 'raw'
 
     @property
     def options(self):
