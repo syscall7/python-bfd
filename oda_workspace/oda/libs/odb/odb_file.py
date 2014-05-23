@@ -1,8 +1,10 @@
 from abc import abstractmethod, abstractproperty
+import commands
 import hashlib
 import logging
 from os import unlink
 import cPickle
+import os
 import tempfile
 import types
 import zlib
@@ -80,6 +82,16 @@ class Binary(object):
         Binary.done(f)
         return sha
 
+    def desc(self):
+        if os.name == 'nt':
+            line = ''
+        else:
+            f = self.file_handle()
+            line = commands.getoutput('file -b %s' % f.name)
+            f.close()
+            Binary.done(f)
+        return line.split(', ')
+
     @staticmethod
     def done(f):
         try:
@@ -91,6 +103,7 @@ class Binary(object):
 class BinaryFile(Binary):
     def __init__(self, filename, target, architecture):
         self.filename = filename
+        self.name = filename
         self._options = Options(target, architecture, 0)
 
     @property

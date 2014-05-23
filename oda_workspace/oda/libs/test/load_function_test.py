@@ -70,8 +70,13 @@ class TestLoadOperation(unittest.TestCase):
         self.assertEqual('d41d8cd98f00b204e9800998ecf8427e', odb_file.get_binary().md5())
         self.assertEqual('da39a3ee5e6b4b0d3255bfef95601890afd80709', odb_file.get_binary().sha1())
 
+    def test_desc(self):
 
+        cwd = os.path.dirname(os.path.realpath(__file__))
 
+        odb_file = OdbFile(BinaryFile(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64'))
+
+        self.assertEqual(7, len(odb_file.get_binary().desc()))
 
     def test_load_string_arm(self):
 
