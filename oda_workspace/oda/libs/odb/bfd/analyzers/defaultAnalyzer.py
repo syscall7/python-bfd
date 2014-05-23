@@ -29,7 +29,7 @@ def parseDataLine(section_name, start_addr, end_addr, self, displayUnits, is_dat
     numLines = 0
 
     # Get the raw data from the file
-    rawData = self.disassembler.ofd.bfd.raw_data(self.disassembler.ofd.bfd.sections[section_name], start_addr, dataLen)
+    rawData = self.ofd.bfd.raw_data(self.ofd.bfd.sections[section_name], start_addr, dataLen)
 
     if is_data:
         # TODO: Organize the data in groups of one, two, four bytes etc.,
@@ -388,9 +388,9 @@ class defaultAnalyzer(object):
                         #elif parcel.is_code == False:
                         #    # Undefined
                         #    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, True)
-                # data section
-                else:
-                    lines = parseDataLine(s.name, dis_start, dis_end, self, self.displayUnits, False, maxUnits)
+                    # data section
+                    else:
+                        lines = parseDataLine(s.name, dis_start, dis_end, self, self.displayUnits, False, maxUnits)
 
                     #elif parcel.is_code == None:
                     #    # Defined Data
