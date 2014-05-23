@@ -80,6 +80,8 @@ function AddressNavBar(canvasId, sections) {
 
         // snap to the nearest section boundary if in between sections
         var posX = Math.floor(coords.x);
+        if (!sections) { return null;}
+
         for (var i = 0; i < sections.length; i++)
         {
             var secWidth = sections[i].width;
@@ -234,6 +236,7 @@ function AddressNavBar(canvasId, sections) {
 
     canvas.addEventListener('mousemove', function(evt) {
         var pos = getMousePosition(canvas, evt);
+        if (!pos) { return; }
         var addr = pixelToAddr(pos.x);
 
         if ((addr >= 0) && (roamArrowAddr != addr)) {
