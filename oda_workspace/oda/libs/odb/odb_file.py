@@ -1,4 +1,5 @@
 from abc import abstractmethod, abstractproperty
+import hashlib
 import logging
 from os import unlink
 import cPickle
@@ -65,6 +66,27 @@ class Binary(object):
     def options(self):
         pass
 
+    def md5(self):
+        f = self.file_handle()
+        md5 = hashlib.md5(f.read()).hexdigest()
+        f.close()
+        Binary.done(f)
+        return md5
+
+    def sha1(self):
+        f = self.file_handle()
+        sha = hashlib.sha1(f.read()).hexdigest()
+        f.close()
+        Binary.done(f)
+        return sha
+
+    @staticmethod
+    def done(f):
+        try:
+            f.done()
+        except AttributeError:
+            pass
+
 
 class BinaryFile(Binary):
     def __init__(self, filename, target, architecture):
@@ -80,7 +102,8 @@ class BinaryFile(Binary):
         self._options = options
 
     def file_handle(self):
-        return open(self.filename)
+        f = open(self.filename)
+        return f
 
 
 class BinaryString(Binary):
