@@ -48,7 +48,7 @@ class DisplayUnitTest(OdaTestCase):
 
     def test_display_units_mkdir(self):
         response = self.client.get('/odaweb/api/displayunits/',
-                                   {'revision': 0, 'short_name': 'mkdir'},
+                                   {'revision': 0, 'short_name': 'mkdir', 'addr' : '0x4014d0'},
                                    format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

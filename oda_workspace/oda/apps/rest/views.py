@@ -122,9 +122,9 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         start = 0
         units = 100
         if request.QUERY_PARAMS.get('addr'):
-            start = int(request.QUERY_PARAMS.get('addr'), 10)
+            start = int(request.QUERY_PARAMS.get('addr'), 0)
         if request.QUERY_PARAMS.get('units'):
-            units = int(request.QUERY_PARAMS.get('units'), 10)
+            units = int(request.QUERY_PARAMS.get('units'), 0)
 
         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
                                     revision=request.QUERY_PARAMS.get('revision'))
