@@ -46,7 +46,7 @@ class DisplayUnitTest(OdaTestCase):
         self.assertEqual(0, rd[0]['offset'])
         self.assertEqual('ebp', rd[0]['operands'])
 
-    def test_display_units_mkdir(self):
+    def test_display_units_mkdir_code(self):
         response = self.client.get('/odaweb/api/displayunits/',
                                    {'revision': 0, 'short_name': 'mkdir', 'addr' : '0x4014d0'},
                                    format='json')
@@ -59,13 +59,28 @@ class DisplayUnitTest(OdaTestCase):
         self.assertEquals(rd[0]['operands'], 'rsp,0x8')
         self.assertEquals(rd[0]['rawBytes'], '4883ec08')
         self.assertEquals(rd[0]['offset'], 4199632)
-        # self.assertEqual(17, len(rd))
-        # self.assertEqual('.data', rd[0]['section_name'])
-        # self.assertEqual('55', rd[0]['rawBytes'])
-        # self.assertEqual(False, rd[0]['isBranch'])
-        # self.assertEqual(False, rd[0]['isFunction'])
-        # self.assertEqual(0, rd[0]['offset'])
-        # self.assertEqual('%ebp', rd[0]['operands'])
+        self.assertEquals(rd[0]['isBranch'], False)
+        self.assertEquals(rd[0]['isFunction'], True)
+        self.assertEquals(rd[0]['section_name'], '.init')
+        self.assertEquals(rd[0]['instStr'], 'sub    rsp,0x8')
+
+    def test_display_units_mkdir_data(self):
+        response = self.client.get('/odaweb/api/displayunits/',
+                                   {'revision': 0, 'short_name': 'mkdir', 'addr' : '0x400238'},
+                                   format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        rd = response.data
+        self.assertIsNotNone(rd)
+
+        self.assertEquals(rd[0]['opcode'], '')
+        self.assertEquals(rd[0]['operands'], '')
+        self.assertEquals(rd[0]['rawBytes'], '2f')
+        self.assertEquals(rd[0]['offset'], 0x400238)
+        self.assertEquals(rd[0]['isBranch'], False)
+        self.assertEquals(rd[0]['isFunction'], False)
+        self.assertEquals(rd[0]['section_name'], '.interp')
+        self.assertEquals(rd[0]['instStr'], "<span class='string'>/</span>")
 
 class LabelUnitTest(OdaTestCase):
     urls = 'oda.urls'
