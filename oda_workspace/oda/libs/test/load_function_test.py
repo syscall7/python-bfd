@@ -78,6 +78,16 @@ class TestLoadOperation(unittest.TestCase):
 
         self.assertEqual(7, len(odb_file.get_binary().desc()))
 
+    def test_size(self):
+        cwd = os.path.dirname(os.path.realpath(__file__))
+
+        odb_file = OdbFile(BinaryFile(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64'))
+        self.assertEqual(114032, odb_file.get_binary().size)
+
+        s = '01 20 40 E2 02 20 61 E0 01 30 D1 E4 00 00 53 E3 02 30 C1 E7 FB FF FF 1A 1E FF 2F E1'
+        odb_file = OdbFile(BinaryString(s, 'arm'))
+        self.assertEqual(56, odb_file.get_binary().size)
+
     def test_load_string_arm(self):
 
         s = '01 20 40 E2 02 20 61 E0 01 30 D1 E4 00 00 53 E3 02 30 C1 E7 FB FF FF 1A 1E FF 2F E1'

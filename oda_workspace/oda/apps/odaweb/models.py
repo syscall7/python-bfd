@@ -75,6 +75,11 @@ class BinaryFileModel(Binary):
     def name(self):
         return os.path.split(BinaryFile.objects.get(id=self.binary_file_id).filename)[-1]
 
+    @property
+    def size(self):
+        BinaryFile.objects.get(id=self.binary_file_id).size
+
+
     @options.setter
     def options(self, options):
         binary_file = BinaryFile.objects.get(id=self.binary_file_id)

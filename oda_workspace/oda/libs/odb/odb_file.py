@@ -72,6 +72,10 @@ class Binary(object):
     def name(self):
         pass
 
+    @abstractproperty
+    def size(self):
+        pass
+
     def md5(self):
         f = self.file_handle()
         md5 = hashlib.md5(f.read()).hexdigest()
@@ -117,6 +121,10 @@ class BinaryFile(Binary):
     def name(self):
         return os.path.split(self.filename)[-1]
 
+    @property
+    def size(self):
+        return os.path.getsize(self.filename)
+
     @options.setter
     def options(self, options):
         self._options = options
@@ -137,6 +145,10 @@ class BinaryString(Binary):
     @property
     def name(self):
         return 'raw'
+
+    @property
+    def size(self):
+        return len(self.binary_string)
 
     @property
     def options(self):
