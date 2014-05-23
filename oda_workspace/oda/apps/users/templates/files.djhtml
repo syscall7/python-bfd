@@ -29,7 +29,7 @@
                 {% for master in masters %}
                 <li class="item">
                     <h3>
-                        <a href="{% url 'odaweb.views2.index' master.short_name  master.latest_revision %}">{{ master.project_name }}</a>
+                        <a href="{% url 'apps.odaweb.views2.index' master.short_name  master.latest_revision %}">{{ master.project_name }}</a>
                         {% if master.latest_revision > 0 %}
                             <small>{{ master.latest_revision }} revisions</small>
                         {% endif %}

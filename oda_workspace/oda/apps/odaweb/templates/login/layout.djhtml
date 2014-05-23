@@ -4,8 +4,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
 <head>
- <link rel="stylesheet" type="text/css" href="{%  static "lib/bootstrap-2.2.2/css/bootstrap.min.css" %}"/>
-
+ <link rel="stylesheet" type="text/css" href="{%  static "scripts/lib/bootstrap-3.0.3/css/bootstrap.css" %}"/>
     <style type="text/css">
 
 

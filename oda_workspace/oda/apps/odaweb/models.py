@@ -50,7 +50,7 @@ class OdaMaster(models.Model):
         return max(revisions)
 
     def details(self):
-        return self.binary.options.target + " " + self.binary.options.architecture
+        return self.odb().get_options().target + " " + self.odb().get_options().architecture
 
     def odb(self):
         return DefaultOdbSerializer().load(self.odb_file)
