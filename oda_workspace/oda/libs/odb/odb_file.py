@@ -136,11 +136,21 @@ class BinaryFile(Binary):
 
 class BinaryString(Binary):
     def __init__(self, binary_string, arch):
-        self.binary_string_display = binary_string
+
+        self.byte_array = ''
         self.binary_string = ''.join(binary_string.split())
         self.arch = arch
         self.is_live_mode = True
         self._options = Options('binary', arch, 0)
+
+        # pad out with a 0 if odd length
+        if len(self.binary_string) % 2 != 0:
+            self.binary_string += '0'
+
+        # this decode may throw TypeError or UnicodeEncodeError
+        self.byte_array = self.binary_string.decode("hex")
+
+        self.binary_string_display = ' '.join(['%02X' % ord(c) for c in self.byte_array])
 
     @property
     def name(self):
@@ -159,15 +169,10 @@ class BinaryString(Binary):
         self._options = options
 
     def file_handle(self):
-        try:
-            byte_array = self.binary_string.decode("hex")
-        except TypeError:
-            logger.exception("Failed to decode hex %s" % self.binary_string)
-
         # Create a file containing the BinaryString for passing to BFD
         #  Must use delete=False because bfd expects a file name
         t = tempfile.NamedTemporaryFile(bufsize=0, delete=False)
-        t.write(byte_array)
+        t.write(self.byte_array)
 
         # Dynamic function that deletes the temp file when we are done with it
         def done(self):
