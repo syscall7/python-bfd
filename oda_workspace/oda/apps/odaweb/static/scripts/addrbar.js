@@ -40,7 +40,7 @@ function AddressNavBar(canvasId, sections) {
     var sumAddRanges;
 
     var curArrowPosX = 0;
-    var curArrowAddr = 0;
+    var curArrowAddr = undefined;
     var roamArrowPosX = -1;
     var roamArrowAddr = 0;
 
@@ -394,6 +394,11 @@ function AddressNavBar(canvasId, sections) {
     function setSections(s) {
         sections = s;
         sumAddrRanges = _.reduce(sections, function(memo, section) {return memo+section.size}, 0);
+
+        if ((sections != undefined) && (curArrowAddr == undefined)) {
+            curArrowAddr = _.min(sections, function(section){ return section.vma; }).vma;
+            roamArrowAddr = curArrowAddr;
+        }
 
         calcRuntSectionSizes();
         draw();

@@ -9,14 +9,15 @@ odaApplication.controller('SliderController', function SliderController($scope, 
     odaApi.getSections(master.short_name, master.revision)
         .success(function(data){
             $scope.sections = data;
-            minAddr = _.min($scope.sections, function(s) {return s.vma});
-            maxAddr = _.max($scope.sections, function(s) {return (s.vma + s.size)});
+            minAddr = _.min($scope.sections, function(s) {return s.vma}).vma;
+            maxAddr = _.max($scope.sections, function(s) {return (s.vma + s.size)}).vma;
 
             // set initial position
             window.initialOffset = minAddr;
             window.activeTab = "tab-assembly";
 
             addrBar.setSections($scope.sections);
+            $scope.address = minAddr;
         });
 
     // instantiate the address nav bar
