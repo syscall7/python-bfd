@@ -73,7 +73,7 @@ class BinaryFileModel(Binary):
 
     @property
     def name(self):
-        return BinaryFile.objects.get(id=self.binary_file_id).filename
+        return os.path.split(BinaryFile.objects.get(id=self.binary_file_id).filename)[-1]
 
     @options.setter
     def options(self, options):

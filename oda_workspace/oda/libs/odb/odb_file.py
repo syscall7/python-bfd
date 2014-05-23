@@ -115,7 +115,7 @@ class BinaryFile(Binary):
 
     @property
     def name(self):
-        return self.filename
+        return os.path.split(self.filename)[-1]
 
     @options.setter
     def options(self, options):

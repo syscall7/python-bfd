@@ -25,6 +25,8 @@ class IndexTest(OdaTestCase):
 
         self.assertEqual(response.status_code, 200)
 
+        self.assertEqual(response.context['binary'].name, 'mkdir')
+
     def test_upload_elf(self):
         f = open(os.path.join(cwd, 'examples/mkdir'))
         response = self.client.post('/odaweb/_upload', {
