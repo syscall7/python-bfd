@@ -1,3 +1,4 @@
+import json
 import socket
 import logging
 
@@ -698,3 +699,13 @@ def download_text_listing(request):
     response = HttpResponse(dasm.get_text_listing(), content_type='text')
     response['Content-Disposition'] = 'attachment; filename="%s"' % oda_master.project_name
     return response
+
+
+def ace(request):
+    #oda_master = OdaMaster.objects.get(short_name='mkdir', revision=0)
+    #odb_file = oda_master.odb()
+    #dasm = Disassembler(odb_file)
+    #dunits = dasm.analyze(0, 10000000)
+    return render(request, 'ace.djhtml', {
+        #'units': simplejson.dumps(dunits)
+    })

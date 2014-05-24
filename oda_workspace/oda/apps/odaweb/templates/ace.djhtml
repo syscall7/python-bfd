@@ -1,0 +1,54 @@
+{% load staticfiles %}
+{% load tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>ACE in Action</title>
+<style type="text/css" media="screen">
+    #editor {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+</style>
+</head>
+<body>
+
+<div id="editor">
+LOADING...
+</div>
+
+<script type="text/javascript" src="{% static 'scripts/lib/src-noconflict/ace.js' %}" ></script>
+<script type="text/javascript" src="{% static 'scripts/lib/jquery/jquery-1.8.3.min.js' %}" ></script>
+<script>
+
+
+    $.get('/odaweb/api/displayunits/', {
+        short_name: 'chown',
+        revision: 0,
+        addr:0,
+        units: 200000
+
+    }).done(function(data){
+        var disassembly_text = '';
+        for (var i=0; i<data.length; i++) {
+           // disassembly_text += data[i].section_name + ": " + data[i].offset + " " + data[i].rawBytes + " " + data[i].instStr + "\n";
+
+            disassembly_text += data[i].rawBytes + " ";
+            if ((i % 16) == 0 ) {
+                disassembly_text += "\n";
+            }
+
+        }
+
+        $('#editor').html(disassembly_text);
+        var editor = ace.edit("editor");
+        editor.setTheme("ace/theme/monokai");
+        editor.getSession().setMode("ace/mode/javascript");
+    })
+</script>
+</body>
+</html>

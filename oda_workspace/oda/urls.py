@@ -71,5 +71,7 @@ urlpatterns = patterns('',
     url(r'^odaweb/api/', include(rest_urls.urlpatterns)),
 
     url(r'^odaweb/(?P<disassembly_id>\w{0,16})$$', 'oda.apps.odaweb.views2.index'),
-    url(r'^odaweb/(?P<disassembly_id>\w{0,16})/(?P<version>\w{0,16})$$', 'oda.apps.odaweb.views2.index')
+    url(r'^odaweb/(?P<disassembly_id>\w{0,16})/(?P<version>\w{0,16})$$', 'oda.apps.odaweb.views2.index'),
+
+    url(r'^oda/ace', 'oda.apps.odaweb.views2.ace')
 )
