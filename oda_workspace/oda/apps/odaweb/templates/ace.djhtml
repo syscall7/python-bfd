@@ -18,10 +18,20 @@
 <body>
 
 <div id="editor">
-LOADING...
+
+  <span style="font-size:40px;">40b460:</span>	48 89 d1             	mov    %rdx,%rcx
+  40b463:	48 83 c7 01          	add    $0x1,%rdi
+  40b467:	48 c1 e1 05          	shl    $0x5,%rcx
+  40b46b:	48 29 d1             	sub    %rdx,%rcx
+  40b46e:	31 d2                	xor    %edx,%edx
+  40b470:	49 8d 04 08          	lea    (%r8,%rcx,1),%rax
+  40b474:	44 0f b6 07          	movzbl (%rdi),%r8d
+
 </div>
 
 <script type="text/javascript" src="{% static 'scripts/lib/src-noconflict/ace.js' %}" ></script>
+<script type="text/javascript" src="{% static 'scripts/lib/apf/apf_release.js' %}" ></script>
+<script type="text/javascript" src="{% static 'scripts/lib/handlebars-v1.3.0.js' %}" ></script>
 <script type="text/javascript" src="{% static 'scripts/lib/jquery/jquery-1.8.3.min.js' %}" ></script>
 <script>
 
@@ -29,24 +39,28 @@ LOADING...
     $.get('/odaweb/api/displayunits/', {
         short_name: 'chown',
         revision: 0,
-        addr:0,
-        units: 200000
+        addr:parseInt('401da4',16),
+        units: 1000
 
     }).done(function(data){
         var disassembly_text = '';
         for (var i=0; i<data.length; i++) {
-           // disassembly_text += data[i].section_name + ": " + data[i].offset + " " + data[i].rawBytes + " " + data[i].instStr + "\n";
-
-            disassembly_text += data[i].rawBytes + " ";
-            if ((i % 16) == 0 ) {
-                disassembly_text += "\n";
-            }
+            disassembly_text += JSON.stringify(data[i]) + "\n";
+            /*disassembly_text += data[i].branch +
+                    '<span class="offset">' +data[i].offset + '<span>' +
+                    data[i].section_name + ": " +  + " " + data[i].rawBytes + " " + data[i].instStr + "\n";
+            */
+            // disassembly_text += data[i].rawBytes + " ";
+            // if ((i % 16) == 0 ) {
+            //    disassembly_text += "\n";
+            //}
 
         }
 
         $('#editor').html(disassembly_text);
         var editor = ace.edit("editor");
         editor.setTheme("ace/theme/monokai");
+        editor.getSession().setUseWorker(false);
         editor.getSession().setMode("ace/mode/javascript");
     })
 </script>

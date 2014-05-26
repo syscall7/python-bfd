@@ -10261,6 +10261,15 @@ var Text = function(parentEl) {
             );
         }
 
+        try {
+            var s = JSON.parse(this.session.doc.getLine(row))
+            var template = Handlebars.compile('<span style="width:40px; display:inline-block;">{{branch}}</span><span>{{section_name}}:{{offset}}</span> <span class="raw">{{rawBytes}}</span> <span>{{instStr}}</span>');
+            stringBuilder.push('<span class="myclass">' + template(s) + '</span>');
+        } catch(e) {
+            console.log(e);
+        }
+
+/*
         if (tokens.length) {
             var splits = this.session.getRowSplitData(row);
             if (splits && splits.length)
@@ -10268,6 +10277,7 @@ var Text = function(parentEl) {
             else
                 this.$renderSimpleLine(stringBuilder, tokens);
         }
+*/
 
         if (this.showInvisibles) {
             if (foldLine)
