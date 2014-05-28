@@ -5,10 +5,13 @@
 <html lang="en">
 <head>
 <title>ACE in Action</title>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/nprogress/nprogress.css' %}" />
+
 <style type="text/css" media="screen">
     #editor {
         position: absolute;
-        top: 0;
+        top: 20px;
         right: 0;
         bottom: 0;
         left: 0;
@@ -40,20 +43,9 @@
 </head>
 <body>
 
-<div id="editor">
+<div style="height:20px;"></div>
 
-  <span style="font-size:40px;">40b460:</span>	48 89 d1             	mov    %rdx,%rcx
-  40b463:	48 83 c7 01          	add    $0x1,%rdi
-  40b467:	48 c1 e1 05          	shl    $0x5,%rcx
-  40b46b:	48 29 d1             	sub    %rdx,%rcx
-  40b46e:	31 d2                	xor    %edx,%edx
-  40b470:	49 8d 04 08          	lea    (%r8,%rcx,1),%rax
-  40b474:	44 0f b6 07          	movzbl (%rdi),%r8d
-
-
-
-
-</div>
+<div id="editor"></div>
 
 <div style="right:23px;bottom:23px;position: absolute;" id="status-bar">
     apsdmpasomd
@@ -63,19 +55,59 @@
 <script type="text/javascript" src="{% static 'scripts/lib/apf/apf_release.js' %}" ></script>
 <script type="text/javascript" src="{% static 'scripts/lib/handlebars-v1.3.0.js' %}" ></script>
 <script type="text/javascript" src="{% static 'scripts/lib/jquery/jquery-1.8.3.min.js' %}" ></script>
+<script type="text/javascript" src="{% static 'scripts/lib/nprogress/nprogress.js' %}" ></script>
 <script>
 
+    $(document).ready(function(){
+
+    NProgress.start();
+
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/eclipse");
+    editor.getSession().setUseWorker(false);
+    editor.setReadOnly(true);
+    editor.getSession().setMode("ace/mode/javascript");
+    editor.getSession().selection.addEventListener("changeCursor", function(event, source){
+
+       /* var row = editor.getSession().doc.getLine(editor.selection.getCursor().row);
+        var offset = JSON.parse(row).offset.toString(16);
+        $('#status-bar').html(offset);
+        console.log(editor.selection.getCursor(), offset);*/
+    });
+
+    var totalLoadedLines = 0;
+
+    var loadMore = function(addr) {
+        $.get('/odaweb/api/displayunits/', {
+            short_name: 'chown',
+            revision: 0,
+            addr: addr,
+            units: 500
+        }).done(function(data){
+            var lines = $.map(data, function(du) {return JSON.stringify(du)});
+            editor.getSession().getDocument().insertLines(editor.getSession().getDocument().getLength()-1,lines)
+            totalLoadedLines+=500;
+            NProgress.set(totalLoadedLines/35000);
+            if(data.length > 300) {
+                loadMore(data[data.length-1].offset);
+            }
+        });
+    };
 
     $.get('/odaweb/api/displayunits/', {
         short_name: 'chown',
         revision: 0,
-        addr:parseInt('401da4',16),
-        units: 2000
+        //addr:parseInt('401da4',16),
+        units: 500
 
     }).done(function(data){
+
+
+
         var disassembly_text = '';
-        for (var i=0; i<data.length; i++) {
-            disassembly_text += JSON.stringify(data[i]) + "\n";
+        var lines = $.map(data, function(du) {return JSON.stringify(du)});
+        //for (var i=0; i<data.length; i++) {
+        //    disassembly_text +=  + "\n";
             /*disassembly_text += data[i].branch +
                     '<span class="offset">' +data[i].offset + '<span>' +
                     data[i].section_name + ": " +  + " " + data[i].rawBytes + " " + data[i].instStr + "\n";
@@ -85,22 +117,16 @@
             //    disassembly_text += "\n";
             //}
 
-        }
+        //}
+        editor.getSession().getDocument().insertLines(0,lines)
+        //editor.insert(disassembly_text);
+        loadMore(data[data.length-1].offset);
+        totalLoadedLines+=500;
+        NProgress.set(totalLoadedLines/35000);
+    });
 
-        $('#editor').html(disassembly_text);
-        var editor = ace.edit("editor");
-        editor.setTheme("ace/theme/eclipse");
-        editor.getSession().setUseWorker(false);
-        editor.setReadOnly(true);
-        editor.getSession().setMode("ace/mode/javascript");
-        editor.getSession().selection.addEventListener("changeCursor", function(event, source){
+    });
 
-            var row = editor.getSession().doc.getLine(editor.selection.getCursor().row);
-            var offset = JSON.parse(row).offset.toString(16);
-            $('#status-bar').html(offset);
-            console.log(editor.selection.getCursor(), offset);
-        });
-    })
 </script>
 </body>
 </html>

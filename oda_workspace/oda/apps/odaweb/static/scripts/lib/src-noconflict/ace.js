@@ -621,10 +621,10 @@ var Anchor = exports.Anchor = function(doc, row, column) {
     this.$onChange = this.onChange.bind(this);
     this.attach(doc);
     
-    if (typeof column == "undefined")
+    /*if (typeof column == "undefined")
         this.setPosition(row.row, row.column);
     else
-        this.setPosition(row, column);
+        this.setPosition(row, column);*/
 };
 
 (function() {
@@ -10263,10 +10263,11 @@ var Text = function(parentEl) {
 
         try {
             var s = JSON.parse(this.session.doc.getLine(row));
-            var t = '<span class="branchLines">{{branch}}</span><span class="offset disassembly-cell">{{section_name}}:{{offset}}</span>' +
-                '<span class="raw disassembly-cell">{{rawBytes}}</span><span class="instruction">{{instStr}}</span>';
+            var t = '<span class="branchLines">{{{branch}}}</span><span class="offset disassembly-cell">{{section_name}}:{{offset}}</span>' +
+                '<span class="raw disassembly-cell">{{rawBytes}}</span><span class="instruction">{{{instStr}}}</span>';
             var template = Handlebars.compile(t);
-            stringBuilder.push(template(s));
+            var renderedText = template(s)
+            stringBuilder.push(renderedText);
         } catch(e) {
             console.log(e);
         }
