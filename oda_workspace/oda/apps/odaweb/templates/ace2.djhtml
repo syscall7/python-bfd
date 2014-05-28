@@ -1,0 +1,49 @@
+{% load staticfiles %}
+{% load tags %}
+
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"
+      xmlns:a="http://ajax.org/2005/aml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Getting Started</title>
+
+    <script type="text/javascript" src="{% static 'scripts/lib/src-noconflict/ace.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/apf/apf_release.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/handlebars-v1.3.0.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/jquery/jquery-1.8.3.min.js' %}"></script>
+</head>
+<body>
+<a:skin src="../static2/scripts/lib/apf/skins.xml" media-path="images/" icon-path="icons/"/>
+
+
+
+<a:menu id="menu1">
+    <a:item>Tutorials</a:item>
+    <a:item icon="email.png">Contact</a:item>
+    <a:divider></a:divider>
+    <a:item
+      icon    = "application_view_icons.png"
+      hotkey  = "Ctrl+T"
+      onclick = "setTimeout(function(){alert('You did it');}, 1000)">
+      Tutorials</a:item>
+    <a:divider />
+    <a:item disabled="true">Visit Ajax.org</a:item>
+    <a:item>Exit</a:item>
+</a:menu>
+<a:window
+  width     = "400"
+  height    = "150"
+  visible   = "true"
+  resizable = "true"
+  title     = "Mail message"
+  icon      = "email.png">
+    <a:toolbar>
+        <a:menubar>
+            <a:button submenu="menu1">File</a:button>
+            <a:button submenu="menu1" disabled="true">Edit</a:button>
+        </a:menubar>
+    </a:toolbar>
+</a:window>
+</body>
+</html>

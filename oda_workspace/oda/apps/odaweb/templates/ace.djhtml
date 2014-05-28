@@ -13,6 +13,29 @@
         bottom: 0;
         left: 0;
     }
+
+    .branchLines {
+        color: #093C83;
+        text-align: right;
+        width:50px;
+        display:inline-block;
+        overflow: hidden;
+    }
+
+    .raw {
+        color: gray;
+        width:100px;
+        display: inline-block;
+    }
+
+        .instruction {
+        color: #093C83;
+    }
+
+    .disassembly-cell {
+        padding-right:10px;
+    }
+
 </style>
 </head>
 <body>
@@ -27,6 +50,13 @@
   40b470:	49 8d 04 08          	lea    (%r8,%rcx,1),%rax
   40b474:	44 0f b6 07          	movzbl (%rdi),%r8d
 
+
+
+
+</div>
+
+<div style="right:23px;bottom:23px;position: absolute;" id="status-bar">
+    apsdmpasomd
 </div>
 
 <script type="text/javascript" src="{% static 'scripts/lib/src-noconflict/ace.js' %}" ></script>
@@ -40,7 +70,7 @@
         short_name: 'chown',
         revision: 0,
         addr:parseInt('401da4',16),
-        units: 1000
+        units: 2000
 
     }).done(function(data){
         var disassembly_text = '';
@@ -59,9 +89,17 @@
 
         $('#editor').html(disassembly_text);
         var editor = ace.edit("editor");
-        editor.setTheme("ace/theme/monokai");
+        editor.setTheme("ace/theme/eclipse");
         editor.getSession().setUseWorker(false);
+        editor.setReadOnly(true);
         editor.getSession().setMode("ace/mode/javascript");
+        editor.getSession().selection.addEventListener("changeCursor", function(event, source){
+
+            var row = editor.getSession().doc.getLine(editor.selection.getCursor().row);
+            var offset = JSON.parse(row).offset.toString(16);
+            $('#status-bar').html(offset);
+            console.log(editor.selection.getCursor(), offset);
+        });
     })
 </script>
 </body>

@@ -10262,9 +10262,11 @@ var Text = function(parentEl) {
         }
 
         try {
-            var s = JSON.parse(this.session.doc.getLine(row))
-            var template = Handlebars.compile('<span style="width:40px; display:inline-block;">{{branch}}</span><span>{{section_name}}:{{offset}}</span> <span class="raw">{{rawBytes}}</span> <span>{{instStr}}</span>');
-            stringBuilder.push('<span class="myclass">' + template(s) + '</span>');
+            var s = JSON.parse(this.session.doc.getLine(row));
+            var t = '<span class="branchLines">{{branch}}</span><span class="offset disassembly-cell">{{section_name}}:{{offset}}</span>' +
+                '<span class="raw disassembly-cell">{{rawBytes}}</span><span class="instruction">{{instStr}}</span>';
+            var template = Handlebars.compile(t);
+            stringBuilder.push(template(s));
         } catch(e) {
             console.log(e);
         }

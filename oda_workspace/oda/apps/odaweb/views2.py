@@ -709,3 +709,12 @@ def ace(request):
     return render(request, 'ace.djhtml', {
         #'units': simplejson.dumps(dunits)
     })
+
+def ace2(request):
+    #oda_master = OdaMaster.objects.get(short_name='mkdir', revision=0)
+    #odb_file = oda_master.odb()
+    #dasm = Disassembler(odb_file)
+    #dunits = dasm.analyze(0, 10000000)
+    return render(request, 'ace2.djhtml', {
+        #'units': simplejson.dumps(dunits)
+    })
