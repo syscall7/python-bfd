@@ -32,11 +32,13 @@ class ParcelOffsetScanner(object):
         self.inst_sample_interval = 50
         self.sample_offset_count = 0
         self.last_parcel = None
+        self.lduCnt = 0
 
     def instruction(self, parcel, addr, rawData, instr, abfd):
 
         #we've advanced to the next parcel, reset the counter
         if parcel != self.last_parcel:
+            self.lduCnt = 0
             self.sample_offset_count = 0
             self.last_parcel = parcel
 
@@ -45,6 +47,9 @@ class ParcelOffsetScanner(object):
             self.sample_offset_count = 0
         else:
             self.sample_offset_count += 1
+
+        parcel.ldus[self.lduCnt] = addr
+        self.lduCnt += 1
 
     def commit(self, odb_file):
         pass

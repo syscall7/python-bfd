@@ -61,15 +61,33 @@ class Disassembler(object):
     def __init__(self, odb_file):
         self.odb_file = odb_file
 
-    def analyze(self, start, lines):
+    def analyze(self, start, lines, logical):
 
         architecture = self.odb_file.get_binary().options.architecture
         analyzer = analyzer_factory(architecture)
 
         parcels = self.odb_file.get_structure_list(Parcel)
 
+        # if we are analyzing based on logical display units, convert 'start' from logical display unit number to an actual address
+        parcels.sort(key=lambda p: p.start, reverse=False)
+        if logical:
+            i = 0
+            for p in parcels:
+                if p.is_code:
+                    if i + len(p.ldus) >= start:
+                        start = p.ldus[start - i]
+                        break
+                    else:
+                        i += len(p.ldus)
+                else:
+                    if i + (p.end - p.start) >= start:
+                        start = p.start + start - i
+                        break
+                    else:
+                        i += (p.end - p.start)
+
         if lines >= 0:
-            parcels = [p for p in parcels if p.end > start] #BinaryParcel.objects.filter(content_type=ctype.id, object_id= self.binary.id, end__gte = start)[:]
+            parcels = [p for p in parcels if p.end > start]
         else:
             parcels = [p for p in parcels if p.start < start]
 

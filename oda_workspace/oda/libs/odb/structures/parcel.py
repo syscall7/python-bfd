@@ -9,6 +9,7 @@ class Parcel(OdaObject):
         self.start = kwargs['start']
         self.end = kwargs['end']
         self.sample_offsets = []
+        self.ldus = {}
 
     def __repr__(self):
         return "Parcel {is_code=%s, start=%s, end=%s>" % (self.is_code, self.start, self.end)

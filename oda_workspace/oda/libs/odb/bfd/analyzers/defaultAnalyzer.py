@@ -364,6 +364,8 @@ class defaultAnalyzer(object):
                     #else:
                     dis_end = parcel.end
 
+                    lines = 0
+
                     # Convert the parcel to disassembly
                     # TODO: Fix sec name
                     s = self.ofd.get_section_from_addr(parcel.start)
@@ -379,32 +381,14 @@ class defaultAnalyzer(object):
                                                           'section_name': s.name,
                                                       })
 
-                        if maxUnits is not None:
-                            maxUnits -= lines
-                            if maxUnits <= 0:
-                                break
-
-                        #elif parcel.is_code == None:
-                        #    # Defined Data
-                        #    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, False)
-                        #elif parcel.is_code == False:
-                        #    # Undefined
-                        #    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, True)
                     # data section
                     else:
                         lines = parseDataLine(s.name, dis_start, dis_end, self, self.displayUnits, False, maxUnits)
 
-                    #elif parcel.is_code == None:
-                    #    # Defined Data
-                    #    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, False)
-                    #elif parcel.is_code == False:
-                    #    # Undefined
-                    #    parseDataLine(s.name, parcel.start, parcel.end, self, self.displayUnits, True)
-
                     if maxUnits is not None:
                         maxUnits -= lines
                         if maxUnits <= 0:
-                            break;
+                            break
 
         else:
             # Negative Lines. Need to retrieve maxLines before the given address

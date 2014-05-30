@@ -121,16 +121,20 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
 
         start = 0
         units = 100
+        logical = False
+
         if request.QUERY_PARAMS.get('addr'):
             start = int(request.QUERY_PARAMS.get('addr'), 0)
         if request.QUERY_PARAMS.get('units'):
             units = int(request.QUERY_PARAMS.get('units'), 0)
+        if request.QUERY_PARAMS.get('logical'):
+            logical = True # TODO: Check this value for realz
 
         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
                                     revision=request.QUERY_PARAMS.get('revision'))
 
         dasm = Disassembler(oda.odb())
-        dunits = dasm.analyze(start, units)
+        dunits = dasm.analyze(start, units, logical)
 
         logger.debug("DisplayUnitsViewSet: Generate serialized data")
         serializer = self.get_serializer(dunits, many=True)
