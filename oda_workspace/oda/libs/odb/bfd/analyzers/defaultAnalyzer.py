@@ -38,7 +38,6 @@ def parseDataLine(section_name, start_addr, end_addr, self, displayUnits, is_dat
         addr = start_addr
         for c in map(ord, rawData):
             du = DisplayUnit()
-            du.isCode = False
             du.offset = addr
             du.section_name = section_name
             du.rawBytes =  '%02x' % c
@@ -54,7 +53,6 @@ def parseDataLine(section_name, start_addr, end_addr, self, displayUnits, is_dat
         addr = start_addr
         for c in map(ord, rawData):
             du = DisplayUnit()
-            du.isCode = False
             du.offset = addr
             du.section_name = section_name
             du.rawBytes =  '%02x' % c

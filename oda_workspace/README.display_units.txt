@@ -14,6 +14,13 @@ class InstrDisplayUnit : inherits DisplayUnit
   prop funcStart // TRUE if this instruction begins a function
   prop funcEnd   // TRUE if this instruction ends a function
 
+class FuncDisplayUnit : inherits InstrDisplayUnit
+  prop name      // function name
+  prop ret       // return type
+  prop args      // array of argument types and names
+  prop xrefs     // list of cross references that call this function
+  prop size      // number of bytes that this function covers
+
 class DataDisplayUnit : inherits DisplayUnit
   prop type      // type of data
-  prop num       // number of elements (if greater than 1, than this is an array of the given type)
+  prop len       // number of elements (if greater than 1, than this is an array of the given type)

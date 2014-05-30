@@ -40,13 +40,9 @@ class DisplayUnit(object):
         self.crossRef = []
         self.opcode = ''
         self.operands = ''
-        self.isCode = True
-        self.listing = ''
         self.isError = False
         self.isTargetAddrValid = False
         self.instType = InstructionType.undefined
         self.callType = None
-        self.byteLength = 0
-        self.data = ''
         self.targetAddr = 0
         self.labelName = 'abc'
