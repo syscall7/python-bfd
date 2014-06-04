@@ -13,7 +13,8 @@ $(document).ready(function(){
             $.get('/odaweb/api/displayunits/', {
                 short_name: 'chown',
                 revision: 0,
-                addr: 0,
+                addr: rowNum,
+                logical: true,
                 units: 500
             }).done(function(data){
                 var tlines = [];
