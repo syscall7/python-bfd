@@ -3,24 +3,36 @@ $(document).ready(function(){
     var document = ace.require('ace/document');
 
     var WindowLoader = function() {
-        this.windowSize = 1000;
+        this.windowSize = 500;
 
         this.load = function(rowNum, callback) {
 
             NProgress.start();
 
             console.log("Loading...",rowNum);
+            $.get('/odaweb/api/displayunits/', {
+                short_name: 'chown',
+                revision: 0,
+                addr: 0,
+                units: 500
+            }).done(function(data){
+                var tlines = [];
+                for (var i=0; i<data.length; i++) {
+                    tlines.push(JSON.stringify(data[i]));
+                }
+                NProgress.done();
+                callback(new document.Window(rowNum, tlines));
 
-            var tlines = [];
-            for (var i=rowNum; i<rowNum + this.windowSize; i++) {
+            });
+
+/*            for (var i=rowNum; i<rowNum + this.windowSize; i++) {
 
                 var line = '<div style="height:14px" class="ace_line"><span class="branchLines"> &nbsp;</span><span class="offset disassembly-cell">.interp:4194872</span><span class="raw disassembly-cell">2f</span><span class="instruction"><span class="string">/</span></span></div>'
                 var s = {"section_name":".text","offset":4233570,"rawBytes":"4889c7","instStr":"mov    rdi,rax","branch":"&#x2001;&#x2001;&nbsp;","branch_label":"&#x2001;&#x2001;&nbsp;","opcode":"mov","operands":"rdi,rax","stringRef":null,"branchRef":null,"targetRef":null,"crossRef":[],"isBranch":false,"isFunction":false,"labelName":"abc"}
-                tlines.push(JSON.stringify(s));
-            }
 
-            NProgress.done();
-            callback(new document.Window(rowNum, tlines));
+            }*/
+
+
         };
 
         this.getWindowSize = function() {
