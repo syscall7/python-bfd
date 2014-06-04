@@ -61,6 +61,16 @@ class Disassembler(object):
     def __init__(self, odb_file):
         self.odb_file = odb_file
 
+    def total_lines(self):
+        total = 0
+        parcels = self.odb_file.get_structure_list(Parcel)
+        for p in parcels:
+            if p.is_code:
+                    total += len(p.ldus)
+            else:
+                total += (p.end - p.start)
+        return total
+
     def analyze(self, start, lines, logical):
 
         architecture = self.odb_file.get_binary().options.architecture
