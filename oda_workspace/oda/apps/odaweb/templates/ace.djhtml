@@ -56,47 +56,8 @@
 <script type="text/javascript" src="{% static 'scripts/lib/handlebars-v1.3.0.js' %}" ></script>
 <script type="text/javascript" src="{% static 'scripts/lib/jquery/jquery-1.8.3.min.js' %}" ></script>
 <script type="text/javascript" src="{% static 'scripts/lib/nprogress/nprogress.js' %}" ></script>
-<script>
 
-    $(document).ready(function(){
+<script type="text/javascript" src="{% static 'scripts/oda_ace.js' %}" ></script>
 
-        var document = ace.require('ace/document');
-
-        var WindowLoader = function() {
-            this.windowSize = 1000;
-
-            this.load = function(rowNum, callback) {
-                console.log("Loading...",rowNum);
-
-                var tlines = [];
-                for (var i=rowNum; i<rowNum + this.windowSize; i++) {
-
-                    var line = '<div style="height:14px" class="ace_line"><span class="branchLines"> &nbsp;</span><span class="offset disassembly-cell">.interp:4194872</span><span class="raw disassembly-cell">2f</span><span class="instruction"><span class="string">/</span></span></div>'
-                    var s = {"section_name":".text","offset":4233570,"rawBytes":"4889c7","instStr":"mov    rdi,rax","branch":"&#x2001;&#x2001;&nbsp;","branch_label":"&#x2001;&#x2001;&nbsp;","opcode":"mov","operands":"rdi,rax","stringRef":null,"branchRef":null,"targetRef":null,"crossRef":[],"isBranch":false,"isFunction":false,"labelName":"abc"}
-                    tlines.push(JSON.stringify(s));
-                }
-                callback(new document.Window(rowNum, tlines));
-            };
-
-            this.getWindowSize = function() {
-                return this.windowSize;
-            }
-        };
-
-
-        NProgress.start();
-
-        var doc = new document.OnlineDocument(8000000, new WindowLoader());
-        doc.setLoadingString("..");
-        var editor = ace.edit("editor", doc);
-        editor.setTheme("ace/theme/chrome");
-        //editor.setLineRenderer(lineRenderer);
-        editor.getSession().setMode("ace/mode/javascript");
-        editor.getSession().setUseWorker(false);
-        editor.setShowPrintMargin(false);
-
-    });
-
-</script>
 </body>
 </html>
