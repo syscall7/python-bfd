@@ -76,7 +76,7 @@ $(document).ready(function(){
 
     };
 
-    var doc = new document.OnlineDocument(8000000, new WindowLoader());
+    var doc = new document.OnlineDocument(80000, new WindowLoader());
     doc.setLoadingString("..");
     var editor = ace.edit("editor", doc);
     editor.setTheme("ace/theme/chrome");
