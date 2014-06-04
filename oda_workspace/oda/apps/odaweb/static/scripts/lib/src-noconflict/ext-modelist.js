@@ -55,6 +55,7 @@ var supportedModes = {
     D:           ["d|di"],
     Dart:        ["dart"],
     Diff:        ["diff|patch"],
+    Dockerfile:  ["^Dockerfile"],
     Dot:         ["dot"],
     Erlang:      ["erl|hrl"],
     EJS:         ["ejs"],

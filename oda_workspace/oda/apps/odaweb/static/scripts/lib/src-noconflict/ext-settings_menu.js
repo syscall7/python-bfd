@@ -324,6 +324,7 @@ var supportedModes = {
     D:           ["d|di"],
     Dart:        ["dart"],
     Diff:        ["diff|patch"],
+    Dockerfile:  ["^Dockerfile"],
     Dot:         ["dot"],
     Erlang:      ["erl|hrl"],
     EJS:         ["ejs"],
@@ -438,8 +439,9 @@ module.exports = {
 
 });
 
-ace.define('ace/ext/themelist', ['require', 'exports', 'module' ], function(require, exports, module) {
+ace.define('ace/ext/themelist', ['require', 'exports', 'module' , 'ace/lib/fixoldbrowsers'], function(require, exports, module) {
 
+require("ace/lib/fixoldbrowsers");
 
 var themeData = [
     ["Chrome"         ],

@@ -995,7 +995,6 @@ EventEmitter._emit =
 EventEmitter._dispatchEvent = function(eventName, e) {
     this._eventRegistry || (this._eventRegistry = {});
     this._defaultHandlers || (this._defaultHandlers = {});
-
     var listeners = this._eventRegistry[eventName] || [];
     var defaultHandler = this._defaultHandlers[eventName];
     if (!listeners.length && !defaultHandler)
@@ -1406,7 +1405,9 @@ var Anchor = exports.Anchor = function(doc, row, column) {
                 row += end.row - start.row;
             }
         } else if (delta.action === "insertLines") {
-            if (start.row <= row) {
+            if (start.row === row && column === 0 && this.$insertRight) {
+            }
+            else if (start.row <= row) {
                 row += end.row - start.row;
             }
         } else if (delta.action === "removeText") {
@@ -3528,5 +3529,96 @@ var Document = function(text) {
 
 }).call(Document.prototype);
 
+var Window = function(startRow, lines) {
+    this.startRow = startRow;
+    this.lines = lines;
+
+    this.getLogicalRow = function(row) {
+        return this.lines[row - this.startRow];
+    };
+
+    this.getAbsoluteRow = function(row) {
+        return this.lines[row];
+    }
+
+    this.isRowInWindow = function(row) {
+        return row >= startRow && row < startRow + lines.length;
+    };
+
+    this.getStart = function() {
+        return this.startRow;
+    }
+
+    this.getSize = function() {
+        return this.lines.length;
+    }
+};
+
+var OnlineDocument = function(numRows, windowLoader) {
+    oop.implement(this, EventEmitter);
+
+    this.windowLoader = windowLoader;
+    this.windowSize = windowLoader.getWindowSize();
+    this.window = new Window(0, []);
+    this.numRows = numRows;
+    this.loadingString = "...";
+    this.createAnchor = function(row, column) {
+        return new Anchor(this, row, column);
+    };
+    this.getLength = function() {
+        return this.numRows;
+    };
+
+    this.setLoadingString = function(loadingString) {
+        this.loadingString = loadingString;
+    }
+    this.getNewLineCharacter = function() {
+        switch (this.$newLineMode) {
+            case "windows":
+                return "\r\n";
+            case "unix":
+                return "\n";
+            default:
+                return this.$autoNewLine || "\n";
+        }
+    };
+
+    this.getLine = function(row) {
+        if (this.window.isRowInWindow(row)) {
+            return this.window.getLogicalRow(row);
+        }
+        else {
+            this.load(row);
+            return this.loadingString;
+        }
+    };
+
+    var timeout = null;
+    var rowToLoad;
+    this.load = function(row){
+        rowToLoad = row;
+        clearTimeout(timeout);
+        var document = this;
+        timeout = setTimeout(function(){
+            document.windowLoader.load(Math.max(rowToLoad-this.windowSize/2,0), function(window){
+                this.window = window;
+                for (var i=0;i<window.getSize(); i++) {
+                    var delta = {
+                        action: "insertText",
+                        range: Range.fromPoints({row:window.getStart()+i, column: 0},
+                            {row:window.getStart()+i, column: window.getAbsoluteRow(i).length}),
+                        text: Array(window.getSize())
+                    };
+                    this._signal("change", { data: delta });
+                }
+                this._signal("loaded", { data: {row: rowToLoad-5 } });
+
+            }.bind(this));
+        }.bind(this),250);
+    }
+};
+
 exports.Document = Document;
+exports.OnlineDocument = OnlineDocument;
+exports.Window = Window;
 });

@@ -60,70 +60,40 @@
 
     $(document).ready(function(){
 
-    NProgress.start();
+        var document = ace.require('ace/document');
 
-    var editor = ace.edit("editor");
-    editor.setTheme("ace/theme/eclipse");
-    editor.getSession().setUseWorker(false);
-    editor.setReadOnly(true);
-    editor.getSession().setMode("ace/mode/javascript");
-    editor.getSession().selection.addEventListener("changeCursor", function(event, source){
+        var WindowLoader = function() {
+            this.windowSize = 1000;
 
-       /* var row = editor.getSession().doc.getLine(editor.selection.getCursor().row);
-        var offset = JSON.parse(row).offset.toString(16);
-        $('#status-bar').html(offset);
-        console.log(editor.selection.getCursor(), offset);*/
-    });
+            this.load = function(rowNum, callback) {
+                console.log("Loading...",rowNum);
 
-    var totalLoadedLines = 0;
+                var tlines = [];
+                for (var i=rowNum; i<rowNum + this.windowSize; i++) {
 
-    var loadMore = function(addr) {
-        $.get('/odaweb/api/displayunits/', {
-            short_name: 'chown',
-            revision: 0,
-            addr: addr,
-            units: 500
-        }).done(function(data){
-            var lines = $.map(data, function(du) {return JSON.stringify(du)});
-            editor.getSession().getDocument().insertLines(editor.getSession().getDocument().getLength()-1,lines)
-            totalLoadedLines+=500;
-            NProgress.set(totalLoadedLines/35000);
-            if(data.length > 300) {
-                loadMore(data[data.length-1].offset);
+                    var line = '<div style="height:14px" class="ace_line"><span class="branchLines"> &nbsp;</span><span class="offset disassembly-cell">.interp:4194872</span><span class="raw disassembly-cell">2f</span><span class="instruction"><span class="string">/</span></span></div>'
+                    var s = {"section_name":".text","offset":4233570,"rawBytes":"4889c7","instStr":"mov    rdi,rax","branch":"&#x2001;&#x2001;&nbsp;","branch_label":"&#x2001;&#x2001;&nbsp;","opcode":"mov","operands":"rdi,rax","stringRef":null,"branchRef":null,"targetRef":null,"crossRef":[],"isBranch":false,"isFunction":false,"labelName":"abc"}
+                    tlines.push(JSON.stringify(s));
+                }
+                callback(new document.Window(rowNum, tlines));
+            };
+
+            this.getWindowSize = function() {
+                return this.windowSize;
             }
-        });
-    };
-
-    $.get('/odaweb/api/displayunits/', {
-        short_name: 'chown',
-        revision: 0,
-        //addr:parseInt('401da4',16),
-        units: 500
-
-    }).done(function(data){
+        };
 
 
+        NProgress.start();
 
-        var disassembly_text = '';
-        var lines = $.map(data, function(du) {return JSON.stringify(du)});
-        //for (var i=0; i<data.length; i++) {
-        //    disassembly_text +=  + "\n";
-            /*disassembly_text += data[i].branch +
-                    '<span class="offset">' +data[i].offset + '<span>' +
-                    data[i].section_name + ": " +  + " " + data[i].rawBytes + " " + data[i].instStr + "\n";
-            */
-            // disassembly_text += data[i].rawBytes + " ";
-            // if ((i % 16) == 0 ) {
-            //    disassembly_text += "\n";
-            //}
-
-        //}
-        editor.getSession().getDocument().insertLines(0,lines)
-        //editor.insert(disassembly_text);
-        loadMore(data[data.length-1].offset);
-        totalLoadedLines+=500;
-        NProgress.set(totalLoadedLines/35000);
-    });
+        var doc = new document.OnlineDocument(8000000, new WindowLoader());
+        doc.setLoadingString("..");
+        var editor = ace.edit("editor", doc);
+        editor.setTheme("ace/theme/chrome");
+        //editor.setLineRenderer(lineRenderer);
+        editor.getSession().setMode("ace/mode/javascript");
+        editor.getSession().setUseWorker(false);
+        editor.setShowPrintMargin(false);
 
     });
 
