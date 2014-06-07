@@ -11,11 +11,11 @@ $(document).ready(function(){
 
             console.log("Loading...",rowNum);
             $.get('/odaweb/api/displayunits/', {
-                short_name: 'chown',
+                short_name: 'mongodb',
                 revision: 0,
                 addr: rowNum,
                 logical: true,
-                units: 500
+                units: 400
             }).done(function(data){
                 var tlines = [];
                 for (var i=0; i<data.length; i++) {
@@ -53,8 +53,7 @@ $(document).ready(function(){
             var tokens = this.session.getTokens(row);*/
         stringBuilder.push(
                 "<div class='ace_line' style='height:",
-                        this.config.lineHeight * (
-                        this.$useLineGroups() ? 1 :this.session.getRowLength(row)
+                        this.config.lineHeight * (this.$useLineGroups() ? 1 :this.session.getRowLength(row)
                         ), "px'>"
         );
 
@@ -76,13 +75,21 @@ $(document).ready(function(){
 
     };
 
-    var doc = new document.OnlineDocument(80000, new WindowLoader());
-    doc.setLoadingString("..");
-    var editor = ace.edit("editor", doc);
-    editor.setTheme("ace/theme/chrome");
-    editor.setLineRenderer(lineRenderer);
-    editor.getSession().setMode("ace/mode/javascript");
-    editor.getSession().setUseWorker(false);
-    editor.setShowPrintMargin(false);
+
+    $.get('/odaweb/api/displayunits/1/size', {
+        short_name: 'mongodb',
+        revision: 0
+    }).done(function(data){
+            var doc = new document.OnlineDocument(data, new WindowLoader());
+            doc.setLoadingString("..");
+            var editor = ace.edit("editor", doc);
+            editor.setTheme("ace/theme/chrome");
+            editor.setLineRenderer(lineRenderer);
+            editor.getSession().setMode("ace/mode/javascript");
+            editor.getSession().setUseWorker(false);
+            editor.setShowPrintMargin(false);
+    });
+
+
 
 });
