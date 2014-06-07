@@ -1,6 +1,7 @@
 import logging
 
 from rest_framework import viewsets
+from rest_framework.decorators import action, link
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from oda.apps.odaweb.models import OdaMaster
@@ -136,11 +137,20 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         dasm = Disassembler(oda.odb())
         dunits = dasm.analyze(start, units, logical)
 
+
         logger.debug("DisplayUnitsViewSet: Generate serialized data")
         serializer = self.get_serializer(dunits, many=True)
         serialData = Response(serializer.data)
         logger.debug("DisplayUnitsViewSet: Serial data complete")
         return serialData
+
+    @link()
+    def size(self, request, pk):
+        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
+                                    revision=request.QUERY_PARAMS.get('revision'))
+
+        dasm = Disassembler(oda.odb())
+        return Response(dasm.total_lines())
 
 
 class FindViewSet(viewsets.GenericViewSet):
