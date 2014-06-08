@@ -62,14 +62,29 @@ class Disassembler(object):
         self.odb_file = odb_file
 
     def total_lines(self):
+        parcels = self.odb_file.get_structure_list(Parcel)
+
         total = 0
+        for p in parcels:
+            total += p.num_ldas()
+
+        return total
+
+    def vma_to_lda(self, vma):
         parcels = self.odb_file.get_structure_list(Parcel)
         for p in parcels:
-            if p.is_code:
-                    total += len(p.ldus)
-            else:
-                total += (p.end - p.start)
-        return total
+            lda = p.vma_to_lda(vma)
+            if lda:
+                return lda
+        return None
+
+    def lda_to_vma(self, lda):
+        parcels = self.odb_file.get_structure_list(Parcel)
+        for p in parcels:
+            vma = p.lda_to_vma(lda)
+            if vma:
+                return vma
+        return None
 
     def analyze(self, start, lines, logical):
 
@@ -78,23 +93,13 @@ class Disassembler(object):
 
         parcels = self.odb_file.get_structure_list(Parcel)
 
-        # if we are analyzing based on logical display units, convert 'start' from logical display unit number to an actual address
+        # if we are analyzing based on lda, first convert to vma
         parcels.sort(key=lambda p: p.start, reverse=False)
         if logical:
-            i = 0
-            for p in parcels:
-                if p.is_code:
-                    if i + len(p.ldus) >= start:
-                        start = p.ldus[start - i]
-                        break
-                    else:
-                        i += len(p.ldus)
-                else:
-                    if i + (p.end - p.start) >= start:
-                        start = p.start + start - i
-                        break
-                    else:
-                        i += (p.end - p.start)
+            start = self.lda_to_vma(start)
+            if not start:
+                # TODO: Throw exception here?
+                return []
 
         if lines >= 0:
             parcels = [p for p in parcels if p.end > start]

@@ -32,13 +32,11 @@ class ParcelOffsetScanner(object):
         self.inst_sample_interval = 50
         self.sample_offset_count = 0
         self.last_parcel = None
-        self.lduCnt = 0
 
     def instruction(self, parcel, addr, rawData, instr, abfd):
 
         #we've advanced to the next parcel, reset the counter
         if parcel != self.last_parcel:
-            self.lduCnt = 0
             self.sample_offset_count = 0
             self.last_parcel = parcel
 
@@ -48,8 +46,8 @@ class ParcelOffsetScanner(object):
         else:
             self.sample_offset_count += 1
 
-        parcel.ldus[self.lduCnt] = addr
-        self.lduCnt += 1
+        # associate this vma with the parcel
+        parcel.push_vma(addr)
 
     def commit(self, odb_file):
         pass
@@ -158,22 +156,35 @@ class ScanOperation(Operation):
             parcel_scanner
         ]
 
-        for parcel in [p for p in odb_file.get_structure_list(Parcel) if p.is_code]:
+        lda_offset = 0
+        parcels = odb_file.get_structure_list(Parcel)
+        parcels.sort(key=lambda p: p.start, reverse=False)
+
+        for parcel in parcels:
+
             logger.debug("parcel start=0x%08x parcel.end=0x%08x" % (parcel.start, parcel.end))
+
+            # initialize the logical display unit address
 
             the_ofd = ofd.Ofd(odb_file.get_binary())
             section = the_ofd.get_section_from_addr(parcel.start)
 
-            def callback(addr, rawData, instr, abfd, self):
-                for scanner in scanners:
-                    scanner.instruction(parcel, addr, rawData, instr, abfd)
+            parcel.lda_start = lda_offset
+            if parcel.is_code:
+
+                def callback(addr, rawData, instr, abfd, self):
+                    for scanner in scanners:
+                        scanner.instruction(parcel, addr, rawData, instr, abfd)
 
 
-            the_ofd.disassemble(section.name, [], parcel.start, parcel.end,
-                                funcFmtLine=callback,
-                                funcFmtLineArgs={
-                                    'self': self,
-                                })
+                the_ofd.disassemble(section.name, [], parcel.start, parcel.end,
+                                    funcFmtLine=callback,
+                                    funcFmtLineArgs={
+                                        'self': self,
+                                    })
+
+            # account for the new display units
+            lda_offset += parcel.num_ldas()
 
         for scanner in scanners:
             scanner.commit(odb_file)
