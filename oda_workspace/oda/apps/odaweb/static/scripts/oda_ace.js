@@ -1,3 +1,4 @@
+var ace_document = ace.require('ace/document');
 
 var OdaSession = function(session) {
 
@@ -18,6 +19,27 @@ var OdaSession = function(session) {
     }.bind(this));
 
 };
+
+function string_insert(original, index, string) {
+  if (index > 0)
+    return original.substring(0, index) + string + original.substring(index, this.length);
+  else
+    return string + original;
+};
+
+var VirtualTextBox = function() {
+    this.text = '';
+    this.position = 0;
+
+    this.processKey = function(key) {
+        this.text = string_insert(this.text, this.position, key);
+        console.log(this.text);
+    }
+
+    this.getText = function() {
+        return this.text;
+    };
+}
 
 var StatusBar = function() {
     this.setAddress = function(address) {
@@ -49,6 +71,11 @@ var KeyboardHandler = function(statusBar) {
 
     this.statusBar = statusBar;
 
+    this.setMode = function(mode) {
+        this.mode = mode;
+        this.statusBar.setMode(mode);
+    };
+
     this.normalMode = function(data, hashId, key, keyCode, e) {
         //Arrow Keys
         if (keyCode >=33 && keyCode <= 40 ) {
@@ -57,13 +84,27 @@ var KeyboardHandler = function(statusBar) {
 
         var editor = data.editor;
 
+        if (key == ';') {
+            this.setMode('comment');
+        }
+
         console.log("keyboard", data, hashId, key, keyCode, e);
         return {
             command: "null"
         };
     };
 
+    this.virtual = new VirtualTextBox();
     this.commentMode = function(data, hashId, key, keyCode, e) {
+
+
+        if (key == 'esc' || key == 'return') {
+            this.setMode('normal');
+        } else {
+            this.virtual.processKey(key);
+        }
+
+
         return {
             command: "null"
         };
@@ -85,7 +126,7 @@ var KeyboardHandler = function(statusBar) {
 
 $(document).ready(function(){
 
-    var document = ace.require('ace/document');
+
 
     var WindowLoader = function() {
         this.windowSize = 500;
@@ -107,7 +148,7 @@ $(document).ready(function(){
                     tlines.push(JSON.stringify(data[i]));
                 }
                 NProgress.done();
-                callback(new document.Window(rowNum, tlines));
+                callback(new ace_document.Window(rowNum, tlines));
 
             });
 
@@ -172,7 +213,7 @@ $(document).ready(function(){
         short_name: 'mkdir',
         revision: 0
     }).done(function(data){
-            var doc = new document.OnlineDocument(data, new WindowLoader());
+            var doc = new ace_document.OnlineDocument(data, new WindowLoader());
             doc.setLoadingString("..");
             var editor = ace.edit("editor", doc);
             editor.setTheme("ace/theme/chrome");
@@ -183,7 +224,7 @@ $(document).ready(function(){
             editor.renderer.setShowGutter(false);
             var odaSession = new OdaSession(editor.getSession());
             var statusBar = new StatusBar();
-            var keyboardHandler = new KeyboardHandler();
+            var keyboardHandler = new KeyboardHandler(statusBar);
 
             odaSession.onCursorChange.add(function(offset) {
                 console.log("CURSOR CHANGE", offset);
