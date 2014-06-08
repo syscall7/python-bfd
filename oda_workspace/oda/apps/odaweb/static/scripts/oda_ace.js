@@ -1,3 +1,27 @@
+var OdaSession = function(session) {
+
+    this.cursorPositon = null;
+
+    this.onCursorChange = $.Callbacks();
+
+    session.selection.on('changeCursor', function(e) {
+        var cursor = session.getSelection().getCursor();
+        var line = session.getDocument().getLine(cursor.row);
+
+        var offset = JSON.parse(line).offset
+
+        this.onCursorChange.fire(offset);
+
+    }.bind(this));
+
+
+
+};
+
+Handlebars.registerHelper("hex", function(value){
+    return value.toString(16);
+});
+
 $(document).ready(function(){
 
     var document = ace.require('ace/document');
@@ -11,7 +35,7 @@ $(document).ready(function(){
 
             console.log("Loading...",rowNum);
             $.get('/odaweb/api/displayunits/', {
-                short_name: 'mongodb',
+                short_name: 'mkdir',
                 revision: 0,
                 addr: rowNum,
                 logical: true,
@@ -62,7 +86,7 @@ $(document).ready(function(){
         } else {
         try {
             var s = JSON.parse(line);
-            var t = '<span class="branchLines">{{{branch}}}</span><span class="offset disassembly-cell">{{section_name}}:{{offset}}</span>' +
+            var t = '<span class="branchLines">{{{branch}}}</span><span class="offset disassembly-cell">{{section_name}}:{{hex offset}}</span>' +
                 '<span class="raw disassembly-cell">{{rawBytes}}</span><span class="instruction">{{{instStr}}}</span>';
             var template = Handlebars.compile(t);
             var renderedText = template(s)
@@ -75,9 +99,16 @@ $(document).ready(function(){
 
     };
 
+    var addrBar;
+    $.get('http://localhost:8000/odaweb/api/sections/?format=json&short_name=mkdir&revision=0').done(function(sections){
+        addrBar = new AddressNavBar('#addr-bar-canvas', sections);
+        addrBar.onChange(function(a) {
+            console.log('My change handler: ' + a.toString(16));
+        });
+    });
 
     $.get('/odaweb/api/displayunits/1/size', {
-        short_name: 'mongodb',
+        short_name: 'mkdir',
         revision: 0
     }).done(function(data){
             var doc = new document.OnlineDocument(data, new WindowLoader());
@@ -88,6 +119,12 @@ $(document).ready(function(){
             editor.getSession().setMode("ace/mode/javascript");
             editor.getSession().setUseWorker(false);
             editor.setShowPrintMargin(false);
+
+            var odaSession = new OdaSession(editor.getSession());
+            odaSession.onCursorChange.add(function(offset) {
+                console.log("CURSOR CHANGE", offset);
+                addrBar.setAddress(offset);
+            })
     });
 
 
