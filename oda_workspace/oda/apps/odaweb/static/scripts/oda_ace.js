@@ -8,9 +8,13 @@ var OdaSession = function(session) {
         var cursor = session.getSelection().getCursor();
         var line = session.getDocument().getLine(cursor.row);
 
-        var offset = JSON.parse(line).offset
+        try {
+            var offset = JSON.parse(line).offset;
+            this.onCursorChange.fire(offset);
+        } catch (ex) {
+        }
 
-        this.onCursorChange.fire(offset);
+
 
     }.bind(this));
 
