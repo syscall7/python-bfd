@@ -16,7 +16,7 @@
         position: absolute;
         top: 25px;
         right: 0;
-        bottom: 0;
+        bottom: 20px;
         left: 0;
     }
 
@@ -30,7 +30,7 @@
 
     .raw {
         color: gray;
-        width:100px;
+        width:140px;
         display: inline-block;
     }
 
@@ -40,6 +40,24 @@
 
     .disassembly-cell {
         padding-right:10px;
+    }
+
+     #statusBar {
+        margin: 0;
+        padding: 0;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 20px;
+        background-color: rgb(245, 245, 245);
+        color: gray;
+    }
+    .ace_status-indicator {
+        color: gray;
+        position: absolute;
+        right: 0;
+        border-left: 1px solid;
     }
 
 </style>
@@ -55,7 +73,9 @@
 
 <div id="editor"></div>
 
-<div style="right:23px;bottom:23px;position: absolute;" id="status-bar">
+<div id="statusbar-container">
+<div id="statusBar"><span class="status-mode">online disassembler forever!</span><div class="ace_status-indicator" style="display: inline-block;">61:0</div></div>
+</div>
 
 </div>
 

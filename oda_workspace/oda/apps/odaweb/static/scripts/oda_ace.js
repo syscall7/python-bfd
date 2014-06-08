@@ -1,3 +1,4 @@
+
 var OdaSession = function(session) {
 
     this.cursorPositon = null;
@@ -14,17 +15,73 @@ var OdaSession = function(session) {
         } catch (ex) {
         }
 
-
-
     }.bind(this));
-
-
 
 };
 
+var StatusBar = function() {
+    this.setAddress = function(address) {
+        $('.ace_status-indicator').html("0x" + address.toString(16));
+    };
+
+    this.templateString = "[{{mode}}] ONLINE DISASSEMBLER 4EVER!";
+
+    this.setMode = function(mode) {
+        var template = Handlebars.compile(this.templateString);
+        var renderedText = template({mode:mode});
+        $('.status-mode').html(renderedText)
+    };
+
+    this.setMode('normal');
+}
+
 Handlebars.registerHelper("hex", function(value){
-    return value.toString(16);
+    var stringValue = value.toString(16);
+    var s = "000000000" + stringValue;
+    return s.substr(s.length-8);
+
 });
+
+
+var KeyboardHandler = function(statusBar) {
+
+    this.mode = 'normal';
+
+    this.statusBar = statusBar;
+
+    this.normalMode = function(data, hashId, key, keyCode, e) {
+        //Arrow Keys
+        if (keyCode >=33 && keyCode <= 40 ) {
+            return null;
+        }
+
+        var editor = data.editor;
+
+        console.log("keyboard", data, hashId, key, keyCode, e);
+        return {
+            command: "null"
+        };
+    };
+
+    this.commentMode = function(data, hashId, key, keyCode, e) {
+        return {
+            command: "null"
+        };
+    };
+
+    this.handler = function(data, hashId, key, keyCode, e) {
+        // ignore command keys (shift, ctrl etc.)
+        if (hashId !== 0 && (!key || keyCode == -1))
+            return null;
+
+        if (this.mode == 'normal') {
+            return this.normalMode(data, hashId, key, keyCode, e);
+        } else if (this.mode == 'comment') {
+            return this.commentMode(data, hashId, key, keyCode, e);
+        }
+    }.bind(this);
+};
+
 
 $(document).ready(function(){
 
@@ -123,12 +180,18 @@ $(document).ready(function(){
             editor.getSession().setMode("ace/mode/javascript");
             editor.getSession().setUseWorker(false);
             editor.setShowPrintMargin(false);
-
+            editor.renderer.setShowGutter(false);
             var odaSession = new OdaSession(editor.getSession());
+            var statusBar = new StatusBar();
+            var keyboardHandler = new KeyboardHandler();
+
             odaSession.onCursorChange.add(function(offset) {
                 console.log("CURSOR CHANGE", offset);
                 addrBar.setAddress(offset);
+                statusBar.setAddress(offset);
             })
+
+            editor.setKeyboardHandler(keyboardHandler.handler);
     });
 
 
