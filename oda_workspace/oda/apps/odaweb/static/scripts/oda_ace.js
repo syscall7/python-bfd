@@ -20,6 +20,32 @@ var OdaSession = function(session) {
 
 };
 
+var CommentDialog = function(editor, du) {
+    var modalId = "#my-modal";
+    var saveButtonId = "#my-modal .btn-primary";
+
+    $('#my-modal .commentLine').text(du);
+    $(modalId).unbind().on('shown.bs.modal', function (e) {
+        // do something...
+        $('#my-modal .comment-text').focus();
+    });
+
+    $(modalId).on('hidden.bs.modal', function (e) {
+        editor.focus();
+    });
+
+    this.modal = $('#my-modal').modal('show');
+
+
+    $(saveButtonId).unbind().on('click', function () {
+        alert($('#my-modal .comment-text').val());
+        this.modal.modal('hide');
+    }.bind(this));
+
+
+
+}
+
 function string_insert(original, index, string) {
   if (index > 0)
     return original.substring(0, index) + string + original.substring(index, this.length);
@@ -83,9 +109,12 @@ var KeyboardHandler = function(statusBar) {
         }
 
         var editor = data.editor;
-
+        var session = editor.getSession();
         if (key == ';') {
-            this.setMode('comment');
+            var cursor = session.getSelection().getCursor();
+            var line = session.getDocument().getLine(cursor.row);
+
+            var commentDialog = new CommentDialog(editor, line);
         }
 
         console.log("keyboard", data, hashId, key, keyCode, e);
@@ -202,10 +231,18 @@ $(document).ready(function(){
     };
 
     var addrBar;
+    var editor;
     $.get('http://localhost:8000/odaweb/api/sections/?format=json&short_name=mkdir&revision=0').done(function(sections){
         addrBar = new AddressNavBar('#addr-bar-canvas', sections);
-        addrBar.onChange(function(a) {
-            console.log('My change handler: ' + a.toString(16));
+        addrBar.onChange(function(address) {
+            $.get('/odaweb/api/displayunits/1/vmaToLda', {
+                short_name: 'mkdir',
+                revision: 0,
+                vma: address
+            }).done(function(ldu){
+                editor.moveCursorToPosition({row:ldu,column:0});
+            });
+            console.log('My change handler: ' + address.toString(16));
         });
     });
 
@@ -215,7 +252,7 @@ $(document).ready(function(){
     }).done(function(data){
             var doc = new ace_document.OnlineDocument(data, new WindowLoader());
             doc.setLoadingString("..");
-            var editor = ace.edit("editor", doc);
+            editor = ace.edit("editor", doc);
             editor.setTheme("ace/theme/chrome");
             editor.setLineRenderer(lineRenderer);
             editor.getSession().setMode("ace/mode/javascript");

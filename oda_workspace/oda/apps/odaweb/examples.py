@@ -47,12 +47,13 @@ Examples = (
         'file_name': 'chown',
         'options': {'target': "elf64-x86-64", 'architecture': "i386:x86-64"},
     },
-    {
-        'project_name': 'sha1sum (Linux)',
-        'short_name': 'sha1sum',
-        'file_name': 'sha1sum',
-        'options': {'target': "elf64-x86-64", 'architecture': "i386:x86-64"},
-    },
+    #{
+    #    'project_name': 'mongodb',
+    #    'short_name': 'mongodb',
+    #    'file_name': 'mongod',
+    #    'options': {'target': "elf64-x86-64", 'architecture': "i386:x86-64"},
+    #},
+
     #{
     #    'project_name' : 'Sasser Worm (Windows)',
     #    'short_name' : 'sasser',
