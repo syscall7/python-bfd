@@ -171,7 +171,7 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
 
         lda = 0
         if request.QUERY_PARAMS.get('lda'):
-            vma = int(request.QUERY_PARAMS.get('lda'), 0)
+            lda = int(request.QUERY_PARAMS.get('lda'), 0)
 
         dasm = Disassembler(oda.odb())
         return Response(dasm.lda_to_vma(lda))

@@ -74,7 +74,7 @@ class Disassembler(object):
         parcels = self.odb_file.get_structure_list(Parcel)
         for p in parcels:
             lda = p.vma_to_lda(vma)
-            if lda:
+            if lda is not None:
                 return lda
         return None
 
@@ -82,7 +82,7 @@ class Disassembler(object):
         parcels = self.odb_file.get_structure_list(Parcel)
         for p in parcels:
             vma = p.lda_to_vma(lda)
-            if vma:
+            if vma is not None:
                 return vma
         return None
 

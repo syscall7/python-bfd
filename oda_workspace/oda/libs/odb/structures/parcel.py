@@ -40,7 +40,7 @@ class Parcel(OdaObject):
             return None
 
         if self.is_code:
-            for i in range(vma - self.start):
+            for i in range(vma - self.start + 1):
                 # snap to closest vma that is less than the given vma
                 closest_vma = vma - i
                 if closest_vma in self.lda_bidict.values():

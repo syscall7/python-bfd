@@ -158,6 +158,57 @@ class DisplayUnitTest(OdaTestCase):
         self.assertEquals(rd[6]['section_name'], '.plt')
         self.assertEquals(rd[6]['instStr'], 'push   QWORD PTR [rip+0x20eafa]        # 0x0060fff0')
 
+    def test_display_units_mkdir_size(self):
+        response = self.client.get('/odaweb/api/displayunits/1/size/',
+                                   { 'revision': 0,
+                                     'short_name': 'mkdir'},
+                                   format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        rd = response.data
+        self.assertIsNotNone(rd)
+        self.assertEquals(rd, 28439)
+
+    def test_display_units_mkdir_vma_to_lda(self):
+
+        tests = (
+            (0x400238, 0),      # first data byte (in .interp)
+            (0x4014d0, 4752),   # first instruction of executable (in .init)
+            (0x6102b7, 28438),      # last data byte of executable (in .data)
+            (0x6102b8, None)    # one byte beyond executable image
+        )
+
+        for vma, expected_lda in tests:
+            response = self.client.get('/odaweb/api/displayunits/1/vmaToLda/',
+                                       { 'revision': 0,
+                                         'short_name': 'mkdir',
+                                         'vma': vma},
+                                       format='json')
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            actual_lda = response.data
+            self.assertEquals(expected_lda, actual_lda)
+
+    def test_display_units_mkdir_lda_to_vma(self):
+
+        tests = (
+            (0x400238, 0),      # first data byte (in .interp)
+            (0x4014d0, 4752),   # first instruction of executable (in .init)
+            (0x6102b7, 28438),  # last data byte of executable (in .data)
+            (None, 28439)       # one lda beyond executable image
+        )
+
+        for expected_vma, lda in tests:
+            response = self.client.get('/odaweb/api/displayunits/1/ldaToVma/',
+                                       { 'revision': 0,
+                                         'short_name': 'mkdir',
+                                         'lda': lda},
+                                       format='json')
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            actual_vma = response.data
+            self.assertEquals(expected_vma, actual_vma)
+
 class LabelUnitTest(OdaTestCase):
     urls = 'oda.urls'
 
