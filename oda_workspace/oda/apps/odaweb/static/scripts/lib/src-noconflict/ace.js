@@ -8352,6 +8352,11 @@ var VirtualRenderer = function(container, theme) {
     };
 
     this.$getLongestLine = function() {
+        var charCount = this.session.getScreenWidth();
+        if (this.showInvisibles && !this.session.$useWrapMode)
+            charCount += 1;
+
+        return Math.max(this.$size.scrollerWidth - 2 * this.$padding, Math.round(charCount * this.characterWidth));
 
         return this.$size.scrollerWidth - 2 * this.$padding;
     };
@@ -17807,6 +17812,10 @@ var OnlineDocument = function(numRows, windowLoader) {
         return this.numRows;
     };
 
+    this.getAllLines = function() {
+        return this.window.lines;
+    }
+
     this.setLoadingString = function(loadingString) {
         this.loadingString = loadingString;
     }
@@ -17838,7 +17847,7 @@ var OnlineDocument = function(numRows, windowLoader) {
         clearTimeout(timeout);
         var document = this;
         timeout = setTimeout(function(){
-            document.windowLoader.load(Math.max(rowToLoad-this.windowSize/2,0), function(window){
+            document.windowLoader.load(Math.max(rowToLoad-this.windowSize/2,0), function(window, additionalRows){
                 this.window = window;
                 for (var i=0;i<window.getSize(); i++) {
                     var delta = {
@@ -17849,6 +17858,16 @@ var OnlineDocument = function(numRows, windowLoader) {
                     };
                     this._signal("change", { data: delta });
                 }
+
+                var range = new Range(this.numRows, 0, this.numRows + additionalRows, 0);
+                var delta = {
+                    action: "insertLines",
+                    range: range,
+                    lines: Array(additionalRows)
+                };
+                this.numRows += additionalRows;
+                this._signal("change", { data: delta });
+
                 this._signal("loaded", { data: {row: rowToLoad-5 } });
 
             }.bind(this));

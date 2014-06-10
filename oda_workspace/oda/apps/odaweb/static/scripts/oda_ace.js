@@ -155,12 +155,22 @@ var KeyboardHandler = function(statusBar) {
 
 $(document).ready(function(){
 
-
+    var functions = [];
+    $.get('/odaweb/api/functions/', {
+        short_name: 'mkdir',
+        revision: 0
+    }).done(function(data){
+        for (var i=0; i<data.length; i++) {
+            functions[data[i].offset] = data[i];
+        }
+    });
 
     var WindowLoader = function() {
         this.windowSize = 500;
+        this.lineSizes = [];
 
         this.load = function(rowNum, callback) {
+            var duNum = this.rowToDisplayUnit(rowNum);
 
             NProgress.start();
 
@@ -168,16 +178,22 @@ $(document).ready(function(){
             $.get('/odaweb/api/displayunits/', {
                 short_name: 'mkdir',
                 revision: 0,
-                addr: rowNum,
+                addr: duNum,
                 logical: true,
                 units: 400
             }).done(function(data){
                 var tlines = [];
                 for (var i=0; i<data.length; i++) {
+
+                    if (functions[data[i].offset]) {
+                        console.log("FUNCTION", data[i], functions[data[i].offset]);
+                        tlines.push("FUNCTION");
+                    }
+
                     tlines.push(JSON.stringify(data[i]));
                 }
                 NProgress.done();
-                callback(new ace_document.Window(rowNum, tlines));
+                callback(new ace_document.Window(rowNum, tlines), 0);
 
             });
 
@@ -189,6 +205,31 @@ $(document).ready(function(){
             }*/
 
 
+        };
+
+        this.rowToDisplayUnit = function(row) {
+            var total = 0;
+            var i = 0;
+            while (total < row) {
+                if (this.lineSizes[i]) {
+                    total += this.lineSizes[i];
+                } else {
+                    total += 1;
+                }
+                i += 1
+            }
+
+            return i;
+        };
+
+        this.displayUnitToRow = function(row) {
+            var linesAdded = 0;
+            for (var key in this.lineSizes) {
+                if (parseInt(key) < row) {
+                    linesAdded += this.lineSizes[key];
+                }
+            }
+            return row + linesAdded;
         };
 
         this.getWindowSize = function() {
@@ -217,12 +258,14 @@ $(document).ready(function(){
         } else {
         try {
             var s = JSON.parse(line);
+
             var t = '<span class="branchLines">{{{branch}}}</span><span class="offset disassembly-cell">{{section_name}}:{{hex offset}}</span>' +
                 '<span class="raw disassembly-cell">{{rawBytes}}</span><span class="instruction">{{{instStr}}}</span>';
             var template = Handlebars.compile(t);
             var renderedText = template(s)
             stringBuilder.push(renderedText);
         } catch(e) {
+            stringBuilder.push('<span>' + line + '</span>');
             console.log(e);
         }
         }
