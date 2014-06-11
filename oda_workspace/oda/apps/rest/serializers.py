@@ -37,6 +37,7 @@ class FunctionSerializer(serializers.Serializer):
     retval = serializers.CharField(required=False)
     args = serializers.CharField()
     offset = serializers.IntegerField()
+    name = serializers.CharField()
 
 class StringListField(serializers.WritableField):
     def to_native(self, obj):

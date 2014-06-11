@@ -37,16 +37,18 @@
 
     .raw {
         color: gray;
-        width:140px;
-        display: inline-block;
     }
 
-        .instruction {
+    .instruction {
         color: #093C83;
     }
 
-    .disassembly-cell {
-        padding-right:10px;
+    .function-return {
+        font-style: italic;
+    }
+
+    .function-name {
+        font-weight: bold;
     }
 
      #statusBar {
@@ -66,6 +68,8 @@
         right: 0;
         border-left: 1px solid;
     }
+
+
 
 </style>
 </head>

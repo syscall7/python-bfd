@@ -83,11 +83,30 @@ var StatusBar = function() {
     this.setMode('normal');
 }
 
-Handlebars.registerHelper("hex", function(value){
+var intToHex = function(value){
     var stringValue = value.toString(16);
     var s = "000000000" + stringValue;
     return s.substr(s.length-8);
 
+};
+
+Handlebars.registerHelper("hex", intToHex);
+
+Handlebars.registerHelper("pad", function(value, length) {
+    var counter = length - value.length;
+    for(var i=0; i<counter; i++) {
+        value = value.concat("&nbsp;");
+    }
+    return value;
+});
+
+Handlebars.registerHelper("formatSectionOffset", function(section, offset, length) {
+    var value = section + ":" + intToHex(offset);
+    var counter = length - value.length;
+    for(var i=0; i<counter; i++) {
+        value = "&nbsp;".concat(value);
+    }
+    return value;
 });
 
 
@@ -152,6 +171,59 @@ var KeyboardHandler = function(statusBar) {
     }.bind(this);
 };
 
+var Renderer = function(functions) {
+
+    this.baseFunctionTemplateString =
+       '<span class="branchLines">{{{branch}}}</span><span class="offset">{{{formatSectionOffset section_name offset 15 }}}</span>&nbsp;&nbsp;' +
+       '<span class="raw disassembly-cell">{{{pad " " 20}}}</span>&nbsp;&nbsp;';
+    this.baseFunctionTemplate = Handlebars.compile(this.baseFunctionTemplateString);
+
+    this.functionTemplate1 = Handlebars.compile(this.baseFunctionTemplateString +
+        '<span class="instruction">=============== F U N C T I O N ====================================</span>');
+
+    this.functionTemplate2 = Handlebars.compile(this.baseFunctionTemplateString +
+        '<span class="function-return">{{retval}}</span> <span class="function-name">{{name}}</span> <span class="function-args">({{args}})</span>');
+
+
+    this.baseDuTemplateString =
+        '<span class="branchLines">{{{branch}}}</span><span class="offset">{{{formatSectionOffset section_name offset 15 }}}</span>';
+    this.baseDuTemplate = Handlebars.compile(this.baseDuTemplateString +
+        '&nbsp;&nbsp;<span class="raw disassembly-cell">{{{pad rawBytes 20}}}</span>&nbsp;&nbsp;<span class="instruction">{{{instStr}}}</span>');
+    this.labelTemplate = Handlebars.compile(this.baseDuTemplateString + "{{{ pad '' 20}}} loc_{{ hex offset }}");
+
+    this.render = function(du) {
+
+        if (functions[du.offset]) {
+            console.log("FUNCTION", du, functions[du.offset]);
+            var rendered_lines = this.renderFunction(du, functions[du.offset]);
+            return rendered_lines;
+        }
+
+        return this.renderDu(du)
+
+    };
+
+    this.renderFunction =  function(du, func) {
+
+        var theLines = [this.functionTemplate1(du)];
+        for (var i=0;i<du.crossRef.length; i++) {
+            theLines.push(this.baseFunctionTemplate(du) + '; CODE XREF:<a href="">0x' + intToHex(du.crossRef[i].offset) + '</a>');
+        }
+        theLines.push(this.baseFunctionTemplate(du));
+        theLines.push(this.functionTemplate2($.extend({}, du, func)));
+        return theLines;
+    }
+
+    this.renderDu = function(du) {
+        var renderedText = this.baseDuTemplate(du);
+        if (du.isBranch) {
+            return [this.labelTemplate(du), renderedText];
+        }
+        else
+            return [renderedText];
+    };
+}
+
 
 $(document).ready(function(){
 
@@ -182,20 +254,30 @@ $(document).ready(function(){
                 logical: true,
                 units: 400
             }).done(function(data){
+                NProgress.inc(0.4);
                 var tlines = [];
-                for (var i=0; i<data.length; i++) {
 
-                    if (functions[data[i].offset]) {
-                        console.log("FUNCTION", data[i], functions[data[i].offset]);
-                        tlines.push("FUNCTION");
+                var renderer = new Renderer(functions);
+                var addedLines = 0;
+
+                for (var i=0; i<data.length; i++) {
+                    var renderedLines = renderer.render(data[i]);
+
+                    if (renderedLines.length != 1) {
+                        if (!this.lineSizes[duNum+i])
+                            addedLines += renderedLines.length;
+
+                        this.lineSizes[duNum + i] = renderedLines.length;
                     }
 
-                    tlines.push(JSON.stringify(data[i]));
+                    tlines = tlines.concat(renderedLines);
+
                 }
                 NProgress.done();
-                callback(new ace_document.Window(rowNum, tlines), 0);
+                currentWindow = new ace_document.Window(rowNum, tlines);
+                callback(currentWindow, addedLines);
 
-            });
+            }.bind(this));
 
 /*            for (var i=rowNum; i<rowNum + this.windowSize; i++) {
 
@@ -253,22 +335,8 @@ $(document).ready(function(){
                         ), "px'>"
         );
 
-        if (line == "..") {
-            stringBuilder.push(line);
-        } else {
-        try {
-            var s = JSON.parse(line);
+        stringBuilder.push(line);
 
-            var t = '<span class="branchLines">{{{branch}}}</span><span class="offset disassembly-cell">{{section_name}}:{{hex offset}}</span>' +
-                '<span class="raw disassembly-cell">{{rawBytes}}</span><span class="instruction">{{{instStr}}}</span>';
-            var template = Handlebars.compile(t);
-            var renderedText = template(s)
-            stringBuilder.push(renderedText);
-        } catch(e) {
-            stringBuilder.push('<span>' + line + '</span>');
-            console.log(e);
-        }
-        }
         stringBuilder.push("</div>");
 
     };
