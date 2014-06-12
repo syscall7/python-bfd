@@ -11,7 +11,7 @@ class TestAddFunction(unittest.TestCase):
     def test_add(self):
         odb_file = OdbFile()
 
-        item = odb_file.create_item('Function', {
+        item = odb_file.create_item(Function, {
             'name': 'FUNCTION TEST NAME',
             'offset': 0,
             'type': 'U'
@@ -34,7 +34,7 @@ class TestAddFunction(unittest.TestCase):
 
     def test_multiple_add(self):
         odb_file = OdbFile()
-        item = odb_file.create_item('Function', {
+        item = odb_file.create_item(Function, {
             'name': 'FUNCTION TEST NAME1',
             'offset': 0,
             'type': 'U'
@@ -42,7 +42,7 @@ class TestAddFunction(unittest.TestCase):
         add_operation = function.generate_operation(AddOperation, item)
         odb_file.execute(add_operation)
 
-        item2 = odb_file.create_item('Function', {
+        item2 = odb_file.create_item(Function, {
             'name': 'FUNCTION TEST NAME2',
             'offset': 0,
             'type': 'U'
@@ -61,7 +61,7 @@ class TestAddFunction(unittest.TestCase):
 
     def test_add_same_func_name_fails(self):
         odb_file = OdbFile()
-        item = odb_file.create_item('Function', {
+        item = odb_file.create_item(Function, {
             'name': 'FUNCTION TEST NAME1',
             'offset': 0,
             'type': 'U'
@@ -69,7 +69,7 @@ class TestAddFunction(unittest.TestCase):
         add_operation = function.generate_operation(AddOperation, item)
         odb_file.execute(add_operation)
 
-        item = odb_file.create_item('Function', {
+        item = odb_file.create_item(Function, {
             'name': 'FUNCTION TEST NAME1',
             'offset': 0,
             'type': 'U'
@@ -82,7 +82,7 @@ class TestAddFunction(unittest.TestCase):
 
     def test_add_same_id_fails(self):
         odb_file = OdbFile()
-        item = odb_file.create_item('Function', {
+        item = odb_file.create_item(Function, {
             'name': 'FUNCTION TEST NAME1',
             'offset': 0,
             'type': 'U'
@@ -91,7 +91,7 @@ class TestAddFunction(unittest.TestCase):
         odb_file.execute(add_operation)
 
         #This is a little forced, since the add_operation.item should really be immutable
-        add_operation.item = odb_file.create_item('Function', {
+        add_operation.item = odb_file.create_item(Function, {
             'name': 'FUNCTION TEST NAME2',
             'offset': 0,
             'type': 'U'

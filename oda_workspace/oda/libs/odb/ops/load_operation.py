@@ -3,7 +3,11 @@ import logging
 
 from oda.libs.odb.bfd import ofd
 from oda.libs.odb.ops.operation import Operation
-
+from oda.libs.odb.structures.section import Section
+from oda.libs.odb.structures.parcel import CodeParcel, DataParcel
+from oda.libs.odb.structures.symbol import Symbol
+from oda.libs.odb.structures.function import Function
+from oda.libs.odb.structures.data_string import DataString
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +46,7 @@ class Loader(object):
     def load_symbols(self):
         #Load Symbols
         for symbol in self.analyzer.symbols():
-            self.odb_file.insert_item(self.odb_file.create_item('Symbol', {
+            self.odb_file.insert_item(self.odb_file.create_item(Symbol, {
                 'name': symbol.name,
                 'offset': symbol.value,
                 'base': symbol.base,
@@ -54,7 +58,7 @@ class Loader(object):
     def load_sections(self):
         #Load Sections
         for section in self.analyzer.sections:
-            self.odb_file.insert_item(self.odb_file.create_item('Section', {
+            self.odb_file.insert_item(self.odb_file.create_item(Section, {
                 'name': section.name,
                 'size': section.size,
                 'vma': section.vma,
@@ -63,7 +67,7 @@ class Loader(object):
 
     def load_functions(self):
         funcs = filter(lambda x: x.type == 'T' or x.type == 't', self.analyzer.symbols())
-        odb_funcs = [self.odb_file.create_item('Function', {
+        odb_funcs = [self.odb_file.create_item(Function, {
             'name': f.name,
             'offset': f.value,
             'type': f.type,
@@ -78,7 +82,13 @@ class Loader(object):
     def load_parcels(self):
         for sec in self.analyzer.get_loadable_sections().sections:
             is_code = self.analyzer.is_code_section(sec)
-            self.odb_file.insert_item(self.odb_file.create_item('Parcel', {
+
+            if is_code:
+                class_type = CodeParcel
+            else:
+                class_type = DataParcel
+
+            self.odb_file.insert_item(self.odb_file.create_item(class_type, {
                 'start': sec.vma,
                 'end': sec.vma + sec.size,
                 'is_code': is_code
@@ -89,7 +99,7 @@ class Loader(object):
             print('Section %s, base 0x%08x, size 0x%08x' % (s.name, s.vma, s.size))
             for m in re.finditer("([\t\x20-\x7e]{4,})", self.analyzer.bfd.raw_data(s, s.vma, s.size)):
 
-                self.odb_file.insert_item(self.odb_file.create_item('DataString', {
+                self.odb_file.insert_item(self.odb_file.create_item(DataString, {
                     'addr': m.start()+s.vma,
                     'value': m.group(1)
                 }))

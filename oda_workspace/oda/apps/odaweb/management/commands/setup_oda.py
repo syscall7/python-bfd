@@ -11,6 +11,8 @@ from oda.libs.odb.ops.add_operation import AddOperation
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.scan_operation import ScanOperation
 from oda.libs.odb import structures
+from oda.libs.odb.structures.comment import Comment
+from oda.libs.odb.structures.label import Label
 
 def load_examples():
     EXAMPLES_DIR = os.path.join(os.path.dirname(oda.apps.odaweb.examples.__file__), 'examples')
@@ -38,7 +40,7 @@ def load_examples():
 
         if 'comments' in example:
             for offset, msg in example['comments']:
-                item = odb_file.create_item('Comment', {
+                item = odb_file.create_item(Comment, {
                     'comment': msg,
                     'offset': offset
                 })
@@ -49,7 +51,7 @@ def load_examples():
 
         if 'labels' in example:
             for offset, labelName in example['labels']:
-                item = odb_file.create_item('Label', {
+                item = odb_file.create_item(Label, {
                     'label': labelName,
                     'offset': offset
                 })

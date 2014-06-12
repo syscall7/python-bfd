@@ -13,7 +13,7 @@ class TestAddFunction(unittest.TestCase):
 
         odb_file = OdbFile()
 
-        item = odb_file.create_item('Comment', {
+        item = odb_file.create_item(Comment, {
             'comment': 'This is a comment',
             'offset': 0
         })

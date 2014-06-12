@@ -33,10 +33,10 @@ class OdaObjectFactory(object):
     def __init__(self, oda_file):
         self.oda_file = oda_file
 
-    def create(self, type_name, parameters):
+    def create(self, class_type, parameters):
         for t in STRUCTURE_TYPES:
-            if t.__name__ == type_name:
-                return t(self.oda_file.get_object_id(), **parameters)
+            if issubclass(class_type, t):
+                return class_type(self.oda_file.get_object_id(), **parameters)
         raise Exception(repr(object) + ' Not Found')
 
 
@@ -200,20 +200,20 @@ class OdbFile(object):
         self.object_id = 0
         self.factory = OdaObjectFactory(self)
         self.operations = []
-        self._items = {k: [] for k in STRUCTURE_TYPES}
+        self._items = {k.__name__: [] for k in STRUCTURE_TYPES}
 
-    def create_item(self, type_name, parameters):
-        return self.factory.create(type_name, parameters)
+    def create_item(self, class_type, parameters):
+        return self.factory.create(class_type, parameters)
 
     def insert_item(self, item):
         #TODO check that the item being added doesn't dupe an ID
-        self._items[item.__class__].append(item)
+        self._items[item.item_type].append(item)
 
     def remove_item(self, item):
-        self._items[item.__class__].remove(item)
+        self._items[item.item_type].remove(item)
 
-    def get_structure_list(self, name):
-        return self._items[name]
+    def get_structure_list(self, class_type):
+        return self._items[class_type.__name__]
 
     def get_arch(self):
         #TODO Durp
@@ -233,9 +233,9 @@ class OdbFile(object):
 
 
     def modify_item(self, item):
-        for n, i in enumerate(self._items[item.__class__]):
+        for n, i in enumerate(self._items[item.item_type]):
             if n == item:
-                self._items[item.__class__][i] = item
+                self._items[item.item_type][i] = item
                 break
 
     def get_object_id(self):

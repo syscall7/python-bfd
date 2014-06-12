@@ -79,7 +79,7 @@ class BranchScanner(object):
 
     def commit(self, odb_file):
         for b in self.branches:
-            branch = odb_file.create_item('Branch', b)
+            branch = odb_file.create_item(Branch, b)
             odb_file.get_structure_list(Branch).append(branch)
 
 class FunctionScanner(object):
@@ -131,7 +131,7 @@ class FunctionScanner(object):
 
     def commit(self, odb_file):
         for addr, f in self.functions.iteritems():
-            func = odb_file.create_item('Function', f)
+            func = odb_file.create_item(Function, f)
             odb_file.get_structure_list(Function).append(func)
 
 

@@ -31,8 +31,27 @@ class Parcel(OdaObject):
             return self.end - self.start
 
     def push_vma(self, vma):
-        if self.is_code:
-            self.lda_bidict[self.lda_start + len(self.lda_bidict)] = vma
+        """ Used to build up the lda<->vma mapping, assumes it is built in order of increasing vma """
+        raise NotImplementedError("Please Implement this method in a child class")
+
+    def vma_to_lda(self, vma):
+        """ Convert a vma to lda """
+        raise NotImplementedError("Please Implement this method in a child class")
+
+    def lda_to_vma(self, vma):
+        """ Convert a lda to vma """
+        raise NotImplementedError("Please Implement this method in a child class")
+
+
+class CodeParcel(Parcel):
+
+    @property
+    def item_type(self):
+        """ Consider us to be whatever item type our parent is """
+        return 'Parcel'
+
+    def push_vma(self, vma):
+        self.lda_bidict[self.lda_start + len(self.lda_bidict)] = vma
 
     # converts the given vma to lda
     def vma_to_lda(self, vma):
@@ -45,52 +64,6 @@ class Parcel(OdaObject):
                 closest_vma = vma - i
                 if closest_vma in self.lda_bidict.values():
                     return self.lda_bidict[:closest_vma]
-        else:
-            return self.lda_start + (vma - self.start)
-
-        return None
-
-    # converts the given lda to vma
-    def lda_to_vma(self, lda):
-        if not self.contains_lda(lda):
-            return None
-
-        if self.is_code:
-            return self.lda_bidict[lda]
-        else:
-            return self.start + (lda - self.lda_start)
-
-
-    '''
-    def vma_to_lda(self, vma):
-        """Convert a vma to lda"""
-        raise NotImplementedError("Please Implement this method in a child class")
-
-    def lda_to_vma(self, vma):
-        """Convert a lda to vma"""
-        raise NotImplementedError("Please Implement this method in a child class")
-
-    def push_vma(self, vma):
-        """ Used to build up the lda<->vma mapping, assumes it is built in order of increasing vma"""
-        raise NotImplementedError("Please Implement this method in a child class")
-    '''
-
-'''
-class CodeParcel(Parcel):
-
-    def push_vma(self, vma):
-        self.lda_bidict[len(self.lda_bidict)] = vma
-
-    # converts the given vma to lda
-    def vma_to_lda(self, vma):
-        if not self.contains_vma(vma):
-            return None
-
-        for i in range(vma - self.start):
-            # snap to closest vma that is less than the given vma
-            closest_vma = vma - i
-            if closest_vma in self.lda_bidict.values():
-                return self.lda_bidict[:closest_vma]
 
         return None
 
@@ -103,12 +76,18 @@ class CodeParcel(Parcel):
 
 class DataParcel(Parcel):
 
+    @property
+    def item_type(self):
+        """ Consider us to be whatever item type our parent is """
+        return 'Parcel'
+
     def push_vma(self, vma):
         return
 
     def vma_to_lda(self, vma):
         if not self.contains_vma(vma):
             return None
+
         return self.lda_start + (vma - self.start)
 
     def lda_to_vma(self, lda):
@@ -116,5 +95,4 @@ class DataParcel(Parcel):
             return None
 
         return self.start + (lda - self.lda_start)
-'''
 
