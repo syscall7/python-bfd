@@ -2,6 +2,7 @@ import bfd
 
 from oda.libs.odb.bfd.analyzer import analyzer_factory
 from oda.libs.odb.structures.parcel import Parcel
+from oda.libs.odb.structures import parcel
 
 __author__ = 'davis'
 
@@ -72,19 +73,11 @@ class Disassembler(object):
 
     def vma_to_lda(self, vma):
         parcels = self.odb_file.get_structure_list(Parcel)
-        for p in parcels:
-            lda = p.vma_to_lda(vma)
-            if lda is not None:
-                return lda
-        return None
+        return parcel.vma_to_lda(vma, parcels)
 
     def lda_to_vma(self, lda):
         parcels = self.odb_file.get_structure_list(Parcel)
-        for p in parcels:
-            vma = p.lda_to_vma(lda)
-            if vma is not None:
-                return vma
-        return None
+        return parcel.lda_to_vma(lda, parcels)
 
     def analyze(self, start, lines, logical):
 

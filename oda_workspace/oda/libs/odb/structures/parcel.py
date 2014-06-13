@@ -1,7 +1,28 @@
 from oda.libs.odb.structures.oda_object import OdaObject
 from bidict import bidict
 
-__author__ = 'davis'
+import logging
+logger = logging.getLogger(__name__)
+
+def vma_to_lda(vma, parcels):
+    for p in parcels:
+        lda = p.vma_to_lda(vma)
+        if lda is not None:
+            return lda
+    return None
+
+def lda_to_vma(lda, parcels):
+    for p in parcels:
+        vma = p.lda_to_vma(lda)
+        if vma is not None:
+            return vma
+    return None
+
+def find_parcel_by_vma(vma, parcels):
+    for p in parcels:
+        if p.contains_vma(vma):
+            return p
+    return None
 
 class Parcel(OdaObject):
     def __init__(self, object_id, **kwargs):
@@ -44,6 +65,9 @@ class Parcel(OdaObject):
         """ Convert a lda to vma """
         raise NotImplementedError("Please Implement this method in a child class")
 
+    def split(self, vma, to_code):
+        """ Split a parcel """
+        raise NotImplementedError("Please Implement this method in a child class")
 
 class CodeParcel(Parcel):
 
@@ -51,6 +75,15 @@ class CodeParcel(Parcel):
     def item_type(self):
         """ Consider us to be whatever item type our parent is """
         return 'Parcel'
+
+    def _find_inst_boundary(self, vma):
+        for i in range(vma - self.vma_start + 1):
+            # snap to closest vma that is less than the given vma
+            closest_vma = vma - i
+            if closest_vma in self.lda_bidict.values():
+                return closest_vma
+
+        return None
 
     def push_vma(self, vma):
         self.lda_bidict[len(self.lda_bidict)] = vma
@@ -61,11 +94,9 @@ class CodeParcel(Parcel):
             return None
 
         if self.is_code:
-            for i in range(vma - self.vma_start + 1):
-                # snap to closest vma that is less than the given vma
-                closest_vma = vma - i
-                if closest_vma in self.lda_bidict.values():
-                    return self.lda_bidict[:closest_vma] + self.lda_start
+            inst_vma = self._find_inst_boundary(vma)
+            if inst_vma is not None:
+                return self.lda_bidict[:inst_vma] + self.lda_start
 
         return None
 
@@ -75,6 +106,24 @@ class CodeParcel(Parcel):
             return None
 
         return self.lda_bidict[lda-self.lda_start]
+
+    def split(self, odb_file, vma, to_code):
+        if (to_code):
+            logger.warn("Attempting to split a code parcel to code does not make any sense!")
+            return None
+
+        if not self.contains_vma(vma):
+            logger.error("Attempting to split a code parcel at a bad vma!")
+            return None
+
+        inst_vma = self._find_inst_boundary(vma)
+
+        # The current parcel will potentially become three parcels: CODE, DATA, CODE
+        # TODO:
+        first = self
+        second = DataParcel()
+        third = DataParcel()
+
 
 class DataParcel(Parcel):
 
