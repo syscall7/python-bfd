@@ -60,8 +60,8 @@ class TestLoadOperation(unittest.TestCase):
 
         self.assertEqual(1, len(odb_file.get_structure_list(Branch)))
         self.assertEqual(1, len(odb_file.get_structure_list(Parcel)))
-        self.assertEqual(0, odb_file.get_structure_list(Parcel)[0].start)
-        self.assertEqual(35, odb_file.get_structure_list(Parcel)[0].end)
+        self.assertEqual(0, odb_file.get_structure_list(Parcel)[0].vma_start)
+        self.assertEqual(35, odb_file.get_structure_list(Parcel)[0].vma_end)
 
     def test_hash(self):
         s = '55 31 D2 89 E5 8B 45 08 56 8B 75 0C 53 8D 58 FF 0F B6 0C 16 88 4C 13 01 83 C2 01 84 C9 75 F1 5B 5E 5D C3'

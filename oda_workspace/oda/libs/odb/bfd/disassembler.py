@@ -94,7 +94,7 @@ class Disassembler(object):
         parcels = self.odb_file.get_structure_list(Parcel)
 
         # if we are analyzing based on lda, first convert to vma
-        parcels.sort(key=lambda p: p.start, reverse=False)
+        parcels.sort(key=lambda p: p.vma_start, reverse=False)
         if logical:
             start = self.lda_to_vma(start)
             if not start:
@@ -102,9 +102,9 @@ class Disassembler(object):
                 return []
 
         if lines >= 0:
-            parcels = [p for p in parcels if p.end > start]
+            parcels = [p for p in parcels if p.vma_end > start]
         else:
-            parcels = [p for p in parcels if p.start < start]
+            parcels = [p for p in parcels if p.vma_start < start]
 
         analyzer.analyze(self.odb_file, parcels, start=start, maxUnits=lines)
         sorted_du = analyzer.displayUnits.values()

@@ -7,18 +7,20 @@ class Parcel(OdaObject):
     def __init__(self, object_id, **kwargs):
         super(Parcel, self).__init__(object_id)
         self.is_code = kwargs['is_code']
-        self.start = kwargs['start']
-        self.end = kwargs['end']
+        self.vma_start = kwargs['start']
+        self.vma_end = kwargs['end']
         self.sample_offsets = []
         self.lda_start = 0
+
+        # lda_bidict[lda_rel_to_start] = vma
         self.lda_bidict = bidict({})
 
     def __repr__(self):
-        return "Parcel {is_code=%s, start=%s, end=%s>" % (self.is_code, self.start, self.end)
+        return "Parcel {is_code=%s, start=%s, end=%s>" % (self.is_code, self.vma_start, self.vma_end)
 
     # returns True if this parcel contains the given virtual memory address (vma)
     def contains_vma(self, addr):
-        return addr >= self.start and addr < self.end
+        return addr >= self.vma_start and addr < self.vma_end
 
     # returns True if this parcel contains the given logical display unit address (lda)
     def contains_lda(self, lda):
@@ -28,7 +30,7 @@ class Parcel(OdaObject):
         if self.is_code:
             return len(self.lda_bidict)
         else:
-            return self.end - self.start
+            return self.vma_end - self.vma_start
 
     def push_vma(self, vma):
         """ Used to build up the lda<->vma mapping, assumes it is built in order of increasing vma """
@@ -51,7 +53,7 @@ class CodeParcel(Parcel):
         return 'Parcel'
 
     def push_vma(self, vma):
-        self.lda_bidict[self.lda_start + len(self.lda_bidict)] = vma
+        self.lda_bidict[len(self.lda_bidict)] = vma
 
     # converts the given vma to lda
     def vma_to_lda(self, vma):
@@ -59,11 +61,11 @@ class CodeParcel(Parcel):
             return None
 
         if self.is_code:
-            for i in range(vma - self.start + 1):
+            for i in range(vma - self.vma_start + 1):
                 # snap to closest vma that is less than the given vma
                 closest_vma = vma - i
                 if closest_vma in self.lda_bidict.values():
-                    return self.lda_bidict[:closest_vma]
+                    return self.lda_bidict[:closest_vma] + self.lda_start
 
         return None
 
@@ -72,7 +74,7 @@ class CodeParcel(Parcel):
         if not self.contains_lda(lda):
             return None
 
-        return self.lda_bidict[lda]
+        return self.lda_bidict[lda-self.lda_start]
 
 class DataParcel(Parcel):
 
@@ -88,11 +90,11 @@ class DataParcel(Parcel):
         if not self.contains_vma(vma):
             return None
 
-        return self.lda_start + (vma - self.start)
+        return self.lda_start + (vma - self.vma_start)
 
     def lda_to_vma(self, lda):
         if not self.contains_lda(lda):
             return None
 
-        return self.start + (lda - self.lda_start)
+        return self.vma_start + (lda - self.lda_start)
 

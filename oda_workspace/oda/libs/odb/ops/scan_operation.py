@@ -158,16 +158,16 @@ class ScanOperation(Operation):
 
         lda_offset = 0
         parcels = odb_file.get_structure_list(Parcel)
-        parcels.sort(key=lambda p: p.start, reverse=False)
+        parcels.sort(key=lambda p: p.vma_start, reverse=False)
 
         for parcel in parcels:
 
-            logger.debug("parcel start=0x%08x parcel.end=0x%08x" % (parcel.start, parcel.end))
+            logger.debug("parcel.vma_start=0x%08x parcel.vma_end=0x%08x" % (parcel.vma_start, parcel.vma_end))
 
             # initialize the logical display unit address
 
             the_ofd = ofd.Ofd(odb_file.get_binary())
-            section = the_ofd.get_section_from_addr(parcel.start)
+            section = the_ofd.get_section_from_addr(parcel.vma_start)
 
             parcel.lda_start = lda_offset
             if parcel.is_code:
@@ -177,7 +177,7 @@ class ScanOperation(Operation):
                         scanner.instruction(parcel, addr, rawData, instr, abfd)
 
 
-                the_ofd.disassemble(section.name, [], parcel.start, parcel.end,
+                the_ofd.disassemble(section.name, [], parcel.vma_start, parcel.vma_end,
                                     funcFmtLine=callback,
                                     funcFmtLineArgs={
                                         'self': self,

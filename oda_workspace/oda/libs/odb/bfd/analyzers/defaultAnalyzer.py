@@ -250,18 +250,18 @@ class defaultAnalyzer(object):
         # create Functions for new functions we identify
         start = 0
         for parcel in parcels:
-            logger.debug("PARCEL START: 0x%08x RQ START: 0x%08x" % (parcel.start,start))
+            logger.debug("PARCEL START: 0x%08x RQ START: 0x%08x" % (parcel.vma_start,start))
             parcel.sampleOffsetCount = 0
             parcel.sampleOffsets = []
 
-            if parcel.end >= start:
+            if parcel.vma_end >= start:
 
-                if start < parcel.end and start >= parcel.start:
+                if start < parcel.vma_end and start >= parcel.vma_start:
                     dis_start = start
                 else:
-                    dis_start = parcel.start
+                    dis_start = parcel.vma_start
 
-                dis_end = parcel.end
+                dis_end = parcel.vma_end
 
                 # Convert the parcel to disassembly
                 if parcel.is_code:
@@ -277,16 +277,16 @@ class defaultAnalyzer(object):
 
     def displayUnitsFromParcel(self, disassembler, options, parcel, start=None, end=None, maxUnits=None):
         displayUnits = {}
-        s = self.disassembler.ofd.get_section_from_addr(parcel.start)
-        if start and parcel.start < start:
+        s = self.disassembler.ofd.get_section_from_addr(parcel.vma_start)
+        if start and parcel.vma_start < start:
             dis_start = start
         else:
-            dis_start = parcel.start
+            dis_start = parcel.vma_start
 
         if end:
             dis_end = end
         else:
-            dis_end = parcel.end
+            dis_end = parcel.vma_end
 
         if maxUnits and maxUnits >= 0:
             (_, _, lines) = self.disassembler.ofd.disassemble(s.name, options, dis_start, dis_end,
@@ -348,25 +348,25 @@ class defaultAnalyzer(object):
         #self.parcels = parcels
         if maxUnits >= 0 or maxUnits == None:
             for parcel in parcels:
-                logger.debug("PARCEL START: 0x%08x RQ START: 0x%08x" % (parcel.start,start))
+                logger.debug("PARCEL START: 0x%08x RQ START: 0x%08x" % (parcel.vma_start,start))
 
-                if parcel.end >= start:
+                if parcel.vma_end >= start:
 
-                    if start < parcel.end and start >= parcel.start:
+                    if start < parcel.vma_end and start >= parcel.vma_start:
                         dis_start = start
                     else:
-                        dis_start = parcel.start
+                        dis_start = parcel.vma_start
 
-                    #if end < parcel.end:
+                    #if end < parcel.vma_end:
                     #    dis_end = end
                     #else:
-                    dis_end = parcel.end
+                    dis_end = parcel.vma_end
 
                     lines = 0
 
                     # Convert the parcel to disassembly
                     # TODO: Fix sec name
-                    s = self.ofd.get_section_from_addr(parcel.start)
+                    s = self.ofd.get_section_from_addr(parcel.vma_start)
                     if parcel.is_code:
                         logger.debug("Requesting disassembly from BFD...")
                         options = self.processOptions(self.odb_file.get_binary().options.get_extra_options())
@@ -393,9 +393,9 @@ class defaultAnalyzer(object):
             dis_end = start
             options = self.processOptions(self.odb_file.get_binary().options.get_extra_options())
             for parcel in reversed(parcels):
-                if parcel.start < start and parcel.is_code:
+                if parcel.vma_start < start and parcel.is_code:
                     # Disassemble starting at the next offset interval in reverse order
-                    s = self.ofd.get_section_from_addr(parcel.start)
+                    s = self.ofd.get_section_from_addr(parcel.vma_start)
                     offsets = parcel.sample_offsets.sort(reverse=True)
                     if offsets:
                         for offset in offsets:
@@ -418,10 +418,10 @@ class defaultAnalyzer(object):
 
                     else:
                         # Parcel not large enough to have an interval sample. Disassemble the whole parcel
-                        if parcel.end < dis_end:
-                            dis_end = parcel.end
+                        if parcel.vma_end < dis_end:
+                            dis_end = parcel.vma_end
 
-                        (_, _, lines) = self.ofd.disassemble(s.name, options, parcel.start, dis_end,
+                        (_, _, lines) = self.ofd.disassemble(s.name, options, parcel.vma_start, dis_end,
                                                       funcFmtLine=parseEverything,
                                                       funcFmtLineArgs={
                                                           'self': self,
@@ -429,7 +429,7 @@ class defaultAnalyzer(object):
                                                           'section_name': s.name,
                                                       })
 
-                        dis_end = parcel.start
+                        dis_end = parcel.vma_start
                         maxUnits += lines
                         if maxUnits >= 0:
                             break
@@ -437,8 +437,8 @@ class defaultAnalyzer(object):
 
 
                     #
-                    #symbols = self.disassembler.symbols(parcel.start,parcel.end)
-                    #s = self.disassembler.ofd.get_section_from_addr(parcel.start)
+                    #symbols = self.disassembler.symbols(parcel.vma_start,parcel.vma_end)
+                    #s = self.disassembler.ofd.get_section_from_addr(parcel.vma_start)
                     #if symbols:
                     #    # Optimize by disassembling from the closest address
                     #    for symbol in reversed(symbols):
@@ -461,7 +461,7 @@ class defaultAnalyzer(object):
                     #                break
                     #else:
                     #    # No symbols so we can't optimize. Must disassemble the entire parcel
-                    #    (_, _, lines) = self.disassembler.ofd.disassemble(s.name, options, parcel.start, parcel.end,
+                    #    (_, _, lines) = self.disassembler.ofd.disassemble(s.name, options, parcel.vma_start, parcel.vma_end,
                     #                                  funcFmtLine=parseEverything,
                     #                                  funcFmtLineArgs={
                     #                                      'self': self,
@@ -471,7 +471,7 @@ class defaultAnalyzer(object):
                     #
                     #    # Throw away display units with offsets greater than the start offset
                     #    #  because we're looking for display units prior to the start address
-                    #    if parcel.end > start:
+                    #    if parcel.vma_end > start:
                     #        for key, value in self.displayUnits.items():
                     #            if key >= start:
                     #                del self.displayUnits[key]
@@ -530,14 +530,14 @@ class defaultAnalyzer(object):
 
         # TODO: Add data display back in, but make it respect maxLines
         for parcel in []: #parcels:
-            logger.debug("PARCEL START: 0x%08x" % (parcel.start))
-            s = self.disassembler.ofd.get_section_from_addr(parcel.start)
-            if start < parcel.end and start > parcel.start:
+            logger.debug("PARCEL START: 0x%08x" % (parcel.vma_start))
+            s = self.disassembler.ofd.get_section_from_addr(parcel.vma_start)
+            if start < parcel.vma_end and start > parcel.vma_start:
                 dis_start = start
             else:
-                dis_start = parcel.start
+                dis_start = parcel.vma_start
 
-            dis_end = parcel.end
+            dis_end = parcel.vma_end
 
             if parcel.is_code == None:
                 # Defined Data
