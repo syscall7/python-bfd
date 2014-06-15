@@ -2,6 +2,7 @@ import logging
 from oda.libs.odb.ops.operation import Operation
 from oda.libs.odb.structures.parcel import Parcel
 from oda.libs.odb.structures import parcel
+from oda.libs.odb.structures.parcel import CodeParcel, DataParcel
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,19 @@ class SplitParcelOperation(Operation):
         orig_parcel = parcel.find_parcel_by_vma(self.vma, parcels)
         assert (orig_parcel is not None)
 
-        # TODO
-        #orig_parcel.split
+        new_parcels = orig_parcel.split(self.vma, self.to_code)
 
+        for p in new_parcels:
+            if p.is_code:
+                parcel_class = CodeParcel
+            else:
+                parcel_class = DataParcel
+
+            inserted_p = odb_file.insert_item(odb_file.create_item(parcel_class, {
+                'is_code': p.is_code,
+                'vma_start': p.vma_start,
+                'vma_end': p.vma_end,
+            }))
+
+            inserted_p.copy_from(p)
 

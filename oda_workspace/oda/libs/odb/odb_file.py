@@ -208,6 +208,7 @@ class OdbFile(object):
     def insert_item(self, item):
         #TODO check that the item being added doesn't dupe an ID
         self._items[item.item_type].append(item)
+        return item
 
     def remove_item(self, item):
         self._items[item.item_type].remove(item)

@@ -53,6 +53,14 @@ class Parcel(OdaObject):
         else:
             return self.vma_end - self.vma_start
 
+    def copy_from(self, other):
+        self.is_code = other.is_code
+        self.vma_start = other.vma_start
+        self.vma_end = other.vma_end
+        self.lda_start = other.lda_start
+        self.lda_bidict = other.lda_bidict
+        self.sample_offsets = other.sample_offsets
+
     def push_vma(self, vma):
         """ Used to build up the lda<->vma mapping, assumes it is built in order of increasing vma """
         raise NotImplementedError("Please Implement this method in a child class")
@@ -107,7 +115,7 @@ class CodeParcel(Parcel):
 
         return self.lda_bidict[lda-self.lda_start]
 
-    def split(self, odb_file, vma, to_code):
+    def split(self, vma, to_code):
         if (to_code):
             logger.warn("Attempting to split a code parcel to code does not make any sense!")
             return None
@@ -116,13 +124,44 @@ class CodeParcel(Parcel):
             logger.error("Attempting to split a code parcel at a bad vma!")
             return None
 
-        inst_vma = self._find_inst_boundary(vma)
+        # edge cases
+        # 1. The split occurs on the first instruction of the parcel
+        #    This case results in only two parcels
+        # 2. The split occurs on the last instruction of the parcel
+        #    This case results in only two parcels
+        # 3. The split occurs on the first and last instruction of the parcel (only 1 instruction in parcel)
+        #    This case results in only one parcel
+
+        # get lda/vma by nearest lower instruction boundary
+        inst_lda = self.vma_to_lda(vma)
+        inst_vma = self.lda_to_vma(inst_lda)
 
         # The current parcel will potentially become three parcels: CODE, DATA, CODE
-        # TODO:
         first = self
-        second = DataParcel()
-        third = DataParcel()
+
+        # setup second parcel
+        second = DataParcel(0, vma_start=inst_vma, vma_end=self.lda_to_vma(inst_lda+1), is_code=False)
+        second.lda_start = inst_lda
+
+        # setup third parcel
+        third = CodeParcel(0, vma_start=second.vma_end, vma_end=first.vma_end, is_code=True)
+        third.lda_start = inst_lda+1
+
+        # fixup the first parcel
+        first.vma_end = inst_vma
+
+        # transfer ldas to second/third
+        for lda,vma in self.lda_bidict.items():
+            abs_lda = lda + self.lda_start
+            if abs_lda >= second.lda_start:
+                if abs_lda < third.lda_start:
+                    second.push_vma(self.lda_bidict[lda])
+                else:
+                    third.push_vma(self.lda_bidict[lda])
+
+                del self.lda_bidict[lda]
+
+        return [second, third]
 
 
 class DataParcel(Parcel):
