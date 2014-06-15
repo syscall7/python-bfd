@@ -39,6 +39,9 @@ class Parcel(OdaObject):
     def __repr__(self):
         return "Parcel {is_code=%s, start=%s, end=%s>" % (self.is_code, self.vma_start, self.vma_end)
 
+    def is_empty(self):
+        return self.vma_start == self.vma_end
+
     # returns True if this parcel contains the given virtual memory address (vma)
     def contains_vma(self, addr):
         return addr >= self.vma_start and addr < self.vma_end
@@ -143,7 +146,12 @@ class CodeParcel(Parcel):
         first = self
 
         # setup second parcel
-        second = DataParcel(0, vma_start=inst_vma, vma_end=self.lda_to_vma(inst_lda + NUM_LDAS_TO_DATA), is_code=False)
+        second_vma_end = self.lda_to_vma(inst_lda + NUM_LDAS_TO_DATA)
+
+        # this can happen when splitting on the last instruction of a code parcel
+        if second_vma_end is None:
+            second_vma_end = first.vma_end
+        second = DataParcel(0, vma_start=inst_vma, vma_end=second_vma_end, is_code=False)
         second.lda_start = inst_lda
 
         # setup third parcel
@@ -164,7 +172,17 @@ class CodeParcel(Parcel):
 
                 del self.lda_bidict[lda]
 
-        return [second, third]
+        # the parcels to add and the parcels to remove
+        to_add = [second]
+        to_remove = []
+
+        if first.is_empty():
+            to_remove.append(first)
+
+        if not third.is_empty():
+            to_add.append(third)
+
+        return (to_add, to_remove, second.num_ldas() - NUM_LDAS_TO_DATA)
 
 
 class DataParcel(Parcel):

@@ -20,13 +20,17 @@ class SplitParcelOperation(Operation):
         self.object_id = odb_file.get_object_id()
 
         parcels = odb_file.get_structure_list(Parcel)
+        parcels_to_adjust = [p for p in parcels if p.vma_start > self.vma]
 
         orig_parcel = parcel.find_parcel_by_vma(self.vma, parcels)
         assert (orig_parcel is not None)
 
-        new_parcels = orig_parcel.split(self.vma, self.to_code)
+        (to_add, to_remove, ldas_added) = orig_parcel.split(self.vma, self.to_code)
 
-        for p in new_parcels:
+        for p in to_remove:
+            odb_file.remove_item(p)
+
+        for p in to_add:
             if p.is_code:
                 parcel_class = CodeParcel
             else:
@@ -39,4 +43,8 @@ class SplitParcelOperation(Operation):
             }))
 
             inserted_p.copy_from(p)
+
+        # fixup parcel lda offsets
+        for p in parcels_to_adjust:
+            p.lda_start += ldas_added
 
