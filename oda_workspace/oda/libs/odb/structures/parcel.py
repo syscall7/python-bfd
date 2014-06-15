@@ -124,6 +124,9 @@ class CodeParcel(Parcel):
             logger.error("Attempting to split a code parcel at a bad vma!")
             return None
 
+        # the number of code ldas that are being converted to data ldas
+        NUM_LDAS_TO_DATA = 1
+
         # edge cases
         # 1. The split occurs on the first instruction of the parcel
         #    This case results in only two parcels
@@ -140,12 +143,12 @@ class CodeParcel(Parcel):
         first = self
 
         # setup second parcel
-        second = DataParcel(0, vma_start=inst_vma, vma_end=self.lda_to_vma(inst_lda+1), is_code=False)
+        second = DataParcel(0, vma_start=inst_vma, vma_end=self.lda_to_vma(inst_lda + NUM_LDAS_TO_DATA), is_code=False)
         second.lda_start = inst_lda
 
         # setup third parcel
         third = CodeParcel(0, vma_start=second.vma_end, vma_end=first.vma_end, is_code=True)
-        third.lda_start = inst_lda+1
+        third.lda_start = inst_lda+second.num_ldas()
 
         # fixup the first parcel
         first.vma_end = inst_vma
@@ -154,7 +157,7 @@ class CodeParcel(Parcel):
         for lda,vma in self.lda_bidict.items():
             abs_lda = lda + self.lda_start
             if abs_lda >= second.lda_start:
-                if abs_lda < third.lda_start:
+                if abs_lda < second.lda_start + NUM_LDAS_TO_DATA:
                     second.push_vma(self.lda_bidict[lda])
                 else:
                     third.push_vma(self.lda_bidict[lda])
