@@ -4,16 +4,16 @@ __author__ = 'davis'
 
 class Branch(OdaObject):
 
-    def __init__(self, object_id, **kwargs):
+    def __init__(self, object_id, srcAddr, targetAddr, instr):
         super(Branch, self).__init__(object_id)
-        self.srcAddr = kwargs['instr'].offset
-        self.targetAddr = kwargs['instr'].targetAddr
+        self.srcAddr = srcAddr
+        self.targetAddr = targetAddr
         self.branchDown = self.srcAddr <= self.targetAddr
         self.startAddr = self.srcAddr if self.branchDown else self.targetAddr
         self.stopAddr = self.targetAddr if self.branchDown else self.srcAddr
         self.span = self.stopAddr - self.startAddr
         self.tag = None
-        self.instr = kwargs['instr']
+        self.instr = instr
 
     def getTargetAddrValid(self):
         return self.instr.isTargetAddrValid

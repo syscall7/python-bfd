@@ -3,12 +3,12 @@ from oda.libs.odb.structures.oda_object import OdaObject
 __author__ = 'davis'
 
 class Section(OdaObject):
-    def __init__(self, object_id, **kwargs):
+    def __init__(self, object_id, name, size, vma, flags):
         super(Section, self).__init__(object_id)
-        self.name = kwargs['name']
-        self.size = kwargs['size']
-        self.vma = kwargs['vma']
-        self.flags = kwargs['flags']
+        self.name = name
+        self.size = size
+        self.vma = vma
+        self.flags = flags
 
     def is_loadable(self):
         names = [f.name for f in self.flags]

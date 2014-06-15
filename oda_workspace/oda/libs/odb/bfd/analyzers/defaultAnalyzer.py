@@ -72,16 +72,7 @@ def parseDataLine(section_name, start_addr, end_addr, self, displayUnits, is_dat
     return numLines
 
 def create_branch(instr):
-    args = {}
-    args['srcAddr'] = instr.offset
-    args['targetAddr'] = instr.targetAddr
-    args['branchDown'] = args['srcAddr'] <= args['targetAddr']
-    args['startAddr'] = args['srcAddr'] if args['branchDown'] else args['targetAddr']
-    args['stopAddr'] = args['targetAddr'] if ['branchDown'] else ['srcAddr']
-    args['span'] = args['stopAddr'] - args['startAddr']
-    args['tag'] = None
-    args['instr'] = instr
-    return branch2.Branch(0, **args)
+    return branch2.Branch(0, instr.offset, instr.targetAddr, instr)
 
 def parseEverything(addr, rawData, instr, abfd, self, displayUnits, section_name):
 

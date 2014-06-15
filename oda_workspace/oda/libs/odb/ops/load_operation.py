@@ -50,7 +50,7 @@ class Loader(object):
                 'name': symbol.name,
                 'offset': symbol.value,
                 'base': symbol.base,
-                'type': symbol.type,
+                'sym_type': symbol.type,
                 'value': symbol.value,
                 'xrefs': []
             }))
@@ -70,7 +70,7 @@ class Loader(object):
         odb_funcs = [self.odb_file.create_item(Function, {
             'name': f.name,
             'offset': f.value,
-            'type': f.type,
+            'sym_type': f.type,
             'xrefs': [],
             'retval': 'unknown',
             'args': 'unknown'
@@ -89,8 +89,8 @@ class Loader(object):
                 class_type = DataParcel
 
             self.odb_file.insert_item(self.odb_file.create_item(class_type, {
-                'start': sec.vma,
-                'end': sec.vma + sec.size,
+                'vma_start': sec.vma,
+                'vma_end': sec.vma + sec.size,
                 'is_code': is_code
             }))
 

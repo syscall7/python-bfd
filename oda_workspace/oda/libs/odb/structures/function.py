@@ -23,11 +23,11 @@ def generate_operation(op, *args):
 
 
 class Function(OdaObject):
-    def __init__(self, object_id, **kwargs):
+    def __init__(self, object_id, name, offset, sym_type, xrefs=[], retval='unknown', args='unknown'):
         super(Function, self).__init__(object_id)
-        self.name = kwargs['name']
-        self.offset = kwargs['offset']
-        self.xrefs = set(kwargs.get('xrefs', []))
-        self.type = kwargs['type']
-        self.retval = kwargs.get('retval', 'unknown')
-        self.args = kwargs.get('args', 'unknown')
+        self.name = name
+        self.offset = offset
+        self.xrefs = xrefs
+        self.type = sym_type
+        self.retval = retval
+        self.args = args

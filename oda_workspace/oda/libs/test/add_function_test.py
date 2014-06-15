@@ -14,7 +14,7 @@ class TestAddFunction(unittest.TestCase):
         item = odb_file.create_item(Function, {
             'name': 'FUNCTION TEST NAME',
             'offset': 0,
-            'type': 'U'
+            'sym_type': 'U'
 
         })
         add_operation = function.generate_operation(AddOperation, item)
@@ -37,7 +37,7 @@ class TestAddFunction(unittest.TestCase):
         item = odb_file.create_item(Function, {
             'name': 'FUNCTION TEST NAME1',
             'offset': 0,
-            'type': 'U'
+            'sym_type': 'U'
         })
         add_operation = function.generate_operation(AddOperation, item)
         odb_file.execute(add_operation)
@@ -45,7 +45,7 @@ class TestAddFunction(unittest.TestCase):
         item2 = odb_file.create_item(Function, {
             'name': 'FUNCTION TEST NAME2',
             'offset': 0,
-            'type': 'U'
+            'sym_type': 'U'
         })
         add_operation2 = function.generate_operation(AddOperation, item2)
         odb_file.execute(add_operation2)
@@ -64,7 +64,7 @@ class TestAddFunction(unittest.TestCase):
         item = odb_file.create_item(Function, {
             'name': 'FUNCTION TEST NAME1',
             'offset': 0,
-            'type': 'U'
+            'sym_type': 'U'
         })
         add_operation = function.generate_operation(AddOperation, item)
         odb_file.execute(add_operation)
@@ -72,7 +72,7 @@ class TestAddFunction(unittest.TestCase):
         item = odb_file.create_item(Function, {
             'name': 'FUNCTION TEST NAME1',
             'offset': 0,
-            'type': 'U'
+            'sym_type': 'U'
         })
         add_operation = function.generate_operation(AddOperation, item)
         self.assertRaises(ValidationError, odb_file.execute, add_operation)
@@ -85,7 +85,7 @@ class TestAddFunction(unittest.TestCase):
         item = odb_file.create_item(Function, {
             'name': 'FUNCTION TEST NAME1',
             'offset': 0,
-            'type': 'U'
+            'sym_type': 'U'
         })
         add_operation = function.generate_operation(AddOperation, item)
         odb_file.execute(add_operation)
@@ -94,7 +94,7 @@ class TestAddFunction(unittest.TestCase):
         add_operation.item = odb_file.create_item(Function, {
             'name': 'FUNCTION TEST NAME2',
             'offset': 0,
-            'type': 'U'
+            'sym_type': 'U'
         })
         self.assertRaises(ValidationError, odb_file.execute, add_operation)
 

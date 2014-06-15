@@ -67,6 +67,8 @@ class BranchScanner(object):
             du = create_display_unit(self.analyzer, match_obj, addr)
             if du.instType == InstructionType.branch:
                     self.branches.append({
+                        'srcAddr': addr,
+                        'targetAddr': du.targetAddr,
                         'instr': du
                     })
                 # Check if we need to create a label or function
@@ -112,8 +114,10 @@ class FunctionScanner(object):
                     self.functions[du.targetAddr] = {
                         'name': 'func_%0.8x' % du.targetAddr,
                         'offset': du.targetAddr,
-                        'type': 't',
-                        'xrefs':  set([du.offset])
+                        'sym_type': 't',
+                        'xrefs':  set([du.offset]),
+                        'retval': 'unknown',
+                        'args': 'unknown'
                     }
                 else:
                     # Else, update a pre-existing Function, add a new cross reference

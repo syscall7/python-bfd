@@ -4,7 +4,7 @@ __author__ = 'davis'
 
 
 class DataString(OdaObject):
-    def __init__(self, object_id, **kwargs):
+    def __init__(self, object_id, value, addr):
         super(DataString, self).__init__(object_id)
-        self.value = kwargs['value']
-        self.addr = kwargs['addr']
+        self.value = value
+        self.addr = addr

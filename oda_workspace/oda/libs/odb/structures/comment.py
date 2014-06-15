@@ -21,8 +21,8 @@ def generate_operation(op, *args):
     return op(*args)
 
 class Comment(OdaObject):
-    def __init__(self, object_id, **kwargs):
+    def __init__(self, object_id, offset, comment):
         super(Comment, self).__init__(object_id)
-        self.offset = kwargs['offset']
-        self.comment = kwargs['comment']
+        self.offset = offset
+        self.comment = comment
 

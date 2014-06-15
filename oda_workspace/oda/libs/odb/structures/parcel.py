@@ -25,11 +25,11 @@ def find_parcel_by_vma(vma, parcels):
     return None
 
 class Parcel(OdaObject):
-    def __init__(self, object_id, **kwargs):
+    def __init__(self, object_id, is_code, vma_start, vma_end):
         super(Parcel, self).__init__(object_id)
-        self.is_code = kwargs['is_code']
-        self.vma_start = kwargs['start']
-        self.vma_end = kwargs['end']
+        self.is_code = is_code
+        self.vma_start = vma_start
+        self.vma_end = vma_end
         self.sample_offsets = []
         self.lda_start = 0
 

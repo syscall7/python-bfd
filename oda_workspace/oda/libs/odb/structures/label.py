@@ -15,7 +15,7 @@ def generate_operation(op, *args):
     return op(*args)
 
 class Label(OdaObject):
-    def __init__(self, object_id, **kwargs):
+    def __init__(self, object_id, offset, label):
         super(Label, self).__init__(object_id)
-        self.offset = kwargs['offset']
-        self.label = kwargs['label']
+        self.offset = offset
+        self.label = label
