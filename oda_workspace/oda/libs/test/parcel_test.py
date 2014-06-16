@@ -8,8 +8,7 @@ from oda.libs.odb.ops.scan_operation import ScanOperation
 from oda.libs.odb.structures.branch import Branch
 from oda.libs.odb.structures.data_string import DataString
 from oda.libs.odb.structures.function import Function
-from oda.libs.odb.structures.parcel import Parcel
-from oda.libs.odb.structures import parcel
+from oda.libs.odb.structures.parcel import Parcel, ParcelList
 from oda.libs.odb.structures.section import Section
 from oda.libs.odb.structures.symbol import Symbol
 from oda.libs.odb.odb_file import BinaryFile, BinaryString
@@ -23,26 +22,26 @@ class TestParcels(unittest.TestCase):
         odb_file.execute(LoadOperation())
         odb_file.execute(ScanOperation())
 
-        parcels_before = odb_file.get_structure_list(Parcel)
-        p = parcel.find_parcel_by_vma(0x4029c0, parcels_before)
+        parcels_before = ParcelList(odb_file.get_structure_list(Parcel))
+        p = parcels_before.find_parcel_by_vma(0x4029c0)
         num_p1_ldas_before = p.num_ldas()
-        text_lda_before = parcel.vma_to_lda(0x4029c0, parcels_before)
-        fini_lda_before = parcel.vma_to_lda(0x412bec, parcels_before)
+        text_lda_before = parcels_before.vma_to_lda(0x4029c0)
+        fini_lda_before = parcels_before.vma_to_lda(0x412bec)
 
         # number of parcels before the split
         self.assertEquals(25, len(parcels_before))
 
         # execute the split operation
-        odb_file.execute(SplitParcelOperation(0x4029d5, False))
+        odb_file.execute(SplitParcelOperation(0x4029d5))
 
         # number of parcels after the split
-        parcels_after = odb_file.get_structure_list(Parcel)
+        parcels_after = ParcelList(odb_file.get_structure_list(Parcel))
         self.assertEquals(27, len(parcels_after))
 
         # get the three parcels
-        p1 = parcel.find_parcel_by_vma(0x4029c0, parcels_after)
-        p2 = parcel.find_parcel_by_vma(0x4029d5, parcels_after)
-        p3 = parcel.find_parcel_by_vma(0x4029da, parcels_after)
+        p1 = parcels_after.find_parcel_by_vma(0x4029c0)
+        p2 = parcels_after.find_parcel_by_vma(0x4029d5)
+        p3 = parcels_after.find_parcel_by_vma(0x4029da)
 
         # make sure they are all unique
         self.assertNotEqual(p1, p2)
@@ -71,38 +70,38 @@ class TestParcels(unittest.TestCase):
         #
 
         # these shouldn't have changed
-        self.assertEquals(text_lda_before, parcel.vma_to_lda(0x4029c0, parcels_after))
-        self.assertEquals(text_lda_before+5, parcel.vma_to_lda(0x4029d5, parcels_after))
+        self.assertEquals(text_lda_before, parcels_after.vma_to_lda(0x4029c0))
+        self.assertEquals(text_lda_before+5, parcels_after.vma_to_lda(0x4029d5))
 
         # these changed
-        self.assertEquals(text_lda_before+6, parcel.vma_to_lda(0x4029d6, parcels_after))
-        self.assertEquals(text_lda_before+7, parcel.vma_to_lda(0x4029d7, parcels_after))
-        self.assertEquals(text_lda_before+8, parcel.vma_to_lda(0x4029d8, parcels_after))
-        self.assertEquals(text_lda_before+9, parcel.vma_to_lda(0x4029d9, parcels_after))
-        self.assertEquals(text_lda_before+10, parcel.vma_to_lda(0x4029da, parcels_after))
-        self.assertEquals(text_lda_before+11, parcel.vma_to_lda(0x4029db, parcels_after))
+        self.assertEquals(text_lda_before+6, parcels_after.vma_to_lda(0x4029d6))
+        self.assertEquals(text_lda_before+7, parcels_after.vma_to_lda(0x4029d7))
+        self.assertEquals(text_lda_before+8, parcels_after.vma_to_lda(0x4029d8))
+        self.assertEquals(text_lda_before+9, parcels_after.vma_to_lda(0x4029d9))
+        self.assertEquals(text_lda_before+10, parcels_after.vma_to_lda(0x4029da))
+        self.assertEquals(text_lda_before+11, parcels_after.vma_to_lda(0x4029db))
 
         # 1 instruction turned into 5 data bytes, so it shifted the following parcels by 4 ldas
-        self.assertEquals(fini_lda_before+4, parcel.vma_to_lda(0x412bec, parcels_after))
+        self.assertEquals(fini_lda_before+4, parcels_after.vma_to_lda(0x412bec))
 
         #
         # make sure lda->vma mappings line up
         #
 
         # these shouldn't have changed
-        self.assertEquals(0x4029c0, parcel.lda_to_vma(text_lda_before, parcels_after))
-        self.assertEquals(0x4029d5, parcel.lda_to_vma(text_lda_before+5, parcels_after))
+        self.assertEquals(0x4029c0, parcels_after.lda_to_vma(text_lda_before))
+        self.assertEquals(0x4029d5, parcels_after.lda_to_vma(text_lda_before+5))
 
         # these changed
-        self.assertEquals(0x4029d6, parcel.lda_to_vma(text_lda_before+6, parcels_after))
-        self.assertEquals(0x4029d7, parcel.lda_to_vma(text_lda_before+7, parcels_after))
-        self.assertEquals(0x4029d8, parcel.lda_to_vma(text_lda_before+8, parcels_after))
-        self.assertEquals(0x4029d9, parcel.lda_to_vma(text_lda_before+9, parcels_after))
-        self.assertEquals(0x4029da, parcel.lda_to_vma(text_lda_before+10, parcels_after))
-        self.assertEquals(0x4029db, parcel.lda_to_vma(text_lda_before+11, parcels_after))
+        self.assertEquals(0x4029d6, parcels_after.lda_to_vma(text_lda_before+6))
+        self.assertEquals(0x4029d7, parcels_after.lda_to_vma(text_lda_before+7))
+        self.assertEquals(0x4029d8, parcels_after.lda_to_vma(text_lda_before+8))
+        self.assertEquals(0x4029d9, parcels_after.lda_to_vma(text_lda_before+9))
+        self.assertEquals(0x4029da, parcels_after.lda_to_vma(text_lda_before+10))
+        self.assertEquals(0x4029db, parcels_after.lda_to_vma(text_lda_before+11))
 
         # 1 instruction turned into 5 data bytes, so it shifted the following parcels by 4 ldas
-        self.assertEquals(0x412bec, parcel.lda_to_vma(fini_lda_before+4, parcels_after))
+        self.assertEquals(0x412bec, parcels_after.lda_to_vma(fini_lda_before+4))
 
     def test_split_to_data_at_start_of_parcel(self):
         cwd = os.path.dirname(os.path.realpath(__file__))
@@ -111,26 +110,26 @@ class TestParcels(unittest.TestCase):
         odb_file.execute(LoadOperation())
         odb_file.execute(ScanOperation())
 
-        parcels_before = odb_file.get_structure_list(Parcel)
+        parcels_before = ParcelList(odb_file.get_structure_list(Parcel))
 
         # start of .fini section
-        p = parcel.find_parcel_by_vma(0x412bec, parcels_before)
+        p = parcels_before.find_parcel_by_vma(0x412bec)
         num_p1_ldas_before = p.num_ldas()
-        fini_lda_before = parcel.vma_to_lda(0x412bec, parcels_before)
+        fini_lda_before = parcels_before.vma_to_lda(0x412bec)
 
         # number of parcels before the split
         self.assertEquals(25, len(parcels_before))
 
         # execute the split operation
-        odb_file.execute(SplitParcelOperation(0x412bec, False))
+        odb_file.execute(SplitParcelOperation(0x412bec))
 
         # number of parcels after the split (should only add one more)
-        parcels_after = odb_file.get_structure_list(Parcel)
+        parcels_after = ParcelList(odb_file.get_structure_list(Parcel))
         self.assertEquals(26, len(parcels_after))
 
         # get the two parcels
-        p1 = parcel.find_parcel_by_vma(0x412bec, parcels_after)
-        p2 = parcel.find_parcel_by_vma(0x412bf0, parcels_after)
+        p1 = parcels_after.find_parcel_by_vma(0x412bec)
+        p2 = parcels_after.find_parcel_by_vma(0x412bf0)
 
         # make sure they are unique
         self.assertNotEqual(p1, p2)
@@ -152,28 +151,28 @@ class TestParcels(unittest.TestCase):
         #
 
         # these shouldn't have changed
-        self.assertEquals(fini_lda_before, parcel.vma_to_lda(0x412bec, parcels_after))
+        self.assertEquals(fini_lda_before, parcels_after.vma_to_lda(0x412bec))
 
         # these changed
-        self.assertEquals(fini_lda_before+1, parcel.vma_to_lda(0x412bed, parcels_after))
-        self.assertEquals(fini_lda_before+2, parcel.vma_to_lda(0x412bee, parcels_after))
-        self.assertEquals(fini_lda_before+3, parcel.vma_to_lda(0x412bef, parcels_after))
-        self.assertEquals(fini_lda_before+4, parcel.vma_to_lda(0x412bf0, parcels_after))
-        self.assertEquals(fini_lda_before+5, parcel.vma_to_lda(0x412bf4, parcels_after))
+        self.assertEquals(fini_lda_before+1, parcels_after.vma_to_lda(0x412bed))
+        self.assertEquals(fini_lda_before+2, parcels_after.vma_to_lda(0x412bee))
+        self.assertEquals(fini_lda_before+3, parcels_after.vma_to_lda(0x412bef))
+        self.assertEquals(fini_lda_before+4, parcels_after.vma_to_lda(0x412bf0))
+        self.assertEquals(fini_lda_before+5, parcels_after.vma_to_lda(0x412bf4))
 
         #
         # make sure lda->vma mappings line up
         #
 
         # these shouldn't have changed
-        self.assertEquals(0x412bec, parcel.lda_to_vma(fini_lda_before, parcels_after))
+        self.assertEquals(0x412bec, parcels_after.lda_to_vma(fini_lda_before))
 
         # these changed
-        self.assertEquals(0x412bed, parcel.lda_to_vma(fini_lda_before+1, parcels_after))
-        self.assertEquals(0x412bee, parcel.lda_to_vma(fini_lda_before+2, parcels_after))
-        self.assertEquals(0x412bef, parcel.lda_to_vma(fini_lda_before+3, parcels_after))
-        self.assertEquals(0x412bf0, parcel.lda_to_vma(fini_lda_before+4, parcels_after))
-        self.assertEquals(0x412bf4, parcel.lda_to_vma(fini_lda_before+5, parcels_after))
+        self.assertEquals(0x412bed, parcels_after.lda_to_vma(fini_lda_before+1))
+        self.assertEquals(0x412bee, parcels_after.lda_to_vma(fini_lda_before+2))
+        self.assertEquals(0x412bef, parcels_after.lda_to_vma(fini_lda_before+3))
+        self.assertEquals(0x412bf0, parcels_after.lda_to_vma(fini_lda_before+4))
+        self.assertEquals(0x412bf4, parcels_after.lda_to_vma(fini_lda_before+5))
 
     def test_split_to_data_at_end_of_parcel(self):
         cwd = os.path.dirname(os.path.realpath(__file__))
@@ -182,30 +181,30 @@ class TestParcels(unittest.TestCase):
         odb_file.execute(LoadOperation())
         odb_file.execute(ScanOperation())
 
-        parcels_before = odb_file.get_structure_list(Parcel)
+        parcels_before = ParcelList(odb_file.get_structure_list(Parcel))
 
         # last instruction in .plt
-        p = parcel.find_parcel_by_vma(0x4029bb, parcels_before)
-        p3 = parcel.find_parcel_by_vma(0x4029c0, parcels_before)
+        p = parcels_before.find_parcel_by_vma(0x4029bb)
+        p3 = parcels_before.find_parcel_by_vma(0x4029c0)
         num_p1_ldas_before = p.num_ldas()
         num_p3_ldas_before = p3.num_ldas()
-        plt_lda_before = parcel.vma_to_lda(0x402320, parcels_before)
-        text_lda_before = parcel.vma_to_lda(0x4029c0, parcels_before)
+        plt_lda_before = parcels_before.vma_to_lda(0x402320)
+        text_lda_before = parcels_before.vma_to_lda(0x4029c0)
 
         # number of parcels before the split
         self.assertEquals(25, len(parcels_before))
 
         # execute the split operation
-        odb_file.execute(SplitParcelOperation(0x4029bb, False))
+        odb_file.execute(SplitParcelOperation(0x4029bb))
 
         # number of parcels after the split (should only add one more)
-        parcels_after = odb_file.get_structure_list(Parcel)
+        parcels_after = ParcelList(odb_file.get_structure_list(Parcel))
         self.assertEquals(26, len(parcels_after))
 
         # get the two parcels (plus the .text one following)
-        p1 = parcel.find_parcel_by_vma(0x402320, parcels_after)
-        p2 = parcel.find_parcel_by_vma(0x4029bb, parcels_after)
-        p3 = parcel.find_parcel_by_vma(0x4029c0, parcels_after)
+        p1 = parcels_after.find_parcel_by_vma(0x402320)
+        p2 = parcels_after.find_parcel_by_vma(0x4029bb)
+        p3 = parcels_after.find_parcel_by_vma(0x4029c0)
 
         # make sure they are all unique
         self.assertNotEqual(p1, p2)
@@ -234,38 +233,38 @@ class TestParcels(unittest.TestCase):
         #
 
         # these shouldn't have changed
-        self.assertEquals(plt_lda_before, parcel.vma_to_lda(0x402320, parcels_after))
-        self.assertEquals(plt_lda_before+num_p1_ldas_before-2, parcel.vma_to_lda(0x4029b6, parcels_after))
-        self.assertEquals(plt_lda_before+num_p1_ldas_before-1, parcel.vma_to_lda(0x4029bb, parcels_after))
+        self.assertEquals(plt_lda_before, parcels_after.vma_to_lda(0x402320))
+        self.assertEquals(plt_lda_before+num_p1_ldas_before-2, parcels_after.vma_to_lda(0x4029b6))
+        self.assertEquals(plt_lda_before+num_p1_ldas_before-1, parcels_after.vma_to_lda(0x4029bb))
 
         # these changed
-        self.assertEquals(plt_lda_before+num_p1_ldas_before, parcel.vma_to_lda(0x4029bc, parcels_after))
-        self.assertEquals(plt_lda_before+num_p1_ldas_before+1, parcel.vma_to_lda(0x4029bd, parcels_after))
-        self.assertEquals(plt_lda_before+num_p1_ldas_before+2, parcel.vma_to_lda(0x4029be, parcels_after))
-        self.assertEquals(plt_lda_before+num_p1_ldas_before+3, parcel.vma_to_lda(0x4029bf, parcels_after))
-        self.assertEquals(plt_lda_before+num_p1_ldas_before+4, parcel.vma_to_lda(0x4029c0, parcels_after))
+        self.assertEquals(plt_lda_before+num_p1_ldas_before, parcels_after.vma_to_lda(0x4029bc))
+        self.assertEquals(plt_lda_before+num_p1_ldas_before+1, parcels_after.vma_to_lda(0x4029bd))
+        self.assertEquals(plt_lda_before+num_p1_ldas_before+2, parcels_after.vma_to_lda(0x4029be))
+        self.assertEquals(plt_lda_before+num_p1_ldas_before+3, parcels_after.vma_to_lda(0x4029bf))
+        self.assertEquals(plt_lda_before+num_p1_ldas_before+4, parcels_after.vma_to_lda(0x4029c0))
 
         # 1 instruction turned into 5 data bytes, so it shifted the following parcels by 4 ldas
-        self.assertEquals(text_lda_before+4, parcel.vma_to_lda(0x4029c0, parcels_after))
+        self.assertEquals(text_lda_before+4, parcels_after.vma_to_lda(0x4029c0))
 
         #
         # make sure lda->vma mappings line up
         #
 
         # these shouldn't have changed
-        self.assertEquals(0x402320, parcel.lda_to_vma(plt_lda_before, parcels_after))
-        self.assertEquals(0x4029b6, parcel.lda_to_vma(plt_lda_before+num_p1_ldas_before-2, parcels_after))
-        self.assertEquals(0x4029bb, parcel.lda_to_vma(plt_lda_before+num_p1_ldas_before-1, parcels_after))
+        self.assertEquals(0x402320, parcels_after.lda_to_vma(plt_lda_before))
+        self.assertEquals(0x4029b6, parcels_after.lda_to_vma(plt_lda_before+num_p1_ldas_before-2))
+        self.assertEquals(0x4029bb, parcels_after.lda_to_vma(plt_lda_before+num_p1_ldas_before-1))
 
         # these changed
-        self.assertEquals(0x4029bc, parcel.lda_to_vma(plt_lda_before+num_p1_ldas_before, parcels_after))
-        self.assertEquals(0x4029bd, parcel.lda_to_vma(plt_lda_before+num_p1_ldas_before+1, parcels_after))
-        self.assertEquals(0x4029be, parcel.lda_to_vma(plt_lda_before+num_p1_ldas_before+2, parcels_after))
-        self.assertEquals(0x4029bf, parcel.lda_to_vma(plt_lda_before+num_p1_ldas_before+3, parcels_after))
-        self.assertEquals(0x4029c0, parcel.lda_to_vma(plt_lda_before+num_p1_ldas_before+4, parcels_after))
+        self.assertEquals(0x4029bc, parcels_after.lda_to_vma(plt_lda_before+num_p1_ldas_before))
+        self.assertEquals(0x4029bd, parcels_after.lda_to_vma(plt_lda_before+num_p1_ldas_before+1))
+        self.assertEquals(0x4029be, parcels_after.lda_to_vma(plt_lda_before+num_p1_ldas_before+2))
+        self.assertEquals(0x4029bf, parcels_after.lda_to_vma(plt_lda_before+num_p1_ldas_before+3))
+        self.assertEquals(0x4029c0, parcels_after.lda_to_vma(plt_lda_before+num_p1_ldas_before+4))
 
         # 1 instruction turned into 5 data bytes, so it shifted the following parcels by 4 ldas
-        self.assertEquals(0x4029c0, parcel.lda_to_vma(text_lda_before+4, parcels_after))
+        self.assertEquals(0x4029c0, parcels_after.lda_to_vma(text_lda_before+4))
 
     def test_split_to_data_single_inst_in_parcel(self):
         cwd = os.path.dirname(os.path.realpath(__file__))
@@ -275,13 +274,13 @@ class TestParcels(unittest.TestCase):
         odb_file.execute(LoadOperation())
         odb_file.execute(ScanOperation())
 
-        parcels_before = odb_file.get_structure_list(Parcel)
+        parcels_before = ParcelList(odb_file.get_structure_list(Parcel))
 
         # only one instruction in .single
-        p = parcel.find_parcel_by_vma(0x400598, parcels_before)
-        p_text = parcel.find_parcel_by_vma(0x400597, parcels_before)
-        p_fini = parcel.find_parcel_by_vma(0x4005a0, parcels_before)
-        p_got = parcel.find_parcel_by_vma(0x600fe0, parcels_before)
+        p = parcels_before.find_parcel_by_vma(0x400598)
+        p_text = parcels_before.find_parcel_by_vma(0x400597)
+        p_fini = parcels_before.find_parcel_by_vma(0x4005a0)
+        p_got = parcels_before.find_parcel_by_vma(0x600fe0)
         num_ldas_before = p.num_ldas()
         num_text_ldas_before = p_text.num_ldas()
         num_fini_ldas_before = p_fini.num_ldas()
@@ -294,16 +293,16 @@ class TestParcels(unittest.TestCase):
         self.assertEquals(25, len(parcels_before))
 
         # execute the split operation
-        odb_file.execute(SplitParcelOperation(0x400598, False))
+        odb_file.execute(SplitParcelOperation(0x400598))
 
         # number of parcels after the split (should not have changed)
-        parcels_after = odb_file.get_structure_list(Parcel)
+        parcels_after = ParcelList(odb_file.get_structure_list(Parcel))
         self.assertEquals(25, len(parcels_after))
 
         # get the parcels
-        p = parcel.find_parcel_by_vma(0x400598, parcels_after)
-        p_text = parcel.find_parcel_by_vma(0x400597, parcels_after)
-        p_fini = parcel.find_parcel_by_vma(0x4005a0, parcels_after)
+        p = parcels_after.find_parcel_by_vma(0x400598)
+        p_text = parcels_after.find_parcel_by_vma(0x400597)
+        p_fini = parcels_after.find_parcel_by_vma(0x4005a0)
 
         # make sure they are all unique
         self.assertNotEqual(p, p_text)
@@ -332,45 +331,45 @@ class TestParcels(unittest.TestCase):
         #
 
         # these shouldn't have changed
-        self.assertEquals(text_lda_before, parcel.vma_to_lda(0x4003d0, parcels_after))
-        self.assertEquals(text_lda_before+num_text_ldas_before-1, parcel.vma_to_lda(0x400597, parcels_after))
-        self.assertEquals(single_lda_before, parcel.vma_to_lda(0x400598, parcels_after))
+        self.assertEquals(text_lda_before, parcels_after.vma_to_lda(0x4003d0))
+        self.assertEquals(text_lda_before+num_text_ldas_before-1, parcels_after.vma_to_lda(0x400597))
+        self.assertEquals(single_lda_before, parcels_after.vma_to_lda(0x400598))
 
         # these changed
-        self.assertEquals(single_lda_before+1, parcel.vma_to_lda(0x400599, parcels_after))
-        self.assertEquals(single_lda_before+2, parcel.vma_to_lda(0x40059a, parcels_after))
-        self.assertEquals(single_lda_before+3, parcel.vma_to_lda(0x40059b, parcels_after))
-        self.assertEquals(single_lda_before+4, parcel.vma_to_lda(0x40059c, parcels_after))
-        self.assertEquals(single_lda_before+5, parcel.vma_to_lda(0x40059d, parcels_after))
-        self.assertEquals(single_lda_before+6, parcel.vma_to_lda(0x40059e, parcels_after))
+        self.assertEquals(single_lda_before+1, parcels_after.vma_to_lda(0x400599))
+        self.assertEquals(single_lda_before+2, parcels_after.vma_to_lda(0x40059a))
+        self.assertEquals(single_lda_before+3, parcels_after.vma_to_lda(0x40059b))
+        self.assertEquals(single_lda_before+4, parcels_after.vma_to_lda(0x40059c))
+        self.assertEquals(single_lda_before+5, parcels_after.vma_to_lda(0x40059d))
+        self.assertEquals(single_lda_before+6, parcels_after.vma_to_lda(0x40059e))
 
         # 1 instruction turned into 7 data bytes, so it shifted the following parcels by 6 ldas
-        self.assertEquals(fini_lda_before+6, parcel.vma_to_lda(0x4005a0, parcels_after))
-        self.assertEquals(got_lda_before+6, parcel.vma_to_lda(0x600fe0, parcels_after))
+        self.assertEquals(fini_lda_before+6, parcels_after.vma_to_lda(0x4005a0))
+        self.assertEquals(got_lda_before+6, parcels_after.vma_to_lda(0x600fe0))
 
         #
         # make sure lda->vma mappings line up
         #
 
-        self.assertEquals(text_lda_before, parcel.vma_to_lda(0x4003d0, parcels_after))
-        self.assertEquals(text_lda_before+num_text_ldas_before-1, parcel.vma_to_lda(0x400597, parcels_after))
-        self.assertEquals(single_lda_before, parcel.vma_to_lda(0x400598, parcels_after))
+        self.assertEquals(text_lda_before, parcels_after.vma_to_lda(0x4003d0))
+        self.assertEquals(text_lda_before+num_text_ldas_before-1, parcels_after.vma_to_lda(0x400597))
+        self.assertEquals(single_lda_before, parcels_after.vma_to_lda(0x400598))
 
         # these shouldn't have changed
-        self.assertEquals(0x4003d0, parcel.lda_to_vma(text_lda_before, parcels_after))
-        self.assertEquals(0x400597, parcel.lda_to_vma(text_lda_before+num_text_ldas_before-1, parcels_after))
-        self.assertEquals(0x400598, parcel.lda_to_vma(single_lda_before, parcels_after))
+        self.assertEquals(0x4003d0, parcels_after.lda_to_vma(text_lda_before))
+        self.assertEquals(0x400597, parcels_after.lda_to_vma(text_lda_before+num_text_ldas_before-1))
+        self.assertEquals(0x400598, parcels_after.lda_to_vma(single_lda_before))
 
         # these changed
-        self.assertEquals(0x400599, parcel.lda_to_vma(single_lda_before+1, parcels_after))
-        self.assertEquals(0x40059a, parcel.lda_to_vma(single_lda_before+2, parcels_after))
-        self.assertEquals(0x40059b, parcel.lda_to_vma(single_lda_before+3, parcels_after))
-        self.assertEquals(0x40059c, parcel.lda_to_vma(single_lda_before+4, parcels_after))
-        self.assertEquals(0x40059d, parcel.lda_to_vma(single_lda_before+5, parcels_after))
-        self.assertEquals(0x40059e, parcel.lda_to_vma(single_lda_before+6, parcels_after))
+        self.assertEquals(0x400599, parcels_after.lda_to_vma(single_lda_before+1))
+        self.assertEquals(0x40059a, parcels_after.lda_to_vma(single_lda_before+2))
+        self.assertEquals(0x40059b, parcels_after.lda_to_vma(single_lda_before+3))
+        self.assertEquals(0x40059c, parcels_after.lda_to_vma(single_lda_before+4))
+        self.assertEquals(0x40059d, parcels_after.lda_to_vma(single_lda_before+5))
+        self.assertEquals(0x40059e, parcels_after.lda_to_vma(single_lda_before+6))
 
         # 1 instruction turned into 7 data bytes, so it shifted the following parcels by 6 ldas
-        self.assertEquals(0x4005a0, parcel.lda_to_vma(fini_lda_before+6, parcels_after))
-        self.assertEquals(0x600fe0, parcel.lda_to_vma(got_lda_before+6, parcels_after))
+        self.assertEquals(0x4005a0, parcels_after.lda_to_vma(fini_lda_before+6))
+        self.assertEquals(0x600fe0, parcels_after.lda_to_vma(got_lda_before+6))
 
 

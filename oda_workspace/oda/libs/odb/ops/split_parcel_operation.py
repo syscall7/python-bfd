@@ -1,17 +1,15 @@
 import logging
 from oda.libs.odb.ops.operation import Operation
-from oda.libs.odb.structures.parcel import Parcel
-from oda.libs.odb.structures import parcel
+from oda.libs.odb.structures.parcel import Parcel, ParcelList
 from oda.libs.odb.structures.parcel import CodeParcel, DataParcel
 
 logger = logging.getLogger(__name__)
 
 class SplitParcelOperation(Operation):
 
-    def __init__(self, vma, to_code):
+    def __init__(self, vma):
         super(SplitParcelOperation, self).__init__()
         self.object_id = -1
-        self.to_code = to_code
         self.vma = vma
 
     def operate(self, odb_file):
@@ -19,18 +17,20 @@ class SplitParcelOperation(Operation):
 
         self.object_id = odb_file.get_object_id()
 
-        parcels = odb_file.get_structure_list(Parcel)
+        parcels = ParcelList(odb_file.get_structure_list(Parcel))
         parcels_to_adjust = [p for p in parcels if p.vma_start > self.vma]
 
-        orig_parcel = parcel.find_parcel_by_vma(self.vma, parcels)
-        assert (orig_parcel is not None)
+        transaction = parcels.split_parcel(self.vma)
 
-        (to_add, to_remove, ldas_added) = orig_parcel.split(self.vma, self.to_code)
+        # TODO: Throw an exception here
+        assert (transaction is not None)
 
-        for p in to_remove:
+        # remove dead parcels
+        for p in transaction.to_remove:
             odb_file.remove_item(p)
 
-        for p in to_add:
+        # add new parcels
+        for p in transaction.to_add:
             if p.is_code:
                 parcel_class = CodeParcel
             else:
@@ -44,7 +44,7 @@ class SplitParcelOperation(Operation):
 
             inserted_p.copy_from(p)
 
-        # fixup parcel lda offsets
+        # fixup parcel lda offsets in affected parcels
         for p in parcels_to_adjust:
-            p.lda_start += ldas_added
+            p.lda_start += transaction.adjustment
 

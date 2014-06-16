@@ -5,27 +5,54 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 import logging
 logger = logging.getLogger(__name__)
 
-def vma_to_lda(vma, parcels):
-    for p in parcels:
-        lda = p.vma_to_lda(vma)
-        if lda is not None:
-            return lda
-    return None
+class ParcelList(list):
+    """ Represents a group of parcels on which to operate as a whole """
 
-def lda_to_vma(lda, parcels):
-    for p in parcels:
-        vma = p.lda_to_vma(lda)
-        if vma is not None:
-            return vma
-    return None
+    def vma_to_lda(self, vma):
+        for p in self:
+            lda = p.vma_to_lda(vma)
+            if lda is not None:
+                return lda
+                # TODO: Keep iterating and ensure duplicate mapping is not found
+        return None
 
-def find_parcel_by_vma(vma, parcels):
-    for p in parcels:
-        if p.contains_vma(vma):
-            return p
-    return None
+    def lda_to_vma(self, lda):
+        for p in self:
+            vma = p.lda_to_vma(lda)
+            if vma is not None:
+                return vma
+                # TODO: Keep iterating and ensure duplicate mapping is not found
+        return None
+
+    def find_parcel_by_vma(self, vma):
+        for p in self:
+            if p.contains_vma(vma):
+                return p
+                # TODO: Keep iterating and ensure duplicate mapping is not found
+        return None
+
+    def split_parcel(self, vma):
+        p = self.find_parcel_by_vma(vma)
+        if p is not None:
+            return p.split(vma)
+        return None
+
+    def sum_ldas(self):
+        sum = 0
+        for p in self:
+            sum += p.num_ldas()
+        return sum
+
+class ParcelTransaction(object):
+    """ Represents a set of parcels that should be added or removed from a parcel list """
+    def __init__(self, to_add=[], to_remove=[], adjustment=0):
+        self.to_add = to_add
+        self.to_remove = to_remove
+        self.adjustment = adjustment
+
 
 class Parcel(OdaObject):
+    """ Abstract class representing a contiguous group of display units """
 
     __metaclass__ = ABCMeta
 
@@ -126,10 +153,7 @@ class CodeParcel(Parcel):
 
         return self.lda_bidict[lda-self.lda_start]
 
-    def split(self, vma, to_code):
-        if (to_code):
-            logger.warn("Attempting to split a code parcel to code does not make any sense!")
-            return None
+    def split(self, vma):
 
         if not self.contains_vma(vma):
             logger.error("Attempting to split a code parcel at a bad vma!")
@@ -190,7 +214,7 @@ class CodeParcel(Parcel):
         if not third.is_empty():
             to_add.append(third)
 
-        return (to_add, to_remove, second.num_ldas() - NUM_LDAS_TO_DATA)
+        return ParcelTransaction(to_add, to_remove, second.num_ldas() - NUM_LDAS_TO_DATA)
 
 
 class DataParcel(Parcel):

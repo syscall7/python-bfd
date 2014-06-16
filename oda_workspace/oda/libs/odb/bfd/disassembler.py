@@ -1,8 +1,7 @@
 import bfd
 
 from oda.libs.odb.bfd.analyzer import analyzer_factory
-from oda.libs.odb.structures.parcel import Parcel
-from oda.libs.odb.structures import parcel
+from oda.libs.odb.structures.parcel import Parcel, ParcelList
 
 __author__ = 'davis'
 
@@ -63,21 +62,16 @@ class Disassembler(object):
         self.odb_file = odb_file
 
     def total_lines(self):
-        parcels = self.odb_file.get_structure_list(Parcel)
-
-        total = 0
-        for p in parcels:
-            total += p.num_ldas()
-
-        return total
+        parcels = ParcelList(self.odb_file.get_structure_list(Parcel))
+        return parcels.sum_ldas()
 
     def vma_to_lda(self, vma):
-        parcels = self.odb_file.get_structure_list(Parcel)
-        return parcel.vma_to_lda(vma, parcels)
+        parcels = ParcelList(self.odb_file.get_structure_list(Parcel))
+        return parcels.vma_to_lda(vma)
 
     def lda_to_vma(self, lda):
-        parcels = self.odb_file.get_structure_list(Parcel)
-        return parcel.lda_to_vma(lda, parcels)
+        parcels = ParcelList(self.odb_file.get_structure_list(Parcel))
+        return parcels.lda_to_vma(lda)
 
     def analyze(self, start, lines, logical):
 
