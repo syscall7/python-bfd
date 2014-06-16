@@ -1,5 +1,6 @@
 from oda.libs.odb.structures.oda_object import OdaObject
 from bidict import bidict
+from abc import ABCMeta, abstractmethod, abstractproperty
 
 import logging
 logger = logging.getLogger(__name__)
@@ -25,6 +26,9 @@ def find_parcel_by_vma(vma, parcels):
     return None
 
 class Parcel(OdaObject):
+
+    __metaclass__ = ABCMeta
+
     def __init__(self, object_id, is_code, vma_start, vma_end):
         super(Parcel, self).__init__(object_id)
         self.is_code = is_code
@@ -64,18 +68,22 @@ class Parcel(OdaObject):
         self.lda_bidict = other.lda_bidict
         self.sample_offsets = other.sample_offsets
 
+    @abstractmethod
     def push_vma(self, vma):
         """ Used to build up the lda<->vma mapping, assumes it is built in order of increasing vma """
         raise NotImplementedError("Please Implement this method in a child class")
 
+    @abstractmethod
     def vma_to_lda(self, vma):
         """ Convert a vma to lda """
         raise NotImplementedError("Please Implement this method in a child class")
 
+    @abstractmethod
     def lda_to_vma(self, vma):
         """ Convert a lda to vma """
         raise NotImplementedError("Please Implement this method in a child class")
 
+    @abstractmethod
     def split(self, vma, to_code):
         """ Split a parcel """
         raise NotImplementedError("Please Implement this method in a child class")
@@ -207,3 +215,5 @@ class DataParcel(Parcel):
 
         return self.vma_start + (lda - self.lda_start)
 
+    def split(self, vma, to_code):
+        raise NotImplementedError("Please implement me!")

@@ -19,7 +19,7 @@ class LoadOperation(Operation):
         self.object_id = -1
 
     def operate(self, odb_file):
-        logger.info("Loading %s".format(odb_file))
+        logger.info("Loading {}".format(odb_file))
         self.object_id = odb_file.get_object_id()
 
         analyzer = ofd.Ofd(odb_file.get_binary())

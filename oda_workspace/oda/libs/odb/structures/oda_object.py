@@ -1,6 +1,8 @@
-__author__ = 'davis'
+from abc import ABCMeta, abstractmethod, abstractproperty
 
 class OdaObject(object):
+
+    __metaclass__ = ABCMeta
 
     def __init__(self, object_id):
         self.object_id = object_id

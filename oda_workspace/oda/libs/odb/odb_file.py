@@ -112,6 +112,11 @@ class BinaryFile(Binary):
     def __init__(self, filename, target, architecture):
         self.filename = filename
         self._options = Options(target, architecture, 0)
+        self.arch = architecture
+
+    def __str__(self):
+        return "BinaryFile file:%s, arch:%s, size:%d" % (
+            os.path.basename(self.filename), self.arch, os.path.getsize(self.filename))
 
     @property
     def options(self):
@@ -151,6 +156,9 @@ class BinaryString(Binary):
         self.byte_array = self.binary_string.decode("hex")
 
         self.binary_string_display = ' '.join(['%02X' % ord(c) for c in self.byte_array])
+
+    def __str__(self):
+        return "BinaryString arch:%s, len:%d" % (self.arch, len(self.binary_string))
 
     @property
     def name(self):
@@ -201,6 +209,9 @@ class OdbFile(object):
         self.factory = OdaObjectFactory(self)
         self.operations = []
         self._items = {k.__name__: [] for k in STRUCTURE_TYPES}
+
+    def __str__(self):
+        return "OdbFile binary:%s" % self.binary
 
     def create_item(self, class_type, parameters):
         return self.factory.create(class_type, parameters)
