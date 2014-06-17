@@ -17868,7 +17868,7 @@ var OnlineDocument = function(numRows, windowLoader) {
                 this.numRows += additionalRows;
                 this._signal("change", { data: delta });
 
-                this._signal("loaded", { data: {row: rowToLoad-5 } });
+                this._signal("loaded", { data: {row: rowToLoad } });
 
             }.bind(this));
         }.bind(this),250);

@@ -1,13 +1,16 @@
 var ace_document = ace.require('ace/document');
 
-var OdaSession = function(session) {
+var OdaSession = function(session, windowLoader) {
 
-    this.cursorPositon = null;
+    //this.cursorPositon = null;
+
+    this.windowLoader = windowLoader;
 
     this.onCursorChange = $.Callbacks();
 
     session.selection.on('changeCursor', function(e) {
         var cursor = session.getSelection().getCursor();
+
         var line = session.getDocument().getLine(cursor.row);
 
         try {
@@ -171,10 +174,32 @@ var KeyboardHandler = function(statusBar) {
     }.bind(this);
 };
 
+var lineRenderer = function(stringBuilder, row, onlyContents, foldLine) {
+    if (!foldLine && foldLine != false)
+        foldLine = this.session.getFoldLine(row);
+
+
+    var line = this.session.doc.getLine(row);
+    /*if (foldLine)
+        var tokens = this.$getFoldLineTokens(row, foldLine);
+    else
+        var tokens = this.session.getTokens(row);*/
+    stringBuilder.push(
+            "<div class='ace_line' style='height:",
+                    this.config.lineHeight * (this.$useLineGroups() ? 1 :this.session.getRowLength(row)
+                    ), "px'>"
+    );
+
+    stringBuilder.push(line);
+
+    stringBuilder.push("</div>");
+
+};
+
 var Renderer = function(functions) {
 
     this.baseFunctionTemplateString =
-       '<span class="branchLines">{{{branch}}}</span><span class="offset">{{{formatSectionOffset section_name offset 15 }}}</span>&nbsp;&nbsp;' +
+       '{{duNum}}<span class="branchLines">{{{branch}}}</span><span class="offset">{{{formatSectionOffset section_name offset 15 }}}</span>&nbsp;&nbsp;' +
        '<span class="raw disassembly-cell">{{{pad " " 20}}}</span>&nbsp;&nbsp;';
     this.baseFunctionTemplate = Handlebars.compile(this.baseFunctionTemplateString);
 
@@ -186,7 +211,7 @@ var Renderer = function(functions) {
 
 
     this.baseDuTemplateString =
-        '<span class="branchLines">{{{branch}}}</span><span class="offset">{{{formatSectionOffset section_name offset 15 }}}</span>';
+        '{{duNum}}<span class="branchLines">{{{branch}}}</span><span class="offset">{{{formatSectionOffset section_name offset 15 }}}</span>';
     this.baseDuTemplate = Handlebars.compile(this.baseDuTemplateString +
         '&nbsp;&nbsp;<span class="raw disassembly-cell">{{{pad rawBytes 20}}}</span>&nbsp;&nbsp;<span class="instruction">{{{instStr}}}</span>');
     this.labelTemplate = Handlebars.compile(this.baseDuTemplateString + "{{{ pad '' 20}}} loc_{{ hex offset }}");
@@ -194,7 +219,7 @@ var Renderer = function(functions) {
     this.render = function(du) {
 
         if (functions[du.offset]) {
-            console.log("FUNCTION", du, functions[du.offset]);
+      //      console.log("FUNCTION", du, functions[du.offset]);
             var rendered_lines = this.renderFunction(du, functions[du.offset]);
             return rendered_lines;
         }
@@ -207,7 +232,7 @@ var Renderer = function(functions) {
 
         var theLines = [this.functionTemplate1(du)];
         for (var i=0;i<du.crossRef.length; i++) {
-            theLines.push(this.baseFunctionTemplate(du) + '; CODE XREF:<a href="">0x' + intToHex(du.crossRef[i].offset) + '</a>');
+            theLines.push(this.baseFunctionTemplate(du) + '; CODE XREF:<a href="" class="xref-location">0x' + intToHex(du.crossRef[i].offset) + '</a>');
         }
         theLines.push(this.baseFunctionTemplate(du));
         theLines.push(this.functionTemplate2($.extend({}, du, func)));
@@ -222,8 +247,188 @@ var Renderer = function(functions) {
         else
             return [renderedText];
     };
-}
+};
 
+
+var WindowLoader = function(renderer) {
+    this.windowSize = 500;
+    this.lineSizes = [];
+    this.renderer = renderer;
+    this.load = function(rowNum, callback) {
+
+        var duNum = this.rowToDisplayUnit(rowNum);
+
+        NProgress.start();
+
+        console.log("Loading Row=",rowNum, ' duNum=',duNum);
+        $.get('/odaweb/api/displayunits/', {
+            short_name: 'mkdir',
+            revision: 0,
+            addr: duNum,
+            logical: true,
+            units: 400
+        }).done(function(data){
+            NProgress.inc(0.4);
+            var tlines = [];
+
+
+            var addedLines = 0;
+
+            for (var i=0; i<data.length; i++) {
+                var renderedLines = this.renderer.render($.extend({},data[i], {duNum:i+duNum}));
+
+                if (renderedLines.length != 1) {
+                    if (!this.lineSizes[duNum+i])
+                        addedLines += renderedLines.length;
+
+                    this.lineSizes[duNum + i] = renderedLines.length;
+                }
+
+                tlines = tlines.concat(renderedLines);
+
+            }
+            NProgress.done();
+            currentWindow = new ace_document.Window(rowNum, tlines);
+            callback(currentWindow, addedLines);
+
+        }.bind(this));
+
+
+/*            for (var i=rowNum; i<rowNum + this.windowSize; i++) {
+
+            var line = '<div style="height:14px" class="ace_line"><span class="branchLines"> &nbsp;</span><span class="offset disassembly-cell">.interp:4194872</span><span class="raw disassembly-cell">2f</span><span class="instruction"><span class="string">/</span></span></div>'
+            var s = {"section_name":".text","offset":4233570,"rawBytes":"4889c7","instStr":"mov    rdi,rax","branch":"&#x2001;&#x2001;&nbsp;","branch_label":"&#x2001;&#x2001;&nbsp;","opcode":"mov","operands":"rdi,rax","stringRef":null,"branchRef":null,"targetRef":null,"crossRef":[],"isBranch":false,"isFunction":false,"labelName":"abc"}
+
+        }*/
+
+
+    };
+
+    this.rowToDisplayUnit = function(row) {
+        var total = 0;
+        var i = 0;
+        while (total < row) {
+            if (this.lineSizes[i]) {
+                total += this.lineSizes[i];
+            } else {
+                total += 1;
+            }
+            i += 1
+        }
+
+        return i;
+    };
+
+    this.displayUnitToRow = function(row) {
+        var linesAdded = 0;
+        for (var key in this.lineSizes) {
+            if (parseInt(key) < row) {
+                linesAdded += this.lineSizes[key] - 1; //TODO: Ugh, lineSizes is marked as 2 when there is 1 additional line
+                                                       // so this should be row + linesAdded - ( NumberOf(Keys < row IN lineSizes)
+            }
+        }
+        var actualLine = row + linesAdded;
+        console.log("Mapped DU:",row," TO:", actualLine);
+        return actualLine;
+    };
+
+    this.getWindowSize = function() {
+        return this.windowSize;
+    }
+};
+
+
+var OdaMode = function() {
+    this.getTokenizer = function() {
+        return {
+            getLineTokens : function(line, state, row) {
+                return {
+                    state:'start',
+                    tokens:$.map($(line), function(el) {
+                        return {value: $(el).text(), type: $(el).attr('class')} ;
+                    })
+                };
+            }
+        };
+    }
+};
+
+
+
+function start(windowLoader) {
+    var addrBar;
+    var editor;
+
+
+    $.get('http://localhost:8000/odaweb/api/sections/?format=json&short_name=mkdir&revision=0').done(function(sections){
+        addrBar = new AddressNavBar('#addr-bar-canvas', sections);
+        addrBar.onChange(function(address) {
+            $.get('/odaweb/api/displayunits/1/vmaToLda', {
+                short_name: 'mkdir',
+                revision: 0,
+                vma: address
+            }).done(function(ldu){
+                editor.moveCursorToPosition({row:windowLoader.displayUnitToRow(ldu),column:0});
+            });
+            console.log('My change handler: ' + address.toString(16));
+        });
+    });
+
+    $.get('/odaweb/api/displayunits/1/size', {
+        short_name: 'mkdir',
+        revision: 0
+    }).done(function(data){
+
+            var doc = new ace_document.OnlineDocument(data, windowLoader);
+            doc.setLoadingString("..");
+            editor = ace.edit("editor", doc);
+            editor.setTheme("ace/theme/chrome");
+            editor.setLineRenderer(lineRenderer);
+            editor.getSession().setMode("ace/mode/javascript");
+            editor.getSession().setMode(new OdaMode());
+            editor.getSession().setUseWorker(false);
+            editor.setShowPrintMargin(false);
+            editor.renderer.setShowGutter(true);
+            var odaSession = new OdaSession(editor.getSession(), windowLoader);
+            var statusBar = new StatusBar();
+            var keyboardHandler = new KeyboardHandler(statusBar);
+
+            odaSession.onCursorChange.add(function(offset) {
+                console.log("CURSOR CHANGE", offset);
+                addrBar.setAddress(offset);
+                statusBar.setAddress(offset);
+            })
+
+            editor.setKeyboardHandler(keyboardHandler.handler);
+
+
+            editor.addEventListener('dblclick', function(e, editor){
+                //console.log("dblclick");
+                var cursor = editor.selection.getCursor();
+                e.preventDefault();
+                //console.log(editor.getSession().getTokenAt(cursor.row,cursor.column));
+                var xrefLocation = $.grep(editor.getSession().getTokens(cursor.row), function(token){
+                    return token.type=='xref-location';
+                });
+
+                if (xrefLocation.length > 0){
+                    setTimeout(function(){
+                    console.log("xref-location", xrefLocation[0].value);
+                    $.get('/odaweb/api/displayunits/1/vmaToLda', {
+                        short_name: 'mkdir',
+                        revision: 0,
+                        vma: parseInt(xrefLocation[0].value.substring(2),16)
+                    }).done(function(ldu){
+                        editor.moveCursorToPosition({row:windowLoader.displayUnitToRow(ldu),column:0});
+                    });
+                    },700);
+                }
+
+
+                return "null";
+            });
+    });
+}
 
 $(document).ready(function(){
 
@@ -235,154 +440,12 @@ $(document).ready(function(){
         for (var i=0; i<data.length; i++) {
             functions[data[i].offset] = data[i];
         }
+
+        var renderer = new Renderer(functions);
+
+        var windowLoader = new WindowLoader(renderer);
+
+        start(windowLoader);
     });
-
-    var WindowLoader = function() {
-        this.windowSize = 500;
-        this.lineSizes = [];
-
-        this.load = function(rowNum, callback) {
-            var duNum = this.rowToDisplayUnit(rowNum);
-
-            NProgress.start();
-
-            console.log("Loading...",rowNum);
-            $.get('/odaweb/api/displayunits/', {
-                short_name: 'mkdir',
-                revision: 0,
-                addr: duNum,
-                logical: true,
-                units: 400
-            }).done(function(data){
-                NProgress.inc(0.4);
-                var tlines = [];
-
-                var renderer = new Renderer(functions);
-                var addedLines = 0;
-
-                for (var i=0; i<data.length; i++) {
-                    var renderedLines = renderer.render(data[i]);
-
-                    if (renderedLines.length != 1) {
-                        if (!this.lineSizes[duNum+i])
-                            addedLines += renderedLines.length;
-
-                        this.lineSizes[duNum + i] = renderedLines.length;
-                    }
-
-                    tlines = tlines.concat(renderedLines);
-
-                }
-                NProgress.done();
-                currentWindow = new ace_document.Window(rowNum, tlines);
-                callback(currentWindow, addedLines);
-
-            }.bind(this));
-
-/*            for (var i=rowNum; i<rowNum + this.windowSize; i++) {
-
-                var line = '<div style="height:14px" class="ace_line"><span class="branchLines"> &nbsp;</span><span class="offset disassembly-cell">.interp:4194872</span><span class="raw disassembly-cell">2f</span><span class="instruction"><span class="string">/</span></span></div>'
-                var s = {"section_name":".text","offset":4233570,"rawBytes":"4889c7","instStr":"mov    rdi,rax","branch":"&#x2001;&#x2001;&nbsp;","branch_label":"&#x2001;&#x2001;&nbsp;","opcode":"mov","operands":"rdi,rax","stringRef":null,"branchRef":null,"targetRef":null,"crossRef":[],"isBranch":false,"isFunction":false,"labelName":"abc"}
-
-            }*/
-
-
-        };
-
-        this.rowToDisplayUnit = function(row) {
-            var total = 0;
-            var i = 0;
-            while (total < row) {
-                if (this.lineSizes[i]) {
-                    total += this.lineSizes[i];
-                } else {
-                    total += 1;
-                }
-                i += 1
-            }
-
-            return i;
-        };
-
-        this.displayUnitToRow = function(row) {
-            var linesAdded = 0;
-            for (var key in this.lineSizes) {
-                if (parseInt(key) < row) {
-                    linesAdded += this.lineSizes[key];
-                }
-            }
-            return row + linesAdded;
-        };
-
-        this.getWindowSize = function() {
-            return this.windowSize;
-        }
-    };
-
-    var lineRenderer = function(stringBuilder, row, onlyContents, foldLine) {
-        if (!foldLine && foldLine != false)
-            foldLine = this.session.getFoldLine(row);
-
-
-        var line = this.session.doc.getLine(row);
-        /*if (foldLine)
-            var tokens = this.$getFoldLineTokens(row, foldLine);
-        else
-            var tokens = this.session.getTokens(row);*/
-        stringBuilder.push(
-                "<div class='ace_line' style='height:",
-                        this.config.lineHeight * (this.$useLineGroups() ? 1 :this.session.getRowLength(row)
-                        ), "px'>"
-        );
-
-        stringBuilder.push(line);
-
-        stringBuilder.push("</div>");
-
-    };
-
-    var addrBar;
-    var editor;
-    $.get('http://localhost:8000/odaweb/api/sections/?format=json&short_name=mkdir&revision=0').done(function(sections){
-        addrBar = new AddressNavBar('#addr-bar-canvas', sections);
-        addrBar.onChange(function(address) {
-            $.get('/odaweb/api/displayunits/1/vmaToLda', {
-                short_name: 'mkdir',
-                revision: 0,
-                vma: address
-            }).done(function(ldu){
-                editor.moveCursorToPosition({row:ldu,column:0});
-            });
-            console.log('My change handler: ' + address.toString(16));
-        });
-    });
-
-    $.get('/odaweb/api/displayunits/1/size', {
-        short_name: 'mkdir',
-        revision: 0
-    }).done(function(data){
-            var doc = new ace_document.OnlineDocument(data, new WindowLoader());
-            doc.setLoadingString("..");
-            editor = ace.edit("editor", doc);
-            editor.setTheme("ace/theme/chrome");
-            editor.setLineRenderer(lineRenderer);
-            editor.getSession().setMode("ace/mode/javascript");
-            editor.getSession().setUseWorker(false);
-            editor.setShowPrintMargin(false);
-            editor.renderer.setShowGutter(false);
-            var odaSession = new OdaSession(editor.getSession());
-            var statusBar = new StatusBar();
-            var keyboardHandler = new KeyboardHandler(statusBar);
-
-            odaSession.onCursorChange.add(function(offset) {
-                console.log("CURSOR CHANGE", offset);
-                addrBar.setAddress(offset);
-                statusBar.setAddress(offset);
-            })
-
-            editor.setKeyboardHandler(keyboardHandler.handler);
-    });
-
-
 
 });
