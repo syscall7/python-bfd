@@ -11,31 +11,44 @@ var OdaSession = function(session, windowLoader) {
     session.selection.on('changeCursor', function(e) {
         var cursor = session.getSelection().getCursor();
 
-        var line = session.getDocument().getLine(cursor.row);
+        //var line = session.getDocument().getLine(cursor.row);
+        var lineData = session.getDocument().getLineData(cursor.row);
+        if (!lineData) {
+            //linedata can be null when window is not loaded...
+            return;
+        }
+        var lineData = lineData.data;
 
         try {
-            var offset = JSON.parse(line).offset;
+            var offset = lineData.offset;
             this.onCursorChange.fire(offset);
         } catch (ex) {
+            console.log(ex);
         }
 
     }.bind(this));
 
+    this.getRowData = function(row) {
+        return session.getDocument().getLineData(row);
+    }
+
 };
 
-var CommentDialog = function(editor, du) {
+var CommentDialog = function(du) {
     var modalId = "#my-modal";
     var saveButtonId = "#my-modal .btn-primary";
 
-    $('#my-modal .commentLine').text(du);
+    $('#my-modal .commentLine').text(du.offset);
     $(modalId).unbind().on('shown.bs.modal', function (e) {
         // do something...
         $('#my-modal .comment-text').focus();
     });
 
+    this.closeHandler = $.Callbacks();
+
     $(modalId).on('hidden.bs.modal', function (e) {
-        editor.focus();
-    });
+        this.closeHandler.fire();
+    }.bind(this));
 
     this.modal = $('#my-modal').modal('show');
 
@@ -113,18 +126,18 @@ Handlebars.registerHelper("formatSectionOffset", function(section, offset, lengt
 });
 
 
-var KeyboardHandler = function(statusBar) {
-
-    this.mode = 'normal';
+var KeyboardHandler = function(statusBar, odaSession) {
 
     this.statusBar = statusBar;
 
-    this.setMode = function(mode) {
-        this.mode = mode;
-        this.statusBar.setMode(mode);
-    };
+    this.odaSession = odaSession;
 
-    this.normalMode = function(data, hashId, key, keyCode, e) {
+
+    this.handler = function(data, hashId, key, keyCode, e) {
+        // ignore command keys (shift, ctrl etc.)
+        if (hashId !== 0 && (!key || keyCode == -1))
+            return null;
+
         //Arrow Keys
         if (keyCode >=33 && keyCode <= 40 ) {
             return null;
@@ -134,43 +147,20 @@ var KeyboardHandler = function(statusBar) {
         var session = editor.getSession();
         if (key == ';') {
             var cursor = session.getSelection().getCursor();
-            var line = session.getDocument().getLine(cursor.row);
+            var line = session.getDocument().getLineData(cursor.row);
 
-            var commentDialog = new CommentDialog(editor, line);
+            var commentDialog = new CommentDialog(line.data);
+
+            commentDialog.closeHandler.add(function(){
+                editor.focus();
+            });
         }
 
         console.log("keyboard", data, hashId, key, keyCode, e);
         return {
             command: "null"
         };
-    };
 
-    this.virtual = new VirtualTextBox();
-    this.commentMode = function(data, hashId, key, keyCode, e) {
-
-
-        if (key == 'esc' || key == 'return') {
-            this.setMode('normal');
-        } else {
-            this.virtual.processKey(key);
-        }
-
-
-        return {
-            command: "null"
-        };
-    };
-
-    this.handler = function(data, hashId, key, keyCode, e) {
-        // ignore command keys (shift, ctrl etc.)
-        if (hashId !== 0 && (!key || keyCode == -1))
-            return null;
-
-        if (this.mode == 'normal') {
-            return this.normalMode(data, hashId, key, keyCode, e);
-        } else if (this.mode == 'comment') {
-            return this.commentMode(data, hashId, key, keyCode, e);
-        }
     }.bind(this);
 };
 
@@ -276,7 +266,7 @@ var WindowLoader = function(renderer) {
 
             for (var i=0; i<data.length; i++) {
                 var renderedLines = this.renderer.render($.extend({},data[i], {duNum:i+duNum}));
-
+                renderedLines = $.map(renderedLines, function(line) { return {row: line, data: data[i], num: i }});
                 if (renderedLines.length != 1) {
                     if (!this.lineSizes[duNum+i])
                         addedLines += renderedLines.length;
@@ -391,7 +381,7 @@ function start(windowLoader) {
             editor.renderer.setShowGutter(true);
             var odaSession = new OdaSession(editor.getSession(), windowLoader);
             var statusBar = new StatusBar();
-            var keyboardHandler = new KeyboardHandler(statusBar);
+            var keyboardHandler = new KeyboardHandler(statusBar, odaSession);
 
             odaSession.onCursorChange.add(function(offset) {
                 console.log("CURSOR CHANGE", offset);
