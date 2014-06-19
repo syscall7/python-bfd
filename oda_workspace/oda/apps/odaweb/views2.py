@@ -219,7 +219,6 @@ def set(request):
                 'selected_opts': selected_opts
 
             }))
-            oda_master.odb_file = DefaultOdbSerializer().dumps(odb_file)
             oda_master.save()
             formType = "live"
         else:
@@ -237,7 +236,6 @@ def set(request):
             if form.cleaned_data['disassemble']:
                 odb_file.execute(LoadOperation())
                 odb_file.execute(ScanOperation())
-                oda_master.odb_file = DefaultOdbSerializer().dumps(odb_file)
                 oda_master.save()
 
         #if form.cleaned_data['arch']:
@@ -498,9 +496,7 @@ def upload(request):
         binary_file.target = target
         binary_file.save()
 
-        odb = OdbFile(BinaryFileModel(binary_file.id))
-#        odb.execute(LoadOperation())
-        oda_master.odb_file = DefaultOdbSerializer().dumps(odb)
+        oda_master.odb_file = OdbFile(BinaryFileModel(binary_file.id))
         oda_master.save()
 
         id = oda_master.short_name
