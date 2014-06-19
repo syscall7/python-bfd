@@ -21,7 +21,7 @@ from oda.libs.odb.bfd.ofd import Ofd
 from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.modify_settings import ModifySettingsFactory
-from oda.libs.odb.ops.scan_operation import ScanOperation
+from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
 from oda.libs.odb.structures.section import Section
 
 
@@ -235,7 +235,7 @@ def set(request):
 
             if form.cleaned_data['disassemble']:
                 odb_file.execute(LoadOperation())
-                odb_file.execute(ScanOperation())
+                odb_file.execute(PassiveScanOperation())
                 oda_master.save()
 
         #if form.cleaned_data['arch']:

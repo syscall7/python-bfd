@@ -8,10 +8,10 @@ from oda.libs.odb.ops.scanners import FunctionScanner, BranchScanner, ParcelOffs
 
 logger = logging.getLogger(__name__)
 
-class ScanOperation(Operation):
+class PassiveScanOperation(Operation):
 
     def __init__(self):
-        super(ScanOperation, self).__init__()
+        super(PassiveScanOperation, self).__init__()
         self.object_id = -1
 
     def operate(self, odb_file):
@@ -47,7 +47,7 @@ class ScanOperation(Operation):
 
                 def callback(addr, rawData, instr, abfd, self):
                     for scanner in scanners:
-                        scanner.instruction(parcel, addr, rawData, instr, abfd)
+                        scanner.scan_line(parcel, addr, rawData, instr, abfd)
 
 
                 the_ofd.disassemble(section.name, [], parcel.vma_start, parcel.vma_end,

@@ -4,7 +4,7 @@ import unittest
 from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.split_parcel_operation import SplitParcelOperation
-from oda.libs.odb.ops.scan_operation import ScanOperation
+from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
 from oda.libs.odb.structures.branch import Branch
 from oda.libs.odb.structures.data_string import DataString
 from oda.libs.odb.structures.function import Function
@@ -20,7 +20,7 @@ class TestParcels(unittest.TestCase):
 
         odb_file = OdbFile(BinaryFile(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64'))
         odb_file.execute(LoadOperation())
-        odb_file.execute(ScanOperation())
+        odb_file.execute(PassiveScanOperation())
 
         parcels_before = ParcelList(odb_file.get_structure_list(Parcel))
         p = parcels_before.find_parcel_by_vma(0x4029c0)
@@ -111,7 +111,7 @@ class TestParcels(unittest.TestCase):
 
         odb_file = OdbFile(BinaryFile(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64'))
         odb_file.execute(LoadOperation())
-        odb_file.execute(ScanOperation())
+        odb_file.execute(PassiveScanOperation())
 
         parcels_before = ParcelList(odb_file.get_structure_list(Parcel))
 
@@ -184,7 +184,7 @@ class TestParcels(unittest.TestCase):
 
         odb_file = OdbFile(BinaryFile(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64'))
         odb_file.execute(LoadOperation())
-        odb_file.execute(ScanOperation())
+        odb_file.execute(PassiveScanOperation())
 
         parcels_before = ParcelList(odb_file.get_structure_list(Parcel))
 
@@ -280,7 +280,7 @@ class TestParcels(unittest.TestCase):
         odb_file = OdbFile(BinaryFile(os.path.join(cwd,
                     'data/code_split_single_instruction/split_parcel_single'), 'elf64-x86-64', 'i386:x86-64'))
         odb_file.execute(LoadOperation())
-        odb_file.execute(ScanOperation())
+        odb_file.execute(PassiveScanOperation())
 
         parcels_before = ParcelList(odb_file.get_structure_list(Parcel))
 

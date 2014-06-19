@@ -4,10 +4,11 @@ import re
 from oda.libs.odb.bfd.analyzers.instruction import DisplayUnit, InstructionType
 from oda.libs.odb.structures.branch import Branch
 from oda.libs.odb.structures.function import Function
+from abc import ABCMeta, abstractmethod
 
 logger = logging.getLogger(__name__)
 
-def create_display_unit(analyzer, match_obj,addr):
+def create_display_unit(analyzer, match_obj, addr):
     du = DisplayUnit()
     du.offset = addr
     du.opcode = match_obj.group(1)
@@ -18,13 +19,26 @@ def create_display_unit(analyzer, match_obj,addr):
 
     return du
 
-class ParcelOffsetScanner(object):
+def HaltScanException(Exception):
+    pass
+
+class Scanner(object):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def scan_line(self, parcel, addr, rawData, instr, abfd):
+        pass
+
+    def commit(self, odb_file):
+        pass
+
+class ParcelOffsetScanner(Scanner):
     def __init__(self):
         self.inst_sample_interval = 50
         self.sample_offset_count = 0
         self.last_parcel = None
 
-    def instruction(self, parcel, addr, rawData, instr, abfd):
+    def scan_line(self, parcel, addr, rawData, instr, abfd):
 
         #we've advanced to the next parcel, reset the counter
         if parcel != self.last_parcel:
@@ -40,10 +54,7 @@ class ParcelOffsetScanner(object):
         # associate this vma with the parcel
         parcel.push_vma(addr)
 
-    def commit(self, odb_file):
-        pass
-
-class BranchScanner(object):
+class BranchScanner(Scanner):
     def __init__(self, analyzer):
         self.analyzer = analyzer
 
@@ -51,7 +62,7 @@ class BranchScanner(object):
         self.branches = []
         self.labels = []
 
-    def instruction(self, parcel, addr, rawData, instr, abfd):
+    def scan_line(self, parcel, addr, rawData, instr, abfd):
         match_obj = self.opcode_regex.match(instr)
         if match_obj:
 
@@ -75,7 +86,7 @@ class BranchScanner(object):
             branch = odb_file.create_item(Branch, b)
             odb_file.get_structure_list(Branch).append(branch)
 
-class FunctionScanner(object):
+class FunctionScanner(Scanner):
 
     def __init__(self, analyzer):
 
@@ -85,7 +96,7 @@ class FunctionScanner(object):
 
         self.functions = {}
 
-    def instruction(self, parcel, addr, rawData, instr, abfd):
+    def scan_line(self, parcel, addr, rawData, instr, abfd):
         ''' Disassembly line parser optimized for finding functions '''
 
         if self.error_instruction_regex.match(instr):
@@ -128,3 +139,23 @@ class FunctionScanner(object):
         for addr, f in self.functions.iteritems():
             func = odb_file.create_item(Function, f)
             odb_file.get_structure_list(Function).append(func)
+
+class BadCodeScanner(Scanner):
+
+    def __init__(self, analyzer):
+
+        self.analyzer = analyzer
+        self.error_instruction_regex = re.compile(analyzer.errorInstRegExStr)
+        self.opcode_regex = re.compile(analyzer.opcodeRegExStr)
+
+        self.functions = {}
+
+        self.bad_addr = None
+
+    def scan_line(self, parcel, addr, rawData, instr, abfd):
+        ''' Disassembly line parser optimized for finding functions '''
+
+        if self.error_instruction_regex.match(instr):
+            self.bad_addr = addr
+            raise HaltScanException("Encountered invalid code")
+

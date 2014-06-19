@@ -3,7 +3,7 @@ import unittest
 
 from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.load_operation import LoadOperation
-from oda.libs.odb.ops.scan_operation import ScanOperation
+from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
 from oda.libs.odb.structures.branch import Branch
 from oda.libs.odb.structures.function import Function
 from oda.libs.odb.odb_file import BinaryFile, BinaryString
@@ -17,7 +17,7 @@ class TestScanOperation(unittest.TestCase):
 
         odb_file = OdbFile(BinaryFile(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64'))
         odb_file.execute(LoadOperation())
-        odb_file.execute(ScanOperation())
+        odb_file.execute(PassiveScanOperation())
 
         self.assertEqual(215, len(odb_file.get_structure_list(Function)))
 

@@ -9,7 +9,7 @@ import oda
 from oda.libs.odb.odb_file import OdbFile, BinaryString, BinaryFile
 from oda.libs.odb.ops.add_operation import AddOperation
 from oda.libs.odb.ops.load_operation import LoadOperation
-from oda.libs.odb.ops.scan_operation import ScanOperation
+from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
 from oda.libs.odb import structures
 from oda.libs.odb.structures.comment import Comment
 from oda.libs.odb.structures.label import Label
@@ -36,7 +36,7 @@ def load_examples():
                 example['options']['architecture']))
 
         odb_file.execute(LoadOperation())
-        odb_file.execute(ScanOperation())
+        odb_file.execute(PassiveScanOperation())
 
         if 'comments' in example:
             for offset, msg in example['comments']:

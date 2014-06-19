@@ -3,7 +3,7 @@ import unittest
 
 from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.load_operation import LoadOperation
-from oda.libs.odb.ops.scan_operation import ScanOperation
+from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
 from oda.libs.odb.structures.branch import Branch
 from oda.libs.odb.structures.data_string import DataString
 from oda.libs.odb.structures.function import Function
@@ -55,8 +55,8 @@ class TestLoadOperation(unittest.TestCase):
         odb_file = OdbFile(BinaryString(s, 'i386'))
         odb_file.execute(LoadOperation())
 
-        scan_operation = ScanOperation()
-        odb_file.execute(scan_operation)
+        passive_scan_operation = PassiveScanOperation()
+        odb_file.execute(passive_scan_operation)
 
         self.assertEqual(1, len(odb_file.get_structure_list(Branch)))
         self.assertEqual(1, len(odb_file.get_structure_list(Parcel)))
@@ -94,9 +94,7 @@ class TestLoadOperation(unittest.TestCase):
 
         odb_file = OdbFile(BinaryString(s, 'arm'))
         odb_file.execute(LoadOperation())
-
-        scan_operation = ScanOperation()
-        odb_file.execute(scan_operation)
+        odb_file.execute(PassiveScanOperation())
 
         self.assertEqual(0, len(odb_file.get_structure_list(Branch)))
 
