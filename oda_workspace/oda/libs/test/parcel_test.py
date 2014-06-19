@@ -72,6 +72,8 @@ class TestParcels(unittest.TestCase):
         # these shouldn't have changed
         self.assertEquals(text_lda_before, parcels_after.vma_to_lda(0x4029c0))
         self.assertEquals(text_lda_before+5, parcels_after.vma_to_lda(0x4029d5))
+        self.assertEquals(True, p1.is_code)
+        self.assertEquals(True, p3.is_code)
 
         # these changed
         self.assertEquals(text_lda_before+6, parcels_after.vma_to_lda(0x4029d6))
@@ -80,6 +82,7 @@ class TestParcels(unittest.TestCase):
         self.assertEquals(text_lda_before+9, parcels_after.vma_to_lda(0x4029d9))
         self.assertEquals(text_lda_before+10, parcels_after.vma_to_lda(0x4029da))
         self.assertEquals(text_lda_before+11, parcels_after.vma_to_lda(0x4029db))
+        self.assertEquals(False, p2.is_code)
 
         # 1 instruction turned into 5 data bytes, so it shifted the following parcels by 4 ldas
         self.assertEquals(fini_lda_before+4, parcels_after.vma_to_lda(0x412bec))
@@ -152,6 +155,7 @@ class TestParcels(unittest.TestCase):
 
         # these shouldn't have changed
         self.assertEquals(fini_lda_before, parcels_after.vma_to_lda(0x412bec))
+        self.assertEquals(True, p2.is_code)
 
         # these changed
         self.assertEquals(fini_lda_before+1, parcels_after.vma_to_lda(0x412bed))
@@ -159,6 +163,7 @@ class TestParcels(unittest.TestCase):
         self.assertEquals(fini_lda_before+3, parcels_after.vma_to_lda(0x412bef))
         self.assertEquals(fini_lda_before+4, parcels_after.vma_to_lda(0x412bf0))
         self.assertEquals(fini_lda_before+5, parcels_after.vma_to_lda(0x412bf4))
+        self.assertEquals(False, p1.is_code)
 
         #
         # make sure lda->vma mappings line up
@@ -236,6 +241,8 @@ class TestParcels(unittest.TestCase):
         self.assertEquals(plt_lda_before, parcels_after.vma_to_lda(0x402320))
         self.assertEquals(plt_lda_before+num_p1_ldas_before-2, parcels_after.vma_to_lda(0x4029b6))
         self.assertEquals(plt_lda_before+num_p1_ldas_before-1, parcels_after.vma_to_lda(0x4029bb))
+        self.assertEquals(True, p1.is_code)
+        self.assertEquals(True, p3.is_code)
 
         # these changed
         self.assertEquals(plt_lda_before+num_p1_ldas_before, parcels_after.vma_to_lda(0x4029bc))
@@ -243,6 +250,7 @@ class TestParcels(unittest.TestCase):
         self.assertEquals(plt_lda_before+num_p1_ldas_before+2, parcels_after.vma_to_lda(0x4029be))
         self.assertEquals(plt_lda_before+num_p1_ldas_before+3, parcels_after.vma_to_lda(0x4029bf))
         self.assertEquals(plt_lda_before+num_p1_ldas_before+4, parcels_after.vma_to_lda(0x4029c0))
+        self.assertEquals(False, p2.is_code)
 
         # 1 instruction turned into 5 data bytes, so it shifted the following parcels by 4 ldas
         self.assertEquals(text_lda_before+4, parcels_after.vma_to_lda(0x4029c0))
@@ -334,6 +342,8 @@ class TestParcels(unittest.TestCase):
         self.assertEquals(text_lda_before, parcels_after.vma_to_lda(0x4003d0))
         self.assertEquals(text_lda_before+num_text_ldas_before-1, parcels_after.vma_to_lda(0x400597))
         self.assertEquals(single_lda_before, parcels_after.vma_to_lda(0x400598))
+        self.assertEquals(True, p_text.is_code)
+        self.assertEquals(True, p_fini.is_code)
 
         # these changed
         self.assertEquals(single_lda_before+1, parcels_after.vma_to_lda(0x400599))
@@ -342,6 +352,7 @@ class TestParcels(unittest.TestCase):
         self.assertEquals(single_lda_before+4, parcels_after.vma_to_lda(0x40059c))
         self.assertEquals(single_lda_before+5, parcels_after.vma_to_lda(0x40059d))
         self.assertEquals(single_lda_before+6, parcels_after.vma_to_lda(0x40059e))
+        self.assertEquals(False, p.is_code)
 
         # 1 instruction turned into 7 data bytes, so it shifted the following parcels by 6 ldas
         self.assertEquals(fini_lda_before+6, parcels_after.vma_to_lda(0x4005a0))
