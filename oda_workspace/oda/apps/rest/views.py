@@ -96,7 +96,12 @@ class SymbolsViewSet(OdaStructureViewSet):
     structure = Symbol
 
     def get_structure_list(self):
-        return [x for x in self.odb_file.get_structure_list(Symbol) if x.type == 't' or x.type=='T']
+        syms = [x for x in self.odb_file.get_structure_list(Symbol) if x.type == 't' or x.type=='T']
+
+        # TODO: We need to work out more clearly the difference between a symbol and a function
+        syms += [x for x in self.odb_file.get_structure_list(Function)]
+
+        return syms
 
 
 class BinaryStringViewSet(viewsets.GenericViewSet):
