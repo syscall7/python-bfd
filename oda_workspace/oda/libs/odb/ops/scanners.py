@@ -19,7 +19,7 @@ def create_display_unit(analyzer, match_obj, addr):
 
     return du
 
-def HaltScanException(Exception):
+class HaltScanException(Exception):
     pass
 
 class Scanner(object):
@@ -158,4 +158,27 @@ class BadCodeScanner(Scanner):
         if self.error_instruction_regex.match(instr):
             self.bad_addr = addr
             raise HaltScanException("Encountered invalid code")
+
+    """ The following bytes are bad opcodes in x86-64:
+               0:   06                      (bad)
+               0:   07                      (bad)
+               0:   0e                      (bad)
+               0:   16                      (bad)
+               0:   17                      (bad)
+               0:   1e                      (bad)
+               0:   1f                      (bad)
+               0:   27                      (bad)
+               0:   2f                      (bad)
+               0:   37                      (bad)
+               0:   3f                      (bad)
+               0:   60                      (bad)
+               0:   61                      (bad)
+               0:   9a                      (bad)
+               0:   ce                      (bad)
+               0:   d4                      (bad)
+               0:   d5                      (bad)
+               0:   d6                      (bad)
+               0:   ea                      (bad)
+    """
+
 

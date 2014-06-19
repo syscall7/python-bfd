@@ -57,7 +57,7 @@ class PassiveScanOperation(Operation):
                                     })
 
             # account for the new display units
-            lda_offset += parcel.num_ldas()
+            lda_offset += parcel.num_ldas
 
         for scanner in scanners:
             scanner.commit(odb_file)

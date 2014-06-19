@@ -4,7 +4,7 @@ from oda.libs.odb.bfd import ofd
 from oda.libs.odb.bfd.analyzer import analyzer_factory
 from oda.libs.odb.ops.operation import Operation
 from oda.libs.odb.structures.parcel import Parcel, ParcelList
-from oda.libs.odb.ops.scanners import FunctionScanner, BranchScanner, ParcelOffsetScanner, BadCodeScanner
+from oda.libs.odb.ops.scanners import FunctionScanner, BranchScanner, ParcelOffsetScanner, BadCodeScanner, HaltScanException
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,10 @@ class ActiveScanOperation(Operation):
 
         def callback(addr, rawData, instr, abfd, self):
             for scanner in scanners:
-                scanner.scan_line(p, addr, rawData, instr, abfd)
+                try:
+                    scanner.scan_line(p, addr, rawData, instr, abfd)
+                except(HaltScanException):
+                    return None
 
         the_ofd = ofd.Ofd(odb_file.get_binary())
         section = the_ofd.get_section_from_addr(p.vma_start)

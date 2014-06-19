@@ -24,7 +24,7 @@ class TestParcels(unittest.TestCase):
 
         parcels_before = ParcelList(odb_file.get_structure_list(Parcel))
         p = parcels_before.find_parcel_by_vma(0x4029c0)
-        num_p1_ldas_before = p.num_ldas()
+        num_p1_ldas_before = p.num_ldas
         text_lda_before = parcels_before.vma_to_lda(0x4029c0)
         fini_lda_before = parcels_before.vma_to_lda(0x412bec)
 
@@ -49,13 +49,13 @@ class TestParcels(unittest.TestCase):
         self.assertNotEqual(p2, p3)
 
         # check num_ldas in p1 (5 instructions)
-        self.assertEquals(5, p1.num_ldas())
+        self.assertEquals(5, p1.num_ldas)
 
         # check num_ldas in p2 (this one instruction has now become 5 data bytes)
-        self.assertEquals(5, p2.num_ldas())
+        self.assertEquals(5, p2.num_ldas)
 
         # check num_ldas in p3 (less 5 from p1 and less 1 from p2 - remember it used to only be 1 lda before the split)
-        self.assertEquals(num_p1_ldas_before - 5 - 1, p3.num_ldas())
+        self.assertEquals(num_p1_ldas_before - 5 - 1, p3.num_ldas)
 
         # make sure vmas line up
         self.assertEquals(0x4029c0, p1.vma_start)
@@ -117,7 +117,7 @@ class TestParcels(unittest.TestCase):
 
         # start of .fini section
         p = parcels_before.find_parcel_by_vma(0x412bec)
-        num_p1_ldas_before = p.num_ldas()
+        num_p1_ldas_before = p.num_ldas
         fini_lda_before = parcels_before.vma_to_lda(0x412bec)
 
         # number of parcels before the split
@@ -138,10 +138,10 @@ class TestParcels(unittest.TestCase):
         self.assertNotEqual(p1, p2)
 
         # check num_ldas in p1 (4 data bytes)
-        self.assertEquals(4, p1.num_ldas())
+        self.assertEquals(4, p1.num_ldas)
 
         # check num_ldas in p2
-        self.assertEquals(2, p2.num_ldas())
+        self.assertEquals(2, p2.num_ldas)
 
         # make sure vmas line up
         self.assertEquals(0x412bec, p1.vma_start)
@@ -191,8 +191,8 @@ class TestParcels(unittest.TestCase):
         # last instruction in .plt
         p = parcels_before.find_parcel_by_vma(0x4029bb)
         p3 = parcels_before.find_parcel_by_vma(0x4029c0)
-        num_p1_ldas_before = p.num_ldas()
-        num_p3_ldas_before = p3.num_ldas()
+        num_p1_ldas_before = p.num_ldas
+        num_p3_ldas_before = p3.num_ldas
         plt_lda_before = parcels_before.vma_to_lda(0x402320)
         text_lda_before = parcels_before.vma_to_lda(0x4029c0)
 
@@ -217,13 +217,13 @@ class TestParcels(unittest.TestCase):
         self.assertNotEqual(p2, p3)
 
         # check num_ldas in p1 (5 instructions)
-        self.assertEquals(num_p1_ldas_before - 1, p1.num_ldas())
+        self.assertEquals(num_p1_ldas_before - 1, p1.num_ldas)
 
         # check num_ldas in p2 (this one instruction has now become 5 data bytes)
-        self.assertEquals(5, p2.num_ldas())
+        self.assertEquals(5, p2.num_ldas)
 
         # check num_ldas in p3 (should not have changed)
-        self.assertEquals(num_p3_ldas_before, p3.num_ldas())
+        self.assertEquals(num_p3_ldas_before, p3.num_ldas)
 
         # make sure vmas line up
         self.assertEquals(0x402320, p1.vma_start)
@@ -289,9 +289,9 @@ class TestParcels(unittest.TestCase):
         p_text = parcels_before.find_parcel_by_vma(0x400597)
         p_fini = parcels_before.find_parcel_by_vma(0x4005a0)
         p_got = parcels_before.find_parcel_by_vma(0x600fe0)
-        num_ldas_before = p.num_ldas()
-        num_text_ldas_before = p_text.num_ldas()
-        num_fini_ldas_before = p_fini.num_ldas()
+        num_ldas_before = p.num_ldas
+        num_text_ldas_before = p_text.num_ldas
+        num_fini_ldas_before = p_fini.num_ldas
         single_lda_before = p.lda_start
         fini_lda_before = p_fini.lda_start
         text_lda_before = p_text.lda_start
@@ -318,13 +318,13 @@ class TestParcels(unittest.TestCase):
         self.assertNotEqual(p_text, p_fini)
 
         # check num_ldas in p (1 instruction become 7 data bytes)
-        self.assertEquals(7, p.num_ldas())
+        self.assertEquals(7, p.num_ldas)
 
         # check num_ldas in text didn't change
-        self.assertEquals(num_text_ldas_before, p_text.num_ldas())
+        self.assertEquals(num_text_ldas_before, p_text.num_ldas)
 
         # check num_ldas in fini didn't change
-        self.assertEquals(num_fini_ldas_before, p_fini.num_ldas())
+        self.assertEquals(num_fini_ldas_before, p_fini.num_ldas)
 
         # make sure vmas line up
         self.assertEquals(0x4003d0, p_text.vma_start)

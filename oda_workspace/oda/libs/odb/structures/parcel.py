@@ -40,7 +40,7 @@ class ParcelList(list):
     def sum_ldas(self):
         sum = 0
         for p in self:
-            sum += p.num_ldas()
+            sum += p.num_ldas
         return sum
 
 class ParcelTransaction(object):
@@ -79,13 +79,7 @@ class Parcel(OdaObject):
 
     # returns True if this parcel contains the given logical display unit address (lda)
     def contains_lda(self, lda):
-        return lda >= self.lda_start and (lda -self.lda_start) < self.num_ldas()
-
-    def num_ldas(self):
-        if self.is_code:
-            return len(self.lda_bidict)
-        else:
-            return self.vma_end - self.vma_start
+        return lda >= self.lda_start and (lda -self.lda_start) < self.num_ldas
 
     def copy_from(self, other):
         self.is_code = other.is_code
@@ -94,6 +88,11 @@ class Parcel(OdaObject):
         self.lda_start = other.lda_start
         self.lda_bidict = other.lda_bidict
         self.sample_offsets = other.sample_offsets
+
+    @abstractproperty
+    def num_ldas(self):
+        """ Get the total number of logical display units in this parcel """
+        raise NotImplementedError("Please Implement this method in a child class")
 
     @abstractmethod
     def push_vma(self, vma):
@@ -130,6 +129,11 @@ class CodeParcel(Parcel):
                 return closest_vma
 
         return None
+
+    @property
+    def num_ldas(self):
+        """ Get the total number of logical display units in this parcel """
+        return len(self.lda_bidict)
 
     def push_vma(self, vma):
         self.lda_bidict[len(self.lda_bidict)] = vma
@@ -188,7 +192,7 @@ class CodeParcel(Parcel):
 
         # setup third parcel
         third = CodeParcel(0, vma_start=second.vma_end, vma_end=first.vma_end, is_code=True)
-        third.lda_start = inst_lda+second.num_ldas()
+        third.lda_start = inst_lda+second.num_ldas
 
         # fixup the first parcel
         first.vma_end = inst_vma
@@ -214,7 +218,7 @@ class CodeParcel(Parcel):
         if not third.is_empty():
             to_add.append(third)
 
-        return ParcelTransaction(to_add, to_remove, second.num_ldas() - NUM_LDAS_TO_DATA)
+        return ParcelTransaction(to_add, to_remove, second.num_ldas - NUM_LDAS_TO_DATA)
 
 
 class DataParcel(Parcel):
@@ -223,6 +227,11 @@ class DataParcel(Parcel):
     def item_type(self):
         """ Consider us to be whatever item type our parent is """
         return 'Parcel'
+
+    @property
+    def num_ldas(self):
+        """ Get the total number of logical display units in this parcel """
+        return self.vma_end - self.vma_start
 
     def push_vma(self, vma):
         return
