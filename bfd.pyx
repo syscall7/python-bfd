@@ -251,7 +251,7 @@ def list_targets():
 
 
 # ------------------------------------------------------------------------------
-# CLASS BfdErr
+# Exceptions
 # ------------------------------------------------------------------------------
 class BfdErr(Exception):
     def __init__(self, value):
@@ -262,6 +262,9 @@ class BfdErr(Exception):
         return repr(self.value)
 
 class BfdFileFormatException(BfdErr):
+    pass
+
+class BfdHaltDisassembly(Exception):
     pass
 
 # ------------------------------------------------------------------------------
@@ -916,7 +919,11 @@ cdef class Bfd:
                     else:
                         self.bpc = 1
 
-                line = funcFmtLine(addr, rawData, line, self, **funcFmtLineArgs)
+                try:
+                    line = funcFmtLine(addr, rawData, line, self, **funcFmtLineArgs)
+                except BfdHaltDisassembly:
+                    break
+
                 if line is not None:
                     output.append(line)
 
