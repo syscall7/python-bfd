@@ -1,5 +1,6 @@
 import logging
 import re
+import bfd
 
 from oda.libs.odb.bfd.analyzers.instruction import DisplayUnit, InstructionType
 from oda.libs.odb.structures.branch import Branch
@@ -157,7 +158,7 @@ class BadCodeScanner(Scanner):
 
         if self.error_instruction_regex.match(instr):
             self.bad_addr = addr
-            raise HaltScanException("Encountered invalid code")
+            raise bfd.BfdHaltDisassembly("Encountered invalid code")
 
     """ The following bytes are bad opcodes in x86-64:
                0:   06                      (bad)

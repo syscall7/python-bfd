@@ -37,10 +37,7 @@ class ActiveScanOperation(Operation):
 
         def callback(addr, rawData, instr, abfd, self):
             for scanner in scanners:
-                try:
-                    scanner.scan_line(p, addr, rawData, instr, abfd)
-                except(HaltScanException):
-                    return None
+                scanner.scan_line(p, addr, rawData, instr, abfd)
 
         the_ofd = ofd.Ofd(odb_file.get_binary())
         section = the_ofd.get_section_from_addr(p.vma_start)

@@ -56,9 +56,8 @@ class Parcel(OdaObject):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, object_id, is_code, vma_start, vma_end):
+    def __init__(self, object_id, vma_start, vma_end):
         super(Parcel, self).__init__(object_id)
-        self.is_code = is_code
         self.vma_start = vma_start
         self.vma_end = vma_end
         self.sample_offsets = []
@@ -82,12 +81,16 @@ class Parcel(OdaObject):
         return lda >= self.lda_start and (lda -self.lda_start) < self.num_ldas
 
     def copy_from(self, other):
-        self.is_code = other.is_code
         self.vma_start = other.vma_start
         self.vma_end = other.vma_end
         self.lda_start = other.lda_start
         self.lda_bidict = other.lda_bidict
         self.sample_offsets = other.sample_offsets
+
+    @abstractproperty
+    def is_code(self):
+        """ Whether or not this parcel is code """
+        raise NotImplementedError("Please Implement this method in a child class")
 
     @abstractproperty
     def num_ldas(self):
@@ -129,6 +132,10 @@ class CodeParcel(Parcel):
                 return closest_vma
 
         return None
+
+    @property
+    def is_code(self):
+        return True
 
     @property
     def num_ldas(self):
@@ -187,11 +194,11 @@ class CodeParcel(Parcel):
         # this can happen when splitting on the last instruction of a code parcel
         if second_vma_end is None:
             second_vma_end = first.vma_end
-        second = DataParcel(0, vma_start=inst_vma, vma_end=second_vma_end, is_code=False)
+        second = DataParcel(0, vma_start=inst_vma, vma_end=second_vma_end)
         second.lda_start = inst_lda
 
         # setup third parcel
-        third = CodeParcel(0, vma_start=second.vma_end, vma_end=first.vma_end, is_code=True)
+        third = CodeParcel(0, vma_start=second.vma_end, vma_end=first.vma_end)
         third.lda_start = inst_lda+second.num_ldas
 
         # fixup the first parcel
@@ -227,6 +234,10 @@ class DataParcel(Parcel):
     def item_type(self):
         """ Consider us to be whatever item type our parent is """
         return 'Parcel'
+
+    @property
+    def is_code(self):
+        return False
 
     @property
     def num_ldas(self):

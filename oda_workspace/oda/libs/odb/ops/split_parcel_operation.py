@@ -37,7 +37,6 @@ class SplitParcelOperation(Operation):
                 parcel_class = DataParcel
 
             inserted_p = odb_file.insert_item(odb_file.create_item(parcel_class, {
-                'is_code': p.is_code,
                 'vma_start': p.vma_start,
                 'vma_end': p.vma_end,
             }))
