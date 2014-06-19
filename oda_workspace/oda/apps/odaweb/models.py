@@ -74,12 +74,9 @@ class OdaMaster(models.Model):
         self._odb_file = val
 
     def save(self, *args, **kwargs):
-
-        # if at some point we unpickled the odb file, repickle it
-        if hasattr(self, '_odb_file'):
-            self.pickled_odb_file= DefaultOdbSerializer().dumps(self._odb_file)
+        # repickle the odb_file
+        self.pickled_odb_file= DefaultOdbSerializer().dumps(self._odb_file)
         super(OdaMaster, self).save(*args, **kwargs) # Call the "real" save() method.
-
 
 # this is where we'll cache the GoogleStorage files locally
 LOCAL_CACHE_DIR=os.path.join(settings.MEDIA_ROOT, 'cache')
