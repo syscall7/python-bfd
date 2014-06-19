@@ -6,12 +6,11 @@ Replace this with more appropriate tests for your application.
 """
 import os
 
-from django.test import TestCase
-from oda.apps.rest.tests import OdaTestCase
+from oda.apps.rest.test.oda_api_tests import OdaApiTestCase
 
 cwd = os.path.dirname(os.path.realpath(__file__))
 
-class IndexTest(OdaTestCase):
+class IndexTest(OdaApiTestCase):
     def test_index(self):
         response = self.client.get('/odaweb/')
 

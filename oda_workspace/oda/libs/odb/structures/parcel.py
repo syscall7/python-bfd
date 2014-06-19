@@ -31,7 +31,7 @@ class ParcelList(list):
                 # TODO: Keep iterating and ensure duplicate mapping is not found
         return None
 
-    def split_parcel(self, vma):
+    def split(self, vma):
         p = self.find_parcel_by_vma(vma)
         if p is not None:
             return p.split(vma)

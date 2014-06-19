@@ -176,6 +176,18 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         dasm = Disassembler(oda.odb())
         return Response(dasm.lda_to_vma(lda))
 
+    @link()
+    def splitParcel(self, request, pk):
+        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
+                                    revision=request.QUERY_PARAMS.get('revision'))
+
+        vma = 0
+        if request.QUERY_PARAMS.get('vma'):
+            lda = int(request.QUERY_PARAMS.get('vma'), 0)
+
+        dasm = Disassembler(oda.odb())
+        return Response(dasm.split_parcel(vma))
+
 class FindViewSet(viewsets.GenericViewSet):
     serializer_class = FindResultsSerializer
 

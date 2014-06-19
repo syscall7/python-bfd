@@ -20,7 +20,7 @@ class SplitParcelOperation(Operation):
         parcels = ParcelList(odb_file.get_structure_list(Parcel))
         parcels_to_adjust = [p for p in parcels if p.vma_start > self.vma]
 
-        transaction = parcels.split_parcel(self.vma)
+        transaction = parcels.split(self.vma)
 
         # TODO: Throw an exception here
         assert (transaction is not None)
