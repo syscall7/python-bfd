@@ -18,7 +18,7 @@ from oda.libs.odb.bfd.disassembler import  get_supported_archs, get_supported_en
 from examples import Examples
 import dns.resolver
 from oda.libs.odb.bfd.ofd import Ofd
-from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer
+from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.modify_settings import ModifySettingsFactory
 from oda.libs.odb.ops.scan_operation import ScanOperation

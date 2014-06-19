@@ -239,5 +239,10 @@ class DataParcel(Parcel):
 
         return self.vma_start + (lda - self.lda_start)
 
-    def split(self, vma, to_code):
-        raise NotImplementedError("Please implement me!")
+    def split(self, vma):
+        if not self.contains_vma(vma):
+            logger.error("Attempting to split a data parcel at a bad vma!")
+            return None
+
+        # check if the vma is even pointing to a valid instruction
+

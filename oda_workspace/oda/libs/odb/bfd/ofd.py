@@ -71,6 +71,9 @@ class Ofd(object):
         else:
             return False
 
+    def is_valid_code(self, vma):
+        return False
+
     def disassemble(self, name, options=[], start=None, stop=None, numLines=None, funcFmtLine=None, funcFmtLineArgs=None):
         sec = self.bfd.sections[name]
         baseAddr = self.binary.options.base_address

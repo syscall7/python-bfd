@@ -6,7 +6,7 @@ from oda.apps.odaweb.examples import Examples
 from django.contrib.contenttypes.models import ContentType
 from oda.apps.odaweb.models import OdaMaster, InstDoc
 import oda
-from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer, BinaryString, BinaryFile
+from oda.libs.odb.odb_file import OdbFile, BinaryString, BinaryFile
 from oda.libs.odb.ops.add_operation import AddOperation
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.scan_operation import ScanOperation
