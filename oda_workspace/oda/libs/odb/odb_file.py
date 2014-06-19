@@ -275,6 +275,9 @@ class DefaultOdbSerializer(object):
         }))
 
     def load(self, serialized):
+        if serialized == '':
+            return None
+
         return cPickle.loads(str(zlib.decompress(serialized)))['odb_file']
 
 

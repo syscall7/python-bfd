@@ -49,20 +49,20 @@ def index(request, disassembly_id, version=0):
 
     if oda_master:
         #d = Disassembler(oda_master.binary)
-        section_info = Ofd(oda_master.odb().get_binary()).get_loadable_sections()
+        section_info = Ofd(oda_master.odb_file.get_binary()).get_loadable_sections()
         context['master'] = oda_master
         context['section_info'] = section_info
-        context['binary'] = oda_master.odb().get_binary()
+        context['binary'] = oda_master.odb_file.get_binary()
         context['project_name'] = oda_master.project_name
         context['disassembly_id'] = oda_master.short_name
         context['share_url'] = request.build_absolute_uri()
         context['examples'] = Examples
         context['supported_archs'] = get_supported_archs()
-        context['arch'] = oda_master.odb().get_binary().options.architecture #oda_master.binary.options.architecture
+        context['arch'] = oda_master.odb_file.get_binary().options.architecture #oda_master.binary.options.architecture
         context['saved'] = saved
 
         context['supported_endians'] = get_supported_endians()
-        context['options'] = get_platform_options(oda_master.odb().get_binary().options.architecture )
+        context['options'] = get_platform_options(oda_master.odb_file.get_binary().options.architecture )
         context['defaults'] = []
         context['user'] = request.user
         context['form_type'] = 'live'
@@ -126,8 +126,8 @@ def get_session(request):
 
 def options_form(request):
     oda_master = get_session(request)
-    arch = oda_master.odb().get_binary().options.architecture
-    baseAddr = oda_master.odb().get_binary().options.base_address
+    arch = oda_master.odb_file.get_binary().options.architecture
+    baseAddr = oda_master.odb_file.get_binary().options.base_address
     selected_opts = []
 
     class HexUploadForm(forms.Form):
@@ -211,7 +211,7 @@ def set(request):
             selected_opts = request.POST.getlist('options[]')
             #oda_master.binary.binary_string = cleaned_hex_string
             #form.cleaned_data['base_address']
-            odb_file = oda_master.odb()
+            odb_file = oda_master.odb_file
             odb_file.execute(ModifySettingsFactory.set_values({
                 'architecture': form.cleaned_data['arch'],
                 'base_address': baseAddr,
@@ -224,7 +224,7 @@ def set(request):
             formType = "live"
         else:
             formType = "open"
-            odb_file = oda_master.odb()
+            odb_file = oda_master.odb_file
             selected_opts = request.POST.getlist('options[]')
             odb_file.execute(ModifySettingsFactory.set_values({
                 'architecture': form.cleaned_data['arch'],
@@ -703,7 +703,7 @@ def download_text_listing(request):
 
 def ace(request):
     #oda_master = OdaMaster.objects.get(short_name='mkdir', revision=0)
-    #odb_file = oda_master.odb()
+    #odb_file = oda_master.odb_file
     #dasm = Disassembler(odb_file)
     #dunits = dasm.analyze(0, 10000000)
     return render(request, 'ace.djhtml', {
@@ -712,7 +712,7 @@ def ace(request):
 
 def ace2(request):
     #oda_master = OdaMaster.objects.get(short_name='mkdir', revision=0)
-    #odb_file = oda_master.odb()
+    #odb_file = oda_master.odb_file
     #dasm = Disassembler(odb_file)
     #dunits = dasm.analyze(0, 10000000)
     return render(request, 'ace2.djhtml', {

@@ -27,8 +27,21 @@ class OdaMaster(models.Model):
     owner = models.ForeignKey(User, null=True)
     creation_date = models.DateTimeField(auto_now_add=True)
     copy = models.ForeignKey('OdaMaster', null=True)
-    odb_file = models.BinaryField(blank=False)
+    pickled_odb_file = models.BinaryField(blank=False)
 
+    def __init__(self, *args, **kwargs):
+
+        # if we are specifying the odb_file at construction time
+        if 'odb_file' in kwargs:
+            # first convert an odb_file to its pickled representation
+            self._odb_file = kwargs.pop('odb_file', None)
+            pickled_odb_file = DefaultOdbSerializer().dumps(self._odb_file)
+            kwargs['pickled_odb_file'] = pickled_odb_file
+
+        super(OdaMaster, self).__init__(*args, **kwargs)
+
+        # load the unpickled form
+        self._odb_file = DefaultOdbSerializer().load(self.pickled_odb_file)
 
     @property
     def object_id(self):
@@ -50,10 +63,22 @@ class OdaMaster(models.Model):
         return max(revisions)
 
     def details(self):
-        return self.odb().get_options().target + " " + self.odb().get_options().architecture
+        return self.odb_file.get_options().target + " " + self.odb_file.get_options().architecture
 
-    def odb(self):
-        return DefaultOdbSerializer().load(self.odb_file)
+    @property
+    def odb_file(self):
+        return self._odb_file
+
+    @odb_file.setter
+    def odb_file(self, val):
+        self._odb_file = val
+
+    def save(self, *args, **kwargs):
+
+        # if at some point we unpickled the odb file, repickle it
+        if hasattr(self, '_odb_file'):
+            self.pickled_odb_file= DefaultOdbSerializer().dumps(self._odb_file)
+        super(OdaMaster, self).save(*args, **kwargs) # Call the "real" save() method.
 
 
 # this is where we'll cache the GoogleStorage files locally

@@ -59,7 +59,7 @@ def load_examples():
                 print "Saving label %s To %s" % (str(item), str(odb_file))
 
         oda_master = OdaMaster(short_name=short_name, project_name=example['project_name'],
-                               odb_file=DefaultOdbSerializer().dumps(odb_file))
+                               odb_file=odb_file)
         oda_master.save()
 
 

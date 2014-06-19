@@ -11,7 +11,7 @@ from oda.apps.rest.serializers import OdaMasterSerializer, SectionSerializer, St
     FindResultsSerializer, CommentSerializer, FunctionSerializer, DataStringSerializer, SymbolSerializer, \
     LabelSerializer
 from oda.libs.odb.bfd.disassembler import Disassembler
-from oda.libs.odb.odb_file import OdbFile, DefaultOdbSerializer, BinaryString
+from oda.libs.odb.odb_file import OdbFile, BinaryString
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.structures.comment import Comment
 from oda.libs.odb.structures.data_string import DataString
@@ -49,7 +49,7 @@ class OdaStructureViewSet(viewsets.GenericViewSet):
         revision = request.QUERY_PARAMS.get('revision', None)
 
         oda = OdaMaster.objects.get(short_name=short_name, revision=revision)
-        self.odb_file = oda.odb()
+        self.odb_file = oda.odb_file
 
         structure_list = self.get_structure_list()
         mapped_structure_list = [self.map_item(i) for i in structure_list]
@@ -103,11 +103,10 @@ class BinaryStringViewSet(viewsets.GenericViewSet):
     def partial_update(self, request, pk):
         oda_master = OdaMaster.objects.get(short_name=request.DATA['short_name'], revision=request.DATA['revision'])
 
-        previous_odb = oda_master.odb()
+        previous_odb = oda_master.odb_file
 
         odb_file = OdbFile(BinaryString(request.DATA['binary_string'], previous_odb.get_binary().options.architecture))
         odb_file.execute(LoadOperation())
-        oda_master.odb_file = DefaultOdbSerializer().dumps(odb_file)
         oda_master.save()
 
         logger.info("updating...")
@@ -134,7 +133,7 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
                                     revision=request.QUERY_PARAMS.get('revision'))
 
-        dasm = Disassembler(oda.odb())
+        dasm = Disassembler(oda.odb_file)
         dunits = dasm.analyze(start, units, logical)
 
 
@@ -149,7 +148,7 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
                                     revision=request.QUERY_PARAMS.get('revision'))
 
-        dasm = Disassembler(oda.odb())
+        dasm = Disassembler(oda.odb_file)
         return Response(dasm.total_lines())
 
     @link()
@@ -161,7 +160,7 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         if request.QUERY_PARAMS.get('vma'):
             vma = int(request.QUERY_PARAMS.get('vma'), 0)
 
-        dasm = Disassembler(oda.odb())
+        dasm = Disassembler(oda.odb_file)
         return Response(dasm.vma_to_lda(vma))
 
     @link()
@@ -173,7 +172,7 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         if request.QUERY_PARAMS.get('lda'):
             lda = int(request.QUERY_PARAMS.get('lda'), 0)
 
-        dasm = Disassembler(oda.odb())
+        dasm = Disassembler(oda.odb_file)
         return Response(dasm.lda_to_vma(lda))
 
     @link()
@@ -183,10 +182,13 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
 
         vma = 0
         if request.QUERY_PARAMS.get('vma'):
-            lda = int(request.QUERY_PARAMS.get('vma'), 0)
+            vma = int(request.QUERY_PARAMS.get('vma'), 0)
 
-        dasm = Disassembler(oda.odb())
-        return Response(dasm.split_parcel(vma))
+        dasm = Disassembler(oda.odb_file)
+        dasm.split_parcel(vma)
+        oda.save()
+
+        return Response()
 
 class FindViewSet(viewsets.GenericViewSet):
     serializer_class = FindResultsSerializer
