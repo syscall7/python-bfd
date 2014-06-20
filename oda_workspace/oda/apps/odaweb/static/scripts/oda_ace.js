@@ -218,6 +218,14 @@ var Renderer = function(functions) {
 
     };
 
+    this.renderTargetRef = function(du) {
+        var label = "0x" + du.targetRef.offset.toString(16);
+        if (functions[du.targetRef.offset]) {
+            label =  functions[du.targetRef.offset].name + '[<a href="" class="xref-location">0x' + intToHex(du.targetRef.offset) + '</a>]';
+        }
+        return label;
+    };
+
     this.renderFunction =  function(du, func) {
 
         var theLines = [this.functionTemplate1(du)];
@@ -233,6 +241,8 @@ var Renderer = function(functions) {
         var renderedText = this.baseDuTemplate(du);
         if (du.isBranch) {
             return [this.labelTemplate(du), renderedText];
+        } if (du.targetRef) {
+            return [renderedText + this.renderTargetRef(du)]
         }
         else
             return [renderedText];
