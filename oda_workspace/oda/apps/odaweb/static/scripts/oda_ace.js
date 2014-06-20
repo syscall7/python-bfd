@@ -171,7 +171,7 @@ var KeyboardHandler = function(statusBar, odaSession) {
             if (key == 'd') {
 
                 console.log('d');
-                $.get('/odaweb/api/displayunits/1/splitParcel', {
+                $.get('/odaweb/api/displayunits/1/makeData', {
                     short_name: 'mkdir',
                     revision: 0,
                     vma: line.data.offset
