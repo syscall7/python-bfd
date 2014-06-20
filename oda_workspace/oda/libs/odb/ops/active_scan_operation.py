@@ -28,30 +28,49 @@ class ActiveScanOperation(Operation):
         parcel_scanner = ParcelOffsetScanner()
 
         scanners = [
+            # The parcel scanner must come first here, because we need it to 'push_vma' for the bad instruction, if
+            # one is encountered
+            parcel_scanner,
             bad_code_scanner,
             function_scanner,
             branch_scanner,
-            parcel_scanner
         ]
+
+        parcels = ParcelList(odb_file.get_structure_list(Parcel))
+        parcels_to_adjust = [p for p in parcels if p.vma_start > self.vma]
 
         # split the data parcel
         odb_file.execute(SplitParcelOperation(self.vma))
 
         parcels = ParcelList(odb_file.get_structure_list(Parcel))
         p = parcels.find_parcel_by_vma(self.vma)
+        ldas_before_scan = p.size # one lda per byte
 
-        def callback(addr, rawData, instr, abfd, self):
+        def callback(addr, rawData, instr, abfd, self, code_ldas):
+            code_ldas += 1
             for scanner in scanners:
                 scanner.scan_line(p, addr, rawData, instr, abfd)
 
         the_ofd = ofd.Ofd(odb_file.get_binary())
         section = the_ofd.get_section_from_addr(p.vma_start)
 
+        code_ldas = 0
         the_ofd.disassemble(section.name, [], self.vma, p.vma_end,
                             funcFmtLine=callback,
                             funcFmtLineArgs={
                                 'self': self,
+                                'code_ldas': code_ldas,
                                 })
+
+        ldas_removed = ldas_before_scan - p.num_ldas
+        for p in parcels_to_adjust:
+            p.lda_start -= ldas_removed
 
         for scanner in scanners:
             scanner.commit(odb_file)
+
+        bad_addr = bad_code_scanner.bad_addr
+        if bad_addr is not None:
+            p = parcels.find_parcel_by_vma(bad_addr)
+            odb_file.execute(SplitParcelOperation(bad_addr))
+

@@ -14,85 +14,101 @@ class TestActiveScanOperation(unittest.TestCase):
         cwd = os.path.dirname(os.path.realpath(__file__))
 
         # we load this ELF as a raw binary, because it has an invalid opcode fairly early on
-        odb_file = OdbFile(BinaryFile(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64'))
+        odb_file = OdbFile(BinaryFile(os.path.join(cwd, 'data/mkdir'), 'elf64-x86-64', 'i386:x86-64'))
         odb_file.execute(LoadOperation())
         odb_file.execute(PassiveScanOperation())
 
         parcels_before = ParcelList(odb_file.get_structure_list(Parcel))
-        p = parcels_before.find_parcel_by_vma(0x400245)
-        num_p1_ldas_before = p.num_ldas
+        p = parcels_before.find_parcel_by_vma(0x4002ce)
+        gnu_hash_lda_before = parcels_before.vma_to_lda(0x4002cd)
+        dynsym_lda_before = parcels_before.vma_to_lda(0x4002e0)
+        dynstr_lda_before = parcels_before.vma_to_lda(0x400a18)
 
         # number of parcels before the split
-        self.assertEquals(25, len(parcels_before))
+        self.assertEquals(24, len(parcels_before))
 
         # execute the split operation
-        odb_file.execute(ActiveScanOperation(0x400245))
+        odb_file.execute(ActiveScanOperation(0x4002ce))
 
         # number of parcels after the split
         parcels_after = ParcelList(odb_file.get_structure_list(Parcel))
         self.assertEquals(26, len(parcels_after))
 
         # get the three parcels
-        p1 = parcels_after.find_parcel_by_vma(0x400238)
-        p2 = parcels_after.find_parcel_by_vma(0x400245)
+        p1 = parcels_after.find_parcel_by_vma(0x400298)
+        p2 = parcels_after.find_parcel_by_vma(0x4002ce)
+        p3 = parcels_after.find_parcel_by_vma(0x4002d5)
 
         # make sure they are all unique
         self.assertNotEqual(p1, p2)
+        self.assertNotEqual(p1, p3)
+        self.assertNotEqual(p2, p3)
 
-        # check num_ldas in p1 (13 bytes)
-        self.assertEquals(13, p1.num_ldas)
+        # check num_ldas in p1 (54 bytes)
+        self.assertEquals(54, p1.num_ldas)
 
-        # check num_ldas in p2
-        self.assertEquals(6, p2.num_ldas)
+        # check num_ldas in p2 (3 instructions)
+        self.assertEquals(3, p2.num_ldas)
 
-        # check num_ldas in p3 (less 5 from p1 and less 1 from p2 - remember it used to only be 1 lda before the split)
-        #self.assertEquals(num_p1_ldas_before - 5 - 1, p3.num_ldas)
+        # check num_ldas in p3 (7 bytes)
+        self.assertEquals(7, p3.num_ldas)
 
         # make sure vmas line up
-        #self.assertEquals(0x4029c0, p1.vma_start)
-        #self.assertEquals(0x4029d5, p1.vma_end)
-        #self.assertEquals(0x4029d5, p2.vma_start)
-        #self.assertEquals(0x4029da, p2.vma_end)
-        #self.assertEquals(0x4029da, p3.vma_start)
-        #self.assertEquals(0x412bec, p3.vma_end)
+        self.assertEquals(0x400298, p1.vma_start)
+        self.assertEquals(0x4002ce, p1.vma_end)
+        self.assertEquals(0x4002ce, p2.vma_start)
+        self.assertEquals(0x4002d5, p2.vma_end)
+        self.assertEquals(0x4002d5, p3.vma_start)
+        self.assertEquals(0x4002dc, p3.vma_end)
 
         #
         # make sure vma->lda mappings line up
         #
 
         # these shouldn't have changed
-        #self.assertEquals(text_lda_before, parcels_after.vma_to_lda(0x4029c0))
-        #self.assertEquals(text_lda_before+5, parcels_after.vma_to_lda(0x4029d5))
-        #self.assertEquals(True, p1.is_code)
-        #self.assertEquals(True, p3.is_code)
+        self.assertEquals(gnu_hash_lda_before, parcels_after.vma_to_lda(0x4002cd))
+        self.assertEquals(gnu_hash_lda_before+1, parcels_after.vma_to_lda(0x4002ce))
+        self.assertEquals(False, p1.is_code)
+        self.assertEquals(False, p3.is_code)
 
         # these changed
-        #self.assertEquals(text_lda_before+6, parcels_after.vma_to_lda(0x4029d6))
-        #self.assertEquals(text_lda_before+7, parcels_after.vma_to_lda(0x4029d7))
-        #self.assertEquals(text_lda_before+8, parcels_after.vma_to_lda(0x4029d8))
-        #self.assertEquals(text_lda_before+9, parcels_after.vma_to_lda(0x4029d9))
-        #self.assertEquals(text_lda_before+10, parcels_after.vma_to_lda(0x4029da))
-        #self.assertEquals(text_lda_before+11, parcels_after.vma_to_lda(0x4029db))
-        #self.assertEquals(False, p2.is_code)
+        self.assertEquals(gnu_hash_lda_before+2, parcels_after.vma_to_lda(0x4002d0))
+        self.assertEquals(gnu_hash_lda_before+3, parcels_after.vma_to_lda(0x4002d2))
 
-        # 1 instruction turned into 5 data bytes, so it shifted the following parcels by 4 ldas
-        #self.assertEquals(fini_lda_before+4, parcels_after.vma_to_lda(0x412bec))
+        self.assertEquals(gnu_hash_lda_before+4, parcels_after.vma_to_lda(0x4002d5))
+        self.assertEquals(gnu_hash_lda_before+5, parcels_after.vma_to_lda(0x4002d6))
+        self.assertEquals(gnu_hash_lda_before+6, parcels_after.vma_to_lda(0x4002d7))
+        self.assertEquals(gnu_hash_lda_before+7, parcels_after.vma_to_lda(0x4002d8))
+        self.assertEquals(gnu_hash_lda_before+8, parcels_after.vma_to_lda(0x4002d9))
+        self.assertEquals(gnu_hash_lda_before+9, parcels_after.vma_to_lda(0x4002da))
+        self.assertEquals(gnu_hash_lda_before+10,parcels_after.vma_to_lda(0x4002db))
+        self.assertEquals(True, p2.is_code)
+
+        # 7 bytes turned into 3 instructions, so it shifted the following parcels by -4 ldas
+        self.assertEquals(dynsym_lda_before-4, parcels_after.vma_to_lda(0x4002e0))
+        self.assertEquals(dynstr_lda_before-4, parcels_after.vma_to_lda(0x400a18))
 
         #
         # make sure lda->vma mappings line up
         #
 
         # these shouldn't have changed
-        #self.assertEquals(0x4029c0, parcels_after.lda_to_vma(text_lda_before))
-        #self.assertEquals(0x4029d5, parcels_after.lda_to_vma(text_lda_before+5))
+        self.assertEquals(0x4002cd, parcels_after.lda_to_vma(gnu_hash_lda_before))
+        self.assertEquals(0x4002ce, parcels_after.lda_to_vma(gnu_hash_lda_before+1))
 
         # these changed
-        #self.assertEquals(0x4029d6, parcels_after.lda_to_vma(text_lda_before+6))
-        #self.assertEquals(0x4029d7, parcels_after.lda_to_vma(text_lda_before+7))
-        #self.assertEquals(0x4029d8, parcels_after.lda_to_vma(text_lda_before+8))
-        #self.assertEquals(0x4029d9, parcels_after.lda_to_vma(text_lda_before+9))
-        #self.assertEquals(0x4029da, parcels_after.lda_to_vma(text_lda_before+10))
-        #self.assertEquals(0x4029db, parcels_after.lda_to_vma(text_lda_before+11))
+        self.assertEquals(0x4002d0, parcels_after.lda_to_vma(gnu_hash_lda_before+2))
+        self.assertEquals(0x4002d2, parcels_after.lda_to_vma(gnu_hash_lda_before+3))
 
-        # 1 instruction turned into 5 data bytes, so it shifted the following parcels by 4 ldas
-        #self.assertEquals(0x412bec, parcels_after.lda_to_vma(fini_lda_before+4))
+        self.assertEquals(0x4002d5, parcels_after.lda_to_vma(gnu_hash_lda_before+4))
+        self.assertEquals(0x4002d6, parcels_after.lda_to_vma(gnu_hash_lda_before+5))
+        self.assertEquals(0x4002d7, parcels_after.lda_to_vma(gnu_hash_lda_before+6))
+        self.assertEquals(0x4002d8, parcels_after.lda_to_vma(gnu_hash_lda_before+7))
+        self.assertEquals(0x4002d9, parcels_after.lda_to_vma(gnu_hash_lda_before+8))
+        self.assertEquals(0x4002da, parcels_after.lda_to_vma(gnu_hash_lda_before+9))
+        self.assertEquals(0x4002db, parcels_after.lda_to_vma(gnu_hash_lda_before+10))
+
+        # 7 bytes turned into 3 instructions, so it shifted the following parcels by -4 ldas
+        self.assertEquals(0x4002e0, parcels_after.lda_to_vma(dynsym_lda_before-4))
+        self.assertEquals(0x400a18, parcels_after.lda_to_vma(dynstr_lda_before-4))
+

@@ -69,8 +69,12 @@ class Parcel(OdaObject):
     def __repr__(self):
         return "Parcel {is_code=%s, start=%s, end=%s>" % (self.is_code, self.vma_start, self.vma_end)
 
+    @property
+    def size(self):
+        return self.vma_end - self.vma_start
+
     def is_empty(self):
-        return self.vma_start == self.vma_end
+        return self.size == 0
 
     # returns True if this parcel contains the given virtual memory address (vma)
     def contains_vma(self, addr):
