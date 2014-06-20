@@ -47,15 +47,15 @@ var CommentDialog = function(du) {
     this.closeHandler = $.Callbacks();
 
     $(modalId).on('hidden.bs.modal', function (e) {
-        this.closeHandler.fire();
+        this.closeHandler.fire(false);
     }.bind(this));
 
     this.modal = $('#my-modal').modal('show');
 
 
     $(saveButtonId).unbind().on('click', function () {
-        alert($('#my-modal .comment-text').val());
         this.modal.modal('hide');
+        this.closeHandler.fire(true);
     }.bind(this));
 
 
@@ -149,11 +149,19 @@ var KeyboardHandler = function(statusBar, odaSession) {
             var cursor = session.getSelection().getCursor();
             var line = session.getDocument().getLineData(cursor.row);
 
-            var commentDialog = new CommentDialog(line.data);
+            //line can be null when loading...
+            if (line) {
 
-            commentDialog.closeHandler.add(function(){
-                editor.focus();
-            });
+                var commentDialog = new CommentDialog(line.data);
+
+                commentDialog.closeHandler.add(function(save){
+                    if (save) {
+                        alert($('#my-modal .comment-text').val());
+                    }
+
+                    editor.focus();
+                });
+            }
         }
 
         console.log("keyboard", data, hashId, key, keyCode, e);
@@ -369,6 +377,7 @@ function start(windowLoader) {
                 vma: address
             }).done(function(ldu){
                 editor.moveCursorToPosition({row:windowLoader.displayUnitToRow(ldu),column:0});
+                editor.clearSelection();
             });
             console.log('My change handler: ' + address.toString(16));
         });

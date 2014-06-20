@@ -99,8 +99,8 @@
         <h4 class="modal-title">Comment Dialog</h4>
       </div>
       <div class="modal-body">
-          <p class="commentLine">One fine body&hellip;</p>
-          <input class="comment-text" type="text" />
+          <p class="commentLine"></p>
+          <input class="comment-text" type="text" style="width:500px;"/>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
