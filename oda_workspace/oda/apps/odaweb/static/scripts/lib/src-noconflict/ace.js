@@ -17788,11 +17788,11 @@ var Window = function(startRow, lines) {
 
     this.getLogicalRowData = function(row) {
         return this.lines[row - this.startRow];
-    }
+    };
 
     this.getAbsoluteRow = function(row) {
         return this.lines[row];
-    }
+    };
 
     this.isRowInWindow = function(row) {
         return row >= startRow && row < startRow + lines.length;
@@ -17800,7 +17800,7 @@ var Window = function(startRow, lines) {
 
     this.getStart = function() {
         return this.startRow;
-    }
+    };
 
     this.getSize = function() {
         return this.lines.length;
@@ -17824,11 +17824,11 @@ var OnlineDocument = function(numRows, windowLoader) {
 
     this.getAllLines = function() {
         return this.window.lines;
-    }
+    };
 
     this.setLoadingString = function(loadingString) {
         this.loadingString = loadingString;
-    }
+    };
     this.getNewLineCharacter = function() {
         switch (this.$newLineMode) {
             case "windows":
@@ -17857,7 +17857,7 @@ var OnlineDocument = function(numRows, windowLoader) {
         else {
             return null;
         }
-    }
+    };
 
     var timeout = null;
     var rowToLoad;
@@ -17887,7 +17887,7 @@ var OnlineDocument = function(numRows, windowLoader) {
                 this.numRows += additionalRows;
                 this._signal("change", { data: delta });
 
-                this._signal("loaded", { data: {row: rowToLoad-5 } });
+                this._signal("loaded", { data: {row: rowToLoad } });
 
             }.bind(this));
         }.bind(this),250);

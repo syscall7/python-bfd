@@ -402,16 +402,15 @@ function start(windowLoader) {
                 });
 
                 if (xrefLocation.length > 0){
-                    setTimeout(function(){
                     console.log("xref-location", xrefLocation[0].value);
                     $.get('/odaweb/api/displayunits/1/vmaToLda', {
                         short_name: 'mkdir',
                         revision: 0,
                         vma: parseInt(xrefLocation[0].value.substring(2),16)
                     }).done(function(ldu){
-                        editor.moveCursorToPosition({row:windowLoader.displayUnitToRow(ldu),column:0});
+                        editor.moveCursorTo(windowLoader.displayUnitToRow(ldu), 0);
+                        editor.clearSelection();
                     });
-                    },700);
                 }
 
 
