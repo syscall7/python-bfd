@@ -57,10 +57,20 @@ var OdbFile = function() {
     };
 
     this.makeData = function(vma, callback) {
+        console.log('makeData', vma);
         $.get('/odaweb/api/displayunits/1/makeData', {
                     short_name: 'mkdir',
                     revision: 0,
                     vma: vma
+        }).success(callback)
+    };
+
+    this.makeCode = function(vma, callback) {
+        console.log('makeCode', vma);
+        $.get('/odaweb/api/displayunits/1/makeCode', {
+            short_name: 'mkdir',
+            revision: 0,
+            vma: vma
         }).success(callback)
     };
 
@@ -251,12 +261,15 @@ var KeyboardHandler = function(statusBar, odaSession, odbFile) {
             }
 
             if (key == 'd') {
-
-                console.log('d');
                 this.odbFile.makeData(line.data.offset, function(data){
                     this.odaSession.windowLoader.reload();
                 }.bind(this));
+            }
 
+            if (key == 'c') {
+                this.odbFile.makeCode(line.data.offset, function(data){
+                    this.odaSession.windowLoader.reload();
+                }.bind(this));
             }
 
         }
