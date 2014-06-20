@@ -410,7 +410,7 @@ function start(windowLoader) {
     var editor;
 
 
-    $.get('http://localhost:8000/odaweb/api/sections/?format=json&short_name=mkdir&revision=0').done(function(sections){
+    $.get('/odaweb/api/sections/?format=json&short_name=mkdir&revision=0').done(function(sections){
         addrBar = new AddressNavBar('#addr-bar-canvas', sections);
         addrBar.onChange(function(address) {
             $.get('/odaweb/api/displayunits/1/vmaToLda', {
