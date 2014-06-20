@@ -4,7 +4,7 @@ from oda_api_tests import OdaApiTestCase
 class ParcelUnitTest(OdaApiTestCase):
     urls = 'oda.urls'
 
-    def test_simple_split(self):
+    def test_simple_make_data(self):
 
         # before the split
         before_split = (
