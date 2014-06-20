@@ -1,5 +1,86 @@
 var ace_document = ace.require('ace/document');
 
+var OdbFile = function() {
+
+    this.functions = [];
+
+    this.sections = [];
+
+    this.displayUnitsLength = -1;
+
+
+    this.load = function(shortName) {
+        var fq = $.get('/odaweb/api/functions/', {
+            short_name: 'mkdir',
+            revision: 0
+        }).success(function(data){
+            for (var i=0; i<data.length; i++) {
+                this.functions[data[i].offset] = data[i];
+            }
+        }.bind(this));
+
+        var sq = $.get('/odaweb/api/sections/', {
+            short_name: 'mkdir',
+            revision: 0
+        }).success(function(data){
+            this.sections = data;
+        }.bind(this));
+
+        var dulenq = $.get('/odaweb/api/displayunits/1/size', {
+            short_name: 'mkdir',
+            revision: 0
+        }).success(function(data) {
+            this.displayUnitsLength = data;
+        }.bind(this));
+
+        $.when(fq, sq, dulenq).done(function(data) {
+            this._signal('loaded', this);
+        }.bind(this));
+    };
+
+    this.loadDu = function(addr, numUnits, callback) {
+        $.get('/odaweb/api/displayunits/', {
+            short_name: 'mkdir',
+            revision: 0,
+            addr: addr,
+            logical: true,
+            units: numUnits
+        }).done(callback);
+    };
+
+    this.vmaToLda = function(vma, callback) {
+        $.get('/odaweb/api/displayunits/1/vmaToLda', {
+            short_name: 'mkdir',
+            revision: 0,
+            vma: vma
+        }).done(callback);
+    };
+
+    this.makeData = function(vma, callback) {
+        $.get('/odaweb/api/displayunits/1/makeData', {
+                    short_name: 'mkdir',
+                    revision: 0,
+                    vma: vma
+        }).success(callback)
+    };
+
+    this.callbacks = {};
+    this.on = function(name, handler) {
+        if (!this.callbacks[name]) {
+            this.callbacks[name] = $.Callbacks();
+        }
+        this.callbacks[name].add(handler);
+
+    };
+    this._signal = function(name, data) {
+        if (!this.callbacks[name]) {
+            this.callbacks[name] = $.Callbacks();
+        }
+        this.callbacks[name].fire(data);
+    };
+
+}
+
 var OdaSession = function(session, windowLoader) {
 
     //this.cursorPositon = null;
@@ -126,12 +207,13 @@ Handlebars.registerHelper("formatSectionOffset", function(section, offset, lengt
 });
 
 
-var KeyboardHandler = function(statusBar, odaSession) {
+var KeyboardHandler = function(statusBar, odaSession, odbFile) {
 
     this.statusBar = statusBar;
 
     this.odaSession = odaSession;
 
+    this.odbFile = odbFile;
 
     this.handler = function(data, hashId, key, keyCode, e) {
         // ignore command keys (shift, ctrl etc.)
@@ -171,11 +253,7 @@ var KeyboardHandler = function(statusBar, odaSession) {
             if (key == 'd') {
 
                 console.log('d');
-                $.get('/odaweb/api/displayunits/1/makeData', {
-                    short_name: 'mkdir',
-                    revision: 0,
-                    vma: line.data.offset
-                }).success(function(data){
+                this.odbFile.makeData(line.data.offset, function(data){
                     this.odaSession.windowLoader.reload();
                 }.bind(this));
 
@@ -276,10 +354,11 @@ var Renderer = function(functions) {
 };
 
 
-var WindowLoader = function(renderer) {
+var WindowLoader = function(renderer, odbFile) {
     this.windowSize = 500;
     this.lineSizes = [];
     this.renderer = renderer;
+    this.odbFile = odbFile;
 
 
     this.callbacks = {};
@@ -310,13 +389,7 @@ var WindowLoader = function(renderer) {
         NProgress.start();
 
         console.log("Loading Row=",rowNum, ' duNum=',duNum);
-        $.get('/odaweb/api/displayunits/', {
-            short_name: 'mkdir',
-            revision: 0,
-            addr: duNum,
-            logical: true,
-            units: 400
-        }).done(function(data){
+        this.odbFile.loadDu(duNum, 400, function(data){
             NProgress.inc(0.4);
             var tlines = [];
 
@@ -342,16 +415,6 @@ var WindowLoader = function(renderer) {
            // callback(currentWindow, addedLines);
 
         }.bind(this));
-
-
-/*            for (var i=rowNum; i<rowNum + this.windowSize; i++) {
-
-            var line = '<div style="height:14px" class="ace_line"><span class="branchLines"> &nbsp;</span><span class="offset disassembly-cell">.interp:4194872</span><span class="raw disassembly-cell">2f</span><span class="instruction"><span class="string">/</span></span></div>'
-            var s = {"section_name":".text","offset":4233570,"rawBytes":"4889c7","instStr":"mov    rdi,rax","branch":"&#x2001;&#x2001;&nbsp;","branch_label":"&#x2001;&#x2001;&nbsp;","opcode":"mov","operands":"rdi,rax","stringRef":null,"branchRef":null,"targetRef":null,"crossRef":[],"isBranch":false,"isFunction":false,"labelName":"abc"}
-
-        }*/
-
-
     };
 
     this.rowToDisplayUnit = function(row) {
@@ -403,99 +466,73 @@ var OdaMode = function() {
     }
 };
 
-
-
-function start(windowLoader) {
-    var addrBar;
+function start(odbFile) {
     var editor;
 
+    var renderer = new Renderer(odbFile.functions);
+    var windowLoader = new WindowLoader(renderer, odbFile);
 
-    $.get('/odaweb/api/sections/?format=json&short_name=mkdir&revision=0').done(function(sections){
-        addrBar = new AddressNavBar('#addr-bar-canvas', sections);
-        addrBar.onChange(function(address) {
-            $.get('/odaweb/api/displayunits/1/vmaToLda', {
-                short_name: 'mkdir',
-                revision: 0,
-                vma: address
-            }).done(function(ldu){
-                editor.moveCursorToPosition({row:windowLoader.displayUnitToRow(ldu),column:0});
-                editor.clearSelection();
-            });
-            console.log('My change handler: ' + address.toString(16));
+    var addrBar = new AddressNavBar('#addr-bar-canvas', odbFile.sections);
+
+    addrBar.onChange(function(address) {
+        odbFile.vmaToLda(address, function(ldu){
+            editor.moveCursorToPosition({row:windowLoader.displayUnitToRow(ldu),column:0});
+            editor.clearSelection();
         });
+        console.log('My change handler: ' + address.toString(16));
     });
 
-    $.get('/odaweb/api/displayunits/1/size', {
-        short_name: 'mkdir',
-        revision: 0
-    }).done(function(data){
+    var doc = new ace_document.OnlineDocument(odbFile.displayUnitsLength, windowLoader);
 
-            var doc = new ace_document.OnlineDocument(data, windowLoader);
-            doc.setLoadingString("..");
-            editor = ace.edit("editor", doc);
-            editor.setTheme("ace/theme/chrome");
-            editor.setLineRenderer(lineRenderer);
-            editor.getSession().setMode("ace/mode/javascript");
-            editor.getSession().setMode(new OdaMode());
-            editor.getSession().setUseWorker(false);
-            editor.setShowPrintMargin(false);
-            editor.renderer.setShowGutter(true);
-            var odaSession = new OdaSession(editor.getSession(), windowLoader);
-            var statusBar = new StatusBar();
-            var keyboardHandler = new KeyboardHandler(statusBar, odaSession);
+    doc.setLoadingString("..");
+    editor = ace.edit("editor", doc);
+    editor.setTheme("ace/theme/chrome");
+    editor.setLineRenderer(lineRenderer);
+    editor.getSession().setMode("ace/mode/javascript");
+    editor.getSession().setMode(new OdaMode());
+    editor.getSession().setUseWorker(false);
+    editor.setShowPrintMargin(false);
+    editor.renderer.setShowGutter(true);
+    var odaSession = new OdaSession(editor.getSession(), windowLoader);
+    var statusBar = new StatusBar();
+    var keyboardHandler = new KeyboardHandler(statusBar, odaSession, odbFile);
 
-            odaSession.onCursorChange.add(function(offset) {
-                console.log("CURSOR CHANGE", offset);
-                addrBar.setAddress(offset);
-                statusBar.setAddress(offset);
-            })
+    odaSession.onCursorChange.add(function(offset) {
+        console.log("CURSOR CHANGE", offset);
+        addrBar.setAddress(offset);
+        statusBar.setAddress(offset);
+    })
 
-            editor.setKeyboardHandler(keyboardHandler.handler);
+    editor.setKeyboardHandler(keyboardHandler.handler);
 
 
-            editor.addEventListener('dblclick', function(e, editor){
-                //console.log("dblclick");
-                var cursor = editor.selection.getCursor();
-                e.preventDefault();
-                //console.log(editor.getSession().getTokenAt(cursor.row,cursor.column));
-                var xrefLocation = $.grep(editor.getSession().getTokens(cursor.row), function(token){
-                    return token.type=='xref-location';
-                });
+    editor.addEventListener('dblclick', function(e, editor){
+        //console.log("dblclick");
+        var cursor = editor.selection.getCursor();
+        e.preventDefault();
+        //console.log(editor.getSession().getTokenAt(cursor.row,cursor.column));
+        var xrefLocation = $.grep(editor.getSession().getTokens(cursor.row), function(token){
+            return token.type=='xref-location';
+        });
 
-                if (xrefLocation.length > 0){
-                    console.log("xref-location", xrefLocation[0].value);
-                    $.get('/odaweb/api/displayunits/1/vmaToLda', {
-                        short_name: 'mkdir',
-                        revision: 0,
-                        vma: parseInt(xrefLocation[0].value.substring(2),16)
-                    }).done(function(ldu){
-                        editor.moveCursorTo(windowLoader.displayUnitToRow(ldu), 0);
-                        editor.clearSelection();
-                    });
-                }
-
-
-                return "null";
+        if (xrefLocation.length > 0){
+            console.log("xref-location", xrefLocation[0].value);
+            odbFile.vmaToLda(parseInt(xrefLocation[0].value.substring(2),16), function(ldu){
+                editor.moveCursorTo(windowLoader.displayUnitToRow(ldu), 0);
+                editor.clearSelection();
             });
+        }
+
+
+        return "null";
     });
 }
 
 $(document).ready(function(){
+    var odbFile = new OdbFile();
+    odbFile.load('mkdir');
 
-    var functions = [];
-    $.get('/odaweb/api/functions/', {
-        short_name: 'mkdir',
-        revision: 0
-    }).done(function(data){
-        for (var i=0; i<data.length; i++) {
-            functions[data[i].offset] = data[i];
-        }
-
-        var renderer = new Renderer(functions);
-
-        var windowLoader = new WindowLoader(renderer);
-
-        start(windowLoader);
+    odbFile.on('loaded', function(odbFile){
+        start(odbFile);
     });
-
 });
