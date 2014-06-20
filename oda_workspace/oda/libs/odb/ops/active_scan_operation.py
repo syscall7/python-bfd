@@ -5,6 +5,7 @@ from oda.libs.odb.bfd.analyzer import analyzer_factory
 from oda.libs.odb.ops.operation import Operation
 from oda.libs.odb.structures.parcel import Parcel, ParcelList
 from oda.libs.odb.ops.scanners import FunctionScanner, BranchScanner, ParcelOffsetScanner, BadCodeScanner, HaltScanException
+from oda.libs.odb.ops.split_parcel_operation import SplitParcelOperation
 
 logger = logging.getLogger(__name__)
 
@@ -19,10 +20,11 @@ class ActiveScanOperation(Operation):
         assert (len(odb_file.get_structure_list(Parcel)) > 0)
 
         self.object_id = odb_file.get_object_id()
+        analyzer = analyzer_factory(odb_file.get_arch())
 
-        bad_code_scanner = BadCodeScanner(analyzer_factory(odb_file.get_arch()))
-        function_scanner = FunctionScanner(analyzer_factory(odb_file.get_arch()))
-        branch_scanner = BranchScanner(analyzer_factory(odb_file.get_arch()))
+        bad_code_scanner = BadCodeScanner(analyzer)
+        function_scanner = FunctionScanner(analyzer)
+        branch_scanner = BranchScanner(analyzer)
         parcel_scanner = ParcelOffsetScanner()
 
         scanners = [
@@ -31,6 +33,9 @@ class ActiveScanOperation(Operation):
             branch_scanner,
             parcel_scanner
         ]
+
+        # split the data parcel
+        odb_file.execute(SplitParcelOperation(self.vma))
 
         parcels = ParcelList(odb_file.get_structure_list(Parcel))
         p = parcels.find_parcel_by_vma(self.vma)

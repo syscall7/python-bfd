@@ -264,5 +264,27 @@ class DataParcel(Parcel):
             logger.error("Attempting to split a data parcel at a bad vma!")
             return None
 
-        # check if the vma is even pointing to a valid instruction
+        # edge cases
+        # 1. The split occurs on the first byte of the parcel
+        # 2. The split occurs on the last byte of the parcel
+        # 3. The split occurs on the only byte of the parcel (only 1 byte in parcel)
+        #    This case results in only one parcel
 
+        # The current parcel will potentially become two parcels: DATA, CODE
+        first = self
+
+        # setup second parcel
+        second = CodeParcel(0, vma_start=vma, vma_end=first.vma_end)
+        second.lda_start = first.vma_to_lda(vma)
+
+        # fixup the first parcel
+        first.vma_end = vma
+
+        # the parcels to add and the parcels to remove
+        to_add = [second]
+        to_remove = []
+
+        if first.is_empty():
+            to_remove.append(first)
+
+        return ParcelTransaction(to_add, to_remove, 0)
