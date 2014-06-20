@@ -34,24 +34,7 @@ class Scanner(object):
         pass
 
 class ParcelOffsetScanner(Scanner):
-    def __init__(self):
-        self.inst_sample_interval = 50
-        self.sample_offset_count = 0
-        self.last_parcel = None
-
     def scan_line(self, parcel, addr, rawData, instr, abfd):
-
-        #we've advanced to the next parcel, reset the counter
-        if parcel != self.last_parcel:
-            self.sample_offset_count = 0
-            self.last_parcel = parcel
-
-        if self.sample_offset_count == self.inst_sample_interval:
-            parcel.sample_offsets.append(addr)
-            self.sample_offset_count = 0
-        else:
-            self.sample_offset_count += 1
-
         # associate this vma with the parcel
         parcel.push_vma(addr)
 

@@ -60,7 +60,6 @@ class Parcel(OdaObject):
         super(Parcel, self).__init__(object_id)
         self.vma_start = vma_start
         self.vma_end = vma_end
-        self.sample_offsets = []
         self.lda_start = 0
 
         # lda_bidict[lda_rel_to_start] = vma
@@ -89,7 +88,6 @@ class Parcel(OdaObject):
         self.vma_end = other.vma_end
         self.lda_start = other.lda_start
         self.lda_bidict = other.lda_bidict
-        self.sample_offsets = other.sample_offsets
 
     @abstractproperty
     def is_code(self):

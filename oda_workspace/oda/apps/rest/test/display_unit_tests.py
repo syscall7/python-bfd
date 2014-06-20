@@ -20,6 +20,50 @@ class DisplayUnitTest(OdaApiTestCase):
         self.assertEqual(0, rd[0]['offset'])
         self.assertEqual('ebp', rd[0]['operands'])
 
+    def test_display_units_by_vma(self):
+
+        expect = (
+            ('.init', True,  False, 0x004014d0, '4883ec08',     'sub',  'rsp,0x8'),
+            ('.init', False, False, 0x004014d4, 'e883040000',   'call', '0x0040195c'),
+            ('.init', False, False, 0x004014d9, 'e812050000',   'call', '0x004019f0'),
+            ('.init', False, False, 0x004014de, 'e87db10000',   'call', '0x0040c660'),
+            ('.init', False, False, 0x004014e3, '4883c408',	    'add',  'rsp,0x8'),
+            ('.init', False, False, 0x004014e7, 'c3',	        'ret',  ''),
+            ('.plt',  True,  False, 0x004014f0, 'ff35faea2000', 'push', 'QWORD PTR [rip+0x20eafa]        # 0x0060fff0'),
+            ('.plt',  False, False, 0x004014f6,  'ff25fcea2000','jmp',  'QWORD PTR [rip+0x20eafc]        # 0x0060fff8'),
+            ('.plt',  False, False, 0x004014fc, '0f1f4000',	    'nop',  'DWORD PTR [rax+0x0]'),
+        )
+
+        tests = (
+            (0x4014d0, len(expect)),    # go forward
+            (0x401500, -len(expect)),   # and backward
+        )
+
+        for vma, lines in tests:
+
+            response = self.client.get('/odaweb/api/displayunits/', {
+                            'revision': 0,
+                            'short_name': 'mkdir',
+                            'addr' : vma,
+                            'units' : lines,
+                        }, format='json')
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            rd = response.data
+            self.assertIsNotNone(rd)
+            self.assertEqual(len(expect), len(rd))
+
+            for expected, actual in zip(expect, rd):
+                msg = None # 'at address 0x%08x' % actual['offset']
+                self.assertEqual(expected[0], actual['section_name'], msg)
+                self.assertEqual(expected[1], actual['isFunction'], msg)
+                self.assertEqual(expected[2], actual['isBranch'], msg)
+                self.assertEqual(expected[3], actual['offset'], msg)
+                self.assertEqual(expected[4], actual['rawBytes'], msg)
+                self.assertEqual(expected[5], actual['opcode'], msg)
+                self.assertEqual(expected[6], actual['operands'].strip(), msg)
+                # actual['instStr']
+
     def test_display_units_mkdir_code(self):
         response = self.client.get('/odaweb/api/displayunits/',
                                    {'revision': 0, 'short_name': 'mkdir', 'addr' : '0x4014d0'},
