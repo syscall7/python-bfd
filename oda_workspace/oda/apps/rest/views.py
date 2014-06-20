@@ -181,7 +181,7 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         return Response(dasm.lda_to_vma(lda))
 
     @link()
-    def splitParcel(self, request, pk):
+    def makeData(self, request, pk):
         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
                                     revision=request.QUERY_PARAMS.get('revision'))
 
@@ -190,7 +190,22 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
             vma = int(request.QUERY_PARAMS.get('vma'), 0)
 
         dasm = Disassembler(oda.odb_file)
-        dasm.split_parcel(vma)
+        dasm.make_data(vma)
+        oda.save()
+
+        return Response()
+
+    @link()
+    def makeCode(self, request, pk):
+        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
+                                    revision=request.QUERY_PARAMS.get('revision'))
+
+        vma = 0
+        if request.QUERY_PARAMS.get('vma'):
+            vma = int(request.QUERY_PARAMS.get('vma'), 0)
+
+        dasm = Disassembler(oda.odb_file)
+        dasm.make_code(vma)
         oda.save()
 
         return Response()

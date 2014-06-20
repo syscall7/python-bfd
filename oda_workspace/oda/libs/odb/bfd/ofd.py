@@ -1,13 +1,10 @@
-from oda.libs.odb.bfd.disassembler import UNKNOWN_ARCH
-
-__author__ = 'davis'
-
 import bfd
 import logging
 
 logger = logging.getLogger(__name__)
 
 TARGETS_WITHOUT_CODE_SECTIONS = ['binary', 'ihex', 'srec']
+UNKNOWN_ARCH = 'UNKNOWN!'
 
 class SectionInfo(object):
     def __init__(self, sections):

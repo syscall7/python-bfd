@@ -3,10 +3,8 @@ import bfd
 from oda.libs.odb.bfd.analyzer import analyzer_factory
 from oda.libs.odb.structures.parcel import Parcel, ParcelList
 from oda.libs.odb.ops.split_parcel_operation import SplitParcelOperation
-
-__author__ = 'davis'
-
-UNKNOWN_ARCH = 'UNKNOWN!'
+from oda.libs.odb.ops.active_scan_operation import ActiveScanOperation
+from ofd import UNKNOWN_ARCH
 
 def get_supported_archs():
     '''Return a list of all architectures supported
@@ -74,8 +72,11 @@ class Disassembler(object):
         parcels = ParcelList(self.odb_file.get_structure_list(Parcel))
         return parcels.lda_to_vma(lda)
 
-    def split_parcel(self, vma):
+    def make_data(self, vma):
         self.odb_file.execute(SplitParcelOperation(vma))
+
+    def make_code(self, vma):
+        self.odb_file.execute(ActiveScanOperation(vma))
 
     def analyze(self, start, lines, logical):
 

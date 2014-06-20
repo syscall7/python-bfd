@@ -49,7 +49,7 @@ class ParcelUnitTest(OdaApiTestCase):
             self.assertEquals(expected[2], actual['section_name'])
             self.assertEquals(expected[3], actual['rawBytes'])
 
-        response = self.client.get('/odaweb/api/displayunits/1/splitParcel/',
+        response = self.client.get('/odaweb/api/displayunits/1/makeData/',
                                    { 'revision': 0,
                                      'short_name': 'mkdir',
                                      'vma': 0x4014d9},
