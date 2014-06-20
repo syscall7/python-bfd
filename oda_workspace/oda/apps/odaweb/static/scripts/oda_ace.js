@@ -6,15 +6,17 @@ var OdbFile = function() {
 
     this.sections = [];
 
+    this.comments = [];
+
     this.displayUnitsLength = -1;
 
 
-    this.load = function(shortName) {
+    this.load = function (shortName) {
         var fq = $.get('/odaweb/api/functions/', {
             short_name: 'mkdir',
             revision: 0
-        }).success(function(data){
-            for (var i=0; i<data.length; i++) {
+        }).success(function (data) {
+            for (var i = 0; i < data.length; i++) {
                 this.functions[data[i].offset] = data[i];
             }
         }.bind(this));
@@ -22,23 +24,23 @@ var OdbFile = function() {
         var sq = $.get('/odaweb/api/sections/', {
             short_name: 'mkdir',
             revision: 0
-        }).success(function(data){
+        }).success(function (data) {
             this.sections = data;
         }.bind(this));
 
         var dulenq = $.get('/odaweb/api/displayunits/1/size', {
             short_name: 'mkdir',
             revision: 0
-        }).success(function(data) {
+        }).success(function (data) {
             this.displayUnitsLength = data;
         }.bind(this));
 
-        $.when(fq, sq, dulenq).done(function(data) {
+        $.when(fq, sq, dulenq).done(function (data) {
             this._signal('loaded', this);
         }.bind(this));
     };
 
-    this.loadDu = function(addr, numUnits, callback) {
+    this.loadDu = function (addr, numUnits, callback) {
         $.get('/odaweb/api/displayunits/', {
             short_name: 'mkdir',
             revision: 0,
@@ -48,7 +50,7 @@ var OdbFile = function() {
         }).done(callback);
     };
 
-    this.vmaToLda = function(vma, callback) {
+    this.vmaToLda = function (vma, callback) {
         $.get('/odaweb/api/displayunits/1/vmaToLda', {
             short_name: 'mkdir',
             revision: 0,
@@ -56,16 +58,16 @@ var OdbFile = function() {
         }).done(callback);
     };
 
-    this.makeData = function(vma, callback) {
+    this.makeData = function (vma, callback) {
         console.log('makeData', vma);
         $.get('/odaweb/api/displayunits/1/makeData', {
-                    short_name: 'mkdir',
-                    revision: 0,
-                    vma: vma
+            short_name: 'mkdir',
+            revision: 0,
+            vma: vma
         }).success(callback)
     };
 
-    this.makeCode = function(vma, callback) {
+    this.makeCode = function (vma, callback) {
         console.log('makeCode', vma);
         $.get('/odaweb/api/displayunits/1/makeCode', {
             short_name: 'mkdir',
@@ -74,22 +76,35 @@ var OdbFile = function() {
         }).success(callback)
     };
 
+    this.addComment = function (offset, comment) {
+        console.log("Comment", offset, comment);
+        this.comments[offset] = {
+            comment: comment,
+            offset: offset
+        }
+
+        this._signal('changed', {
+            addr: offset,
+            action: 'insertComment'
+        });
+    };
+
     this.callbacks = {};
-    this.on = function(name, handler) {
+    this.on = function (name, handler) {
         if (!this.callbacks[name]) {
             this.callbacks[name] = $.Callbacks();
         }
         this.callbacks[name].add(handler);
 
     };
-    this._signal = function(name, data) {
+    this._signal = function (name, data) {
         if (!this.callbacks[name]) {
             this.callbacks[name] = $.Callbacks();
         }
         this.callbacks[name].fire(data);
     };
 
-}
+};
 
 var OdaSession = function(session, windowLoader) {
 
@@ -141,17 +156,26 @@ var CommentDialog = function(du) {
         this.closeHandler.fire(false);
     }.bind(this));
 
+    this.save = function() {
+        this.modal.modal('hide');
+        var comment = $('#my-modal .comment-text').val();
+        this.closeHandler.fire(true, comment);
+    }
+
+    $('#my-modal .comment-text').unbind().bind('keypress', function(e){
+        if (e.charCode == '13') {
+            this.save();
+        }
+    }.bind(this));
+
     this.modal = $('#my-modal').modal('show');
 
 
     $(saveButtonId).unbind().on('click', function () {
-        this.modal.modal('hide');
-        this.closeHandler.fire(true);
+        this.save();
     }.bind(this));
 
-
-
-}
+};
 
 function string_insert(original, index, string) {
   if (index > 0)
@@ -159,20 +183,6 @@ function string_insert(original, index, string) {
   else
     return string + original;
 };
-
-var VirtualTextBox = function() {
-    this.text = '';
-    this.position = 0;
-
-    this.processKey = function(key) {
-        this.text = string_insert(this.text, this.position, key);
-        console.log(this.text);
-    }
-
-    this.getText = function() {
-        return this.text;
-    };
-}
 
 var StatusBar = function() {
     this.setAddress = function(address) {
@@ -188,7 +198,7 @@ var StatusBar = function() {
     };
 
     this.setMode('normal');
-}
+};
 
 var intToHex = function(value){
     var stringValue = value.toString(16);
@@ -250,9 +260,9 @@ var KeyboardHandler = function(statusBar, odaSession, odbFile) {
 
                 var commentDialog = new CommentDialog(line.data);
 
-                commentDialog.closeHandler.add(function (save) {
+                commentDialog.closeHandler.add(function (save, comment) {
                     if (save) {
-                        alert($('#my-modal .comment-text').val());
+                        odbFile.addComment(line.data.offset, comment);
                     }
 
                     editor.focus();
@@ -303,7 +313,7 @@ var lineRenderer = function(stringBuilder, row, onlyContents, foldLine) {
 
 };
 
-var Renderer = function(functions) {
+var Renderer = function(odbFile) {
 
     this.baseFunctionTemplateString =
        '{{duNum}}<span class="branchLines">{{{branch}}}</span><span class="offset">{{{formatSectionOffset section_name offset 15 }}}</span>&nbsp;&nbsp;' +
@@ -325,9 +335,9 @@ var Renderer = function(functions) {
 
     this.render = function(du) {
 
-        if (functions[du.offset]) {
+        if (odbFile.functions[du.offset]) {
       //      console.log("FUNCTION", du, functions[du.offset]);
-            var rendered_lines = this.renderFunction(du, functions[du.offset]);
+            var rendered_lines = this.renderFunction(du, odbFile.functions[du.offset]);
             return rendered_lines;
         }
 
@@ -337,8 +347,8 @@ var Renderer = function(functions) {
 
     this.renderTargetRef = function(du) {
         var label = "0x" + du.targetRef.offset.toString(16);
-        if (functions[du.targetRef.offset]) {
-            label =  functions[du.targetRef.offset].name + '[<a href="" class="xref-location">0x' + intToHex(du.targetRef.offset) + '</a>]';
+        if (odbFile.functions[du.targetRef.offset]) {
+            label =  odbFile.functions[du.targetRef.offset].name + '[<a href="" class="xref-location">0x' + intToHex(du.targetRef.offset) + '</a>]';
         }
         return label;
     };
@@ -352,6 +362,13 @@ var Renderer = function(functions) {
         theLines.push(this.baseFunctionTemplate(du));
         theLines.push(this.functionTemplate2($.extend({}, du, func)));
         return theLines;
+    };
+
+    this.renderComment = function(du) {
+        if (odbFile.comments[du.offset]) {
+            return '   ;' + odbFile.comments[du.offset].comment;
+        }
+        return '';
     }
 
     this.renderDu = function(du) {
@@ -362,7 +379,7 @@ var Renderer = function(functions) {
             return [renderedText + this.renderTargetRef(du)]
         }
         else
-            return [renderedText];
+            return [renderedText + this.renderComment(du)];
     };
 };
 
@@ -482,7 +499,7 @@ var OdaMode = function() {
 function start(odbFile) {
     var editor;
 
-    var renderer = new Renderer(odbFile.functions);
+    var renderer = new Renderer(odbFile);
     var windowLoader = new WindowLoader(renderer, odbFile);
 
     var addrBar = new AddressNavBar('#addr-bar-canvas', odbFile.sections);
@@ -517,6 +534,11 @@ function start(odbFile) {
     })
 
     editor.setKeyboardHandler(keyboardHandler.handler);
+
+    odbFile.on('changed', function(e){
+        console.log(e);
+        windowLoader.reload();
+    });
 
 
     editor.addEventListener('dblclick', function(e, editor){
