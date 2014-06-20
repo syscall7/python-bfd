@@ -30,7 +30,7 @@ var OdaSession = function(session, windowLoader) {
 
     this.getRowData = function(row) {
         return session.getDocument().getLineData(row);
-    }
+    };
 
 };
 
@@ -145,25 +145,43 @@ var KeyboardHandler = function(statusBar, odaSession) {
 
         var editor = data.editor;
         var session = editor.getSession();
-        if (key == ';') {
-            var cursor = session.getSelection().getCursor();
-            var line = session.getDocument().getLineData(cursor.row);
 
-            //line can be null when loading...
-            if (line) {
+        var cursor = session.getSelection().getCursor();
+        var line = session.getDocument().getLineData(cursor.row);
+
+
+        //line can be null when loading...
+        if (line) {
+
+            if (key == ';') {
+
 
                 var commentDialog = new CommentDialog(line.data);
 
-                commentDialog.closeHandler.add(function(save){
+                commentDialog.closeHandler.add(function (save) {
                     if (save) {
                         alert($('#my-modal .comment-text').val());
                     }
 
                     editor.focus();
                 });
-            }
-        }
 
+            }
+
+            if (key == 'd') {
+
+                console.log('d');
+                $.get('/odaweb/api/displayunits/1/splitParcel', {
+                    short_name: 'mkdir',
+                    revision: 0,
+                    vma: line.data.offset
+                }).success(function(data){
+                    this.odaSession.windowLoader.reload();
+                }.bind(this));
+
+            }
+
+        }
         console.log("keyboard", data, hashId, key, keyCode, e);
         return {
             command: "null"
@@ -262,8 +280,31 @@ var WindowLoader = function(renderer) {
     this.windowSize = 500;
     this.lineSizes = [];
     this.renderer = renderer;
-    this.load = function(rowNum, callback) {
 
+
+    this.callbacks = {};
+    this.lastRowNumload;
+
+    this.on = function(name, handler) {
+        if (!this.callbacks[name]) {
+            this.callbacks[name] = $.Callbacks();
+        }
+        this.callbacks[name].add(handler);
+
+    };
+    this._signal = function(name, data) {
+        if (!this.callbacks[name]) {
+            this.callbacks[name] = $.Callbacks();
+        }
+        this.callbacks[name].fire(data);
+    };
+
+    this.reload = function() {
+        this.load(this.lastRowNumload);
+    };
+
+    this.load = function(rowNum) {
+        this.lastRowNumload = rowNum;
         var duNum = this.rowToDisplayUnit(rowNum);
 
         NProgress.start();
@@ -296,8 +337,9 @@ var WindowLoader = function(renderer) {
 
             }
             NProgress.done();
-            currentWindow = new ace_document.Window(rowNum, tlines);
-            callback(currentWindow, addedLines);
+            var currentWindow = new ace_document.Window(rowNum, tlines);
+            this._signal("loaded", { window: currentWindow, additionalRows: addedLines });
+           // callback(currentWindow, addedLines);
 
         }.bind(this));
 
