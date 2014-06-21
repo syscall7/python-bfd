@@ -60,7 +60,7 @@ def parseDataLine(section_name, start_addr, end_addr, self, displayUnits, is_dat
             du.dataSize = 1
 
             # TODO: Don't specify the css class here - it's not very classy, ha, ha
-            du.instStr = "<span class='string'>%s</span>" % html.escape(chr(c)) if chr(c) in string.printable else ' '
+            du.instStr = "<insn>db</insn>  <span class='comment'>0x%02x</span> <span class='raw'>; %s</span>" % (c, html.escape(chr(c)) if chr(c) in string.printable else ' ')
 
             displayUnits[du.offset] = du
 
