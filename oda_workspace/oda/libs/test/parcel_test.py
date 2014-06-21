@@ -8,7 +8,7 @@ from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
 from oda.libs.odb.structures.branch import Branch
 from oda.libs.odb.structures.data_string import DataString
 from oda.libs.odb.structures.function import Function
-from oda.libs.odb.structures.parcel import Parcel, ParcelList
+from oda.libs.odb.structures.parcel import Parcel, ParcelList, DataParcel, CodeParcel
 from oda.libs.odb.structures.section import Section
 from oda.libs.odb.structures.symbol import Symbol
 from oda.libs.odb.odb_file import BinaryFile, BinaryString
@@ -383,4 +383,79 @@ class TestParcels(unittest.TestCase):
         self.assertEquals(0x4005a0, parcels_after.lda_to_vma(fini_lda_before+6))
         self.assertEquals(0x600fe0, parcels_after.lda_to_vma(got_lda_before+6))
 
+
+    def test_consolidate_data(self):
+
+        # positive, simple case
+        p1 = DataParcel(0, 0, 0x1000, '.test')
+        p2 = DataParcel(0, 0x1000, 0x2000, '.test')
+        p3 = DataParcel(0, 0x2000, 0x3000, '.test')
+        parcels = ParcelList([p1, p2, p3])
+        transaction = parcels.consolidate()
+        self.assertEquals(1, len(parcels))
+        self.assertEquals(0, parcels[0].vma_start)
+        self.assertEquals(0x3000, parcels[0].vma_end)
+        self.assertEquals(0x3000, parcels[0].num_ldas)
+        self.assertTrue(p2 in transaction.to_remove)
+        self.assertTrue(p3 in transaction.to_remove)
+
+        # positive, but only middle parcels merged
+        p1 = DataParcel(0, 0, 0x0fff, '.test')
+        p2 = DataParcel(0, 0x1000, 0x2000, '.test')
+        p3 = DataParcel(0, 0x2000, 0x3000, '.test')
+        p4 = DataParcel(0, 0x3001, 0x4000, '.test')
+        parcels = ParcelList([p1, p2, p3, p4])
+        transaction = parcels.consolidate()
+        self.assertEquals(3, len(parcels))
+        self.assertEquals(0, parcels[0].vma_start)
+        self.assertEquals(0x1000, parcels[1].vma_start)
+        self.assertEquals(0x3001, parcels[2].vma_start)
+        self.assertEquals(0x0fff, parcels[0].vma_end)
+        self.assertEquals(0x3000, parcels[1].vma_end)
+        self.assertEquals(0x4000, parcels[2].vma_end)
+        self.assertEquals(0x0fff, parcels[0].num_ldas)
+        self.assertEquals(0x2000, parcels[1].num_ldas)
+        self.assertEquals(0x0fff, parcels[2].num_ldas)
+        self.assertTrue(p3 in transaction.to_remove)
+        self.assertEquals(1, len(transaction.to_remove))
+
+        # negative, non-contiguous case
+        p1 = DataParcel(0, 0, 0xffff, '.test')
+        p2 = DataParcel(0, 0x1000, 0x1fff, '.test')
+        p3 = DataParcel(0, 0x2000, 0x3000, '.test')
+        parcels = ParcelList([p1, p2, p3])
+        transaction = parcels.consolidate()
+        self.assertEquals(3, len(parcels))
+        self.assertEquals(0, len(transaction.to_remove))
+        self.assertTrue(p1 in parcels)
+        self.assertTrue(p2 in parcels)
+        self.assertTrue(p3 in parcels)
+
+        # negative, disparate types case
+        p1 = DataParcel(0, 0, 0x1000, '.test')
+        p2 = CodeParcel(0, 0x1000, 0x2000, '.test')
+        p3 = DataParcel(0, 0x2000, 0x3000, '.test')
+        parcels = ParcelList([p1, p2, p3])
+        transaction = parcels.consolidate()
+        self.assertEquals(3, len(parcels))
+        self.assertEquals(0, len(transaction.to_remove))
+        self.assertTrue(p1 in parcels)
+        self.assertTrue(p2 in parcels)
+        self.assertTrue(p3 in parcels)
+
+        # negative, disparate sections case
+        p1 = DataParcel(0, 0, 0x1000, '.test1')
+        p2 = CodeParcel(0, 0x1000, 0x2000, '.test2')
+        p3 = DataParcel(0, 0x2000, 0x3000, '.test3')
+        parcels = ParcelList([p1, p2, p3])
+        transaction = parcels.consolidate()
+        self.assertEquals(3, len(parcels))
+        self.assertEquals(0, len(transaction.to_remove))
+        self.assertTrue(p1 in parcels)
+        self.assertTrue(p2 in parcels)
+        self.assertTrue(p3 in parcels)
+
+    def test_consolidate_code(self):
+        # TODO
+        pass
 

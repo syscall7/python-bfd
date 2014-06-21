@@ -39,6 +39,7 @@ class SplitParcelOperation(Operation):
             inserted_p = odb_file.insert_item(odb_file.create_item(parcel_class, {
                 'vma_start': p.vma_start,
                 'vma_end': p.vma_end,
+                'sec_name': p.sec_name,
             }))
 
             inserted_p.copy_from(p)
@@ -46,4 +47,14 @@ class SplitParcelOperation(Operation):
         # fixup parcel lda offsets in affected parcels
         for p in parcels_to_adjust:
             p.lda_start += transaction.adjustment
+
+        #
+        # consolidate parcels
+        #
+        parcels = ParcelList(odb_file.get_structure_list(Parcel))
+        transaction = parcels.consolidate()
+
+        # remove dead parcels
+        for p in transaction.to_remove:
+            odb_file.remove_item(p)
 

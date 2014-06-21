@@ -91,6 +91,7 @@ class Loader(object):
             self.odb_file.insert_item(self.odb_file.create_item(class_type, {
                 'vma_start': sec.vma,
                 'vma_end': sec.vma + sec.size,
+                'sec_name': sec.name
             }))
 
     def load_strings(self):

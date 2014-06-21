@@ -5,6 +5,16 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 import logging
 logger = logging.getLogger(__name__)
 
+class ParcelNotMergableError(Exception):
+    pass
+
+class ParcelTransaction(object):
+    """ Represents a set of parcels that should be added or removed from a parcel list """
+    def __init__(self, to_add=[], to_remove=[], adjustment=0):
+        self.to_add = to_add
+        self.to_remove = to_remove
+        self.adjustment = adjustment
+
 class ParcelList(list):
     """ Represents a group of parcels on which to operate as a whole """
 
@@ -43,12 +53,31 @@ class ParcelList(list):
             sum += p.num_ldas
         return sum
 
-class ParcelTransaction(object):
-    """ Represents a set of parcels that should be added or removed from a parcel list """
-    def __init__(self, to_add=[], to_remove=[], adjustment=0):
-        self.to_add = to_add
-        self.to_remove = to_remove
-        self.adjustment = adjustment
+    def sort(self, reverse=False):
+        super(ParcelList, self).sort(key=lambda p: p.vma_start, reverse=False)
+
+    def consolidate(self):
+        """ Consolidate all parcels, updating self, and returning a list of what parcels were removed """
+        if len(self) == 0:
+            return
+
+        self.sort()
+        to_remove = []
+        prev = self[0]
+        for p in self[1:]:
+            try:
+                # attempt to merge
+                prev.merge(p)
+                to_remove.append(p)
+
+            # if they're not mergable, try the next two
+            except ParcelNotMergableError:
+                prev = p
+
+        for p in to_remove:
+            self.remove(p)
+
+        return ParcelTransaction(to_remove=to_remove)
 
 
 class Parcel(OdaObject):
@@ -56,10 +85,11 @@ class Parcel(OdaObject):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, object_id, vma_start, vma_end):
+    def __init__(self, object_id, vma_start, vma_end, sec_name):
         super(Parcel, self).__init__(object_id)
         self.vma_start = vma_start
         self.vma_end = vma_end
+        self.sec_name = sec_name
         self.lda_start = 0
 
         # lda_bidict[lda_rel_to_start] = vma
@@ -75,6 +105,9 @@ class Parcel(OdaObject):
     def is_empty(self):
         return self.size == 0
 
+    def is_contiguous(self, p):
+        return self.vma_start == p.vma_end or self.vma_end == p.vma_start
+
     # returns True if this parcel contains the given virtual memory address (vma)
     def contains_vma(self, addr):
         return addr >= self.vma_start and addr < self.vma_end
@@ -88,6 +121,42 @@ class Parcel(OdaObject):
         self.vma_end = other.vma_end
         self.lda_start = other.lda_start
         self.lda_bidict = other.lda_bidict
+        self.sec_name = other.sec_name
+
+    def merge(self, other):
+
+        if not self.is_contiguous(other):
+            raise ParcelNotMergableError("Parcels are not contiguous")
+
+        # Don't merge code parcels for now
+        if self.is_code:
+            raise ParcelNotMergableError("We're not consolidating code parcels at this time")
+
+        if self.is_code != other.is_code:
+            raise ParcelNotMergableError("Parcels are not the same type")
+
+        if self.sec_name != other.sec_name:
+            raise ParcelNotMergableError("Parcels are not in the same section")
+
+        if other.is_empty():
+            return
+
+        if self.vma_start < other.vma_start:
+            self.vma_end = other.vma_end
+            lda_adjust = self.num_ldas
+            to_adjust = other
+        else:
+            self.vma_start = other.vma_start
+            self.lda_start -= other.num_ldas
+            lda_adjust = other.num_ldas
+            to_adjust = self
+
+        for lda, vma in to_adjust.lda_bidict.items():
+            to_adjust.lda_bidict.pop(lda)
+            to_adjust.lda_bidict[lda+lda_adjust] = vma
+
+        for lda, vma in other.lda_bidict:
+            self.lda_bidict[lda] = vma
 
     @abstractproperty
     def is_code(self):
@@ -196,11 +265,11 @@ class CodeParcel(Parcel):
         # this can happen when splitting on the last instruction of a code parcel
         if second_vma_end is None:
             second_vma_end = first.vma_end
-        second = DataParcel(0, vma_start=inst_vma, vma_end=second_vma_end)
+        second = DataParcel(0, vma_start=inst_vma, vma_end=second_vma_end, sec_name=first.sec_name)
         second.lda_start = inst_lda
 
         # setup third parcel
-        third = CodeParcel(0, vma_start=second.vma_end, vma_end=first.vma_end)
+        third = CodeParcel(0, vma_start=second.vma_end, vma_end=first.vma_end, sec_name=first.sec_name)
         third.lda_start = inst_lda+second.num_ldas
 
         # fixup the first parcel
@@ -276,7 +345,7 @@ class DataParcel(Parcel):
         first = self
 
         # setup second parcel
-        second = CodeParcel(0, vma_start=vma, vma_end=first.vma_end)
+        second = CodeParcel(0, vma_start=vma, vma_end=first.vma_end, sec_name=first.sec_name)
         second.lda_start = first.vma_to_lda(vma)
 
         # fixup the first parcel
