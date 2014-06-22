@@ -25,7 +25,7 @@ class Function(object):
         self.name = name
         self.type = type
 
-def parseDataLine(section_name, start_addr, end_addr, self, displayUnits, is_data, maxLines):
+def parseDataParcel(section_name, start_addr, end_addr, self, displayUnits, is_data, maxLines):
 
     dataLen = end_addr - start_addr
     numLines = 0
@@ -366,7 +366,7 @@ class defaultAnalyzer(object):
 
                     # data section
                     else:
-                        lines = parseDataLine(s.name, dis_start, dis_end, self, self.displayUnits, False, maxUnits)
+                        lines = parseDataParcel(s.name, dis_start, dis_end, self, self.displayUnits, False, maxUnits)
 
                     if maxUnits is not None:
                         maxUnits -= lines
@@ -472,10 +472,10 @@ class defaultAnalyzer(object):
 
             if parcel.is_code == None:
                 # Defined Data
-                parseDataLine(s.name, dis_start, dis_end, self, self.displayUnits, False)
+                parseDataParcel(s.name, dis_start, dis_end, self, self.displayUnits, False)
             elif parcel.is_code == False:
                 # Undefined
-                parseDataLine(s.name, dis_start, dis_end, self, self.displayUnits, True)
+                parseDataParcel(s.name, dis_start, dis_end, self, self.displayUnits, True)
 
         logger.debug("Analyze: THIRD PASS COMPLETE")
 
