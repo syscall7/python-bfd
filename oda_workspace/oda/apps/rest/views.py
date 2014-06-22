@@ -185,30 +185,38 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
                                     revision=request.QUERY_PARAMS.get('revision'))
 
+        error = None
         vma = 0
         if request.QUERY_PARAMS.get('vma'):
             vma = int(request.QUERY_PARAMS.get('vma'), 0)
 
         dasm = Disassembler(oda.odb_file)
-        dasm.make_data(vma)
+        try:
+            dasm.make_data(vma)
+        except Exception as e:
+            error = e.message
         oda.save()
 
-        return Response()
+        return Response({'error': error})
 
     @link()
     def makeCode(self, request, pk):
         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
                                     revision=request.QUERY_PARAMS.get('revision'))
 
+        error = None
         vma = 0
         if request.QUERY_PARAMS.get('vma'):
             vma = int(request.QUERY_PARAMS.get('vma'), 0)
 
         dasm = Disassembler(oda.odb_file)
-        dasm.make_code(vma)
+        try:
+            dasm.make_code(vma)
+        except Exception as e:
+            error = e.message
         oda.save()
 
-        return Response()
+        return Response({'error': error})
 
 class FindViewSet(viewsets.GenericViewSet):
     serializer_class = FindResultsSerializer

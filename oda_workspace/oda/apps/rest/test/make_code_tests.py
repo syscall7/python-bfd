@@ -4,6 +4,15 @@ from oda_api_tests import OdaApiTestCase
 class MakeCodeUnitTest(OdaApiTestCase):
     urls = 'oda.urls'
 
+    def test_make_bad_code(self):
+        response = self.client.get('/odaweb/api/displayunits/1/makeCode/',
+                                   { 'revision': 0,
+                                     'short_name': 'mkdir',
+                                     'vma': 0x4002cd},
+                                   format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotEqual(response.data['error'], None)
+
     def test_simple_make_code(self):
 
         # before making_data
@@ -57,6 +66,7 @@ class MakeCodeUnitTest(OdaApiTestCase):
                                      'vma': 0x4014d9},
                                    format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['error'], None)
 
         # get the display units (should be CODA, DATA, CODE)
         response = self.client.get('/odaweb/api/displayunits/',
@@ -83,6 +93,7 @@ class MakeCodeUnitTest(OdaApiTestCase):
                                      'vma': 0x4014d9},
                                    format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['error'], None)
 
         # get the display units, should be all code again
         response = self.client.get('/odaweb/api/displayunits/',

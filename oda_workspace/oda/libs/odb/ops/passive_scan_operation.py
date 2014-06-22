@@ -47,7 +47,7 @@ class PassiveScanOperation(Operation):
 
                 def callback(addr, rawData, instr, abfd, self):
                     for scanner in scanners:
-                        scanner.scan_line(parcel, addr, rawData, instr, abfd)
+                        scanner.scan_line(addr, rawData, instr, abfd, parcel)
 
 
                 the_ofd.disassemble(section.name, [], parcel.vma_start, parcel.vma_end,

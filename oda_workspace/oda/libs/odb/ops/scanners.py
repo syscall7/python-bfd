@@ -27,14 +27,14 @@ class Scanner(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def scan_line(self, parcel, addr, rawData, instr, abfd):
+    def scan_line(self, addr, rawData, instr, abfd, parcel):
         pass
 
     def commit(self, odb_file):
         pass
 
 class ParcelOffsetScanner(Scanner):
-    def scan_line(self, parcel, addr, rawData, instr, abfd):
+    def scan_line(self, addr, rawData, instr, abfd, parcel):
         # associate this vma with the parcel
         parcel.push_vma(addr)
 
@@ -46,7 +46,7 @@ class BranchScanner(Scanner):
         self.branches = []
         self.labels = []
 
-    def scan_line(self, parcel, addr, rawData, instr, abfd):
+    def scan_line(self, addr, rawData, instr, abfd, parcel):
         match_obj = self.opcode_regex.match(instr)
         if match_obj:
 
@@ -80,7 +80,7 @@ class FunctionScanner(Scanner):
 
         self.functions = {}
 
-    def scan_line(self, parcel, addr, rawData, instr, abfd):
+    def scan_line(self, addr, rawData, instr, abfd, parcel):
         ''' Disassembly line parser optimized for finding functions '''
 
         if self.error_instruction_regex.match(instr):
@@ -136,7 +136,7 @@ class BadCodeScanner(Scanner):
 
         self.bad_addr = None
 
-    def scan_line(self, parcel, addr, rawData, instr, abfd):
+    def scan_line(self, addr, rawData, instr, abfd, parcel):
         ''' Disassembly line parser optimized for finding functions '''
 
         if self.error_instruction_regex.match(instr):
