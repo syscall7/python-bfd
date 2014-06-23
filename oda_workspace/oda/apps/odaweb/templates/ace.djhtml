@@ -27,6 +27,10 @@
         left: 0;
     }
 
+    .ace_gutter-cell {
+        text-align:left;
+    }
+
     .branchLines {
         color: #093C83;
         text-align: right;

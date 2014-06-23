@@ -316,7 +316,7 @@ var lineRenderer = function(stringBuilder, row, onlyContents, foldLine) {
 var Renderer = function(odbFile) {
 
     this.baseFunctionTemplateString =
-       '{{duNum}}<span class="branchLines">{{{branch}}}</span><span class="offset">{{{formatSectionOffset section_name offset 15 }}}</span>&nbsp;&nbsp;' +
+       '<span class="offset">{{{formatSectionOffset section_name offset 15 }}}</span>&nbsp;&nbsp;' +
        '<span class="raw disassembly-cell">{{{pad " " 20}}}</span>&nbsp;&nbsp;';
     this.baseFunctionTemplate = Handlebars.compile(this.baseFunctionTemplateString);
 
@@ -328,7 +328,7 @@ var Renderer = function(odbFile) {
 
 
     this.baseDuTemplateString =
-        '{{duNum}}<span class="branchLines">{{{branch}}}</span><span class="offset">{{{formatSectionOffset section_name offset 15 }}}</span>';
+        '<span class="offset">{{{formatSectionOffset section_name offset 15 }}}</span>';
     this.baseDuTemplate = Handlebars.compile(this.baseDuTemplateString +
         '&nbsp;&nbsp;<span class="raw disassembly-cell">{{{pad rawBytes 20}}}</span>&nbsp;&nbsp;<span class="instruction">{{{instStr}}}</span>');
     this.labelTemplate = Handlebars.compile(this.baseDuTemplateString + "{{{ pad '' 20}}} loc_{{ hex offset }}");
@@ -496,6 +496,34 @@ var OdaMode = function() {
     }
 };
 
+function replaceAll(str, find, replace) {
+  return str.replace(new RegExp(find, 'g'), replace);
+}
+
+var OdaGutterRenderer = function(odaSession) {
+
+    this.odaSession = odaSession;
+
+    this.getText = function(session, row) {
+        var rowData = odaSession.getRowData(row);
+        if (rowData) {
+            console.log(rowData.data);
+            var t = Handlebars.compile('{{{branch}}}')(rowData.data);
+            //return rowData.data.branch;
+            var k = '"' + replaceAll(replaceAll(replaceAll(rowData.data.branch, '&#x', '\\u'),'&nbsp;',''),';','') + '"';
+
+            return JSON.parse(k);
+            //return '\u2001\u2501\u25b6';
+        } else {
+            return '';
+        }
+    }.bind(this);
+
+    this.getWidth = function(session, lastLineNumber, config) {
+        return config.characterWidth * 4;
+    };
+};
+
 function start(odbFile) {
     var editor;
 
@@ -526,6 +554,9 @@ function start(odbFile) {
     var odaSession = new OdaSession(editor.getSession(), windowLoader);
     var statusBar = new StatusBar();
     var keyboardHandler = new KeyboardHandler(statusBar, odaSession, odbFile);
+
+    editor.getSession().gutterRenderer = new OdaGutterRenderer(odaSession);
+
 
     odaSession.onCursorChange.add(function(offset) {
         console.log("CURSOR CHANGE", offset);
