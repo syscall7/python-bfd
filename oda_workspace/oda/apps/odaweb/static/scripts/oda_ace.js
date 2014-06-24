@@ -413,6 +413,8 @@ var WindowLoader = function(renderer, odbFile) {
     };
 
     this.load = function(rowNum) {
+        var scrollTop = this.session.getScrollTop();
+
         this.lastRowNumload = rowNum;
         var duNum = this.rowToDisplayUnit(rowNum);
 
@@ -434,7 +436,15 @@ var WindowLoader = function(renderer, odbFile) {
                         addedLines += renderedLines.length;
 
                     this.lineSizes[duNum + i] = renderedLines.length;
+
+                    //this is a PITA, there is no general algorithm to fix up the branch without knowning what the lines are
+                    //for example line 1; left angle, lines 2/3 label. We can't copy the left angle, we can't dup the right arrows...
+                    var branch = data[i].branch;
+                    for (var j=0; j<renderedLines.length-1; j++) {
+                        renderedLines[j].data = $.extend({}, renderedLines[j].data, {branch:''});
+                    }
                 }
+
 
                 tlines = tlines.concat(renderedLines);
 
@@ -443,6 +453,7 @@ var WindowLoader = function(renderer, odbFile) {
             var currentWindow = new ace_document.Window(rowNum, tlines);
             this._signal("loaded", { window: currentWindow, additionalRows: addedLines });
            // callback(currentWindow, addedLines);
+
 
         }.bind(this));
     };
@@ -507,7 +518,7 @@ var OdaGutterRenderer = function(odaSession) {
     this.getText = function(session, row) {
         var rowData = odaSession.getRowData(row);
         if (rowData) {
-            console.log(rowData.data);
+            //console.log(rowData.data);
             var t = Handlebars.compile('{{{branch}}}')(rowData.data);
             //return rowData.data.branch;
             var k = '"' + replaceAll(replaceAll(replaceAll(rowData.data.branch, '&#x', '\\u'),'&nbsp;',''),';','') + '"';
@@ -520,7 +531,7 @@ var OdaGutterRenderer = function(odaSession) {
     }.bind(this);
 
     this.getWidth = function(session, lastLineNumber, config) {
-        return config.characterWidth * 4;
+        return config.characterWidth * 6;
     };
 };
 
@@ -555,6 +566,7 @@ function start(odbFile) {
     var statusBar = new StatusBar();
     var keyboardHandler = new KeyboardHandler(statusBar, odaSession, odbFile);
 
+    windowLoader.session = editor.getSession();
     editor.getSession().gutterRenderer = new OdaGutterRenderer(odaSession);
 
 
