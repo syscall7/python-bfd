@@ -107,4 +107,5 @@ class mips(defaultAnalyzer):
             except: 
                 inst.callType = callType.indirect
 
-          
+    def getMaxInstructionLenBytes(self):
+        return 4

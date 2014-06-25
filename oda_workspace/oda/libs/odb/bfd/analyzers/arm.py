@@ -199,3 +199,6 @@ class arm(defaultAnalyzer):
                 inst.isTargetAddrValid = True
             except: 
                 inst.callType = callType.indirect
+
+    def getMaxInstructionLenBytes(self):
+        return 4

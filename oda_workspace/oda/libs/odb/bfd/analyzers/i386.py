@@ -80,4 +80,6 @@ class i386(defaultAnalyzer):
             except: 
                 inst.callType = callType.indirect
 
-          
+    def getMaxInstructionLenBytes(self):
+        # Thanks Anthony!
+        return 15
