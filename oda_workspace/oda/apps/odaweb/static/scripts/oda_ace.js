@@ -506,7 +506,9 @@ var OdaMode = function() {
                 };
             }
         };
-    }
+    };
+
+    this.createWorker = function() { };
 };
 
 function replaceAll(str, find, replace) {
@@ -617,5 +619,8 @@ $(document).ready(function(){
     });
 
     $('#editor').height($(window).height()-60);
+    $(window).resize(function(){
+        $('#editor').height($(window).height()-60);
+    });
     $('.theeditor').layout({ applyDemoStyles: true });
 });
