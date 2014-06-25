@@ -414,7 +414,6 @@ var WindowLoader = function(renderer, odbFile) {
     };
 
     this.load = function(rowNum) {
-        var scrollTop = this.session.getScrollTop();
 
         this.lastRowNumload = rowNum;
         var duNum = this.rowToDisplayUnit(rowNum);
@@ -426,6 +425,7 @@ var WindowLoader = function(renderer, odbFile) {
             NProgress.inc(0.4);
             var tlines = [];
 
+            var scrollTop = this.session.getScrollTop();
 
             var addedLines = 0;
 
