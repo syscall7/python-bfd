@@ -437,11 +437,12 @@ var WindowLoader = function(renderer, odbFile) {
 
                     this.lineSizes[duNum + i] = renderedLines.length;
 
-                    //this is a PITA, there is no general algorithm to fix up the branch without knowning what the lines are
-                    //for example line 1; left angle, lines 2/3 label. We can't copy the left angle, we can't dup the right arrows...
+                    //fixup the branch lines
                     var branch = data[i].branch;
+                    var branch_label = data[i].branch_label;
+
                     for (var j=0; j<renderedLines.length-1; j++) {
-                        renderedLines[j].data = $.extend({}, renderedLines[j].data, {branch:''});
+                        renderedLines[j].data = $.extend({}, renderedLines[j].data, {branch:branch_label});
                     }
                 }
 
