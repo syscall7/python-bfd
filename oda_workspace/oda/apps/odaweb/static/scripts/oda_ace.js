@@ -456,8 +456,10 @@ var WindowLoader = function(renderer, odbFile) {
             this._signal("loaded", { window: currentWindow, additionalRows: addedLines });
            // callback(currentWindow, addedLines);
 
-
+            this.session.setScrollTop(scrollTop);
         }.bind(this));
+
+
     };
 
     this.rowToDisplayUnit = function(row) {
@@ -559,6 +561,7 @@ function start(odbFile) {
 
     doc.setLoadingString("..");
     editor = ace.edit("editor", doc);
+    window.theeditor = editor;
     editor.setTheme("ace/theme/chrome");
     editor.setLineRenderer(lineRenderer);
     editor.getSession().setMode("ace/mode/javascript");
