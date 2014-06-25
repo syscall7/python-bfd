@@ -603,8 +603,8 @@ function start(odbFile) {
         if (xrefLocation.length > 0){
             console.log("xref-location", xrefLocation[0].value);
             odbFile.vmaToLda(parseInt(xrefLocation[0].value.substring(2),16), function(ldu){
-                editor.moveCursorTo(windowLoader.displayUnitToRow(ldu), 0);
                 editor.clearSelection();
+                editor.moveCursorTo(windowLoader.displayUnitToRow(ldu), 0);
             });
         }
 
