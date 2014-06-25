@@ -14,12 +14,17 @@
 
     <script type="text/javascript" src="{% static 'scripts/lib/jquery/jquery-1.8.3.min.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/lib/bootstrap-3.0.3/js/bootstrap.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/jquery-ui-1.10.4.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/jquery.layout-rc30.79.js' %}"></script>
 
 <style type="text/css" media="screen">
     body {
         margin: 0px;
     }
     #editor {
+        width:100%;
+    }
+    .theeditor {
         position: absolute;
         top: 25px;
         right: 0;
@@ -86,13 +91,18 @@
     <div style="color:gray; font-family:monospace; margin-right: 15px; float:right">0x0</div>
 </div>
 
-<div id="editor"></div>
+<div class="theeditor">
+<div class="ui-layout-center">
+    <div id="editor"></div>
+</div>
+<div class="ui-layout-west">West</div>
+</div>
 
 <div id="statusbar-container">
 <div id="statusBar"><span class="status-mode">online disassembler forever!</span><div class="ace_status-indicator" style="display: inline-block;">61:0</div></div>
 </div>
 
-</div>
+
 
 
 <div id="my-modal" class="modal fade">

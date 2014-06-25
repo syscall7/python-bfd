@@ -321,7 +321,7 @@ var Renderer = function(odbFile) {
     this.baseFunctionTemplate = Handlebars.compile(this.baseFunctionTemplateString);
 
     this.functionTemplate1 = Handlebars.compile(this.baseFunctionTemplateString +
-        '<span class="instruction">=============== F U N C T I O N ====================================</span>');
+        '<span class="instruction">; =============== F U N C T I O N ====================================</span>');
 
     this.functionTemplate2 = Handlebars.compile(this.baseFunctionTemplateString +
         '<span class="function-return">{{retval}}</span> <span class="function-name">{{name}}</span> <span class="function-args">({{args}})</span>');
@@ -331,7 +331,7 @@ var Renderer = function(odbFile) {
         '<span class="offset">{{{formatSectionOffset section_name offset 15 }}}</span>';
     this.baseDuTemplate = Handlebars.compile(this.baseDuTemplateString +
         '&nbsp;&nbsp;<span class="raw disassembly-cell">{{{pad rawBytes 20}}}</span>&nbsp;&nbsp;<span class="instruction">{{{instStr}}}</span>');
-    this.labelTemplate = Handlebars.compile(this.baseDuTemplateString + "{{{ pad '' 20}}} loc_{{ hex offset }}");
+    this.labelTemplate = Handlebars.compile(this.baseDuTemplateString + "{{{ pad '' 20}}} loc_{{ hex offset }}:");
 
     this.render = function(du) {
 
@@ -355,12 +355,13 @@ var Renderer = function(odbFile) {
 
     this.renderFunction =  function(du, func) {
 
-        var theLines = [this.functionTemplate1(du)];
+        var theLines = [this.baseFunctionTemplate(du), this.functionTemplate1(du)];
         for (var i=0;i<du.crossRef.length; i++) {
             theLines.push(this.baseFunctionTemplate(du) + '; CODE XREF:<a href="" class="xref-location">0x' + intToHex(du.crossRef[i].offset) + '</a>');
         }
         theLines.push(this.baseFunctionTemplate(du));
         theLines.push(this.functionTemplate2($.extend({}, du, func)));
+        theLines.push(this.baseDuTemplate(du));
         return theLines;
     };
 
@@ -374,7 +375,7 @@ var Renderer = function(odbFile) {
     this.renderDu = function(du) {
         var renderedText = this.baseDuTemplate(du);
         if (du.isBranch) {
-            return [this.labelTemplate(du), renderedText];
+            return [this.baseFunctionTemplate(du), this.labelTemplate(du), renderedText];
         } if (du.targetRef) {
             return [renderedText + this.renderTargetRef(du)]
         }
@@ -614,4 +615,7 @@ $(document).ready(function(){
     odbFile.on('loaded', function(odbFile){
         start(odbFile);
     });
+
+    $('#editor').height($(window).height()-60);
+    $('.theeditor').layout({ applyDemoStyles: true });
 });

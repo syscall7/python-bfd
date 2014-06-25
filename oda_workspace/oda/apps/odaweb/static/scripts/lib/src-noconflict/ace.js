@@ -12861,7 +12861,7 @@ var Editor = function(renderer, session) {
         this.renderer.updateLines(range.start.row, lastRow);
 
         this._signal("change", e);
-        this.$cursorChange();
+        //this.$cursorChange();
     };
 
     this.onTokenizerUpdate = function(e) {
