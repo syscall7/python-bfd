@@ -94,7 +94,8 @@ class Disassembler(object):
 
         # if we are going backwards
         if lines < 0:
-            lda_end = parcels.vma_to_lda(start)
+            # Note: Use start+1 to include start in the returned disassembly
+            lda_end = parcels.vma_to_lda(start) + 1
             lda_start = lda_end + lines if lda_end > lines else 0
             start = parcels.lda_to_vma(lda_start)
             lines = abs(lines)

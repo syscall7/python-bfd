@@ -349,12 +349,16 @@ class defaultAnalyzer(object):
             disStart = start
 
         else:
+            # Note: disassembler.py prevents this case from happening.
+            # TODO: To remove
+
             # Getting disassembly moving backwards from an address
-            filterFunc = lambda parcel: parcel.vma_start < start
+            #  Note: Use start+1 to include the provided address in the returned disaseembly
+            filterFunc = lambda parcel: parcel.vma_start < start + 1
             parcelList = reversed(parcels)
 
             # Backwards parsing means the provided start address is the end of disassembly
-            disEnd = start
+            disEnd = start+1
             disStart = None
 
         # Disassemble the parcel
