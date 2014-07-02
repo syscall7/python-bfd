@@ -36,7 +36,7 @@ class DisplayUnitTest(OdaApiTestCase):
 
         tests = (
             (0x4014d0, len(expect)),    # go forward
-            (0x401500, -len(expect)),   # and backward
+            (0x4014FC, -len(expect)),   # and backward
         )
 
         for vma, lines in tests:
