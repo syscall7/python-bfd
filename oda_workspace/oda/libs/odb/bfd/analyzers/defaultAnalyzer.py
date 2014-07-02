@@ -219,47 +219,8 @@ class defaultAnalyzer(object):
     def processOptions(self, options):
         return options
 
-    # def analyze_first_time(self, disassembler, parcels):
-    #     ''' Here we do the minimum initial analysis for a brand new file, and nothing more '''
-    #
-    #     self.errorInstRegEx = re.compile( self.errorInstRegExStr )
-    #     self.opcodeRegEx = re.compile( self.opcodeRegExStr )
-    #
-    #     # create Functions for symbols of type 't' and 'T'
-    #     self.functions = {}
-    #     for sym in disassembler.ofd.symbols():
-    #         if sym.type == 'T' or sym.type == 't':
-    #             self.functions[sym.value] = Function(sym.value, sym.name, sym.type, set())
-    #
-    #     # create Functions for new functions we identify
-    #     start = 0
-    #     for parcel in parcels:
-    #         logger.debug("PARCEL START: 0x%08x RQ START: 0x%08x" % (parcel.start,start))
-    #         parcel.sampleOffsetCount = 0
-    #         parcel.sampleOffsets = []
-    #
-    #         if parcel.end >= start:
-    #
-    #             if start < parcel.end and start >= parcel.start:
-    #                 dis_start = start
-    #             else:
-    #                 dis_start = parcel.start
-    #
-    #             dis_end = parcel.end
-    #
-    #             # Convert the parcel to disassembly
-    #             if parcel.is_code:
-    #                 s = disassembler.ofd.get_section_from_addr(dis_start)
-    #
-    #                 logger.debug("Requesting disassembly from BFD...")
-    #                 disassembler.ofd.disassemble(s.name, [], dis_start, dis_end,
-    #                                               funcFmtLine=parseFunctionsOnly,
-    #                                               funcFmtLineArgs={
-    #                                                   'self': self,
-    #                                                   'parcel' : parcel
-    #                                                   })
-
     def displayUnitsFromParcel(self, options, parcel, start=None, end=None, maxUnits=None):
+        assert(maxUnits >= 0)
         displayUnits = {}
         s = self.ofd.get_section_from_addr(parcel.vma_start)
         if start and parcel.vma_start < start:
@@ -273,30 +234,17 @@ class defaultAnalyzer(object):
             dis_end = parcel.vma_end
 
         if parcel.is_code:
-            if maxUnits and maxUnits >= 0:
-                if parcel.is_code:
-                    (_, _, lines) = self.ofd.disassemble(s.name, options, dis_start, dis_end,
-                                                  numLines = maxUnits,
-                                                  funcFmtLine=parseInstruction,
-                                                  funcFmtLineArgs={
-                                                      'self': self,
-                                                      'displayUnits': displayUnits,
-                                                      'section_name': s.name,
-                                                  })
-            else:
-                (_, _, lines) = self.ofd.disassemble(s.name, options, dis_start, dis_end,
+            if maxUnits:
+                self.ofd.disassemble(s.name, options, dis_start, dis_end,
+                                              numLines = maxUnits,
                                               funcFmtLine=parseInstruction,
                                               funcFmtLineArgs={
                                                   'self': self,
                                                   'displayUnits': displayUnits,
                                                   'section_name': s.name,
                                               })
-                # Cull postCall
-                if maxUnits:
-                    wantedDisplayUnits = sorted(displayUnits.values(), key=lambda du: du.offset)[maxUnits:]
-                    dict_you_want = { du.offset: displayUnits[du.offset] for du in wantedDisplayUnits }
         else:
-            lines = parseDataParcel(s.name, dis_start, dis_end, self, displayUnits, False, maxUnits)
+            parseDataParcel(s.name, dis_start, dis_end, self, displayUnits, False, maxUnits)
 
         return displayUnits
 
@@ -328,10 +276,6 @@ class defaultAnalyzer(object):
         # Add symbols from the database to the functions list
         for f in self.odb_file.get_structure_list(function2.Function):
             self.functions[f.offset] = f
-
-        #for sym in self.symbols:
-        #    if sym.type == 'T' or sym.type == 't':
-        #        self.functions[sym.offset] = Function(sym.offset, sym.name, sym.type, sym.xrefs)
 
         # Make a first pass at parsing for organizing the instructions
         logger.debug("Analyze: START FIRST PASS FOR INSTRUCTIONS")
@@ -416,28 +360,6 @@ class defaultAnalyzer(object):
             self.addBranchLinesAndLabels(dunits, self.branches)
 
         logger.debug("Analyze: SECOND PASS COMPLETE")
-
-        #logger.debug("Analyze: THIRD PASS FOR DATA")
-
-        # # TODO: Add data display back in, but make it respect maxLines
-        # for parcel in []: #parcels:
-        #     logger.debug("PARCEL START: 0x%08x" % (parcel.vma_start))
-        #     s = self.disassembler.ofd.get_section_from_addr(parcel.vma_start)
-        #     if start < parcel.vma_end and start > parcel.vma_start:
-        #         dis_start = start
-        #     else:
-        #         dis_start = parcel.vma_start
-        #
-        #     dis_end = parcel.vma_end
-        #
-        #     if parcel.is_code == None:
-        #         # Defined Data
-        #         parseDataParcel(s.name, dis_start, dis_end, self, self.displayUnits, False)
-        #     elif parcel.is_code == False:
-        #         # Undefined
-        #         parseDataParcel(s.name, dis_start, dis_end, self, self.displayUnits, True)
-
-        #logger.debug("Analyze: THIRD PASS COMPLETE")
 
     def addBranchLinesAndLabels(self, dunits, branches):
 
