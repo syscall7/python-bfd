@@ -699,6 +699,8 @@ def download_text_listing(request):
 
 def ace(request, disassembly_id, version=0):
 
+    if not disassembly_id:
+        disassembly_id = 'mkdir'
     oda_master = create_session(request, disassembly_id, version)
 
     context = {
