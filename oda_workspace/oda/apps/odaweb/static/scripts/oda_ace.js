@@ -621,9 +621,11 @@ $(document).ready(function(){
         start(odbFile);
     });
 
-    $('#editor').height($(window).height()-70);
+    var top = parseInt($('.theeditor').css('top'));
+    var bottom = parseInt($('.theeditor').css('bottom'));
+    $('#editor').height($(window).height()-top-bottom - 5);
     $(window).resize(function(){
-        $('#editor').height($(window).height()-70);
+        $('#editor').height($(window).height()-top-bottom - 5 );
     });
 });
 
