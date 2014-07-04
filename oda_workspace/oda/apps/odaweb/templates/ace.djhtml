@@ -7,6 +7,7 @@
 <title>ACE in Action</title>
 
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/nprogress/nprogress.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/oda3.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/font-awesome-4.0.3/css/font-awesome.css' %}" />
 
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/bootstrap-3.2/css/bootstrap.css' %}"/>
@@ -26,316 +27,13 @@
 
 
 <style type="text/css" media="screen">
-    body {
-        margin: 0px;
-    }
-    #editor {
-        width:100%;
-    }
-    .theeditor {
-        position: absolute;
-        top: 90px;
-        right: 0;
-        bottom: 20px;
-        left: 0;
-    }
 
-    .ace_gutter-cell {
-        text-align:left;
-    }
-
-    .branchLines {
-        color: #093C83;
-        text-align: right;
-        width:49px;
-        display:inline-block;
-        overflow: hidden;
-    }
-
-    .raw {
-        color: gray;
-    }
-
-    .instruction {
-        color: #093C83;
-    }
-
-    .function-return {
-        font-style: italic;
-    }
-
-    .function-name {
-        font-weight: bold;
-    }
-
-     #statusBar {
-        margin: 0;
-        padding: 0;
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 20px;
-        background-color: rgb(245, 245, 245);
-        color: gray;
-    }
-    .ace_status-indicator {
-        color: gray;
-        position: absolute;
-        right: 0;
-        border-left: 1px solid;
-    }
-
-    .navbar-brand {
-        background: url('/static2/images/oda.png') no-repeat center;
-        background-size: 50px;
-        width: 70px;
-    }
-
-
-.blue-white-table td, .blue-white-table th
-{
-    padding:3px 10px 3px 10px;
-}
-
-.blue-white-table th
-{
-    background-color:#92C1F0;
-    color:#000000;
-}
-
-.blue-white-table tr.even td
-{
-    color:#000000;
-}
-
-.blue-white-table tr.odd td
-{
-    color:#000000;
-    background-color:#C8DEFF;
-}
-
-
-    .plunker-paneselector .pulse-info a i {
-  -webkit-animation-name: pulse-info;
-  -webkit-animation-duration: 2s;
-  -webkit-animation-iteration-count: infinite;
-  -webkit-animation-timing-function: ease-in-out;
-  -webkit-animation-direction: alternate;
-  -moz-animation-name: pulse-info;
-  -moz-animation-duration: 2s;
-  -moz-animation-iteration-count: infinite;
-  -moz-animation-timing-function: ease-in-out;
-  -moz-animation-direction: alternate;
-}
-.plunker-paneselector {
-  background: whiteSmoke;
-  text-align: center;
-  overflow: visible;
-}
-.plunker-paneselector ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.plunker-paneselector ul li {
-  text-align: center;
-  font-size: 16px;
-  position: relative;
-  margin: 0;
-  padding: 0;
-}
-.plunker-paneselector ul li a {
-  display: inline-block;
-  width: 40px;
-  height: 40px;
-  line-height: 40px;
-  vertical-align: center;
-  color: #999;
-  text-decoration: none;
-  font-size: 20px;
-  padding: 0;
-}
-.plunker-paneselector ul li:hover a {
-  color: #005580;
-  background-color: #EEE;
-}
-.plunker-paneselector ul li.active a {
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
-  background-color: #08C;
-  color: white;
-}
-.plunker-paneselector ul li {
-    cursor: pointer;
-}
-
-/*Nprogress Bar*/
-#nprogress .bar,
-#nprogress .spinner {
-    z-index: 999999;
-    }
-
-
-.loading-spinner {
-    position: relative;
-    font-size: 100px;
-    width: 1em;
-    height: 1em;
-    margin: 100px auto;
-    border-radius: 50%;
-    background: #123456;
-    box-shadow: inset 0 0 0 .12em rgba(0,0,0,0.2), 0 0 0 .12em rgba(255,255,255,0.1);
-    background:
-        -webkit-linear-gradient(#FA4B00 50%, #1F1F1F 50%),
-        -webkit-linear-gradient(#1F1F1F 50%, #FA4B00 50%);
-    background:
-        -webkit-linear-gradient(#FA4B00 50%, #1F1F1F 50%), -webkit-linear-gradient(#1F1F1F 50%, #FA4B00 50%);
-    background:
-        linear-gradient(#FA4B00 50%, #1F1F1F 50%),
-        linear-gradient(#1F1F1F 50%, #FA4B00 50%);
-    background-size: 50% 100%, 50% 100%;
-    background-position: 0 0, 100% 0;
-    background-repeat: no-repeat;
-    opacity: 0.7;
-    -webkit-animation: mask 3s infinite alternate;
-    animation: mask 3s infinite alternate;
-}
-
-.loading-spinner:after {
-    content: "";
-    position: absolute;
-    border: .12em solid rgba(255,255,255,0.3);
-    position: absolute;
-    top: 25%;
-    left: 25%;
-    width: 50%;
-    height: 50%;
-    border-radius: inherit;
-}
-
-@-webkit-keyframes mask {
-    0% { }
-    25%  { -webkit-transform: rotate(270deg); }
-    50%  { -webkit-transform: rotate( 90deg); }
-    75%  { -webkit-transform: rotate(360deg); }
-    100% { -webkit-transform: rotate(180deg); }
-}
-
-@keyframes mask {
-    0% { }
-    25%  { -webkit-transform: rotate(270deg); transform: rotate(270deg); }
-    50%  { -webkit-transform: rotate( 90deg); transform: rotate( 90deg); }
-    75%  { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
-    100% { -webkit-transform: rotate(180deg); transform: rotate(180deg); }
-}
 
 </style>
 </head>
 <body>
 
-<div class="navbar navbar-fixed-top" role="navigation">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" style="padding-left: 70px;" href="#">ODA</a>
-    </div>
-    <div class="navbar-collapse collapse">
-
-    <ul class="nav navbar-nav" style="padding-left:100px;">
-        <li class="share-btn">
-            <a href="/odaweb/_save"
-               data-placement="bottom"
-               data-title="You've Saved Your Project"
-               data-html="true"
-               data-content="<p>You can share this url:</p><a href='{{ share_url }}'>{{ share_url }}</a><p><p>If you make more changes, hit <strong>share</strong> again to get a new link.</p>"
-               id="menu-item-share">
-                    <i class="glyphicon glyphicon-share glyphicon-white"></i>Share
-            </a>
-        </li>
-
-       <!-- File Menu -->
-       <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="menu-item-file">File<b class="caret"></b></a>
-            <ul class="dropdown-menu">
-                <li><a id="open-btn" href="_upload" data-toggle="modal"><i class="glyphicon glyphicon-upload"></i>&nbsp;Upload File...</a></li>
-                <li><a id="download-btn" href="/odaweb/_download" data-toggle="modal"><i class="glyphicon glyphicon-download"></i>&nbsp;Download Disassembly</a></li>
-                <li><a href="/odaweb"><i class="glyphicon glyphicon-play-circle"></i> Live Mode</a></li>
-                <!--<li class="dropdown-submenu"><a href="#" tab-index="-1"><i class="icon-file"></i>&nbsp;New</a>
-                    <ul class="dropdown-menu">
-
-                    </ul>
-                </li>
-                <li class="dropdown-submenu"><a href="#" tab-index="-1"><i class="icon-folder-open"></i>&nbsp;Open Existing</a>
-                    <ul id="open-existing-list" class="dropdown-menu">
-                        <li class="disabled"><a href="#">No files exist</a></li>
-                    </ul>
-                </li>
-                <li class="divider"></li>
-                <li><a href="/odaweb/_save"><i class="icon-share"></i>Share</a></li>
-                <li><a href="#">Download</a></li>-->
-            </ul>
-        </li>
-
-       <!-- Edit Menu -->
-       <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Edit<b class="caret"></b></a>
-            <ul class="dropdown-menu">
-                <!--
-                <li><a href="#">Undo</a></li>
-                <li><a href="#">Redo</a></li>
-                <li class="divider"></li>
-                <li><a class="nav-btn"
-                       rel="tooltip"
-                       data-original-title="Platform Settings"
-                       data-panel="platform-display" href="#"><i class="icon-pencil"></i>&nbsp;Platform Options</a></li>
-                <li class="divider"></li>
-                 -->
-                <li><a id="menu-go-to-addr" ng-click="GoToAddressPrompt()" href="#">Go to address... (Ctrl-g)</a></li>
-                <li><a class="nav-btn" data-panel="find-results-display">Find sequence of bytes... (Ctrl-f)</a></li>
-
-            </ul>
-        </li>
-
-       <!-- Help Menu -->
-       <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Help<b class="caret"></b></a>
-            <ul class="dropdown-menu">
-                <li><a id='whats-oda-btn' href="#" data-toggle="modal">What's ODA?</a></li>
-                <li><a id='tutorial-btn' href="http://blog.onlinedisassembler.com/blog/?p=44">Tutorial</a></li>
-                <li class="divider"></li>
-                <li><a id='about-oda-btn' href="#" data-toggle="modal">About</a></li>
-            </ul>
-        </li>
-
-        <!-- Blog Menu -->
-        <li class="">
-            <a href="http://blog.onlinedisassembler.com/blog/">Blog</a>
-        </li>
-        <!-- Contact Us Menu -->
-        <li class="">
-            <a href=mailto:admin@onlinedisassembler.com>Contact Us!</a>
-        </li>
-    </ul>
-
-
-
-      <form class="navbar-form navbar-right" role="form">
-        <div class="form-group">
-          <input type="text" placeholder="Email" class="form-control">
-        </div>
-        <div class="form-group">
-          <input type="password" placeholder="Password" class="form-control">
-        </div>
-        <button type="submit" class="btn btn-success">Sign in</button>
-      </form>
-    </div><!--/.navbar-collapse -->
-  </div>
-</div>
+<div ng-include="'/static2/templates/navbar.html'"></div>
 
 <div>
     <div id="slider" style="margin-top:50px; margin-bottom: 0px; margin-right: 15px; border: 0px; clear:both;">
@@ -422,6 +120,33 @@
 <script type="text/javascript" src="{% static 'scripts/controllers/SectionsController.js' %}"></script>
 
 <script type="text/javascript">
+
+    {% autoescape off %}
+
+    window.examples = JSON.parse('{{ examples | jsonify }}');
+
+    window.oda_master = {
+        project_name : {{ master.project_name| jsonify }},
+        short_name : '{{master.short_name }}',
+        content_type : '{{ master.content_type.id }}',
+        object_id : {{ master.object_id }},
+        revision : {{ master.revision | jsonify}},
+        section_info : {
+            start_addr : {{ section_info.start_addr }},
+            stop_addr : {{ section_info.stop_addr }}
+        },
+        binary : {
+            id : '0',
+            liveMode : {{ binary.is_live_mode|jsonify  }},
+            arch : '{{ arch }}',
+            size : '{{ binary.size|filesizeformat }}',
+            text : {% if binary.is_live_mode %}{{ binary.binary_string_display | jsonify }}{% else %}""{%  endif %}
+
+        }
+    };
+
+    {% endautoescape %}
+
 
     $(document).ready(function() {
 

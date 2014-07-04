@@ -618,11 +618,7 @@ function start(odbFile) {
 }
 
 var oda_util = {
-    getMaster : function() { return {
-        short_name: 'mkdir',
-        revision: 0,
-        binary: {text:''}
-    }; },
+    getMaster : function() { return window.oda_master; },
     getUsername: function() { return window.user.username},
     getSectionInfo: function() { return window.oda_master.section_info;}
 
@@ -640,7 +636,7 @@ $(document).ready(function(){
 
 
     var odbFile = new OdbFile();
-    odbFile.load('mkdir');
+    odbFile.load(oda_util.getMaster().short_name);
 
     odbFile.on('loaded', function(odbFile){
         $('loading-spinner').hide();
@@ -751,6 +747,15 @@ odaApplication.controller('DockController', function DockController($scope, $htt
         return Docker.activeDock == dock;
     };
     $scope.Docker = Docker;
+
+});
+
+odaApplication.controller('NavbarController', function NavbarController($scope){
+    $scope.examples = window.examples;
+
+    $scope.loadExample = function(example) {
+        alert(example.short_name);
+    };
 
 });
 

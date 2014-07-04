@@ -697,14 +697,22 @@ def download_text_listing(request):
     return response
 
 
-def ace(request):
+def ace(request, disassembly_id, version=0):
+
+    oda_master = create_session(request, disassembly_id, version)
+
+    context = {
+        'examples': Examples,
+        'master': oda_master,
+        'binary': oda_master.odb_file.get_binary(),
+        'section_info': Ofd(oda_master.odb_file.get_binary()).get_loadable_sections()
+    }
+
     #oda_master = OdaMaster.objects.get(short_name='mkdir', revision=0)
     #odb_file = oda_master.odb_file
     #dasm = Disassembler(odb_file)
     #dunits = dasm.analyze(0, 10000000)
-    return render(request, 'ace.djhtml', {
-        #'units': simplejson.dumps(dunits)
-    })
+    return render(request, 'ace.djhtml', context)
 
 def ace2(request):
     #oda_master = OdaMaster.objects.get(short_name='mkdir', revision=0)
