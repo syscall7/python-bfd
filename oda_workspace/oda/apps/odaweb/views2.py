@@ -701,7 +701,10 @@ def ace(request, disassembly_id, version=0):
 
     if not disassembly_id:
         disassembly_id = 'mkdir'
-    oda_master = create_session(request, disassembly_id, version)
+
+    #todo need to make a copy
+    oda_master = OdaMaster.objects.get(short_name=disassembly_id, revision=version)
+    #oda_master = create_session(request, disassembly_id, version)
 
     context = {
         'examples': Examples,

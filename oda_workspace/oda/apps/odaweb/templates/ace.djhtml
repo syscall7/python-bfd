@@ -4,7 +4,9 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="odaApp">
 <head>
-<title>ACE in Action</title>
+
+    <title>{%  block title %}ODA - The Online Disassembler{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'images/oda.png' %}" />
 
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/nprogress/nprogress.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/oda3.css' %}" />

@@ -438,7 +438,7 @@ var WindowLoader = function(renderer, odbFile) {
                 renderedLines = $.map(renderedLines, function(line) { return {row: line, data: data[i], num: i }});
                 if (renderedLines.length != 1) {
                     if (!this.lineSizes[duNum+i])
-                        addedLines += renderedLines.length;
+                        addedLines += renderedLines.length - 1;
 
                     this.lineSizes[duNum + i] = renderedLines.length;
 
