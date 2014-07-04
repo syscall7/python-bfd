@@ -10,10 +10,14 @@ var OdbFile = function() {
 
     this.displayUnitsLength = -1;
 
+    this.shortName = null;
+
 
     this.load = function (shortName) {
+        this.shortName = shortName;
+
         var fq = $.get('/odaweb/api/functions/', {
-            short_name: 'mkdir',
+            short_name: this.shortName,
             revision: 0
         }).success(function (data) {
             for (var i = 0; i < data.length; i++) {
@@ -22,14 +26,14 @@ var OdbFile = function() {
         }.bind(this));
 
         var sq = $.get('/odaweb/api/sections/', {
-            short_name: 'mkdir',
+            short_name: this.shortName,
             revision: 0
         }).success(function (data) {
             this.sections = data;
         }.bind(this));
 
         var dulenq = $.get('/odaweb/api/displayunits/1/size', {
-            short_name: 'mkdir',
+            short_name: this.shortName,
             revision: 0
         }).success(function (data) {
             this.displayUnitsLength = data;
@@ -42,7 +46,7 @@ var OdbFile = function() {
 
     this.loadDu = function (addr, numUnits, callback) {
         $.get('/odaweb/api/displayunits/', {
-            short_name: 'mkdir',
+            short_name: this.shortName,
             revision: 0,
             addr: addr,
             logical: true,
@@ -52,7 +56,7 @@ var OdbFile = function() {
 
     this.vmaToLda = function (vma, callback) {
         $.get('/odaweb/api/displayunits/1/vmaToLda', {
-            short_name: 'mkdir',
+            short_name: this.shortName,
             revision: 0,
             vma: vma
         }).done(callback);
@@ -61,7 +65,7 @@ var OdbFile = function() {
     this.makeData = function (vma, callback) {
         console.log('makeData', vma);
         $.get('/odaweb/api/displayunits/1/makeData', {
-            short_name: 'mkdir',
+            short_name: this.shortName,
             revision: 0,
             vma: vma
         }).success(callback)
@@ -70,7 +74,7 @@ var OdbFile = function() {
     this.makeCode = function (vma, callback) {
         console.log('makeCode', vma);
         $.get('/odaweb/api/displayunits/1/makeCode', {
-            short_name: 'mkdir',
+            short_name: this.shortName,
             revision: 0,
             vma: vma
         }).success(callback)
@@ -613,22 +617,6 @@ function start(odbFile) {
     });
 }
 
-$(document).ready(function(){
-    var odbFile = new OdbFile();
-    odbFile.load('mkdir');
-
-    odbFile.on('loaded', function(odbFile){
-        start(odbFile);
-    });
-
-    var top = parseInt($('.theeditor').css('top'));
-    var bottom = parseInt($('.theeditor').css('bottom'));
-    $('#editor').height($(window).height()-top-bottom - 5);
-    $(window).resize(function(){
-        $('#editor').height($(window).height()-top-bottom - 5 );
-    });
-});
-
 var oda_util = {
     getMaster : function() { return {
         short_name: 'mkdir',
@@ -639,6 +627,51 @@ var oda_util = {
     getSectionInfo: function() { return window.oda_master.section_info;}
 
 };
+
+
+$(document).ready(function(){
+
+    var top = parseInt($('.theeditor').css('top'));
+    var bottom = parseInt($('.theeditor').css('bottom'));
+    $('#editor').height($(window).height()-top-bottom - 5);
+    $(window).resize(function(){
+        $('#editor').height($(window).height()-top-bottom - 5 );
+    });
+
+
+    var odbFile = new OdbFile();
+    odbFile.load('mkdir');
+
+    odbFile.on('loaded', function(odbFile){
+        $('loading-spinner').hide();
+        $('.theeditor').show();
+
+
+        $('.theeditor').layout({
+            west__size: 41,
+            west__closable: false,
+            west__resizable: false,
+            west__spacing_open:0,
+            west__spacing_closed:0,
+            center__childOptions: {
+                spacing_open: 2,
+                spacing_closed: 2,
+                //closable: false,
+                west__size: 400
+            },
+            east__initClosed: true,
+            east__minSize: 150,
+
+            spacing_open: 2,
+            spacing_closed: 2
+        });
+
+        start(odbFile);
+
+    });
+
+});
+
 
 var odaApplication = angular
     .module('odaApp',['ngSanitize'])

@@ -169,6 +169,65 @@
     cursor: pointer;
 }
 
+/*Nprogress Bar*/
+#nprogress .bar,
+#nprogress .spinner {
+    z-index: 999999;
+    }
+
+
+.loading-spinner {
+    position: relative;
+    font-size: 100px;
+    width: 1em;
+    height: 1em;
+    margin: 100px auto;
+    border-radius: 50%;
+    background: #123456;
+    box-shadow: inset 0 0 0 .12em rgba(0,0,0,0.2), 0 0 0 .12em rgba(255,255,255,0.1);
+    background:
+        -webkit-linear-gradient(#ea2d0e 50%, #fcd883 50%),
+        -webkit-linear-gradient(#fcd883 50%, #ea2d0e 50%);
+    background:
+        -webkit-linear-gradient(#ea2d0e 50%, #ffdd72 50%), -webkit-linear-gradient(#ffdd72 50%, #ea2d0e 50%);
+    background:
+        linear-gradient(#ea2d0e 50%, #ffdd72 50%),
+        linear-gradient(#ffdd72 50%, #ea2d0e 50%);
+    background-size: 50% 100%, 50% 100%;
+    background-position: 0 0, 100% 0;
+    background-repeat: no-repeat;
+    opacity: 0.7;
+    -webkit-animation: mask 3s infinite alternate;
+    animation: mask 3s infinite alternate;
+}
+
+.loading-spinner:after {
+    content: "";
+    position: absolute;
+    border: .12em solid rgba(255,255,255,0.3);
+    position: absolute;
+    top: 25%;
+    left: 25%;
+    width: 50%;
+    height: 50%;
+    border-radius: inherit;
+}
+
+@-webkit-keyframes mask {
+    0% { }
+    25%  { -webkit-transform: rotate(270deg); }
+    50%  { -webkit-transform: rotate( 90deg); }
+    75%  { -webkit-transform: rotate(360deg); }
+    100% { -webkit-transform: rotate(180deg); }
+}
+
+@keyframes mask {
+    0% { }
+    25%  { -webkit-transform: rotate(270deg); transform: rotate(270deg); }
+    50%  { -webkit-transform: rotate( 90deg); transform: rotate( 90deg); }
+    75%  { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
+    100% { -webkit-transform: rotate(180deg); transform: rotate(180deg); }
+}
 
 </style>
 </head>
@@ -199,7 +258,6 @@
   </div>
 </div>
 
-
 <div>
     <div id="slider" style="margin-top:50px; margin-bottom: 0px; margin-right: 15px; border: 0px; clear:both;">
         <canvas id="addr-bar-canvas">You need to upgrade your browser to see this!</canvas>
@@ -207,7 +265,9 @@
     <div style="color:gray; font-family:monospace; margin-right: 15px; float:right">0x0</div>
 </div>
 
-<div class="theeditor">
+<div class="loading-spinner"></div>
+
+<div class="theeditor" style="display:none;">
 
 <div class="ui-layout-center">
     <div class="ui-layout-west" style="padding:10px;"
@@ -218,7 +278,7 @@
         <div ng-repeat="dock in Docker.docks"
              ng-show="isActive(dock)"
              ng-include="dock.template">
-aa
+
         </div>
 
 
@@ -247,7 +307,6 @@ aa
 <div id="statusbar-container">
 <div id="statusBar"><span class="status-mode">online disassembler forever!</span><div class="ace_status-indicator" style="display: inline-block;">61:0</div></div>
 </div>
-
 
 <div id="my-modal" class="modal fade">
   <div class="modal-dialog">
@@ -286,24 +345,7 @@ aa
 <script type="text/javascript">
 
     $(document).ready(function() {
-        $('.theeditor').layout({
-			west__size: 41,
-            west__closable: false,
-            west__resizable: false,
-            west__spacing_open:0,
-            west__spacing_closed:0,
-            center__childOptions: {
-                spacing_open: 2,
-                spacing_closed: 2,
-                //closable: false,
-                west__size: 400
-            },
-            east__initClosed: true,
-            east__minSize: 150,
 
-            spacing_open: 2,
-            spacing_closed: 2
-		});
 
     });
 </script>
