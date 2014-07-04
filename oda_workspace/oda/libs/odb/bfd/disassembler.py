@@ -88,7 +88,7 @@ class Disassembler(object):
         # if we are analyzing based on lda, first convert to vma
         if logical:
             start = parcels.lda_to_vma(start)
-            if not start:
+            if start is None:
                 # TODO: Throw exception here?
                 return []
 
