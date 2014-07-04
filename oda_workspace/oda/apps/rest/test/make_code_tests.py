@@ -107,36 +107,45 @@ class MakeCodeUnitTest(OdaApiTestCase):
             {'vma_start': 0x00610220, 'vma_end': 0x006102b8, 'lda_start': 0x00006e83, 'is_code': False}
         )
 
-        # get the display units
-        response = self.client.get('/odaweb/api/displayunits/',
-                                   { 'revision': 0,
-                                     'short_name': 'mkdir',
-                                     'addr' : '0x004014d0',
-                                     'units' : len(inst_before)},
-                                   format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        rd = response.data
-        self.assertIsNotNone(rd)
+        def get_and_verify_display_units(vma, expected_instrs):
 
-        # verify they are what we expect (original code)
-        for expected, actual in zip(inst_before, rd):
-            self.assertEquals(expected[0], actual['opcode'])
-            self.assertEquals(expected[1], actual['offset'])
-            self.assertEquals(expected[2], actual['section_name'])
-            self.assertEquals(expected[3], actual['rawBytes'])
+            # get the display units
+            response = self.client.get('/odaweb/api/displayunits/',
+                                       { 'revision': 0,
+                                         'short_name': 'mkdir',
+                                         'addr' : '0x004014d0',
+                                         'units' : len(inst_before)},
+                                       format='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            rd = response.data
+            self.assertIsNotNone(rd)
 
-        # get the parcels before converting to code
-        response = self.client.get('/odaweb/api/parcels/',
-                                   { 'revision': 0,
-                                     'short_name': 'mkdir'},
-                                   format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        rd = response.data
-        self.assertIsNotNone(rd)
+            # verify they are what we expect
+            for expected, actual in zip(expected_instrs, rd):
+                self.assertEquals(expected[0], actual['opcode'])
+                self.assertEquals(expected[1], actual['offset'])
+                self.assertEquals(expected[2], actual['section_name'])
+                self.assertEquals(expected[3], actual['rawBytes'])
 
-        # verify they are what we expect (original code)
-        for expected, actual in zip(parcels_before, rd):
-            self.assertEqual(expected, actual)
+        def get_and_verify_parcels(expected_parcels):
+            # get the parcels before converting to code
+            response = self.client.get('/odaweb/api/parcels/',
+                                       { 'revision': 0,
+                                         'short_name': 'mkdir'},
+                                       format='json')
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            rd = response.data
+            self.assertIsNotNone(rd)
+
+            # verify they are what we expect (original code)
+            for expected, actual in zip(expected_parcels, rd):
+                self.assertEqual(expected, actual)
+
+
+        # verify the display units and parcels before making data
+        get_and_verify_display_units(0x4014d0, inst_before)
+        get_and_verify_parcels(parcels_before)
 
         # convert the second call instruction to data bytes
         response = self.client.get('/odaweb/api/displayunits/1/makeData/',
@@ -147,36 +156,9 @@ class MakeCodeUnitTest(OdaApiTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['error'], None)
 
-        # get the display units (should be CODA, DATA, CODE)
-        response = self.client.get('/odaweb/api/displayunits/',
-                                   { 'revision': 0,
-                                     'short_name': 'mkdir',
-                                     'addr' : '0x004014d0',
-                                     'units' : len(inst_after)},
-                                   format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        rd = response.data
-        self.assertIsNotNone(rd)
-
-        # verify we have CODE, DATA, CODE
-        for expected, actual in zip(inst_after, rd):
-            self.assertEquals(expected[0], actual['opcode'])
-            self.assertEquals(expected[1], actual['offset'])
-            self.assertEquals(expected[2], actual['section_name'])
-            self.assertEquals(expected[3], actual['rawBytes'])
-
-        # get the parcels after converting to data
-        response = self.client.get('/odaweb/api/parcels/',
-                                   { 'revision': 0,
-                                     'short_name': 'mkdir'},
-                                   format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        rd = response.data
-        self.assertIsNotNone(rd)
-
-        # verify they are what we expect (original code)
-        for expected, actual in zip(parcels_after, rd):
-            self.assertEqual(expected, actual)
+        # verify the display units and parcels AFTER making data
+        get_and_verify_display_units(0x4014d0, inst_after)
+        get_and_verify_parcels(parcels_after)
 
         # convert the data back to code
         response = self.client.get('/odaweb/api/displayunits/1/makeCode/',
@@ -187,33 +169,7 @@ class MakeCodeUnitTest(OdaApiTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['error'], None)
 
-        # get the display units, should be all code again
-        response = self.client.get('/odaweb/api/displayunits/',
-                                   { 'revision': 0,
-                                     'short_name': 'mkdir',
-                                     'addr' : '0x004014d0',
-                                     'units' : len(inst_after)},
-                                   format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        rd = response.data
-        self.assertIsNotNone(rd)
+        # verify the display units and parcels are back to where we started
+        get_and_verify_display_units(0x4014d0, inst_before)
+        get_and_verify_parcels(parcels_before)
 
-        # verify that we're back to the original code
-        for expected, actual in zip(inst_before, rd):
-            self.assertEquals(expected[0], actual['opcode'])
-            self.assertEquals(expected[1], actual['offset'])
-            self.assertEquals(expected[2], actual['section_name'])
-            self.assertEquals(expected[3], actual['rawBytes'])
-
-        # get the parcels after converting back to code
-        response = self.client.get('/odaweb/api/parcels/',
-                                   { 'revision': 0,
-                                     'short_name': 'mkdir'},
-                                   format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        rd = response.data
-        self.assertIsNotNone(rd)
-
-        # verify they are what we expect (original code)
-        for expected, actual in zip(parcels_before, rd):
-            self.assertEqual(expected, actual)
