@@ -16,8 +16,8 @@
     <script type="text/javascript" src="{% static 'scripts/lib/jquery/jquery-1.8.3.min.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/lib/bootstrap-3.0.3/js/bootstrap.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/jquery-ui-1.10.4.js' %}"></script>
-
-    <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.10/angular.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/keypress-2.0.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.10/angular.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.10/angular-route.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.10/angular-sanitize.min.js' %}"></script>
 
@@ -87,7 +87,27 @@
     }
 
 
+.blue-white-table td, .blue-white-table th
+{
+    padding:3px 10px 3px 10px;
+}
 
+.blue-white-table th
+{
+    background-color:#92C1F0;
+    color:#000000;
+}
+
+.blue-white-table tr.even td
+{
+    color:#000000;
+}
+
+.blue-white-table tr.odd td
+{
+    color:#000000;
+    background-color:#C8DEFF;
+}
 
 
     .plunker-paneselector .pulse-info a i {
@@ -139,6 +159,9 @@
   background-color: #08C;
   color: white;
 }
+.plunker-paneselector ul li {
+    cursor: pointer;
+}
 
 
 </style>
@@ -155,13 +178,17 @@
 <div class="theeditor">
 
 <div class="ui-layout-center">
-    <div class="ui-layout-west" style="padding:10px;">
+    <div class="ui-layout-west" style="padding:10px;"
+            ng-controller="DockController">
 
-        <div style="display: none">{% include 'sidebar-hex.djhtml' %}</div>
-
-        <div ng-include="'/static2/templates/symbols.html'"
-             id="strings-content">
+        <!--<div class="sidebar-hex"
+             style="display: none">{% include 'sidebar-hex.djhtml' %}</div> -->
+        <div ng-repeat="dock in Docker.docks"
+             ng-show="isActive(dock)"
+             ng-include="dock.template">
+aa
         </div>
+
 
     </div>
 
@@ -173,39 +200,13 @@
 
 <div class="ui-layout-east">Outer East</div>
 
-<div class="ui-layout-west plunker-paneselector blue">
+<div class="ui-layout-west plunker-paneselector blue" ng-controller="DockMenuController">
     <ul>
-    <!-- ngRepeat: pane in panes.panes | orderBy:'order' -->
-    <li tooltip="Live Preview" tooltip-placement="left">
-      <a>
-        <i class="fa fa-eye-slash fa-3"></i>
-      </a>
-    </li><li tooltip="Find and external libraries" tooltip-placement="left">
-      <a>
-        <i class="fa fa-book"></i>
-      </a>
-    </li><li tooltip="Templates" tooltip-placement="left">
-      <a>
-        <i class="fa fa-briefcase"></i>
-      </a>
-    </li>
-        <li tooltip="Info" tooltip-placement="left" class="active">
-      <a>
-        <i class="fa fa-dashboard"></i>
-      </a>
-    </li><li tooltip="Code Linting" tooltip-placement="left" >
-      <a >
-        <i class="fa fa-check"></i>
-      </a>
-    </li><li tooltip="Collaboration" tooltip-placement="left" >
-      <a>
-        <i class="fa fa-retweet"></i>
-      </a>
-    </li><li tooltip="Editor Options" tooltip-placement="left">
-      <a>
-        <i class="fa fa-cog"></i>
-      </a>
-    </li>
+        <li ng-repeat="dock in Docker.docks"
+            ng-class="{active:isActive(dock)}"
+            ng-click="Docker.select(dock)">
+            <a><i class="fa fa-3" ng-class="dock.icon"></i></a>
+        </li>
     </ul>
 </div>
 
@@ -244,7 +245,11 @@
 
 
 <script type="text/javascript" src="{% static 'scripts/controllers/SymbolsController.js' %}"></script>
-
+<script type="text/javascript" src="{% static 'scripts/controllers/LiveEntryController.js' %}"></script>
+<script type="text/javascript" src="{% static 'scripts/controllers/OptionsViewController.js' %}"></script>
+<script type="text/javascript" src="{% static 'scripts/controllers/StringsController.js' %}"></script>
+<script type="text/javascript" src="{% static 'scripts/controllers/FindBytesController.js' %}"></script>
+<script type="text/javascript" src="{% static 'scripts/controllers/SectionsController.js' %}"></script>
 
 <script type="text/javascript">
 

@@ -208,16 +208,16 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
 });
 
 odaApplication.filter('hex', function () {
-        return function (num, len) {
-            var numStr = num.toString(16);
-            len = parseInt(len, 10);
-            if (isNaN(num) || isNaN(len)) {
-                return n;
-            }
-            numStr = ''+numStr;
-            while (numStr.length < len) {
-                numStr = '0'+numStr;
-            }
-            return numStr;
-        };
-    });
+    return function (num, len) {
+        var numStr = num.toString(16);
+        len = parseInt(len, 10);
+        if (isNaN(num) || isNaN(len)) {
+            return n;
+        }
+        numStr = ''+numStr;
+        while (numStr.length < len) {
+            numStr = '0'+numStr;
+        }
+        return numStr;
+    };
+});

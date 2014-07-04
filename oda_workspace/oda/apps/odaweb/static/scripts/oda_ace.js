@@ -630,7 +630,8 @@ $(document).ready(function(){
 var oda_util = {
     getMaster : function() { return {
         short_name: 'mkdir',
-        revision: 0
+        revision: 0,
+        binary: {text:''}
     }; },
     getUsername: function() { return window.user.username},
     getSectionInfo: function() { return window.oda_master.section_info;}
@@ -646,9 +647,82 @@ var odaApplication = angular
 
 });
 
+odaApplication.filter('hex', function () {
+    return function (num, len) {
+        var numStr = num.toString(16);
+        len = parseInt(len, 10);
+        if (isNaN(num) || isNaN(len)) {
+            return n;
+        }
+        numStr = ''+numStr;
+        while (numStr.length < len) {
+            numStr = '0'+numStr;
+        }
+        return numStr;
+    };
+});
+
+odaApplication.factory('odaStatus', function($rootScope, $q, $http) {
+    var status= {
+        text: 'Loaded'
+    };
+    return {
+        getStatus : function() {
+            return status;
+        },
+        setStatus : function(newStatus) {
+            status.text = newStatus;
+        }
+
+    };
+});
+
+odaApplication.service('Docker', function() {
+    this.docks = [ {
+        icon: 'fa-briefcase',
+        template: '/static2/templates/live_entry.html'
+    }, {
+        icon: 'fa-list',
+        template: '/static2/templates/symbols.html'
+    }, {
+        icon: 'fa-font',
+        template: '/static2/templates/strings.html'
+    }, {
+        icon: 'fa-search',
+        template: '/static2/templates/find_results.html'
+    }, {
+        icon: 'fa-th-large',
+        template: '/static2/templates/sections.html'
+    }];
+
+    this.activeDock = this.docks[1];
+
+    this.select = function(thing) { this.activeDock = thing; }
+    this.clear = function(thing) { this.activeDock = null; }
+});
+
+odaApplication.controller('DockMenuController', function DockMenuController($scope, $http, $window, odaApi, Docker) {
+
+    $scope.isActive = function(dock) {
+        return Docker.activeDock == dock;
+    };
+    $scope.Docker = Docker;
+
+});
+
+odaApplication.controller('DockController', function DockController($scope, $http, $window, odaApi, Docker) {
+
+    $scope.isActive = function(dock) {
+        return Docker.activeDock == dock;
+    };
+    $scope.Docker = Docker;
+
+});
+
 odaApplication.factory('odaApi', function($rootScope, $q, $http) {
 
     var position = 0;
+    oda_shortcuts = new window.keypress.Listener();
 
     return {
         getStrings : function(short_name, revision) {
@@ -771,10 +845,6 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
             return $http.get('/odaweb/api/find/?short_name=' + short_name + "&revision=" + revision + "&bytes=" + bytes);
         },
         shortcut : function(combo, func) {
-            if (oda_shortcuts == null)
-            {
-                oda_shortcuts = new window.keypress.Listener();
-            }
             oda_shortcuts.simple_combo(combo, func, true);
         }
     };
