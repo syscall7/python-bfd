@@ -45,12 +45,11 @@ class StringListField(serializers.WritableField):
     def from_native(self, obj):
         return json.loads(obj)
 
-
-class BinaryParcelSerializer(serializers.Serializer):
-    start = serializers.IntegerField()
-    end = serializers.IntegerField()
+class ParcelSerializer(serializers.Serializer):
+    vma_start = serializers.IntegerField()
+    vma_end = serializers.IntegerField()
+    lda_start = serializers.IntegerField()
     is_code = serializers.BooleanField()
-
 
 class RefSerializer(serializers.Serializer):
     offset = serializers.IntegerField()

@@ -94,3 +94,13 @@ class ActiveScanOperation(Operation):
             p = parcels.find_parcel_by_vma(bad_addr)
             odb_file.execute(SplitParcelOperation(bad_addr))
 
+        #
+        # consolidate the code parcels
+        #
+        parcels = ParcelList(odb_file.get_structure_list(Parcel))
+        transaction = parcels.consolidate()
+
+        # remove dead parcels
+        for p in transaction.to_remove:
+            odb_file.remove_item(p)
+

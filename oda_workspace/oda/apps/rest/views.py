@@ -7,9 +7,8 @@ from rest_framework.views import APIView
 from oda.apps.odaweb.models import OdaMaster
 
 from oda.apps.rest.serializers import OdaMasterSerializer, SectionSerializer, StringSerializer, DisplayUnitSerializer, \
-    BinaryParcelSerializer, \
     FindResultsSerializer, CommentSerializer, FunctionSerializer, DataStringSerializer, SymbolSerializer, \
-    LabelSerializer
+    LabelSerializer, ParcelSerializer
 from oda.libs.odb.bfd.disassembler import Disassembler
 from oda.libs.odb.odb_file import OdbFile, BinaryString
 from oda.libs.odb.ops.load_operation import LoadOperation
@@ -19,6 +18,7 @@ from oda.libs.odb.structures.function import Function
 from oda.libs.odb.structures.label import Label
 from oda.libs.odb.structures.section import Section
 from oda.libs.odb.structures.symbol import Symbol
+from oda.libs.odb.structures.parcel import Parcel
 
 
 logger = logging.getLogger(__name__)
@@ -103,6 +103,13 @@ class SymbolsViewSet(OdaStructureViewSet):
 
         return syms
 
+class ParcelsViewSet(OdaStructureViewSet):
+    serializer_class = ParcelSerializer
+    structure = Parcel
+
+    def get_structure_list(self):
+        parcels = self.odb_file.get_structure_list(Parcel)
+        return sorted(parcels, key=lambda p: p.vma_start)
 
 class BinaryStringViewSet(viewsets.GenericViewSet):
     def partial_update(self, request, pk):

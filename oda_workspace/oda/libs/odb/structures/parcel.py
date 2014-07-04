@@ -96,7 +96,7 @@ class Parcel(OdaObject):
         self.lda_bidict = bidict({})
 
     def __repr__(self):
-        return "Parcel {is_code=%s, start=%s, end=%s>" % (self.is_code, self.vma_start, self.vma_end)
+        return "%sParcel 0x%08x--0x%08x %d@%d>" % ('Code' if self.is_code else 'Data', self.vma_start, self.vma_end, self.num_ldas, self.lda_start)
 
     @property
     def size(self):
@@ -125,12 +125,13 @@ class Parcel(OdaObject):
 
     def merge(self, other):
 
+        # This happens when we are in the middle of an ActiveScanOperation, and the new code parcel which has not been
+        # scanned yet, reports num_ldas == 0.  In this case, we just want to leave it alone and not merge.
+        if self.num_ldas == 0 or other.num_ldas == 0:
+            raise ParcelNotMergableError("One of the parcels is not initialized")
+
         if not self.is_contiguous(other):
             raise ParcelNotMergableError("Parcels are not contiguous")
-
-        # Don't merge code parcels for now
-        if self.is_code:
-            raise ParcelNotMergableError("We're not consolidating code parcels at this time")
 
         if self.is_code != other.is_code:
             raise ParcelNotMergableError("Parcels are not the same type")
@@ -155,7 +156,7 @@ class Parcel(OdaObject):
             to_adjust.lda_bidict.pop(lda)
             to_adjust.lda_bidict[lda+lda_adjust] = vma
 
-        for lda, vma in other.lda_bidict:
+        for lda, vma in other.lda_bidict.items():
             self.lda_bidict[lda] = vma
 
     @abstractproperty
