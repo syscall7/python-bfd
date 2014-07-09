@@ -7,7 +7,33 @@
     <script type="text/javascript">
 
         $(document).ready(function(){
-*/
+/*
+
+/* ------------------------------------------------------------------ *
+ *                             C L A S S
+ * ------------------------------------------------------------------ */
+function ArrowStyle(r, g, b, a) {
+
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.a = a;
+}
+
+/* ------------------------------------------------------------------ *
+ *                             C L A S S
+ * ------------------------------------------------------------------ */
+function Location(posX, vma, style) {
+
+    /* The X pixel offset on the navigation bar */
+    this.posX = posX;
+
+    /* The virtual memory address */
+    this.vma = vma;
+
+    /* The arrow styling */
+    this.style = style;
+}
 
 /* ------------------------------------------------------------------ *
  *                             C L A S S
@@ -37,12 +63,14 @@ function AddressNavBar(canvasId, sections) {
     var RUNT_PIXEL_THRESHOLD = 3;
     var RUNT_MIN_WIDTH = 3;
 
-    var sumAddRanges;
+    /* our current position */
+    var curArrow = new Location(0, undefined, new ArrowStyle(0, 0, 0, 1.0));
 
-    var curArrowPosX = 0;
-    var curArrowAddr = undefined;
-    var roamArrowPosX = -1;
-    var roamArrowAddr = 0;
+    /* our roaming position */
+    var roamArrow = new Location(-1, 0, new ArrowStyle(0, 0, 0, 0.40));
+
+    /* the current position of our collaborating users */
+    var userArrows = {};
 
     // get the canvas and context
     var c = $('#addr-bar-canvas');
@@ -165,27 +193,27 @@ function AddressNavBar(canvasId, sections) {
 
         if (dragging) {
             for (var i = 0; i < onDragHandlers.length; i++) {
-                onDragHandlers[i](curArrowAddr);
+                onDragHandlers[i](curArrow.vma);
             }
 
         } else {
             for (var i = 0; i < onChangeHandlers.length; i++) {
-                onChangeHandlers[i](curArrowAddr);
+                onChangeHandlers[i](curArrow.vma);
             }
         }
     }
 
     /* Internal function called when current position changes via setting the address */
-    function curArrowAddrChanged(newAddr) {
+    function curArrowVmaChanged(newAddr) {
 
         var xpos = addrToPixel(newAddr);
 
-        if ((0 > xpos) || (newAddr == curArrowAddr)) {
+        if ((0 > xpos) || (newAddr == curArrow.vma)) {
             return;
         }
 
-        curArrowPosX = xpos;
-        curArrowAddr = newAddr;
+        curArrow.posX = xpos;
+        curArrow.vma = newAddr;
 
         /* Don't do callbacks when position changes by address, because it means we are being notified via the
            odaapi position broadcast.  Anybody else who cares about our current position will get that broadcast too,
@@ -200,12 +228,12 @@ function AddressNavBar(canvasId, sections) {
 
         var addr = pixelToAddr(newPosX);
 
-        if ((0 > addr) || (addr == curArrowAddr)) {
+        if ((0 > addr) || (addr == curArrow.vma)) {
             return;
         }
 
-        curArrowPosX = newPosX;
-        curArrowAddr = addr;
+        curArrow.posX = newPosX;
+        curArrow.vma = addr;
         doCurArrowCallbacks();
     }
 
@@ -214,7 +242,7 @@ function AddressNavBar(canvasId, sections) {
         var addr = pixelToAddr(pos.x);
 
         // we only start a drag if we click on the existing arrow location
-        if (addr == curArrowAddr) {
+        if (addr == curArrow.vma) {
             dragging = true;
         }
         curArrowXChanged(pos.x);
@@ -230,7 +258,7 @@ function AddressNavBar(canvasId, sections) {
 
     canvas.addEventListener('mouseout', function(evt) {
         var pos = getMousePosition(canvas, evt);
-        roamArrowPosX = -1;
+        roamArrow.posX = -1;
         draw();
     });
 
@@ -239,14 +267,14 @@ function AddressNavBar(canvasId, sections) {
         if (!pos) { return; }
         var addr = pixelToAddr(pos.x);
 
-        if ((addr >= 0) && (roamArrowAddr != addr)) {
+        if ((addr >= 0) && (roamArrow.vma != addr)) {
 
             for (var i = 0; i < onRoamHandlers.length; i++) {
                 onRoamHandlers[i](addr);
             }
 
-            roamArrowPosX = pos.x;
-            roamArrowAddr = addr;
+            roamArrow.posX = pos.x;
+            roamArrow.vma = addr;
             draw();
 
             if (dragging) {
@@ -341,8 +369,11 @@ function AddressNavBar(canvasId, sections) {
         }
 
         // draw the arrows
-        function drawArrow(x, opacityFactor) {
+        function drawArrow(arrow) {
             var ARROW_BOX_WIDTH = 20;
+
+            var x = arrow.posX;
+            var opacityFactor = arrow.style.a;
 
             // draw the yellow box below the arrow
             ctx.beginPath();
@@ -359,7 +390,8 @@ function AddressNavBar(canvasId, sections) {
             ctx.stroke();
 
             // draw the arrow itself
-            ctx.fillStyle = "rgba(0,0,0, " + 1.0*opacityFactor + ")";
+            var rgba = "" + arrow.style.r + "," + arrow.style.g + "," + arrow.style.b + "," + arrow.style.a;
+            ctx.fillStyle = "rgba(" + rgba + ")";
             ctx.beginPath();
             ctx.moveTo(x, BAR_YOFFSET);
             ctx.lineTo(x+ARROW_WIDTH/2, BAR_YOFFSET-ARROW_HEIGHT);
@@ -370,20 +402,25 @@ function AddressNavBar(canvasId, sections) {
 
         };
 
+        // first draw the user arrows
+        $.each(userArrows, function(uid, arrow) {
+            drawArrow(arrow);
+        });
+
         // draw the roaming arrow and roaming text
-        if (roamArrowPosX >= 0) {
+        if (roamArrow.posX >= 0) {
 
             // draw roaming arrow that is slightly transparent
-            drawArrow(roamArrowPosX, 0.4);
+            drawArrow(roamArrow);
 
             // draw address text
             ctx.fillStyle = "rgb(0,0,0)";
             ctx.font = TEXT_HEIGHT.toString() + "px Monospace";
-            ctx.fillText('0x' + roamArrowAddr.toString(16), roamArrowPosX, TEXT_YOFFSET + TEXT_HEIGHT);
+            ctx.fillText('0x' + roamArrow.vma.toString(16), roamArrow.posX, TEXT_YOFFSET + TEXT_HEIGHT);
         }
 
         // draw the current position indicator
-        drawArrow(curArrowPosX, 1);
+        drawArrow(curArrow);
     }
 
     /* -------------------------------------------------------------- *
@@ -395,9 +432,9 @@ function AddressNavBar(canvasId, sections) {
         sections = s;
         sumAddrRanges = _.reduce(sections, function(memo, section) {return memo+section.size}, 0);
 
-        if ((sections != undefined) && (curArrowAddr == undefined)) {
-            curArrowAddr = _.min(sections, function(section){ return section.vma; }).vma;
-            roamArrowAddr = curArrowAddr;
+        if ((sections != undefined) && (curArrow.vma == undefined)) {
+            curArrow.vma = _.min(sections, function(section){ return section.vma; }).vma;
+            roamArrow.vma = curArrow.vma;
         }
 
         calcRuntSectionSizes();
@@ -408,14 +445,14 @@ function AddressNavBar(canvasId, sections) {
     /* Set the current address */
     function setAddress(a) {
 
-        if (a != curArrowAddr) {
+        if (a != curArrow.vma) {
             var posX = addrToPixel(a);
 
             if (posX < 0) {
                 return false;
             }
 
-            curArrowAddrChanged(a);
+            curArrowVmaChanged(a);
             draw();
         }
 
@@ -440,6 +477,49 @@ function AddressNavBar(canvasId, sections) {
         onDragHandlers.push(handler);
     }
     this.onRoam = onRoam;
+
+    /* Add a new user whose position we wish to track */
+    function addUser(uid) {
+        if (userArrows[uid] == undefined) {
+            var userCount = 0;
+            getNewArrowStyle = function () {
+                // TODO: Make a pretty color pallette here */
+                return new ArrowStyle(200, 100, 50, 0.40);
+            };
+
+            userArrows[uid] = new Location(0,0, getNewArrowStyle());
+        }
+    }
+    this.addUser = addUser;
+
+    /* Remove a user whose position we no longer wish to track */
+    function removeUser(uid) {
+        delete userArrows[uid]
+    }
+    this.removeUser = removeUser;
+
+    /* Update a user's current position by virtual memory address */
+    function updateUser(uid, vma) {
+
+        /* if nothing changed */
+        if (vma == curArrow.vma) {
+            return;
+        }
+
+        /* convert to pixel offset */
+        var x = addrToPixel(vma);
+
+        /* if this is an invalid vma, ignore it */
+        if (0 > x) {
+            return;
+        }
+
+        userArrows[uid].vma = vma;
+        userArrows[uid].posX = x;
+
+        draw();
+    }
+    this.updateUser = updateUser;
 }
 
 /* ------------------------------------------------------------------ *
@@ -500,6 +580,9 @@ addrBar.onDrag(function(a) {
     console.log('My drag handler: ' + a.toString(16));
 });
 addrBar.setAddress(0x520000);
+
+addrBar.addUser('anthony');
+addrBar.updateUser('anthony', 0x560000);
 
     });
     </script>
