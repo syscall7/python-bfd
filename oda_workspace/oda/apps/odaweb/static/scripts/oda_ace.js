@@ -44,6 +44,16 @@ var OdbFile = function() {
         }.bind(this));
     };
 
+    this.duLength = function(callback) {
+        $.get('/odaweb/api/displayunits/1/size', {
+            short_name: this.shortName,
+            revision: 0
+        }).success(function (data) {
+            this.displayUnitsLength = data;
+            callback(data);
+        }.bind(this));
+    }
+
     this.loadDu = function (addr, numUnits, callback) {
         $.get('/odaweb/api/displayunits/', {
             short_name: this.shortName,
@@ -545,6 +555,52 @@ var OdaGutterRenderer = function(odaSession) {
     };
 };
 
+var odaApplication = angular
+    .module('odaApp',['ngSanitize'])
+    .config(function($httpProvider) {
+
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+
+});
+
+var OdaApplication = function() {
+    this.editor = null;
+    this.odaSession = null;
+    this.odbFile = null;
+
+    this.setEditor = function(editor) {
+        this.editor = editor;
+    };
+
+    this.getEditor = function() {
+        return this.editor;
+    }
+
+    this.setOdaSession = function(odaSession) {
+        this.odaSession = odaSession;
+    };
+
+    this.getOdaSession = function() {
+        return this.odaSession;
+    }
+
+    this.setOdbFile = function(odbFile) {
+        this.odbFile = odbFile
+    };
+
+    this.getOdbFile = function() {
+        return this.odbFile;
+    };
+
+};
+
+OdaApplication.prototype.getMaster = function() { return window.oda_master; };
+OdaApplication.prototype.getUsername = function() { return window.user.username};
+OdaApplication.prototype.getSectionInfo = function() { return window.oda_master.section_info;}
+
+var oda_util = new OdaApplication();
+
 function start(odbFile) {
     var editor;
 
@@ -594,7 +650,6 @@ function start(odbFile) {
         windowLoader.reload();
     });
 
-
     editor.addEventListener('dblclick', function(e, editor){
         //console.log("dblclick");
         var cursor = editor.selection.getCursor();
@@ -615,14 +670,25 @@ function start(odbFile) {
 
         return "null";
     });
+
+    oda_util.setOdaSession(odaSession);
+    oda_util.setOdbFile(odbFile);
 }
 
-var oda_util = {
-    getMaster : function() { return window.oda_master; },
-    getUsername: function() { return window.user.username},
-    getSectionInfo: function() { return window.oda_master.section_info;}
+odaApplication.run(function($rootScope){
+    $rootScope.$on('liveEntryText', function(event, liveEntryText) {
+        var odaSession = oda_util.getOdaSession();
+        var odbFile = oda_util.getOdbFile();
+        if (odaSession != null && odbFile != null) {
+            //We have to get the new size here since the number of DUs could possibly have changed
+            odbFile.duLength(function(odbFile){
+                odaSession.windowLoader.reload()
+            });
 
-};
+
+        }
+    });
+});
 
 
 $(document).ready(function(){
@@ -668,16 +734,6 @@ $(document).ready(function(){
 
 });
 
-
-var odaApplication = angular
-    .module('odaApp',['ngSanitize'])
-    .config(function($httpProvider) {
-
-    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
-    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
-
-});
-
 odaApplication.filter('hex', function () {
     return function (num, len) {
         var numStr = num.toString(16);
@@ -708,28 +764,37 @@ odaApplication.factory('odaStatus', function($rootScope, $q, $http) {
     };
 });
 
-odaApplication.service('Docker', function() {
-    this.docks = [ {
-        icon: 'fa-briefcase',
-        template: '/static2/templates/live_entry.html'
-    }, {
-        icon: 'fa-list',
-        template: '/static2/templates/symbols.html'
-    }, {
-        icon: 'fa-font',
-        template: '/static2/templates/strings.html'
-    }, {
-        icon: 'fa-search',
-        template: '/static2/templates/find_results.html'
-    }, {
+odaApplication.service('Docker', function(odaApi) {
+    var master = oda_util.getMaster();
+
+    this.docks = [];
+    if (master.binary.liveMode) {
+        this.docks.push({
+            icon: 'fa-briefcase',
+            template: '/static2/templates/live_entry.html'
+        });
+        this.activeDock = this.docks[0];
+    } else {
+        this.docks.push({
+            icon: 'fa-list',
+            template: '/static2/templates/symbols.html'
+        }, {
+            icon: 'fa-font',
+            template: '/static2/templates/strings.html'
+        }, {
+            icon: 'fa-search',
+            template: '/static2/templates/find_results.html'
+        });
+        this.activeDock = this.docks[1];
+    }
+
+    this.docks.push({
         icon: 'fa-th-large',
         template: '/static2/templates/sections.html'
-    }];
+    });
 
-    this.activeDock = this.docks[1];
-
-    this.select = function(thing) { this.activeDock = thing; }
-    this.clear = function(thing) { this.activeDock = null; }
+    this.select = function(thing) { this.activeDock = thing; };
+    this.clear = function(thing) { this.activeDock = null; };
 });
 
 odaApplication.controller('DockMenuController', function DockMenuController($scope, $http, $window, odaApi, Docker) {
@@ -750,11 +815,11 @@ odaApplication.controller('DockController', function DockController($scope, $htt
 
 });
 
-odaApplication.controller('NavbarController', function NavbarController($scope){
+odaApplication.controller('NavbarController', function NavbarController($scope, $location){
     $scope.examples = window.examples;
 
     $scope.loadExample = function(example) {
-        alert(example.short_name);
+        window.location = "/oda/ace/" + example.short_name;
     };
 
 });

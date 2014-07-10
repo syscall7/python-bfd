@@ -12,6 +12,7 @@ from oda.apps.rest.serializers import OdaMasterSerializer, SectionSerializer, St
 from oda.libs.odb.bfd.disassembler import Disassembler
 from oda.libs.odb.odb_file import OdbFile, BinaryString
 from oda.libs.odb.ops.load_operation import LoadOperation
+from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
 from oda.libs.odb.structures.comment import Comment
 from oda.libs.odb.structures.data_string import DataString
 from oda.libs.odb.structures.function import Function
@@ -119,6 +120,8 @@ class BinaryStringViewSet(viewsets.GenericViewSet):
 
         odb_file = OdbFile(BinaryString(request.DATA['binary_string'], previous_odb.get_binary().options.architecture))
         odb_file.execute(LoadOperation())
+        odb_file.execute(PassiveScanOperation())
+        oda_master.odb_file = odb_file
         oda_master.save()
 
         logger.info("updating...")
