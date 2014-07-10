@@ -17822,6 +17822,25 @@ var OnlineDocument = function(numRows, windowLoader) {
         return this.numRows;
     };
 
+    this.setLength = function(newLength) {
+        var range = new Range(0, 0, this.numRows, 0);
+        var delta = {
+            action: "removeLines",
+            range: range
+        };
+        this._signal("change", { data: delta });
+
+        this.numRows = newLength;
+
+        var range2 = new Range(0, 0, newLength, 0);
+        var delta2 = {
+            action: "insertLines",
+            range: range
+        };
+        this._signal("change", { data: delta2 });
+
+    };
+
     this.getAllLines = function() {
         return this.window.lines;
     };

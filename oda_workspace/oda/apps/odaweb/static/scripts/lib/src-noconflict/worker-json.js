@@ -2298,12 +2298,22 @@ var Window = function(startRow, lines) {
     this.lines = lines;
 
     this.getLogicalRow = function(row) {
+        var data = this.lines[row - this.startRow];
+
+        if (typeof data !== 'string') {
+            return data.row;
+        }
+
+        return data;
+    };
+
+    this.getLogicalRowData = function(row) {
         return this.lines[row - this.startRow];
     };
 
     this.getAbsoluteRow = function(row) {
         return this.lines[row];
-    }
+    };
 
     this.isRowInWindow = function(row) {
         return row >= startRow && row < startRow + lines.length;
@@ -2311,7 +2321,7 @@ var Window = function(startRow, lines) {
 
     this.getStart = function() {
         return this.startRow;
-    }
+    };
 
     this.getSize = function() {
         return this.lines.length;
@@ -2333,9 +2343,32 @@ var OnlineDocument = function(numRows, windowLoader) {
         return this.numRows;
     };
 
+    this.setLength = function(newLength) {
+        var range = new Range(0, 0, this.numRows, 0);
+        var delta = {
+            action: "removeLines",
+            range: range
+        };
+        this._signal("change", { data: delta });
+
+        this.numRows = newLength;
+
+        var range2 = new Range(0, 0, newLength, 0);
+        var delta2 = {
+            action: "insertLines",
+            range: range
+        };
+        this._signal("change", { data: delta2 });
+
+    };
+
+    this.getAllLines = function() {
+        return this.window.lines;
+    };
+
     this.setLoadingString = function(loadingString) {
         this.loadingString = loadingString;
-    }
+    };
     this.getNewLineCharacter = function() {
         switch (this.$newLineMode) {
             case "windows":
@@ -2357,6 +2390,44 @@ var OnlineDocument = function(numRows, windowLoader) {
         }
     };
 
+    this.getLineData = function(row) {
+        if (this.window.isRowInWindow(row)) {
+            return this.window.getLogicalRowData(row);
+        }
+        else {
+            return null;
+        }
+    };
+
+    this.onWindowLoaded = function(data){
+        var window = data.window;
+        var additionalRows = data.additionalRows;
+
+        this.window = window;
+        for (var i=0;i<window.getSize(); i++) {
+            var delta = {
+                action: "insertText",
+                range: Range.fromPoints({row:window.getStart()+i, column: 0},
+                    {row:window.getStart()+i, column: window.getAbsoluteRow(i).length}),
+                text: Array(window.getSize())
+            };
+            this._signal("change", { data: delta });
+        }
+
+        var range = new Range(this.numRows, 0, this.numRows + additionalRows, 0);
+        var delta = {
+            action: "insertLines",
+            range: range,
+            lines: Array(additionalRows)
+        };
+        this.numRows += additionalRows;
+        this._signal("change", { data: delta });
+
+        this._signal("loaded", { data: {row: rowToLoad } });
+
+    };
+    this.windowLoader.on('loaded', this.onWindowLoaded.bind(this) );
+
     var timeout = null;
     var rowToLoad;
     this.load = function(row){
@@ -2364,20 +2435,7 @@ var OnlineDocument = function(numRows, windowLoader) {
         clearTimeout(timeout);
         var document = this;
         timeout = setTimeout(function(){
-            document.windowLoader.load(Math.max(rowToLoad-this.windowSize/2,0), function(window){
-                this.window = window;
-                for (var i=0;i<window.getSize(); i++) {
-                    var delta = {
-                        action: "insertText",
-                        range: Range.fromPoints({row:window.getStart()+i, column: 0},
-                            {row:window.getStart()+i, column: window.getAbsoluteRow(i).length}),
-                        text: Array(window.getSize())
-                    };
-                    this._signal("change", { data: delta });
-                }
-                this._signal("loaded", { data: {row: rowToLoad-5 } });
-
-            }.bind(this));
+            document.windowLoader.load(Math.max(rowToLoad-this.windowSize/2,0));
         }.bind(this),250);
     }
 };
