@@ -140,7 +140,7 @@
         binary : {
             id : '0',
             liveMode : {{ binary.is_live_mode|jsonify  }},
-            arch : '{{ arch }}',
+            arch : '{{ binary.options.architecture }}',
             size : '{{ binary.size|filesizeformat }}',
             text : {% if binary.is_live_mode %}{{ binary.binary_string_display | jsonify }}{% else %}""{%  endif %}
 
