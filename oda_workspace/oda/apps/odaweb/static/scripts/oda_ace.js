@@ -1,4 +1,6 @@
 var ace_document = ace.require('ace/document');
+var oop = ace.require("ace/lib/oop");
+var EventEmitter = ace.require("ace/lib/event_emitter").EventEmitter;
 
 var OdbFile = function() {
 
@@ -400,6 +402,8 @@ var Renderer = function(odbFile) {
 
 
 var WindowLoader = function(renderer, odbFile) {
+    oop.implement(this, EventEmitter);
+
     this.windowSize = 500;
     this.lineSizes = [];
     this.renderer = renderer;
@@ -409,19 +413,7 @@ var WindowLoader = function(renderer, odbFile) {
     this.callbacks = {};
     this.lastRowNumload;
 
-    this.on = function(name, handler) {
-        if (!this.callbacks[name]) {
-            this.callbacks[name] = $.Callbacks();
-        }
-        this.callbacks[name].add(handler);
 
-    };
-    this._signal = function(name, data) {
-        if (!this.callbacks[name]) {
-            this.callbacks[name] = $.Callbacks();
-        }
-        this.callbacks[name].fire(data);
-    };
 
     this.reload = function(clear) {
         if (clear) {
@@ -665,8 +657,15 @@ function start(odbFile) {
         if (xrefLocation.length > 0){
             console.log("xref-location", xrefLocation[0].value);
             odbFile.vmaToLda(parseInt(xrefLocation[0].value.substring(2),16), function(ldu){
+
+                windowLoader.once('loaded', function(){
+                    //alert('here')
+                    console.log('ADJUST TO ', xrefLocation[0].value);
+                });
+
                 editor.clearSelection();
                 editor.moveCursorTo(windowLoader.displayUnitToRow(ldu), 0);
+                editor.clearSelection();
             });
         }
 
