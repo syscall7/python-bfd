@@ -423,7 +423,10 @@ var WindowLoader = function(renderer, odbFile) {
         this.callbacks[name].fire(data);
     };
 
-    this.reload = function() {
+    this.reload = function(clear) {
+        if (clear) {
+            this.lineSizes = [];
+        }
         this.load(this.lastRowNumload);
     };
 
@@ -671,6 +674,7 @@ function start(odbFile) {
         return "null";
     });
 
+    oda_util.setEditor(editor);
     oda_util.setOdaSession(odaSession);
     oda_util.setOdbFile(odbFile);
 }
@@ -681,8 +685,9 @@ odaApplication.run(function($rootScope){
         var odbFile = oda_util.getOdbFile();
         if (odaSession != null && odbFile != null) {
             //We have to get the new size here since the number of DUs could possibly have changed
-            odbFile.duLength(function(odbFile){
-                odaSession.windowLoader.reload()
+            odbFile.duLength(function(length){
+                oda_util.getEditor().getSession().getDocument().setLength(length);
+                odaSession.windowLoader.reload(true)
             });
 
 
