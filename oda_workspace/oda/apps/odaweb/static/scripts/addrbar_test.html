@@ -1,0 +1,94 @@
+<html>
+  <head>
+    <title>Address Bar</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+    <script type="text/javascript" src="http://localhost:8000/static2/scripts/addrbar.js"></script>
+    <script type="text/javascript">
+
+/* ------------------------------------------------------------------ *
+ *                           E X A M P L E
+ * ------------------------------------------------------------------ */
+
+$(document).ready(function(){
+
+/* */
+// define some sections
+var sections = [
+    {
+        'name' : '.small0',
+        'vma' : 0x300000,
+        'size' : 0x5,
+    },
+    {
+        'name' : '.small1',
+        'vma' : 0x300100,
+        'size' : 0x5,
+    },
+    {
+        'name' : '.plt',
+        'vma' : 0x400000,
+        'size' : 0x500,
+    },
+    {
+        'name' : '.text',
+        'vma' : 0x500000,
+        'size' : 0x40000,
+    },
+    {
+        'name' : '.text_small',
+        'vma' : 0x540000,
+        'size' : 0x00050,
+    },
+    {
+        'name' : '.data',
+        'vma' : 0x550000,
+        'size' : 0x80000,
+    },
+    {
+        'name' : '.small2',
+        'vma' : 0x600000,
+        'size' : 0x5,
+    },
+    {
+        'name' : '.small3',
+        'vma' : 0x800100,
+        'size' : 0x5,
+    }
+];
+
+// instantiate the address nav bar
+addrBar = new AddressNavBar('#addr-bar-canvas', sections);
+addrBar.onChange(function(a) {
+    console.log('My change handler: ' + a.toString(16));
+});
+addrBar.onDrag(function(a) {
+    console.log('My drag handler: ' + a.toString(16));
+});
+addrBar.setAddress(0x5b0000);
+
+addrBar.addUser('anthony');
+addrBar.updateUser('anthony', 0x510000);
+
+addrBar.addUser('peter');
+addrBar.updateUser('peter', 0x520000);
+
+addrBar.addUser('tom');
+addrBar.updateUser('tom', 0x530000);
+
+addrBar.addUser('fred');
+addrBar.updateUser('fred', 0x560000);
+
+addrBar.addUser('davis');
+addrBar.updateUser('davis', 0x5a0000);
+
+    });
+    </script>
+    <style type="text/css">canvas { border: 0px solid black; }</style>
+  </head>
+  <body>
+    <div>
+        <canvas id="addr-bar-canvas">You need to upgrade your browser to see this!</canvas>
+    <div>
+  </body>
+</html>

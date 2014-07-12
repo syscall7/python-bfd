@@ -12,12 +12,30 @@
 /* ------------------------------------------------------------------ *
  *                             C L A S S
  * ------------------------------------------------------------------ */
-function ArrowStyle(r, g, b, a) {
+/*
+   Defines how the position indicator is drawn.
+     r - red
+     g - green
+     b - blue
+     a - alpha (applied to the entire position indicator)
+     isUser[optional] - true if this is a collaborating user, false otherwise (defaults to false)
+ */
+ function ArrowStyle(r, g, b, a, isUser) {
 
     this.r = r;
     this.g = g;
     this.b = b;
     this.a = a;
+    this.isUser = typeof isUser !== 'undefined' ? isUser : false;
+
+    /* -------------------------------------------------------------- *
+     *                  P U B L I C   M E T H O D S
+     * -------------------------------------------------------------- */
+
+    /* Convert to the fill style used by canvas drawing functions */
+    this.toFillStyle = function () {
+        return "rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")";
+    };
 }
 
 /* ------------------------------------------------------------------ *
@@ -43,6 +61,10 @@ function AddressNavBar(canvasId, sections) {
     /* -------------------------------------------------------------- *
      *              P R I V A T E   P R O P E R T I E S
      * -------------------------------------------------------------- */
+
+    var UID_YOFFSET;
+    var UID_HEIGHT;
+
     var ARROW_YOFFSET;
     var ARROW_HEIGHT;
     var ARROW_WIDTH;
@@ -85,6 +107,9 @@ function AddressNavBar(canvasId, sections) {
     var onChangeHandlers = [];
     var onDragHandlers = [];
     var onRoamHandlers = [];
+
+    // the number of collaborating users
+    var numUsers = 0;
 
     setSections(sections);
 
@@ -315,8 +340,11 @@ function AddressNavBar(canvasId, sections) {
         BAR_WIDTH = CANVAS_WIDTH;
         TEXT_WIDTH = BAR_WIDTH;
 
-        ARROW_YOFFSET = 0;
-        ARROW_HEIGHT = 6;
+        UID_YOFFSET = 0;
+        UID_HEIGHT = 15;
+
+        ARROW_YOFFSET = UID_YOFFSET + UID_HEIGHT;
+        ARROW_HEIGHT = 8;
 
         BAR_YOFFSET = ARROW_YOFFSET + ARROW_HEIGHT;
         BAR_HEIGHT = 17;
@@ -368,6 +396,19 @@ function AddressNavBar(canvasId, sections) {
             x += width + INTER_SECTION_GAP;
         }
 
+        // draw
+        function drawTextAt(txt, fillStyle, x, y, h) {
+            ctx.fillStyle = fillStyle;
+            ctx.font = h.toString() + "px Monospace";
+
+            // if we're on the right side of the bar, draw text to the left of the given position
+            if (x > BAR_WIDTH/2) {
+                x -= ctx.measureText(txt).width;
+            }
+
+            ctx.fillText(txt, x, y);
+        }
+
         // draw the arrows
         function drawArrow(arrow) {
             var ARROW_BOX_WIDTH = 20;
@@ -375,23 +416,24 @@ function AddressNavBar(canvasId, sections) {
             var x = arrow.posX;
             var opacityFactor = arrow.style.a;
 
-            // draw the yellow box below the arrow
-            ctx.beginPath();
-            ctx.rect(x - ARROW_BOX_WIDTH/2, BAR_YOFFSET-1, ARROW_BOX_WIDTH, BAR_HEIGHT+2);
-            ctx.fillStyle = "rgba(255,255,0, " + 0.40*opacityFactor + ")";
-            ctx.fill();
-            ctx.strokeStyle = "rgba(255,255,0, " + 1.0*opacityFactor + ")";
-            ctx.stroke();
+            if (!arrow.style.isUser) {
+                // draw the yellow box below the arrow
+                ctx.beginPath();
+                ctx.rect(x - ARROW_BOX_WIDTH/2, BAR_YOFFSET-1, ARROW_BOX_WIDTH, BAR_HEIGHT+2);
+                ctx.fillStyle = "rgba(255,255,0, " + 0.40*opacityFactor + ")";
+                ctx.fill();
+                ctx.strokeStyle = "rgba(255,255,0, " + 1.0*opacityFactor + ")";
+                ctx.stroke();
 
-            // draw the yellow line centered in the box
-            ctx.moveTo(x, BAR_YOFFSET);
-            ctx.lineTo(x, BAR_YOFFSET+BAR_HEIGHT);
-            ctx.strokeStyle = "rgba(255,255,0, " + 1.0*opacityFactor + ")";
-            ctx.stroke();
+                // draw the yellow line centered in the box
+                ctx.moveTo(x, BAR_YOFFSET);
+                ctx.lineTo(x, BAR_YOFFSET+BAR_HEIGHT);
+                ctx.strokeStyle = "rgba(255,255,0, " + 1.0*opacityFactor + ")";
+                ctx.stroke();
+            }
 
             // draw the arrow itself
-            var rgba = "" + arrow.style.r + "," + arrow.style.g + "," + arrow.style.b + "," + arrow.style.a;
-            ctx.fillStyle = "rgba(" + rgba + ")";
+            ctx.fillStyle = arrow.style.toFillStyle();
             ctx.beginPath();
             ctx.moveTo(x, BAR_YOFFSET);
             ctx.lineTo(x+ARROW_WIDTH/2, BAR_YOFFSET-ARROW_HEIGHT);
@@ -399,12 +441,18 @@ function AddressNavBar(canvasId, sections) {
             ctx.lineTo(x, BAR_YOFFSET);
             ctx.fill();
             ctx.closePath();
-
         };
 
         // first draw the user arrows
         $.each(userArrows, function(uid, arrow) {
             drawArrow(arrow);
+
+            // if we're currently roaming over the position of a collabortaing user, draw the username
+            if (Math.abs(arrow.posX - roamArrow.posX) <= ARROW_WIDTH) {
+
+                debugger;
+                drawTextAt(" " + uid + " ", arrow.style.toFillStyle(), arrow.posX, UID_YOFFSET+UID_HEIGHT, UID_HEIGHT);
+            }
         });
 
         // draw the roaming arrow and roaming text
@@ -414,9 +462,8 @@ function AddressNavBar(canvasId, sections) {
             drawArrow(roamArrow);
 
             // draw address text
-            ctx.fillStyle = "rgb(0,0,0)";
-            ctx.font = TEXT_HEIGHT.toString() + "px Monospace";
-            ctx.fillText('0x' + roamArrow.vma.toString(16), roamArrow.posX, TEXT_YOFFSET + TEXT_HEIGHT);
+            drawTextAt('0x' + roamArrow.vma.toString(16), "rgb(0,0,0)",
+                roamArrow.posX, TEXT_YOFFSET + TEXT_HEIGHT, TEXT_HEIGHT);
         }
 
         // draw the current position indicator
@@ -481,12 +528,26 @@ function AddressNavBar(canvasId, sections) {
     /* Add a new user whose position we wish to track */
     function addUser(uid) {
         if (userArrows[uid] == undefined) {
-            var userCount = 0;
             getNewArrowStyle = function () {
-                // TODO: Make a pretty color pallette here */
-                return new ArrowStyle(200, 100, 50, 0.40);
+
+                colors = [
+                    [225, 92, 9],    // orange
+                    [9, 92, 225],    // blue
+                    [225, 194, 9],   // yellow
+                    [225, 9, 9],     // red
+                    [9, 225, 92],    // green
+                    [79, 0, 189]  // purple
+                ];
+
+                var colorIndex = numUsers % colors.length;
+                r = colors[colorIndex][0];
+                g = colors[colorIndex][1];
+                b = colors[colorIndex][2];
+
+                return new ArrowStyle(r, g, b, 1.0, true);
             };
 
+            numUsers++;
             userArrows[uid] = new Location(0,0, getNewArrowStyle());
         }
     }
@@ -494,7 +555,8 @@ function AddressNavBar(canvasId, sections) {
 
     /* Remove a user whose position we no longer wish to track */
     function removeUser(uid) {
-        delete userArrows[uid]
+        delete userArrows[uid];
+        numUsers--;
     }
     this.removeUser = removeUser;
 
