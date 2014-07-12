@@ -116,9 +116,6 @@ function AddressNavBar(canvasId, sections) {
     // force an initial drawing
     resize();
 
-    // register to re-draw ourselves when browser resizes
-    $(window).resize(resize);
-
     /* -------------------------------------------------------------- *
      *              P R I V A T E   M E T H O D S
      * -------------------------------------------------------------- */
@@ -309,7 +306,15 @@ function AddressNavBar(canvasId, sections) {
         }
     });
 
-    /* Runt section calculations - needs to be done on resize or adding sections */
+    /* Runt section calculations - needs to be done on resize or adding sections
+
+       Here's the problem.  We want to show each section in the address bar, but some sections are too small to show
+       in their real proportions to the other sections.  For those sections that are too small (runts, whose real pixel
+       width is less than RUNT_PIXEL_THRESHOLD), we artificially inflate their width to RUNT_MIN_WIDTH.  This solves one
+       problem, but then it skews the rest of the calculations because some sections are not displayed in proportion to
+       their actual size.  To deal with that, we introduce EFFECTIVE_BAR_WIDTH, with takes into account the inflation of
+       the runt sections as well as the inter-section gap that is displayed between each section.
+     */
     function calcRuntSectionSizes() {
         var runtPadding = 0;
 
@@ -329,6 +334,10 @@ function AddressNavBar(canvasId, sections) {
         }
     }
 
+    // register to re-draw ourselves when browser resizes
+    $(window).resize(resize);
+
+    /* called whenver the browser resizes the window */
     function resize() {
 
         // get the parent container
@@ -364,58 +373,112 @@ function AddressNavBar(canvasId, sections) {
         draw();
     }
 
+    /* main function to draw this entire widget */
     function draw() {
-        var x = 0;
 
-        // tabula rasa
-        ctx.clearRect (0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-        /*
-         * draw the sections
-         */
         if (undefined == sections) {
             return;
         }
 
-        // make a second pass to assign widths to each section
-        for (var i = 0; i < sections.length; i++) {
-            var width = Math.floor(sections[i].size / sumAddrRanges * (EFFECTIVE_BAR_WIDTH));
+        // helper function to draw the sections
+        function drawSections() {
+            var x = 0;
 
-            if (width < RUNT_PIXEL_THRESHOLD) {
-                width = RUNT_MIN_WIDTH;
+            // make a second pass to assign widths to each section
+            for (var i = 0; i < sections.length; i++) {
+
+                // calculate the actual width of this section
+                var width = Math.floor(sections[i].size / sumAddrRanges * (EFFECTIVE_BAR_WIDTH));
+
+                // if this section is too small to show up, use RUNT_MIN_WIDTH instead
+                if (width < RUNT_PIXEL_THRESHOLD) {
+                    width = RUNT_MIN_WIDTH;
+                }
+
+                // draw section
+                ctx.fillStyle = "rgb(0,110,255)";
+                ctx.fillRect (x, BAR_YOFFSET, width, BAR_HEIGHT);
+
+                // store some info with each section
+                sections[i].width = width;
+                sections[i].posX = x;
+
+                x += width + INTER_SECTION_GAP;
             }
-
-            // draw section
-            ctx.fillStyle = "rgb(0,110,255)";
-            ctx.fillRect (x, BAR_YOFFSET, width, BAR_HEIGHT);
-
-            // store some info with each section
-            sections[i].width = width;
-            sections[i].posX = x;
-
-            x += width + INTER_SECTION_GAP;
         }
 
-        // draw
-        function drawTextAt(txt, fillStyle, x, y, h) {
-            ctx.fillStyle = fillStyle;
-            ctx.font = h.toString() + "px Monospace";
+        /* helper function to draw text at the given location, which is specified as the lower left hand corner of the text
 
-            // if we're on the right side of the bar, draw text to the left of the given position
-            if (x > BAR_WIDTH/2) {
-                x -= ctx.measureText(txt).width;
+             txt - the text to draw
+             fillStyle - context fill style (i.e., "rgba(1,2,3,0.5)"
+             x - horizontal location to draw from (this function auto-corrects whether to draw from the left or right of
+                 the given x position, depending on where we're at on the bar)
+             y - vertical location to draw from (bottom of the text)
+             h - height of the font
+             font - name of font to use
+             ensureVisible [optional] - ensure that the text is visible on the canvas (default is true)
+
+         */
+        function drawTextAt(txt, fillStyle, x, y, h, font, ensureVisible) {
+
+            ctx.fillStyle = fillStyle;
+            ctx.font = h.toString() + "px " + font;
+
+            // if make visible is false or not even passed in to this function
+            if (ensureVisible || (typeof ensureVisible == 'undefined')) {
+
+                // if we're on the right side of the bar, draw text to the left of the given position
+                if (x > BAR_WIDTH/2) {
+                    x -= ctx.measureText(txt).width;
+                } else {
+                    // nothing to do
+                }
             }
 
             ctx.fillText(txt, x, y);
         }
 
-        // draw the arrows
+        function drawTextArrayAt(txtStyleArray, x, y, h, font) {
+
+            var rightToLeft = false;
+            var SEPARATOR = "  ";
+
+            // if we're on the right side of the bar, draw right to left
+            if (x > BAR_WIDTH/2) {
+                rightToLeft = true;
+            }
+
+            $.each(txtStyleArray, function(i, txtStyle) {
+
+                var txt = txtStyle[0] + SEPARATOR;
+                var style = txtStyle[1];
+
+                if (rightToLeft) {
+                    if (i == 0) {
+                        txt = txt.trim();
+                    }
+                    console.debug("'" + txt + "'");
+                    ctx.fillStyle = style;
+                    ctx.font = h.toString() + "px " + font;
+                    x -= ctx.measureText(txt).width;
+                }
+
+                drawTextAt(txt, style, x, y, h, font, false);
+
+                if (!rightToLeft) {
+                    x += ctx.measureText(txt).width;
+                }
+            });
+        }
+
+        // helper function to draw a position indicator at the given location using the given coloring
         function drawArrow(arrow) {
             var ARROW_BOX_WIDTH = 20;
 
             var x = arrow.posX;
             var opacityFactor = arrow.style.a;
 
+            // we only draw the bottom part of the position indicator if its our own current or roaming position
             if (!arrow.style.isUser) {
                 // draw the yellow box below the arrow
                 ctx.beginPath();
@@ -432,7 +495,8 @@ function AddressNavBar(canvasId, sections) {
                 ctx.stroke();
             }
 
-            // draw the arrow itself
+            // draw the triangular arrow
+            ctx.strokeStyle = arrow.style.toFillStyle();
             ctx.fillStyle = arrow.style.toFillStyle();
             ctx.beginPath();
             ctx.moveTo(x, BAR_YOFFSET);
@@ -443,30 +507,64 @@ function AddressNavBar(canvasId, sections) {
             ctx.closePath();
         };
 
-        // first draw the user arrows
-        $.each(userArrows, function(uid, arrow) {
-            drawArrow(arrow);
+        // helper function to draw the collaborating users
+        function drawUsers() {
 
-            // if we're currently roaming over the position of a collabortaing user, draw the username
-            if (Math.abs(arrow.posX - roamArrow.posX) <= ARROW_WIDTH) {
+            var usernamesToDraw = {};
 
-                debugger;
-                drawTextAt(" " + uid + " ", arrow.style.toFillStyle(), arrow.posX, UID_YOFFSET+UID_HEIGHT, UID_HEIGHT);
+            // draw the collaborating user arrows
+            $.each(userArrows, function(uid, arrow) {
+
+                // draw the user arrow
+                drawArrow(arrow);
+
+                // if we're currently roaming over the position of a collabortaing user, save the username to draw later
+                if (Math.abs(arrow.posX - roamArrow.posX) <= ARROW_WIDTH) {
+                    usernamesToDraw[uid] = arrow;
+                }
+            });
+
+            // if we are hovering over one or more users
+            if (!$.isEmptyObject(usernamesToDraw)) {
+
+                var txtStyleArray = [];
+                var usernameXpos = undefined;
+
+                $.each(usernamesToDraw, function(uid, arrow) {
+
+                    txtStyleArray.push([uid, arrow.style.toFillStyle()]);
+                    if (usernameXpos == undefined) {
+                        usernameXpos = arrow.posX;
+                    }
+                });
+
+                drawTextArrayAt(txtStyleArray, usernameXpos, UID_YOFFSET+UID_HEIGHT, UID_HEIGHT, "Arial");
             }
-        });
-
-        // draw the roaming arrow and roaming text
-        if (roamArrow.posX >= 0) {
-
-            // draw roaming arrow that is slightly transparent
-            drawArrow(roamArrow);
-
-            // draw address text
-            drawTextAt('0x' + roamArrow.vma.toString(16), "rgb(0,0,0)",
-                roamArrow.posX, TEXT_YOFFSET + TEXT_HEIGHT, TEXT_HEIGHT);
         }
 
-        // draw the current position indicator
+        // helper function to draw the roaming position indicator
+        function drawRoaming() {
+
+            // only draw the roaming arrow and roaming text if the mouse is currently hovering over the address bar
+            if (roamArrow.posX >= 0) {
+
+                // draw roaming arrow that is slightly transparent
+                drawArrow(roamArrow);
+
+                // draw the roaming address text
+                drawTextAt('0x' + roamArrow.vma.toString(16), "rgb(0,0,0)",
+                    roamArrow.posX, TEXT_YOFFSET + TEXT_HEIGHT, TEXT_HEIGHT, "Monospace");
+            }
+        }
+
+        // start with a tabula rasa (don't want to draw on top of whatever currently exists) */
+        ctx.clearRect (0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        drawSections();
+        drawUsers();
+        drawRoaming();
+
+        // draw the current position indicator last so it's in front of everything else
         drawArrow(curArrow);
     }
 
@@ -531,12 +629,14 @@ function AddressNavBar(canvasId, sections) {
             getNewArrowStyle = function () {
 
                 colors = [
+                    [79, 0, 189],    // purple
+                    [26, 156, 156],  // cyan
+                    [193, 16, 170],  // pink
                     [225, 92, 9],    // orange
                     [9, 92, 225],    // blue
                     [225, 194, 9],   // yellow
                     [225, 9, 9],     // red
-                    [9, 225, 92],    // green
-                    [79, 0, 189]  // purple
+                    [9, 225, 92]     // green
                 ];
 
                 var colorIndex = numUsers % colors.length;
