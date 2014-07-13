@@ -56,7 +56,7 @@ function Location(posX, vma, style) {
 /* ------------------------------------------------------------------ *
  *                             C L A S S
  * ------------------------------------------------------------------ */
-function AddressNavBar(canvasId, sections) {
+function AddressNavBar(canvasId, sections, parcels) {
 
     /* -------------------------------------------------------------- *
      *              P R I V A T E   P R O P E R T I E S
@@ -76,6 +76,7 @@ function AddressNavBar(canvasId, sections) {
     var TEXT_YOFFSET;
     var TEXT_WIDTH;
     var TEXT_HEIGHT;
+    var TEXT_FONT_SIZE;
 
     var CANVAS_WIDTH;
     var CANVAS_HEIGHT;
@@ -112,6 +113,7 @@ function AddressNavBar(canvasId, sections) {
     var numUsers = 0;
 
     setSections(sections);
+    setParcels(parcels);
 
     // force an initial drawing
     resize();
@@ -208,6 +210,19 @@ function AddressNavBar(canvasId, sections) {
         }
 
         return posX;
+    }
+
+    function vmaToSection(vma) {
+
+        for (var i = 0; i < sections.length; i++) {
+            if ((vma >= sections[i].vma) &&
+                (vma < (sections[i].vma + sections[i].size)))
+            {
+                return sections[i];
+            }
+        }
+
+        return undefined;
     }
 
     /* Internal function called when current position changes */
@@ -350,7 +365,8 @@ function AddressNavBar(canvasId, sections) {
         TEXT_WIDTH = BAR_WIDTH;
 
         UID_YOFFSET = 0;
-        UID_HEIGHT = 15;
+        UID_FONT_SIZE = 15;
+        UID_HEIGHT = UID_FONT_SIZE + 0;  // no gap needed here, b/c we're not at the bottom of the canvas, so chars like "_" will appear correctly
 
         ARROW_YOFFSET = UID_YOFFSET + UID_HEIGHT + 2;  // add some space between the usernames and top of arrow
         ARROW_HEIGHT = 8;
@@ -359,7 +375,8 @@ function AddressNavBar(canvasId, sections) {
         BAR_HEIGHT = 17;
 
         TEXT_YOFFSET = BAR_YOFFSET + BAR_HEIGHT;
-        TEXT_HEIGHT = 15;
+        TEXT_FONT_SIZE = 15;
+        TEXT_HEIGHT = TEXT_FONT_SIZE + 4;  // if we don't have a gap here, characters like "_" don't appear
 
         CANVAS_HEIGHT = TEXT_YOFFSET + TEXT_HEIGHT;
 
@@ -405,6 +422,31 @@ function AddressNavBar(canvasId, sections) {
 
                 x += width + INTER_SECTION_GAP;
             }
+        }
+
+        // helper function to draw the parcels
+        function drawParcels() {
+
+            if (parcels == undefined) {
+                return;
+            }
+
+            function getParcelColor(p) {
+                if (p.isCode) {
+                    return "rgb(0,110,255)";
+                } else {
+                    return "rgb(53,53,53)";
+                }
+            }
+
+            $.each(parcels, function(i, p) {
+                var start = addrToPixel(p.vma_start);
+                var end = addrToPixel(p.vma_end-1);
+                var width = end - start;
+
+                ctx.fillStyle = getParcelColor(p);
+                ctx.fillRect (start, BAR_YOFFSET, width, BAR_HEIGHT);
+            });
         }
 
         function fitTxtCentered(txt, x, font, h) {
@@ -552,7 +594,7 @@ function AddressNavBar(canvasId, sections) {
                     });
                 });
 
-                drawTextArrayCentered(txtStyleArray, usernameXpos, UID_YOFFSET+UID_HEIGHT, UID_HEIGHT, "Arial");
+                drawTextArrayCentered(txtStyleArray, usernameXpos, UID_YOFFSET+UID_FONT_SIZE, UID_FONT_SIZE, "Arial");
             }
         }
 
@@ -566,8 +608,10 @@ function AddressNavBar(canvasId, sections) {
                 drawArrow(roamArrow);
 
                 // draw the roaming address text
-                drawTextCentered('0x' + roamArrow.vma.toString(16), "rgb(0,0,0)",
-                    roamArrow.posX, TEXT_YOFFSET + TEXT_HEIGHT, TEXT_HEIGHT, "Monospace");
+                var sec = vmaToSection(roamArrow.vma);
+                var secName = sec == undefined ? "unk" : sec.name;
+                drawTextCentered(secName + ':0x' + roamArrow.vma.toString(16), "rgb(0,0,0)",
+                    roamArrow.posX, TEXT_YOFFSET + TEXT_FONT_SIZE, TEXT_FONT_SIZE, "Monospace");
             }
         }
 
@@ -575,6 +619,7 @@ function AddressNavBar(canvasId, sections) {
         ctx.clearRect (0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
         drawSections();
+        drawParcels();
         drawUsers();
         drawRoaming();
 
@@ -600,6 +645,13 @@ function AddressNavBar(canvasId, sections) {
         draw();
     }
     this.setSections = setSections;
+
+    /* Update the parcels represented in this navigation bar */
+    function setParcels(p) {
+        parcels = p;
+        draw();
+    }
+    this.setParcels = setParcels;
 
     /* Set the current address */
     function setAddress(a) {

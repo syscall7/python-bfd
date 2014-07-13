@@ -2,7 +2,7 @@
   <head>
     <title>Address Bar</title>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+    <script type="text/javascript" src="http://localhost:8000/static2/scripts/lib/underscore-1.3.3.js"></script>
     <script type="text/javascript" src="http://localhost:8000/static2/scripts/addrbar.js"></script>
     <script type="text/javascript">
 
@@ -18,46 +18,91 @@ var sections = [
     {
         'name' : '.small0',
         'vma' : 0x300000,
-        'size' : 0x5,
+        'size' : 0x5
     },
     {
         'name' : '.small1',
         'vma' : 0x300100,
-        'size' : 0x5,
+        'size' : 0x5
     },
     {
         'name' : '.plt',
         'vma' : 0x400000,
-        'size' : 0x500,
+        'size' : 0x500
     },
     {
         'name' : '.text',
         'vma' : 0x500000,
-        'size' : 0x40000,
+        'size' : 0x40000
     },
     {
         'name' : '.text_small',
         'vma' : 0x540000,
-        'size' : 0x00050,
+        'size' : 0x00050
     },
     {
         'name' : '.data',
         'vma' : 0x550000,
-        'size' : 0x80000,
+        'size' : 0x80000
     },
     {
         'name' : '.small2',
         'vma' : 0x600000,
-        'size' : 0x5,
+        'size' : 0x5
     },
     {
         'name' : '.small3',
         'vma' : 0x800100,
-        'size' : 0x5,
+        'size' : 0x5
+    }
+];
+
+// define some parcels
+var parcels = [
+    {
+        'vma_start' : 0x300000,
+        'vma_end' : 0x300005,
+        'isCode' : false
+    },
+    {
+        'vma_start' : 0x300100,
+        'vma_end' : 0x300105,
+        'isCode' : false
+    },
+    {
+        'vma_start' : 0x400000,
+        'vma_end' : 0x400500,
+        'isCode' : true
+    },
+    {
+        'vma_start' : 0x500000,
+        'vma_end' : 0x540000,
+        'isCode' : true
+    },
+    {
+        'vma_start' : 0x540000,
+        'vma_end' : 0x540050,
+        'isCode' : true
+    },
+    {
+        'vma_start' : 0x550000,
+        'vma_end' : 0x5d0000,
+        'isCode' : false
+    },
+    {
+        'vma_start' : 0x600000,
+        'vma_end' : 0x600005,
+        'isCode' : false
+    },
+    {
+        'vma_start' : 0x800100,
+        'vma_end' : 0x800105,
+        'isCode' : false
     }
 ];
 
 // instantiate the address nav bar
+//addrBar = new AddressNavBar('#addr-bar-canvas', sections, parcels);
 addrBar = new AddressNavBar('#addr-bar-canvas', sections);
 addrBar.onChange(function(a) {
     console.log('My change handler: ' + a.toString(16));
