@@ -352,7 +352,7 @@ function AddressNavBar(canvasId, sections) {
         UID_YOFFSET = 0;
         UID_HEIGHT = 15;
 
-        ARROW_YOFFSET = UID_YOFFSET + UID_HEIGHT;
+        ARROW_YOFFSET = UID_YOFFSET + UID_HEIGHT + 2;  // add some space between the usernames and top of arrow
         ARROW_HEIGHT = 8;
 
         BAR_YOFFSET = ARROW_YOFFSET + ARROW_HEIGHT;
@@ -407,6 +407,25 @@ function AddressNavBar(canvasId, sections) {
             }
         }
 
+        function fitTxtCentered(txt, x, font, h) {
+            ctx.font = h.toString() + "px " + font;
+
+            // calculate width of the text to be drawn
+            var txtWidth = ctx.measureText(txt).width;
+
+            // move x to the start
+            x -= txtWidth/2;
+
+            // if we're on the right side of the bar, draw text to the left of the given position
+            if (x+txtWidth > BAR_WIDTH) {
+                x -= x+txtWidth - BAR_WIDTH;
+            } else if (x < 0) {
+                x = 0;
+            }
+
+            return x;
+        }
+
         /* helper function to draw text at the given location, which is specified as the lower left hand corner of the text
 
              txt - the text to draw
@@ -419,55 +438,45 @@ function AddressNavBar(canvasId, sections) {
              ensureVisible [optional] - ensure that the text is visible on the canvas (default is true)
 
          */
-        function drawTextAt(txt, fillStyle, x, y, h, font, ensureVisible) {
+        function drawTextCentered(txt, fillStyle, x, y, h, font, ensureVisible) {
 
             ctx.fillStyle = fillStyle;
             ctx.font = h.toString() + "px " + font;
 
             // if make visible is false or not even passed in to this function
             if (ensureVisible || (typeof ensureVisible == 'undefined')) {
-
-                // if we're on the right side of the bar, draw text to the left of the given position
-                if (x > BAR_WIDTH/2) {
-                    x -= ctx.measureText(txt).width;
-                } else {
-                    // nothing to do
-                }
+                x = fitTxtCentered(txt, x, font, h);
+            } else {
+                // nothing to do
             }
 
             ctx.fillText(txt, x, y);
         }
 
-        function drawTextArrayAt(txtStyleArray, x, y, h, font) {
+        // helper function to draw a list of strings centered at the given location
+        function drawTextArrayCentered(txtStyleArray, x, y, h, font) {
 
             var rightToLeft = false;
-            var SEPARATOR = "  ";
+            var SEPARATOR = " ";
+            var start_x;
 
-            // if we're on the right side of the bar, draw right to left
-            if (x > BAR_WIDTH/2) {
-                rightToLeft = true;
-            }
+            txt_joined = $.map(txtStyleArray, function(txtStyle) {
+                return txtStyle.txt;
+            }).join(SEPARATOR);
+
+            start_x = fitTxtCentered(txt_joined, x, font, h);
 
             $.each(txtStyleArray, function(i, txtStyle) {
 
-                var txt = txtStyle[0] + SEPARATOR;
-                var style = txtStyle[1];
+                var txt = txtStyle.txt;
+                var style = txtStyle.style;
 
-                if (rightToLeft) {
-                    if (i == 0) {
-                        txt = txt.trim();
-                    }
-                    console.debug("'" + txt + "'");
-                    ctx.fillStyle = style;
-                    ctx.font = h.toString() + "px " + font;
-                    x -= ctx.measureText(txt).width;
+                if (i != txtStyleArray.length - 1) {
+                    txt += SEPARATOR;
                 }
 
-                drawTextAt(txt, style, x, y, h, font, false);
-
-                if (!rightToLeft) {
-                    x += ctx.measureText(txt).width;
-                }
+                drawTextCentered(txt, style, start_x, y, h, font, false);
+                start_x += ctx.measureText(txt).width;
             });
         }
 
@@ -510,7 +519,7 @@ function AddressNavBar(canvasId, sections) {
         // helper function to draw the collaborating users
         function drawUsers() {
 
-            var usernamesToDraw = {};
+            var usernamesToDraw = [];
 
             // draw the collaborating user arrows
             $.each(userArrows, function(uid, arrow) {
@@ -519,26 +528,31 @@ function AddressNavBar(canvasId, sections) {
                 drawArrow(arrow);
 
                 // if we're currently roaming over the position of a collabortaing user, save the username to draw later
-                if (Math.abs(arrow.posX - roamArrow.posX) <= ARROW_WIDTH) {
-                    usernamesToDraw[uid] = arrow;
+                if ((roamArrow.posX >= 0) && (Math.abs(arrow.posX - roamArrow.posX) <= ARROW_WIDTH)) {
+                        usernamesToDraw.push({'uid': uid, 'arrow': arrow});
                 }
             });
 
             // if we are hovering over one or more users
             if (!$.isEmptyObject(usernamesToDraw)) {
 
-                var txtStyleArray = [];
-                var usernameXpos = undefined;
-
-                $.each(usernamesToDraw, function(uid, arrow) {
-
-                    txtStyleArray.push([uid, arrow.style.toFillStyle()]);
-                    if (usernameXpos == undefined) {
-                        usernameXpos = arrow.posX;
-                    }
+                // first sort them by position
+                usernamesToDraw = usernamesToDraw.sort(function(a,b) {
+                    return a.arrow.posX - b.arrow.posX;
                 });
 
-                drawTextArrayAt(txtStyleArray, usernameXpos, UID_YOFFSET+UID_HEIGHT, UID_HEIGHT, "Arial");
+                var txtStyleArray = [];
+                var usernameXpos = usernamesToDraw[0].arrow.posX;  // center usernames on the first user position
+
+                $.each(usernamesToDraw, function(i, uarrow) {
+
+                    txtStyleArray.push({
+                        'txt': uarrow.uid,
+                        'style': uarrow.arrow.style.toFillStyle()
+                    });
+                });
+
+                drawTextArrayCentered(txtStyleArray, usernameXpos, UID_YOFFSET+UID_HEIGHT, UID_HEIGHT, "Arial");
             }
         }
 
@@ -552,7 +566,7 @@ function AddressNavBar(canvasId, sections) {
                 drawArrow(roamArrow);
 
                 // draw the roaming address text
-                drawTextAt('0x' + roamArrow.vma.toString(16), "rgb(0,0,0)",
+                drawTextCentered('0x' + roamArrow.vma.toString(16), "rgb(0,0,0)",
                     roamArrow.posX, TEXT_YOFFSET + TEXT_HEIGHT, TEXT_HEIGHT, "Monospace");
             }
         }
@@ -629,7 +643,7 @@ function AddressNavBar(canvasId, sections) {
             getNewArrowStyle = function () {
 
                 colors = [
-                    [79, 0, 189],    // purple
+                    [119, 79, 189],  // purple
                     [26, 156, 156],  // cyan
                     [193, 16, 170],  // pink
                     [225, 92, 9],    // orange
