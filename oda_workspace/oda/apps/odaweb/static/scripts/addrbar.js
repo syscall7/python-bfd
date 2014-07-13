@@ -432,7 +432,7 @@ function AddressNavBar(canvasId, sections, parcels) {
             }
 
             function getParcelColor(p) {
-                if (p.isCode) {
+                if (p.is_code) {
                     return "rgb(0,110,255)";
                 } else {
                     return "rgb(53,53,53)";

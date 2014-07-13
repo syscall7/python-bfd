@@ -8,6 +8,8 @@ var OdbFile = function() {
 
     this.sections = [];
 
+    this.parcels = [];
+
     this.comments = [];
 
     this.displayUnitsLength = -1;
@@ -32,6 +34,13 @@ var OdbFile = function() {
             revision: 0
         }).success(function (data) {
             this.sections = data;
+        }.bind(this));
+
+        var pq = $.get('/odaweb/api/parcels/', {
+            short_name: this.shortName,
+            revision: 0
+        }).success(function (data) {
+                this.parcels = data;
         }.bind(this));
 
         var dulenq = $.get('/odaweb/api/displayunits/1/size', {
@@ -602,7 +611,7 @@ function start(odbFile) {
     var renderer = new Renderer(odbFile);
     var windowLoader = new WindowLoader(renderer, odbFile);
 
-    var addrBar = new AddressNavBar('#addr-bar-canvas', odbFile.sections);
+    var addrBar = new AddressNavBar('#addr-bar-canvas', odbFile.sections, odbFile.parcels);
 
     addrBar.onChange(function(address) {
         odbFile.vmaToLda(address, function(ldu){
