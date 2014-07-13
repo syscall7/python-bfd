@@ -340,8 +340,9 @@ var lineRenderer = function(stringBuilder, row, onlyContents, foldLine) {
 
 var Renderer = function(odbFile) {
 
+    // TODO: Generate the padding size (35) dynamically based on the longest section name in view
     this.baseFunctionTemplateString =
-       '<span class="offset">{{{formatSectionOffset section_name offset 15 }}}</span>&nbsp;&nbsp;' +
+       '<span class="offset">{{{formatSectionOffset section_name offset 35 }}}</span>&nbsp;&nbsp;' +
        '<span class="raw disassembly-cell">{{{pad " " 20}}}</span>&nbsp;&nbsp;';
     this.baseFunctionTemplate = Handlebars.compile(this.baseFunctionTemplateString);
 
@@ -351,9 +352,9 @@ var Renderer = function(odbFile) {
     this.functionTemplate2 = Handlebars.compile(this.baseFunctionTemplateString +
         '<span class="function-return">{{retval}}</span> <span class="function-name">{{name}}</span> <span class="function-args">({{args}})</span>');
 
-
+    // TODO: Generate the padding size (35) dynamically based on the longest section name in view
     this.baseDuTemplateString =
-        '<span class="offset">{{{formatSectionOffset section_name offset 15 }}}</span>';
+        '<span class="offset">{{{formatSectionOffset section_name offset 35 }}}</span>';
     this.baseDuTemplate = Handlebars.compile(this.baseDuTemplateString +
         '&nbsp;&nbsp;<span class="raw disassembly-cell">{{{pad rawBytes 20}}}</span>&nbsp;&nbsp;<span class="instruction">{{{instStr}}}</span>');
     this.labelTemplate = Handlebars.compile(this.baseDuTemplateString + "{{{ pad '' 20}}} loc_{{ hex offset }}:");

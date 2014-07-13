@@ -102,8 +102,7 @@ var parcels = [
 ];
 
 // instantiate the address nav bar
-//addrBar = new AddressNavBar('#addr-bar-canvas', sections, parcels);
-addrBar = new AddressNavBar('#addr-bar-canvas', sections);
+addrBar = new AddressNavBar('#addr-bar-canvas', sections, parcels);
 addrBar.onChange(function(a) {
     console.log('My change handler: ' + a.toString(16));
 });
