@@ -135,7 +135,11 @@ var OdaSession = function(session, windowLoader) {
 
     //this.cursorPositon = null;
 
+    this.editor = editor;
+
     this.windowLoader = windowLoader;
+
+    this.session = session;
 
     this.onCursorChange = $.Callbacks();
 
@@ -162,6 +166,21 @@ var OdaSession = function(session, windowLoader) {
     this.getRowData = function(row) {
         return session.getDocument().getLineData(row);
     };
+
+    this.findRowForAddress = function(address) {
+        console.log('find', address);
+        var line = 0;
+        for(line=0; line<this.session.getDocument().window.lines.length; line++) {
+            //Ugh, this is brittle, relies on window.lines to have a data.offset...
+            if (this.session.getDocument().window.lines[line].data.offset == address)
+                break;
+        }
+        var lineToMoveTo = this.session.getDocument().window.startRow + line + 1;
+        console.log('found',lineToMoveTo);
+        return lineToMoveTo;
+
+
+    }
 
 };
 
@@ -606,6 +625,20 @@ OdaApplication.prototype.getSectionInfo = function() { return window.oda_master.
 
 var oda_util = new OdaApplication();
 
+function moveToOffset(odbFile, odaSession, editor, windowLoader, offset) {
+    odbFile.vmaToLda(offset, function(ldu){
+
+        windowLoader.once('loaded', function(){
+            setTimeout(function(){
+                var lineToMoveTo = odaSession.findRowForAddress(offset);
+                editor.gotoLine(lineToMoveTo, 0, false);}, 0);
+
+        });
+
+        editor.gotoLine(windowLoader.displayUnitToRow(ldu), 0);
+    });
+}
+
 function start(odbFile) {
     var editor;
 
@@ -668,17 +701,8 @@ function start(odbFile) {
 
         if (xrefLocation.length > 0){
             console.log("xref-location", xrefLocation[0].value);
-            odbFile.vmaToLda(parseInt(xrefLocation[0].value.substring(2),16), function(ldu){
-
-                windowLoader.once('loaded', function(){
-                    //alert('here')
-                    console.log('ADJUST TO ', xrefLocation[0].value);
-                });
-
-                editor.clearSelection();
-                editor.moveCursorTo(windowLoader.displayUnitToRow(ldu), 0);
-                editor.clearSelection();
-            });
+            var xrefdecimal = parseInt(xrefLocation[0].value.substring(2),16);
+            moveToOffset(odbFile, odaSession, editor, windowLoader, xrefdecimal);
         }
 
 

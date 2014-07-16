@@ -17,7 +17,8 @@
                     <td style="width:1%">0x{{symbol.offset.toString(16)}}</td>
                     <td style="width:1%">{{symbol.type}}</td>
                     <td style="width:100%; text-align: left;" ng-switch on="symbol.type.toLowerCase()">
-                        <span ng-switch-when="t" class="clickable" ng-click="setPosition(symbol.offset)">{{symbol.name}}</span>
+                        <span ng-switch-when="t" class="clickable"
+                              ng-click="setPosition(symbol.offset)">{{symbol.name}}</span>
                         <span ng-switch-default>{{ symbol.name }}</span>
 
                     </td>
