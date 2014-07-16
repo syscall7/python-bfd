@@ -616,7 +616,9 @@ function start(odbFile) {
 
     addrBar.onChange(function(address) {
         odbFile.vmaToLda(address, function(ldu){
-            editor.moveCursorToPosition({row:windowLoader.displayUnitToRow(ldu),column:0});
+            editor.moveCursorToPosition({
+                row:windowLoader.displayUnitToRow(ldu),column:0
+            });
             editor.clearSelection();
         });
         console.log('My change handler: ' + address.toString(16));
