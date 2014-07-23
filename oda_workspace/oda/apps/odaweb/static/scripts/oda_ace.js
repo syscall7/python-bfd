@@ -131,7 +131,7 @@ var OdbFile = function() {
 
 };
 
-var OdaSession = function(session, windowLoader) {
+var OdaSession = function(editor, odbFile, windowLoader) {
 
     //this.cursorPositon = null;
 
@@ -139,15 +139,17 @@ var OdaSession = function(session, windowLoader) {
 
     this.windowLoader = windowLoader;
 
-    this.session = session;
+    this.session = editor.getSession();
+
+    this.odbFile = odbFile;
 
     this.onCursorChange = $.Callbacks();
 
-    session.selection.on('changeCursor', function(e) {
-        var cursor = session.getSelection().getCursor();
+    this.session.selection.on('changeCursor', function(e) {
+        var cursor = this.session.getSelection().getCursor();
 
         //var line = session.getDocument().getLine(cursor.row);
-        var lineData = session.getDocument().getLineData(cursor.row);
+        var lineData = this.session.getDocument().getLineData(cursor.row);
         if (!lineData) {
             //linedata can be null when window is not loaded...
             return;
@@ -164,22 +166,48 @@ var OdaSession = function(session, windowLoader) {
     }.bind(this));
 
     this.getRowData = function(row) {
-        return session.getDocument().getLineData(row);
+        return this.session.getDocument().getLineData(row);
     };
 
     this.findRowForAddress = function(address) {
-        console.log('find', address);
-        var line = 0;
+        var line = -1;
         for(line=0; line<this.session.getDocument().window.lines.length; line++) {
             //Ugh, this is brittle, relies on window.lines to have a data.offset...
             if (this.session.getDocument().window.lines[line].data.offset == address)
                 break;
         }
+
+        if (line == this.session.getDocument().window.lines.length) {
+            console.log('findRowForAddress outside window', address);
+            return -1;
+        }
+
         var lineToMoveTo = this.session.getDocument().window.startRow + line + 1;
-        console.log('found',lineToMoveTo);
+        console.log('findRowForAddress',address, lineToMoveTo);
         return lineToMoveTo;
+    };
 
+    this.moveToOffset = function(offset) {
+        //TODO debounce this
+        var odaSession = this;
 
+        var line = this.findRowForAddress(offset);
+        if (line == -1) {
+            odaSession.odbFile.vmaToLda(offset, function(ldu){
+                odaSession.windowLoader.once('loaded', function(){
+                    setTimeout(function(){
+                        console.log('fixup');
+                        var lineToMoveTo = odaSession.findRowForAddress(offset);
+                        odaSession.editor.gotoLine(lineToMoveTo, 0, false);
+                    }, 10);
+
+                });
+
+            editor.gotoLine(odaSession.windowLoader.displayUnitToRow(ldu), 0);
+            });
+        } else {
+            odaSession.editor.gotoLine(line, 0, false);
+        }
     }
 
 };
@@ -625,19 +653,6 @@ OdaApplication.prototype.getSectionInfo = function() { return window.oda_master.
 
 var oda_util = new OdaApplication();
 
-function moveToOffset(odbFile, odaSession, editor, windowLoader, offset) {
-    odbFile.vmaToLda(offset, function(ldu){
-
-        windowLoader.once('loaded', function(){
-            setTimeout(function(){
-                var lineToMoveTo = odaSession.findRowForAddress(offset);
-                editor.gotoLine(lineToMoveTo, 0, false);}, 0);
-
-        });
-
-        editor.gotoLine(windowLoader.displayUnitToRow(ldu), 0);
-    });
-}
 
 function start(odbFile) {
     var editor;
@@ -669,7 +684,7 @@ function start(odbFile) {
     editor.getSession().setUseWorker(false);
     editor.setShowPrintMargin(false);
     editor.renderer.setShowGutter(true);
-    var odaSession = new OdaSession(editor.getSession(), windowLoader);
+    var odaSession = new OdaSession(editor, odbFile, windowLoader);
     var statusBar = new StatusBar();
     var keyboardHandler = new KeyboardHandler(statusBar, odaSession, odbFile);
 
@@ -702,7 +717,7 @@ function start(odbFile) {
         if (xrefLocation.length > 0){
             console.log("xref-location", xrefLocation[0].value);
             var xrefdecimal = parseInt(xrefLocation[0].value.substring(2),16);
-            moveToOffset(odbFile, odaSession, editor, windowLoader, xrefdecimal);
+            odaSession.moveToOffset(xrefdecimal);
         }
 
 
@@ -712,6 +727,21 @@ function start(odbFile) {
     oda_util.setEditor(editor);
     oda_util.setOdaSession(odaSession);
     oda_util.setOdbFile(odbFile);
+
+    odaApplication.service('OdaSession', function() {
+        this.odaSession = odaSession;
+
+        this.getSession = function() {
+            return this.odaSession;
+        };
+
+        this.setSession = function(odaSession) {
+            this.odaSession = odaSession;
+        };
+    });
+
+
+    angular.bootstrap(document, ['odaApp']);
 }
 
 odaApplication.run(function($rootScope){

@@ -1,4 +1,4 @@
-odaApplication.controller('StringsController', function StringsController($scope, $http, $window, odaApi) {
+odaApplication.controller('StringsController', function StringsController($scope, $http, $window, odaApi, OdaSession) {
     var master = oda_util.getMaster();
 
     odaApi.getStrings(master.short_name, master.revision).success(function(data){
@@ -6,6 +6,7 @@ odaApplication.controller('StringsController', function StringsController($scope
     } );
 
     $scope.setPosition = function(position) {
-        odaApi.setPosition(position);
+        console.log('set position', position);
+        OdaSession.getSession().moveToOffset(position);
     }
 });

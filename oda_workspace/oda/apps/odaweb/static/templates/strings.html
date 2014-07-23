@@ -14,7 +14,8 @@
             <tbody class="scrollContent">
                     <tr ng-repeat="string in strings | filter:search | orderBy:'addr'">
                         <td class="str-offset" style="width:1%">
-                            <span class="clickable" ng-click="setPosition(string.addr)">0x{{ string.addr.toString(16) }}</span>
+                            <span class="clickable"
+                                  ng-click="setPosition(string.addr)">0x{{ string.addr.toString(16) }}</span>
                         </td>
                         <td class="string" style="text-align: left; width:100%">{{ string.string }}</td>
                     </tr>

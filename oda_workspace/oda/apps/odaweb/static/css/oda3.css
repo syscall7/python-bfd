@@ -87,6 +87,16 @@
     background-color:#C8DEFF;
 }
 
+.clickable {
+    color: #0088CC;
+    text-decoration: none;
+}
+.clickable:hover {
+    color: #005580;
+    text-decoration: underline;
+    cursor:pointer;
+}
+
 
     .plunker-paneselector .pulse-info a i {
   -webkit-animation-name: pulse-info;
@@ -200,3 +210,4 @@
     75%  { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
     100% { -webkit-transform: rotate(180deg); transform: rotate(180deg); }
 }
+

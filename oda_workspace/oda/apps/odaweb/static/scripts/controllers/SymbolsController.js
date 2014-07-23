@@ -1,4 +1,4 @@
-odaApplication.controller('SymbolsController', function SymbolsController($scope, $http, $window, odaApi) {
+odaApplication.controller('SymbolsController', function SymbolsController($scope, $http, $window, odaApi, OdaSession) {
     var master = oda_util.getMaster();
 
     odaApi.getSymbols(master.short_name, master.revision)
@@ -15,6 +15,7 @@ odaApplication.controller('SymbolsController', function SymbolsController($scope
     };
 
     $scope.setPosition = function(position) {
-        odaApi.setPosition(position);
-    }
+        console.log('set position', position);
+        OdaSession.getSession().moveToOffset(position);
+    };
 });
