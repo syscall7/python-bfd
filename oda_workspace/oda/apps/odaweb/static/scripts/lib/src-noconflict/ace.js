@@ -17835,7 +17835,8 @@ var OnlineDocument = function(numRows, windowLoader) {
         var range2 = new Range(0, 0, newLength, 0);
         var delta2 = {
             action: "insertLines",
-            range: range
+            range: range,
+            lines: {length:newLength}
         };
         this._signal("change", { data: delta2 });
 
