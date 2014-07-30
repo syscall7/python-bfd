@@ -608,7 +608,7 @@ var OdaGutterRenderer = function(odaSession) {
 };
 
 var odaApplication = angular
-    .module('odaApp',['ngSanitize'])
+    .module('odaApp',['ngSanitize', 'ui.bootstrap'])
     .config(function($httpProvider) {
 
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
@@ -885,14 +885,79 @@ odaApplication.controller('DockController', function DockController($scope, $htt
 
 });
 
-odaApplication.controller('NavbarController', function NavbarController($scope, $location){
+odaApplication.controller('NavbarController', function NavbarController($scope, $modal, $location){
     $scope.examples = window.examples;
 
     $scope.loadExample = function(example) {
         window.location = "/oda/ace/" + example.short_name;
     };
 
+    $scope.openFile = function() {
+        var modalInstance = $modal.open({
+          templateUrl: 'uploadFileModal.html',
+          controller: 'UploadFileController',
+          size: 'lg'
+            /*,
+          size: size,
+          resolve: {
+            items: function () {
+              return $scope.items;
+            }
+          }*/
+        });
+    }
+
 });
+
+odaApplication.controller('UploadFileController',
+    function UploadFileController($scope, $modalInstance, fileUpload){
+
+    $scope.project_name = 'Temp';
+
+    $scope.ok = function () {
+        //$modalInstance.close();
+        console.log('ok',$scope.uploadFile);
+        fileUpload.uploadFileToUrl($scope.uploadFile, $scope.project_name, '/odaweb/_upload');
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+});
+
+odaApplication.directive('fileModel', ['$parse', function ($parse) {
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs) {
+            var model = $parse(attrs.fileModel);
+            var modelSetter = model.assign;
+
+            element.bind('change', function(){
+                scope.$apply(function(){
+                    modelSetter(scope.$parent, element[0].files[0]);
+                    console.log('fileModel change');
+                });
+            });
+        }
+    };
+}]);
+
+odaApplication.service('fileUpload', ['$http', function ($http) {
+    this.uploadFileToUrl = function(file, project_name, uploadUrl){
+        var fd = new FormData();
+        fd.append('filedata', file);
+        fd.append('project_name', project_name);
+        $http.post(uploadUrl, fd, {
+            transformRequest: angular.identity,
+            headers: {'Content-Type': undefined}
+        })
+        .success(function(){
+        })
+        .error(function(){
+        });
+    }
+}]);
+
 
 odaApplication.factory('odaApi', function($rootScope, $q, $http) {
 
@@ -1024,3 +1089,4 @@ odaApplication.factory('odaApi', function($rootScope, $q, $http) {
         }
     };
 });
+

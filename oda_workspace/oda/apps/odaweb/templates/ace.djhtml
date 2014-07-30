@@ -23,6 +23,7 @@
     <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.10/angular.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.10/angular-route.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.10/angular-sanitize.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/ui-bootstrap-tpls-0.11.0.js' %}"></script>
 
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/ui-layout/layout-default-latest.css' %}" />
     <script type="text/javascript" src="{% static 'scripts/lib/ui-layout/jquery.layout-rc30.79.js' %}"></script>
@@ -105,6 +106,46 @@
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
+
+
+<script type="text/ng-template" id="uploadFileModal.html">
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()">&times;</button>
+        <h3>Open File</h3>
+    </div>
+    <div class="modal-body">
+        <form id="upload-form" class="form-horizontal"
+              enctype="multipart/form-data"
+              action="_upload" method="post">
+
+            <div class="form-group">
+                <label for="project_name" class="col-sm-4 control-label">Project Name</label>
+                <div class="col-sm-8">
+                    <input type="text"
+                           class="form-control"
+                           name="project_name"
+                           ng-model="project_name"
+                           placeholder="Project Name">
+                </div>
+            </div>
+
+           <div class="form-group">
+                <label for="filename" class="col-sm-4 control-label">File</label>
+                <div class="col-sm-8">
+                    <!--<input id="filename" type="text" class="input-medium disabled" name="filename" readonly>-->
+                    <input class="form-control" type="file" id="file" file-model="uploadFile">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
+
 
 <script type="text/javascript" src="{% static 'scripts/lib/src-noconflict/ace.js' %}" ></script>
 <script type="text/javascript" src="{% static 'scripts/lib/handlebars-v1.3.0.js' %}" ></script>
