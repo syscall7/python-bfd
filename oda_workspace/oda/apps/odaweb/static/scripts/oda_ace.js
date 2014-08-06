@@ -885,7 +885,7 @@ odaApplication.controller('DockController', function DockController($scope, $htt
 
 });
 
-odaApplication.controller('NavbarController', function NavbarController($scope, $modal, $location){
+odaApplication.controller('NavbarController', function NavbarController($scope, $modal, $location, fileUpload){
     $scope.examples = window.examples;
 
     $scope.loadExample = function(example) {
@@ -897,33 +897,70 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
           templateUrl: 'uploadFileModal.html',
           controller: 'UploadFileController',
           size: 'lg'
-            /*,
-          size: size,
+        });
+
+        modalInstance.result.then(function(data){
+            console.log('ok', data);
+            fileUpload.uploadFileToUrl(data.uploadFile, data.project_name, '/odaweb/_upload').success(function(data){
+                $scope.configureFile(data);
+            });
+        });
+    };
+
+    $scope.configureFile = function(fileData) {
+        console.log(fileData);
+        var modalInstance = $modal.open({
+          templateUrl: 'configureFileModal.html',
+          controller: 'ConfigureFileController',
+          size: 'lg',
           resolve: {
-            items: function () {
-              return $scope.items;
+            fileData: function () {
+                return fileData;
             }
-          }*/
+          }
+        });
+
+        modalInstance.result.then(function(data){
+            console.log(data, fileData);
+            window.location = "/oda/ace/" + fileData.short_name;
         });
     }
 
 });
 
-odaApplication.controller('UploadFileController',
-    function UploadFileController($scope, $modalInstance, fileUpload){
+var UploadFileController = function($scope, $modalInstance){
 
-    $scope.project_name = 'Temp';
+    //http://stackoverflow.com/questions/18716113/scope-issue-in-angularjs-using-angularui-bootstrap-modal
+    $scope.data = {
+        projectName: null
+    }
 
     $scope.ok = function () {
-        //$modalInstance.close();
-        console.log('ok',$scope.uploadFile);
-        fileUpload.uploadFileToUrl($scope.uploadFile, $scope.project_name, '/odaweb/_upload');
+        $modalInstance.close({
+            projectName: $scope.data.projectName,
+            uploadFile: $scope.uploadFile
+        });
     };
 
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
-});
+
+};
+
+var ConfigureFileController = function($scope, $modalInstance, fileData) {
+
+    $scope.fileData = fileData;
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+
+    $scope.ok = function () {
+        $modalInstance.close({});
+    };
+
+}
 
 odaApplication.directive('fileModel', ['$parse', function ($parse) {
     return {
@@ -947,13 +984,9 @@ odaApplication.service('fileUpload', ['$http', function ($http) {
         var fd = new FormData();
         fd.append('filedata', file);
         fd.append('project_name', project_name);
-        $http.post(uploadUrl, fd, {
+        return $http.post(uploadUrl, fd, {
             transformRequest: angular.identity,
             headers: {'Content-Type': undefined}
-        })
-        .success(function(){
-        })
-        .error(function(){
         });
     }
 }]);

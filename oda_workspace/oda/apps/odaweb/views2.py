@@ -496,29 +496,30 @@ def upload(request):
         binary_file.target = target
         binary_file.save()
 
-        oda_master.odb_file = OdbFile(BinaryFileModel(binary_file.id))
+        odb_file = OdbFile(BinaryFileModel(binary_file.id))
+        odb_file.execute(LoadOperation())
+        odb_file.execute(PassiveScanOperation())
+        #todo this should not be saved until after user has committed options
+        oda_master.odb_file = odb_file
+
         oda_master.save()
 
-        id = oda_master.short_name
-        msg = render_to_string('alert-platform-options.djhtml', {
+        data = {
+            'short_name': oda_master.short_name,
+            'revision': oda_master.revision,
             'arch': arch,
             'target': target,
             'file_format': binary_file.desc()
-        })
+        }
+
+
 
     else:
-        html = render_to_string('modal-open.djhtml', {
-            'form': form
-        })
+        data = {
+            'error': 'Invalid File'
+        }
 
-    return HttpResponse(simplejson.dumps({
-        'html': html,
-        'arch': arch,
-        'target': target,
-        'id': id,
-        'msg': msg
-    }), mimetype='application/json')
-
+    return HttpResponse(json.dumps(data), mimetype='application/json')
 
 def refresh_hex(request):
     oda_master = get_session(request)
