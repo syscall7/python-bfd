@@ -156,7 +156,7 @@
     <script type="text/ng-template" id="configureFileModal.html">
     <div class="modal-header">
         <button type="button" class="close" ng-click="cancel()">&times;</button>
-        <h3>Open File</h3>
+        <h3>Configure Upload</h3>
     </div>
     <div class="modal-body">
 
@@ -166,8 +166,10 @@
                 <li ng-repeat="f in fileData.file_format">{{ f }}</li>
             </ul>
             <br>
-            Please select from the platform options below.
+            Please select from the platform options below:
         </div>
+
+        <div class="live-mode-platform-options-form" ng-include src="optionsTemplate()">
 
     </div>
     <div class="modal-footer">

@@ -766,7 +766,11 @@ odaApplication.run(function($rootScope, Docker){
     listener.simple_combo("ctrl g", function() {
         console.log("You pressed ctrl g");
         //todo activate textbox
-        $rootScope.$broadcast('goto');
+        $rootScope.$broadcast('command.goto');
+    });
+
+    listener.simple_combo("ctrl u", function(){
+        $rootScope.$broadcast('command.open');
     });
 
     listener.simple_combo("ctrl f", function(){
@@ -932,8 +936,12 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
         });
     };
 
-    $scope.$on('goto', function(event) {
+    $scope.$on('command.goto', function(event) {
         $scope.goToAddressPrompt();
+    });
+
+    $scope.$on('command.open', function(event) {
+        $scope.openFile();
     });
 
     $scope.configureFile = function(fileData) {
@@ -983,6 +991,12 @@ var ConfigureFileController = function($scope, $modalInstance, fileData) {
 
     $scope.ok = function () {
         $modalInstance.close({});
+    };
+
+    var arch = fileData.arch;
+    $scope.optionsTemplate = function() {
+        var view = '/odaweb/optionsview?arch=' + arch
+        return view;
     };
 
 };
