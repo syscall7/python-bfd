@@ -356,9 +356,9 @@ var KeyboardHandler = function(statusBar, odaSession, odbFile) {
 
         }
         console.log("keyboard", data, hashId, key, keyCode, e);
-        return {
+        return null; /*{
             command: "null"
-        };
+        };*/
 
     }.bind(this);
 };
@@ -742,9 +742,11 @@ function start(odbFile) {
 
 
     angular.bootstrap(document, ['odaApp']);
+
+
 }
 
-odaApplication.run(function($rootScope){
+odaApplication.run(function($rootScope, Docker){
     $rootScope.$on('liveEntryText', function(event, liveEntryText) {
         var odaSession = oda_util.getOdaSession();
         var odbFile = oda_util.getOdbFile();
@@ -758,8 +760,19 @@ odaApplication.run(function($rootScope){
 
         }
     });
-});
 
+    //http://dmauro.github.io/Keypress/
+    var listener = new window.keypress.Listener();
+    listener.simple_combo("ctrl g", function() {
+        console.log("You pressed ctrl g");
+        //todo activate textbox
+        $rootScope.$broadcast('goto');
+    });
+
+    listener.simple_combo("ctrl f", function(){
+        $rootScope.$apply(function(){Docker.select(Docker.docks[2]);});
+    });
+});
 
 $(document).ready(function(){
 
@@ -907,24 +920,35 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
         });
     };
 
+    $scope.goToAddressPrompt = function() {
+        var modalInstance = $modal.open({
+          templateUrl: 'gotoAddressModal.html',
+          controller: 'GotoAddressController',
+          size: 'md'
+        });
+
+        modalInstance.result.then(function(data){
+            console.log(data);
+        });
+    };
+
+    $scope.$on('goto', function(event) {
+        $scope.goToAddressPrompt();
+    });
+
     $scope.configureFile = function(fileData) {
         console.log(fileData);
         var modalInstance = $modal.open({
           templateUrl: 'configureFileModal.html',
           controller: 'ConfigureFileController',
-          size: 'lg',
-          resolve: {
-            fileData: function () {
-                return fileData;
-            }
-          }
+          size: 'lg'
         });
 
         modalInstance.result.then(function(data){
             console.log(data, fileData);
             window.location = "/oda/ace/" + fileData.short_name;
         });
-    }
+    };
 
 });
 
@@ -958,6 +982,24 @@ var ConfigureFileController = function($scope, $modalInstance, fileData) {
 
     $scope.ok = function () {
         $modalInstance.close({});
+    };
+
+};
+
+var GotoAddressController = function($scope, $modalInstance, OdaSession) {
+    $scope.data = {
+        address: null
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+
+    $scope.ok = function () {
+        var position = parseInt($scope.data.address.substring(2),16);
+        console.log('set position', position);
+        OdaSession.getSession().moveToOffset(position);
+        $modalInstance.close({address: $scope.data.address});
     };
 
 }

@@ -66,7 +66,7 @@
                        data-panel="platform-display" href="#"><i class="icon-pencil"></i>&nbsp;Platform Options</a></li>
                 <li class="divider"></li>
                  -->
-                <li><a id="menu-go-to-addr" ng-click="GoToAddressPrompt()" href="#">Go to address... (Ctrl-g)</a></li>
+                <li><a id="menu-go-to-addr" ng-click="goToAddressPrompt()" href="#">Go to address... (Ctrl-g)</a></li>
                 <li><a class="nav-btn" data-panel="find-results-display">Find sequence of bytes... (Ctrl-f)</a></li>
 
             </ul>
@@ -168,6 +168,34 @@
             <br>
             Please select from the platform options below.
         </div>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+    </script>
+
+        <script type="text/ng-template" id="gotoAddressModal.html">
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()">&times;</button>
+        <h3>Goto Address</h3>
+    </div>
+    <div class="modal-body">
+
+        <form id="upload-form" class="form-horizontal">
+
+
+            <div class="form-group">
+                <label for="project_name" class="col-sm-4 control-label">Address:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control"
+                           ng-model="data.address"
+                            placeholder="0x00000000"/>
+                </div>
+            </div>
+
+        </form>
 
     </div>
     <div class="modal-footer">
