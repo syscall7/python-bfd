@@ -941,6 +941,7 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
         var modalInstance = $modal.open({
           templateUrl: 'configureFileModal.html',
           controller: 'ConfigureFileController',
+          resolve: { fileData : function() {return fileData;} },
           size: 'lg'
         });
 
