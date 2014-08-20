@@ -16,4 +16,14 @@ odaApplication.controller('LiveEntryController', function LiveEntryController($s
         updateText();
     };
 
+    $scope.options = {
+        architecture: $scope.oda_master.binary.options.architecture,
+        endian: $scope.oda_master.binary.options.endian,
+        base_address: $scope.oda_master.binary.options.base_address
+    };
+
+    $scope.optionsUpdated = function() {
+        console.log($scope.options);
+    };
+
 });

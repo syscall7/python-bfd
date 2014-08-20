@@ -15,7 +15,7 @@
 
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/bootstrap-3.2/css/bootstrap.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/bootstrap-3.2/css/bootstrap-theme.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/context/context.bootstrap.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/context/context.standalone.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/font-awesome-4.0.3/css/font-awesome.css' %}" />
 
     <script type="text/javascript" src="{% static 'scripts/lib/keypress-2.0.3.min.js' %}"></script>
@@ -146,8 +146,13 @@
             liveMode : {{ binary.is_live_mode|jsonify  }},
             arch : '{{ binary.options.architecture }}',
             size : '{{ binary.size|filesizeformat }}',
-            text : {% if binary.is_live_mode %}{{ binary.binary_string_display | jsonify }}{% else %}""{%  endif %}
-
+            text : {% if binary.is_live_mode %}{{ binary.binary_string_display | jsonify }}{% else %}""{%  endif %},
+            options: {
+                architecture: {{  binary.options.architecture | jsonify }},
+                base_address: {{  binary.options.base_address | jsonify }},
+                endian: {{ binary.options.endian | jsonify }},
+                selected_opts: {{  binary.options.selected_opts | jsonify }}
+            }
         }
     };
 

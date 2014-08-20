@@ -825,11 +825,11 @@ $(document).ready(function(){
 		{header: 'Download'},
 		{text: 'The Script', subMenu: [
 			{header: 'Requires jQuery'},
-			{text: 'context.js', href: 'http://lab.jakiestfu.com/contextjs/context.js', target:'_blank', action: function(e){
-				_gaq.push(['_trackEvent', 'ContextJS Download', this.pathname, this.innerHTML]);
+			{text: 'context.js', action: function(e){
+				alert('here');
 			}}
 		]},
-		{text: 'The Styles', subMenu: [
+		/*{text: 'The Styles', subMenu: [
 
 			{text: 'context.bootstrap.css', href: 'http://lab.jakiestfu.com/contextjs/context.bootstrap.css', target:'_blank', action: function(e){
 				_gaq.push(['_trackEvent', 'ContextJS Bootstrap CSS Download', this.pathname, this.innerHTML]);
@@ -838,7 +838,7 @@ $(document).ready(function(){
 			{text: 'context.standalone.css', href: 'http://lab.jakiestfu.com/contextjs/context.standalone.css', target:'_blank', action: function(e){
 				_gaq.push(['_trackEvent', 'ContextJS Standalone CSS Download', this.pathname, this.innerHTML]);
 			}}
-		]},
+		]},*/
 		{divider: true},
 		{header: 'Meta'},
 		{text: 'The Author', subMenu: [
@@ -851,7 +851,7 @@ $(document).ready(function(){
 				$('#donate').submit();
 			}}
 		]},
-		{text: 'Hmm?', subMenu: [
+		/*{text: 'Hmm?', subMenu: [
 			{header: 'Well, thats lovely.'},
 			{text: '2nd Level', subMenu: [
 				{header: 'You like?'},
@@ -871,7 +871,7 @@ $(document).ready(function(){
 					]}
 				]}
 			]}
-		]}
+		]}*/
 	]);
 
 
@@ -1053,6 +1053,13 @@ var ConfigureFileController = function($scope, $modalInstance, fileData) {
     $scope.optionsTemplate = function() {
         var view = '/odaweb/optionsview?arch=' + arch
         return view;
+    };
+
+    $scope.options = {
+        architecture: fileData.arch
+    };
+    $scope.optionsUpdated = function() {
+        console.log($scope.options);
     };
 
 };
