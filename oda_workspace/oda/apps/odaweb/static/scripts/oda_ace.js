@@ -686,7 +686,6 @@ function start(odbFile) {
     editor.renderer.setShowGutter(true);
     var odaSession = new OdaSession(editor, odbFile, windowLoader);
     var statusBar = new StatusBar();
-    var keyboardHandler = new KeyboardHandler(statusBar, odaSession, odbFile);
 
     windowLoader.session = editor.getSession();
     editor.getSession().gutterRenderer = new OdaGutterRenderer(odaSession);
@@ -698,7 +697,7 @@ function start(odbFile) {
         statusBar.setAddress(offset);
     })
 
-    editor.setKeyboardHandler(keyboardHandler.handler);
+
 
     odbFile.on('changed', function(e){
         console.log(e);
@@ -740,10 +739,73 @@ function start(odbFile) {
         };
     });
 
+    odaApplication.run(function($rootScope){
+        editor.setKeyboardHandler(function(data, hashId, key, keyCode, e) {
+            // ignore command keys (shift, ctrl etc.)
+            if (hashId !== 0 && (!key || keyCode == -1))
+                return null;
+
+            //Arrow Keys
+            if (keyCode >=33 && keyCode <= 40 ) {
+                return null;
+            }
+
+            var session = editor.getSession();
+
+            var cursor = session.getSelection().getCursor();
+            var line = session.getDocument().getLineData(cursor.row);
+
+
+            //line can be null when loading...
+            if (line) {
+
+                if (key == ';') {
+                    $rootScope.$broadcast('command.comment', {
+                        line: line
+                    });
+                }
+
+                if (key == 'd') {
+                    this.odbFile.makeData(line.data.offset, function(data){
+                        this.odaSession.windowLoader.reload();
+                    }.bind(this));
+                }
+
+                if (key == 'c') {
+                    this.odbFile.makeCode(line.data.offset, function(data){
+                        this.odaSession.windowLoader.reload();
+                    }.bind(this));
+                }
+
+            }
+            console.log("keyboard", data, hashId, key, keyCode, e);
+            return null; /*{
+                command: "null"
+            };*/
+        });
+    });
 
     angular.bootstrap(document, ['odaApp']);
 
+}
 
+odaApplication.run(function($rootScope, $modal){
+    $rootScope.$on('command.comment', function(event, line){
+
+        var scope = $rootScope.$new(true);
+        scope.line = line;
+
+        console.log("LINE", line);
+        var modalInstance = $modal.open({
+          templateUrl: 'commentModal.html',
+          controller: 'CommentController',
+          size: 'lg',
+          scope: scope
+        });
+    });
+});
+
+var CommentController = function($scope) {
 }
 
 odaApplication.run(function($rootScope, Docker){
