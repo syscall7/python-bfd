@@ -1,8 +1,9 @@
-var app = require('http').createServer(handler)
-  , io = require('socket.io').listen(app)
-  , fs = require('fs')
+var server = require('http').createServer(handler);
+var io = require('socket.io').listen(server);
+var fs = require('fs');
+var bunyan = require('bunyan');
 
-app.listen(8080);
+server.listen(8080);
 
 function handler (req, res) {
   fs.readFile(__dirname + '/index.html',
@@ -17,7 +18,71 @@ function handler (req, res) {
   });
 }
 
+var logger = bunyan.createLogger({name: 'socket'});
+
+var numUsers = 0;
+var usernames = {};
+
+setInterval(function(){
+    logger.info('setInterval');
+    io.to('ABC').emit('event', {value: 'somedata'});
+}, 500);
+
+io.on('connection', function (socket) {
+    logger.info('A New User Has Connected', numUsers);
+
+    var addedUser = false;
+
+    // when the client emits 'add user', this listens and executes
+    socket.on('subscribe', function (data) {
+        logger.info('subscribe', data);
+
+        var username = data.username;
+        var room = data.room;
+
+        // we store the username in the socket session for this client
+        socket.username = username;
+        socket.room = room;
+
+        socket.join(room);
+
+
+        // add the client's username to the global list
+        usernames[username] = username;
+        ++numUsers;
+        addedUser = true;
+        socket.emit('login', {
+            numUsers: numUsers
+        });
+        // echo data.room that a person has connected
+        socket.to(data.room).emit('user joined', {
+            username: socket.username,
+            numUsers: numUsers
+        });
+    });
+
+
+    // when the user disconnects.. perform this
+    socket.on('disconnect', function () {
+
+    // remove the username from global usernames list
+        if (addedUser) {
+            logger.info(socket.username, ' left ', socket.room, ' leaving ', numUsers);
+            delete usernames[socket.username];
+            --numUsers;
+            // echo globally that this client has left
+            socket.broadcast.emit('user left', {
+                username: socket.username,
+                numUsers: numUsers
+            });
+        }
+    });
+
+});
+
+/*
 io.sockets.on('connection', function (socket) {
+
   console.log('A New User Has Connected');
   
   socket.on('subscribe', function(data) { 
@@ -47,3 +112,4 @@ io.sockets.on('connection', function (socket) {
 
 
 });
+*/

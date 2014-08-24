@@ -1,12 +1,47 @@
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  var socket = io.connect(window.location);
-  socket.on('news', function (data) {
-    console.log(data);
-    socket.emit('my other event', { my: 'data' });
-  });
-  
-  socket.on('comment', function (data) {  
-    alert('comment');
-  });
-</script>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Socket.IO Chat Example</title>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.1.js"></script>
+    <script>
+        $(document).ready(function(){
+            var socket = io();
+
+            $('#connect').click(function(){
+                console.log('subscribe');
+                socket.emit('subscribe',{
+                    username: $('#username').val(),
+                    room: $('#room').val()
+                });
+            });
+
+            socket.on('event', function(data){
+                console.log('event', data);
+                $('#events').prepend('<p>' + 'event' + ': ' + JSON.stringify(data) + '</p>')
+            });
+        });
+
+    </script>
+
+</head>
+
+<body>
+
+<h1>Connect to ODA</h1>
+<input type="text" value="davis" id="username"/>
+<input type="text" value="ABC" id="room"/>
+<input type="button" value="Connect" id="connect" />
+
+<div id="events">
+
+</div>
+
+</body>
+</html>
+
+
+
