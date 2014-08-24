@@ -785,6 +785,24 @@ function start(odbFile) {
         });
     });
 
+    odaApplication.run(function($rootScope){
+        var socket = io.connect("http://" + window.location.hostname + ":8080");
+
+        socket.on('join', function(data) {
+            console.log('join', data);
+            addrBar.addUser(data.username);
+            addrBar.updateUser(data.username, 0x403000);
+        });
+
+        socket.emit('subscribe',{
+            //todo username
+            username: 'USERNAME',
+            room: odbFile.shortName
+        });
+
+    });
+
+
     angular.bootstrap(document, ['odaApp']);
 
 }
@@ -807,10 +825,6 @@ odaApplication.run(function($rootScope, $modal){
 
 var CommentController = function($scope) {
 };
-
-odaApplication.run(function($rootScope, Docker){
-    var socket = io.connect("http://" + window.location.hostname + ":8080");
-});
 
 odaApplication.run(function($rootScope, Docker){
     $rootScope.$on('liveEntryText', function(event, liveEntryText) {
