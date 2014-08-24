@@ -23,19 +23,14 @@ var logger = bunyan.createLogger({name: 'socket'});
 var numUsers = 0;
 var usernames = {};
 
-setInterval(function(){
-    logger.info('setInterval');
-    io.to('ABC').emit('event', {value: 'somedata'});
-}, 500);
-
 io.on('connection', function (socket) {
-    logger.info('A New User Has Connected', numUsers);
+    logger.info('A New User Has Connected');
 
     var addedUser = false;
 
     // when the client emits 'add user', this listens and executes
     socket.on('subscribe', function (data) {
-        logger.info('subscribe', data);
+        logger.info('subscribe', numUsers, data);
 
         var username = data.username;
         var room = data.room;
@@ -55,8 +50,9 @@ io.on('connection', function (socket) {
             numUsers: numUsers
         });
         // echo data.room that a person has connected
-        socket.to(data.room).emit('user joined', {
-            username: socket.username,
+	logger.info("broadcasting join", room);
+        socket.to(room).emit('join', {
+            username: username,
             numUsers: numUsers
         });
     });
