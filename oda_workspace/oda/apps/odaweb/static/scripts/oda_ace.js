@@ -700,7 +700,7 @@ function start(odbFile) {
 
 
     odbFile.on('changed', function(e){
-        console.log(e);
+        console.log("odbFile.on('changed')", e);
         windowLoader.reload();
     });
 
@@ -967,6 +967,10 @@ odaApplication.factory('odaStatus', function($rootScope, $q, $http) {
         }
 
     };
+});
+
+odaApplication.service('CursorPosition', function(){
+
 });
 
 odaApplication.service('Docker', function(odaApi) {

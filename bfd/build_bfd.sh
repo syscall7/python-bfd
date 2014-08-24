@@ -6,9 +6,9 @@
 # 
 # ------------------------------------------------------------------------------
 
-BINUTILS_FULL=binutils-2.23.1.tar.bz2
-BINUTILS_DIR=binutils-2.23.1
-PREFIX=/usr/local/oda
+BINUTILS_FULL=binutils-2.24.tar.bz2
+BINUTILS_DIR=binutils-2.24
+PREFIX=/usr/local
 
 patch_bfd()
 {
@@ -90,8 +90,8 @@ get_src()
     echo "Extracting $BINUTILS_FULL"
     tar -xjf $BINUTILS_FULL
 
-    echo "Patching $BINUTILS_FULL"
-    patch_bfd
+    #echo "Patching $BINUTILS_FULL"
+    #patch_bfd
 }
 
 # if the source directory doesn't exist, assume we need to download it
