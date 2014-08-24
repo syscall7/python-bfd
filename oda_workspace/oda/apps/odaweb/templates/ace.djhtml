@@ -27,6 +27,7 @@
     <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.10/angular-route.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.10/angular-sanitize.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/ui-bootstrap-tpls-0.11.0.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/socket.io-1.0.6.js' %}"></script>
 
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/ui-layout/layout-default-latest.css' %}" />
     <script type="text/javascript" src="{% static 'scripts/lib/ui-layout/jquery.layout-rc30.79.js' %}"></script>
