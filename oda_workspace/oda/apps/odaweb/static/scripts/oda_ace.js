@@ -342,71 +342,6 @@ Handlebars.registerHelper("formatSectionOffset", function(section, offset, lengt
     return value;
 });
 
-
-var KeyboardHandler = function(statusBar, odaSession, odbFile) {
-
-    this.statusBar = statusBar;
-
-    this.odaSession = odaSession;
-
-    this.odbFile = odbFile;
-
-    this.handler = function(data, hashId, key, keyCode, e) {
-        // ignore command keys (shift, ctrl etc.)
-        if (hashId !== 0 && (!key || keyCode == -1))
-            return null;
-
-        //Arrow Keys
-        if (keyCode >=33 && keyCode <= 40 ) {
-            return null;
-        }
-
-        var editor = data.editor;
-        var session = editor.getSession();
-
-        var cursor = session.getSelection().getCursor();
-        var line = session.getDocument().getLineData(cursor.row);
-
-
-        //line can be null when loading...
-        if (line) {
-
-            if (key == ';') {
-
-
-                var commentDialog = new CommentDialog(line.data);
-
-                commentDialog.closeHandler.add(function (save, comment) {
-                    if (save) {
-                        odbFile.addComment(line.data.offset, comment);
-                    }
-
-                    editor.focus();
-                });
-
-            }
-
-            if (key == 'd') {
-                this.odbFile.makeData(line.data.offset, function(data){
-                    this.odaSession.windowLoader.reload();
-                }.bind(this));
-            }
-
-            if (key == 'c') {
-                this.odbFile.makeCode(line.data.offset, function(data){
-                    this.odaSession.windowLoader.reload();
-                }.bind(this));
-            }
-
-        }
-        console.log("keyboard", data, hashId, key, keyCode, e);
-        return null; /*{
-            command: "null"
-        };*/
-
-    }.bind(this);
-};
-
 var lineRenderer = function(stringBuilder, row, onlyContents, foldLine) {
     if (!foldLine && foldLine != false)
         foldLine = this.session.getFoldLine(row);
@@ -660,47 +595,6 @@ var odaApplication = angular
 
 });
 
-var OdaApplication = function() {
-    this.editor = null;
-    this.odaSession = null;
-    this.odbFile = null;
-
-    this.setEditor = function(editor) {
-        this.editor = editor;
-    };
-
-    this.getEditor = function() {
-        return this.editor;
-    }
-
-    this.setOdaSession = function(odaSession) {
-        this.odaSession = odaSession;
-    };
-
-    this.getOdaSession = function() {
-        return this.odaSession;
-    }
-
-    this.setOdbFile = function(odbFile) {
-        this.odbFile = odbFile
-    };
-
-    this.getOdbFile = function() {
-        return this.odbFile;
-    };
-
-};
-
-/*
-OdaApplication.prototype.getMaster = function() { return window.oda_master; };
-OdaApplication.prototype.getUsername = function() { return window.user.username};
-OdaApplication.prototype.getSectionInfo = function() { return window.oda_master.section_info;}
-
-var oda_util = new OdaApplication();
-
-*/
-
-
 function start(odbFile) {
     var editor;
 
@@ -730,6 +624,10 @@ function start(odbFile) {
     editor.getSession().setUseWorker(false);
     editor.setShowPrintMargin(false);
     editor.renderer.setShowGutter(true);
+    editor.commands.addCommand('oda_key_command', function(){
+        return true;
+    })
+
     var odaSession = new OdaSession(editor, odbFile, windowLoader);
     var statusBar = new StatusBar();
 
@@ -826,9 +724,9 @@ function start(odbFile) {
 
             }
             console.log("keyboard", data, hashId, key, keyCode, e);
-            return null; /*{
-                command: "null"
-            };*/
+            return {
+                command: "oda_key_command"
+            };
         });
     });
 
@@ -1243,3 +1141,45 @@ odaApplication.service('fileUpload', ['$http', function ($http) {
         });
     }
 }]);
+
+
+/*
+var OdaApplication = function() {
+    this.editor = null;
+    this.odaSession = null;
+    this.odbFile = null;
+
+    this.setEditor = function(editor) {
+        this.editor = editor;
+    };
+
+    this.getEditor = function() {
+        return this.editor;
+    }
+
+    this.setOdaSession = function(odaSession) {
+        this.odaSession = odaSession;
+    };
+
+    this.getOdaSession = function() {
+        return this.odaSession;
+    }
+
+    this.setOdbFile = function(odbFile) {
+        this.odbFile = odbFile
+    };
+
+    this.getOdbFile = function() {
+        return this.odbFile;
+    };
+
+};
+
+
+OdaApplication.prototype.getMaster = function() { return window.oda_master; };
+OdaApplication.prototype.getUsername = function() { return window.user.username};
+OdaApplication.prototype.getSectionInfo = function() { return window.oda_master.section_info;}
+
+var oda_util = new OdaApplication();
+
+*/
