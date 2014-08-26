@@ -256,43 +256,6 @@ var OdaSession = function(editor, odbFile, windowLoader) {
 
 };
 
-var CommentDialog = function(du) {
-    var modalId = "#my-modal";
-    var saveButtonId = "#my-modal .btn-primary";
-
-    $('#my-modal .commentLine').text(du.offset);
-    $(modalId).unbind().on('shown.bs.modal', function (e) {
-        // do something...
-        $('#my-modal .comment-text').focus();
-    });
-
-    this.closeHandler = $.Callbacks();
-
-    $(modalId).on('hidden.bs.modal', function (e) {
-        this.closeHandler.fire(false);
-    }.bind(this));
-
-    this.save = function() {
-        this.modal.modal('hide');
-        var comment = $('#my-modal .comment-text').val();
-        this.closeHandler.fire(true, comment);
-    }
-
-    $('#my-modal .comment-text').unbind().bind('keypress', function(e){
-        if (e.charCode == '13') {
-            this.save();
-        }
-    }.bind(this));
-
-    this.modal = $('#my-modal').modal('show');
-
-
-    $(saveButtonId).unbind().on('click', function () {
-        this.save();
-    }.bind(this));
-
-};
-
 function string_insert(original, index, string) {
   if (index > 0)
     return original.substring(0, index) + string + original.substring(index, this.length);
