@@ -624,9 +624,6 @@ function start(odbFile) {
     editor.getSession().setUseWorker(false);
     editor.setShowPrintMargin(false);
     editor.renderer.setShowGutter(true);
-    editor.commands.addCommand('oda_key_command', function(){
-        return true;
-    })
 
     var odaSession = new OdaSession(editor, odbFile, windowLoader);
     var statusBar = new StatusBar();
@@ -667,21 +664,9 @@ function start(odbFile) {
         return "null";
     });
 
-    odaApplication.service('OdaSession', function() {
-        this.odaSession = odaSession;
-
-        this.getSession = function() {
-            return this.odaSession;
-        };
-
-        this.setSession = function(odaSession) {
-            this.odaSession = odaSession;
-        };
-    });
-
     odaApplication.value('odbFile', odbFile);
     odaApplication.value('editor', editor);
-
+    odaApplication.value('odaSession', odaSession);
 
     //Keyboard Handling
     odaApplication.run(function($rootScope){
@@ -700,32 +685,13 @@ function start(odbFile) {
             var cursor = session.getSelection().getCursor();
             var line = session.getDocument().getLineData(cursor.row);
 
-
-            //line can be null when loading...
-            if (line) {
-
-                if (key == ';') {
-                    $rootScope.$broadcast('command.comment', {
-                        line: line
-                    });
-                }
-
-                if (key == 'd') {
-                    this.odbFile.makeData(line.data.offset, function(data){
-                        this.odaSession.windowLoader.reload();
-                    }.bind(this));
-                }
-
-                if (key == 'c') {
-                    this.odbFile.makeCode(line.data.offset, function(data){
-                        this.odaSession.windowLoader.reload();
-                    }.bind(this));
-                }
-
-            }
             console.log("keyboard", data, hashId, key, keyCode, e);
             return {
-                command: "oda_key_command"
+                command: {
+                    passEvent: true,
+                    exec: function() {return true;}
+                }
+
             };
         });
     });
@@ -766,13 +732,28 @@ odaApplication.run(function($rootScope, $modal){
           size: 'lg',
           scope: scope
         });
+
+        modalInstance.result.then(function(data){
+
+        });
     });
 });
 
-var CommentController = function($scope) {
+var CommentController = function($scope, $modalInstance) {
+    $scope.comment = {
+        text: ""
+    }
+
+    $scope.save = function () {
+        console.log($scope.comment);
+        $modalInstance.close({
+            comment: $scope.comment.text
+        });
+    };
+
 };
 
-odaApplication.run(function($rootScope, Docker, odbFile){
+odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor){
     odbFile.on('liveEntryText', function(event, liveEntryText) {
         var odaSession = oda_util.getOdaSession();
         var odbFile = oda_util.getOdbFile();
@@ -793,6 +774,40 @@ odaApplication.run(function($rootScope, Docker, odbFile){
         console.log("You pressed ctrl g");
         //todo activate textbox
         $rootScope.$broadcast('command.goto');
+    });
+
+    listener.simple_combo(';', function(){
+        var session = editor.getSession();
+
+        var cursor = session.getSelection().getCursor();
+        var line = session.getDocument().getLineData(cursor.row);
+
+
+        $rootScope.$broadcast('command.comment', {
+            line: line
+        });
+    });
+
+    listener.simple_combo('c', function(){
+        var session = editor.getSession();
+
+        var cursor = session.getSelection().getCursor();
+        var line = session.getDocument().getLineData(cursor.row);
+
+        odbFile.makeCode(line.data.offset, function(data){
+            odaSession.windowLoader.reload();
+        });
+    });
+
+    listener.simple_combo('d', function(){
+        var session = editor.getSession();
+
+        var cursor = session.getSelection().getCursor();
+        var line = session.getDocument().getLineData(cursor.row);
+
+        odbFile.makeData(line.data.offset, function(data){
+            odaSession.windowLoader.reload();
+        });
     });
 
     listener.simple_combo("ctrl u", function(){
@@ -1095,7 +1110,7 @@ var ConfigureFileController = function($scope, $modalInstance, fileData) {
 
 };
 
-var GotoAddressController = function($scope, $modalInstance, OdaSession) {
+var GotoAddressController = function($scope, $modalInstance, odaSession) {
     $scope.data = {
         address: null
     };
@@ -1107,7 +1122,7 @@ var GotoAddressController = function($scope, $modalInstance, OdaSession) {
     $scope.ok = function () {
         var position = parseInt($scope.data.address.substring(2),16);
         console.log('set position', position);
-        OdaSession.getSession().moveToOffset(position);
+        odaSession.moveToOffset(position);
         $modalInstance.close({address: $scope.data.address});
     };
 

@@ -1,9 +1,9 @@
-odaApplication.controller('StringsController', function StringsController($scope, $http, $window, odbFile, OdaSession) {
+odaApplication.controller('StringsController', function StringsController($scope, $http, $window, odbFile, odaSession) {
 
     $scope.strings = odbFile.strings;
 
     $scope.setPosition = function(position) {
         console.log('set position', position);
-        OdaSession.getSession().moveToOffset(position);
+        odaSession.moveToOffset(position);
     }
 });
