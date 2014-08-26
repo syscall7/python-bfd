@@ -1,4 +1,4 @@
-odaApplication.controller('FindBytesController', function FindBytesController($q, $rootScope, $scope, $http, $window, odaApi, odaStatus) {
+odaApplication.controller('FindBytesController', function FindBytesController($q, $rootScope, $scope, $http, $window, odaStatus) {
 
     $scope.find = function(bytes)  {
         var deferred = $q.defer();
@@ -28,7 +28,7 @@ odaApplication.controller('FindBytesController', function FindBytesController($q
     */
 
     $scope.setPosition = function(position) {
-        odaApi.setPosition(position);
+        //odaApi.setPosition(position);
     };
 
     $scope.searchHelp = 'To search for ASCII strings, use <b>double quotes</b>, as in:<br>' +
@@ -37,9 +37,9 @@ odaApplication.controller('FindBytesController', function FindBytesController($q
                         '&nbsp;&nbsp;&nbsp;&nbsp;00 01 02 03 de ad be ef<br>' +
                         '&nbsp;&nbsp;&nbsp;&nbsp;00010203deadbeef<br>';
 
-    odaApi.shortcut("ctrl f", function() {
+    /*odaApi.shortcut("ctrl f", function() {
         $("#sidebar-find-btn").trigger("click");
         $("#search-pattern").focus();
-    }, true);
+    }, true); */
 });
 

@@ -1,10 +1,6 @@
-odaApplication.controller('SectionsController', function SectionsController($scope, $http, $window, odaApi) {
-    var master = oda_util.getMaster();
+odaApplication.controller('SectionsController', function SectionsController($scope, $http, $window, odbFile) {
 
-    odaApi.getSections(master.short_name, master.revision)
-        .success(function(data){
-            $scope.sections = data;
-        });
+    $scope.sections = odbFile.sections;
 
     var labels = ['label-success', 'label-warning', 'label-important', 'label-info', 'label-inverse'];
     var label_index = 0;
@@ -28,9 +24,9 @@ odaApplication.controller('SectionsController', function SectionsController($sco
         var s = flag.split('_');
         return s[s.length-1];
     };
-
+/*
     $scope.setPosition = function(position) {
         odaApi.setPosition(position);
-    }
+    }*/
 });
 

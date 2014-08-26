@@ -1,4 +1,4 @@
-odaApplication.controller('OptionsViewController', function OptionsViewController($scope, $http, $window, odaApi) {
+odaApplication.controller('OptionsViewController', function OptionsViewController($scope, $http, $window) {
 
     var arch = oda_util.getMaster().binary.arch;
     $scope.optionsTemplate = function() {

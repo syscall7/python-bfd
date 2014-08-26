@@ -1,4 +1,4 @@
-odaApplication.controller('LiveEntryController', function LiveEntryController($scope, $http, $window, odaApi) {
+odaApplication.controller('LiveEntryController', function LiveEntryController($scope, $http, $window) {
 
     $scope.oda_master = oda_util.getMaster();
 

@@ -1,9 +1,6 @@
-odaApplication.controller('StringsController', function StringsController($scope, $http, $window, odaApi, OdaSession) {
-    var master = oda_util.getMaster();
+odaApplication.controller('StringsController', function StringsController($scope, $http, $window, odbFile, OdaSession) {
 
-    odaApi.getStrings(master.short_name, master.revision).success(function(data){
-        $scope.strings = data;
-    } );
+    $scope.strings = odbFile.strings;
 
     $scope.setPosition = function(position) {
         console.log('set position', position);
