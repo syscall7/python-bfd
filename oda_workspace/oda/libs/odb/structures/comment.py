@@ -8,7 +8,7 @@ __author__ = 'davis'
 class OffsetValidator(object):
     def validate(self, operation, odb_file):
         offset = operation.item.offset
-        if offset < 0 or offset > 1024:
+        if offset < 0: # or offset > 1024:
             raise ValidationError("Offset not valid on item")
 
 def generate_operation(op, *args):

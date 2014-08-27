@@ -53,6 +53,15 @@ var OdbFile = function(oda_master) {
                 this.parcels = data;
         }.bind(this));
 
+        var cmq = $.get('/odaweb/api/comments/', {
+            short_name: this.shortName,
+            revision: 0
+        }).success(function(data){
+            for (var i=0; i<data.length; i++) {
+                this.comments[data[i].offset] = data[i];
+            }
+        }.bind(this));
+
         var dulenq = $.get('/odaweb/api/displayunits/1/size', {
             short_name: this.shortName,
             revision: 0
@@ -74,7 +83,7 @@ var OdbFile = function(oda_master) {
             this.strings = data;
         }.bind(this));
 
-        $.when(fq, sq, pq, symq, stringsq, dulenq).done(function (data) {
+        $.when(fq, sq, pq, symq, stringsq, dulenq, cmq).done(function (data) {
             this._signal('loaded', this);
         }.bind(this));
     };
@@ -127,15 +136,24 @@ var OdbFile = function(oda_master) {
 
     this.addComment = function (offset, comment) {
         console.log("Comment", offset, comment);
-        this.comments[offset] = {
+
+        $.post("/odaweb/api/comments/",{
+            short_name: this.shortName,
+            revision: 0,
             comment: comment,
             offset: offset
-        }
+        }).success(function(data){
+            this.comments[offset] = {
+                comment: comment,
+                offset: offset
+            };
 
-        this._signal('changed', {
-            addr: offset,
-            action: 'insertComment'
-        });
+
+            this._signal('changed', {
+                addr: offset,
+                action: 'insertComment'
+            });
+        }.bind(this));
     };
 
     this.setLiveEntryText = function(liveEntryText) {
@@ -661,7 +679,9 @@ function start(odbFile) {
 
     //Socket IO
     odaApplication.run(function($rootScope){
-        var socket = io.connect("http://" + window.location.hostname + ":8080");
+        var socket = io.connect("http://" + window.location.hostname + ":8080", {
+            reconnection: false
+        });
 
         socket.on('join', function(data) {
             console.log('join', data);
@@ -682,7 +702,7 @@ function start(odbFile) {
 
 }
 
-odaApplication.run(function($rootScope, $modal){
+odaApplication.run(function($rootScope, $modal, odbFile){
     $rootScope.$on('command.comment', function(event, line){
 
         var scope = $rootScope.$new(true);
@@ -697,8 +717,9 @@ odaApplication.run(function($rootScope, $modal){
         });
 
         modalInstance.result.then(function(data){
-
+            odbFile.addComment(line.line.data.offset, data.comment);
         });
+
     });
 });
 
@@ -708,10 +729,13 @@ var CommentController = function($scope, $modalInstance) {
     }
 
     $scope.save = function () {
-        console.log($scope.comment);
         $modalInstance.close({
             comment: $scope.comment.text
         });
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
     };
 
 };
@@ -733,6 +757,8 @@ odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor){
 
     //http://dmauro.github.io/Keypress/
     var listener = new window.keypress.Listener();
+
+
     listener.simple_combo("ctrl g", function() {
         console.log("You pressed ctrl g");
         //todo activate textbox

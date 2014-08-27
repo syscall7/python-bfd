@@ -20,6 +20,8 @@ from oda.libs.odb.structures.label import Label
 from oda.libs.odb.structures.section import Section
 from oda.libs.odb.structures.symbol import Symbol
 from oda.libs.odb.structures.parcel import Parcel
+from oda.libs.odb import structures
+from oda.libs.odb.ops.add_operation import AddOperation
 
 
 logger = logging.getLogger(__name__)
@@ -61,6 +63,29 @@ class OdaStructureViewSet(viewsets.GenericViewSet):
 class CommentViewSet(OdaStructureViewSet):
     serializer_class = CommentSerializer
     structure = Comment
+
+    def create(self, request):
+
+        logger.info("Creating comment " + str(request))
+
+        comment = request.DATA['comment']
+        offset = request.DATA['offset']
+        short_name = request.DATA['short_name']
+        revision = request.DATA['revision']
+
+        oda = OdaMaster.objects.get(short_name=short_name, revision=revision)
+        odb_file = oda.odb_file
+        item = odb_file.create_item(Comment, {
+            'comment': comment,
+            'offset': offset
+        })
+
+        odb_file.execute(structures.comment.generate_operation(AddOperation, item))
+
+        oda.save()
+
+        serializer = self.get_serializer(item, many=False)
+        return Response(serializer.data)
 
 
 class FunctionViewSet(OdaStructureViewSet):
