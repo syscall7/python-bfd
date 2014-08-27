@@ -716,6 +716,10 @@ odaApplication.run(function($rootScope, $modal, odbFile){
           scope: scope
         });
 
+        modalInstance.opened.then(function(){
+            setTimeout(function() { $('.comment-text').focus(); }, 100);
+        });
+
         modalInstance.result.then(function(data){
             odbFile.addComment(line.line.data.offset, data.comment);
         });
@@ -756,7 +760,7 @@ odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor){
     });
 
     //http://dmauro.github.io/Keypress/
-    var listener = new window.keypress.Listener();
+    var listener = new window.keypress.Listener($('.theeditor')[0]);
 
 
     listener.simple_combo("ctrl g", function() {
