@@ -568,7 +568,7 @@ var OdaGutterRenderer = function(odaSession) {
 };
 
 var odaApplication = angular
-    .module('odaApp',['ngSanitize', 'ui.bootstrap'])
+    .module('odaApp',['ngSanitize', 'ui.bootstrap', 'ui.keypress'])
     .config(function($httpProvider) {
 
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
@@ -997,8 +997,14 @@ odaApplication.controller('DockController', function DockController($scope, $htt
 
 });
 
-odaApplication.controller('NavbarController', function NavbarController($scope, $modal, $location, fileUpload){
+odaApplication.controller('NavbarController', function NavbarController($scope, $modal, $location, fileUpload, AuthService){
     $scope.examples = window.examples;
+
+
+    $scope.credentials = {
+        username: '',
+        password: ''
+    };
 
     $scope.loadExample = function(example) {
         window.location = "/oda/ace/" + example.short_name;
@@ -1051,6 +1057,12 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
         modalInstance.result.then(function(data){
             console.log(data, fileData);
             window.location = "/oda/ace/" + fileData.short_name;
+        });
+    };
+
+    $scope.login = function (credentials) {
+        AuthService.login(credentials).then(function (user) {
+            alert('logged in!');
         });
     };
 
@@ -1119,7 +1131,23 @@ var GotoAddressController = function($scope, $modalInstance, odaSession) {
         $modalInstance.close({address: $scope.data.address});
     };
 
-}
+};
+
+
+odaApplication.factory('AuthService', function($http){
+    return {
+        login: function(credentials) {
+            $http({
+                method: 'POST',
+                url: '/odaweb/login',
+                data: credentials,
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            }).then({
+                //do some stuff
+            });
+        }
+    };
+});
 
 odaApplication.directive('fileModel', ['$parse', function ($parse) {
     return {

@@ -26,6 +26,7 @@
     <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.10/angular.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.10/angular-route.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.10/angular-sanitize.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/ui-utils-0.1.1/ui-utils.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/ui-bootstrap-tpls-0.11.0.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/socket.io-1.0.6.js' %}"></script>
 
@@ -102,7 +103,11 @@
     <div class="modal-body">
 
           <p class="commentLine" ng-bind-html="line.line.row"></p>
-          <input class="comment-text" type="text" style="width:500px;" ng-model="comment.text"/>
+          <input class="comment-text" type="text"
+                 style="width:500px;"
+                 ng-model="comment.text"
+                 ui-keyup="{'enter':'save()'}"
+          />
 
     </div>
     <div class="modal-footer">

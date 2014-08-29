@@ -50,8 +50,8 @@ urlpatterns = patterns('',
 
     url(r'^accounts/profile/$', lambda x: HttpResponseRedirect('/odaweb/')),
 
-    url(r'^odaweb/login', 'oda.apps.odaweb.views_login.login'),
-    url(r'^odaweb/logout', 'oda.apps.odaweb.views_login.logout'),
+    url(r'^odaweb/login', 'oda.apps.users.views.login'),
+    url(r'^odaweb/logout', 'oda.apps.odaweb.views.logout'),
 
     url(r'^accounts/password/reset$', password_reset, {
         'template_name': 'login/password_reset.djhtml',
@@ -64,7 +64,7 @@ urlpatterns = patterns('',
     url(r'^accounts/password/reset_done$', password_reset_done,
         {'template_name': 'login/password_reset_done.djhtml'}),
 
-    url(r'^odaweb/createuser', 'oda.apps.odaweb.views_login.create_user'),
+    url(r'^odaweb/createuser', 'oda.apps.odaweb.users.create_user'),
 
     url(r'^odaweb/user/', include(user_urls.urlpatterns)),
 
