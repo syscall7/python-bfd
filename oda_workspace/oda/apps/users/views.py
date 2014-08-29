@@ -1,8 +1,11 @@
+import json
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.template import Context
 from oda.apps.odaweb.models import OdaMaster
 from django import forms
 import django.contrib.auth
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 import logging
 
@@ -51,18 +54,22 @@ def login(request):
         form = UserForm(request.POST)
         if form.is_valid(): # All validation rules pass
 
-            user = django.authenticate(username=form.cleaned_data['username'],
+            user = authenticate(username=form.cleaned_data['username'],
                                 password=form.cleaned_data['password'])
             if user is not None:
                 if user.is_active:
                     logger.info("Loggin In User %s" % form.cleaned_data['username'])
                     django.contrib.auth.login(request, user)
-                    return redirect('/odaweb/')
+                    return HttpResponse(json.dumps({
+                        "userId": user.id,
+                        'username': user.username,
+                        'email': user.email
+                    }), mimetype='application/json')
                 else:
                     # Return a 'disabled account' error message
                     raise Exception('User Has Disabled Account')
 
-    return render(request, 'login/login.djhtml', {'error': 'Invalid Username/Password'})
+    return HttpResponse("Invalid Username/Password", mimetype='application/json', status=400)
 
 
 

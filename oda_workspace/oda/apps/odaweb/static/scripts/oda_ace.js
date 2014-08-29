@@ -1059,13 +1059,6 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
             window.location = "/oda/ace/" + fileData.short_name;
         });
     };
-
-    $scope.login = function (credentials) {
-        AuthService.login(credentials).then(function (user) {
-            alert('logged in!');
-        });
-    };
-
 });
 
 var UploadFileController = function($scope, $modalInstance){
@@ -1133,21 +1126,51 @@ var GotoAddressController = function($scope, $modalInstance, odaSession) {
 
 };
 
+odaApplication.service('Session', function(){
+    this.create = function(userId) {
+        this.userId = userId;
+    };
+});
 
-odaApplication.factory('AuthService', function($http){
+
+odaApplication.factory('AuthService', function($http, Session){
     return {
         login: function(credentials) {
-            $http({
+            return $http({
                 method: 'POST',
                 url: '/odaweb/login',
-                data: credentials,
+                data: $.param(credentials),
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-            }).then({
-                //do some stuff
+            }).then(function(response){
+                var data = response.data;
+                Session.create(data.userId);
+                return data;
             });
+        },
+        isAuthenticated: function() {
+            return !!Session.userId
         }
     };
 });
+
+odaApplication.run(function($rootScope, AuthService){
+    $rootScope.isAuthenticated = AuthService.isAuthenticated;
+
+    $rootScope.currentUser = null;
+
+    $rootScope.setCurrentUser = function (user) {
+        $rootScope.currentUser = user;
+    };
+
+    $rootScope.login = function (credentials) {
+        AuthService.login(credentials).then(function (user) {
+            AuthService.isAuthenticated();
+            $rootScope.setCurrentUser(user);
+            console.log("logged in", user);
+        });
+    };
+});
+
 
 odaApplication.directive('fileModel', ['$parse', function ($parse) {
     return {
