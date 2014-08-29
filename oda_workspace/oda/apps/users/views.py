@@ -46,10 +46,7 @@ def logout(request):
 
 def login(request):
     if request.method == 'GET':
-        #render creeate user
-        context = create_context()
-
-        return render(request, 'login/login.djhtml', context)
+        return HttpResponse("Cannot GET", mimetype='application/json', status=400)
     else:
         form = UserForm(request.POST)
         if form.is_valid(): # All validation rules pass

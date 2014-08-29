@@ -157,15 +157,29 @@ var OdbFile = function(oda_master) {
     };
 
     this.setLiveEntryText = function(liveEntryText) {
+        $.ajax({
+            url: '/odaweb/api/binarystrings/'+this.binary.id+"/",
+            type: 'PATCH',
+            data: {
+                binary_string: liveEntryText.replace(/\s/g, ''),
+                short_name: this.shortName,
+                revision: this.revision
+            }
+        }).success(function() {
+            this._signal('changed', {
+                addr: 0,
+                action: 'liveEntryChanged'
+            });
+        }.bind(this));
+
+        /*
         var deferred = $q.defer();
 
         $http({
             method: 'PATCH',
             url: '/odaweb/api/binarystrings/'+this.binary.id+"/",
             data: {
-              binary_string: liveEntryText.replace(/\s/g, ''),
-              short_name: this.shortName,
-              revision: this.revision
+
             }
         }).success(function(data){
             this._signal('liveEntryText', { });
@@ -173,7 +187,7 @@ var OdbFile = function(oda_master) {
         }.bind(this)).error(function(){
             deferred.reject("Use only hex characters!");
         });
-        return deferred.promise;
+        return deferred.promise;*/
     };
 
     this.callbacks = {};
@@ -746,12 +760,12 @@ var CommentController = function($scope, $modalInstance) {
 
 odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor){
     odbFile.on('liveEntryText', function(event, liveEntryText) {
-        var odaSession = oda_util.getOdaSession();
-        var odbFile = oda_util.getOdbFile();
+        //var odaSession = oda_util.getOdaSession();
+        //var odbFile = oda_util.getOdbFile();
         if (odaSession != null && odbFile != null) {
             //We have to get the new size here since the number of DUs could possibly have changed
             odbFile.duLength(function(length){
-                oda_util.getEditor().getSession().getDocument().setLength(length);
+                editor.getSession().getDocument().setLength(length);
                 odaSession.windowLoader.reload(true)
             });
 

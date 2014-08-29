@@ -1,6 +1,6 @@
-odaApplication.controller('OptionsViewController', function OptionsViewController($scope, $http, $window) {
+odaApplication.controller('OptionsViewController', function OptionsViewController($scope, $http, $window, odbFile) {
 
-    var arch = oda_util.getMaster().binary.arch;
+    var arch = odbFile.binary.arch;
     $scope.optionsTemplate = function() {
         var view = '/odaweb/optionsview?arch=' + arch
         return view;

@@ -1,15 +1,16 @@
-odaApplication.controller('LiveEntryController', function LiveEntryController($scope, $http, $window) {
+odaApplication.controller('LiveEntryController', function LiveEntryController($scope, $http, $window, odbFile) {
 
-    $scope.oda_master = oda_util.getMaster();
+    $scope.oda_master = odbFile.oda_master;
 
-    $scope.liveEntryText = oda_util.getMaster().binary.text;
+    $scope.liveEntryText = odbFile.binary.text;
 
     var updateText = _.debounce(function() {
-        odaApi.setLiveEntryText($scope.liveEntryText).then(function(){
+        odbFile.setLiveEntryText($scope.liveEntryText);
+        /*.then(function(){
             $scope.entryError = null;
         }).catch(function(ex ){
             $scope.entryError = ex;
-        });
+        }); */
     }, 1000);
 
     $scope.liveEntryChange = function() {
