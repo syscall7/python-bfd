@@ -272,7 +272,7 @@ class ProcDump(object):
             # read next module
             self.read_mem(lm.InMemoryOrderModuleList.Flink - sizeof(LIST_ENTRY), lm)
 
-    def dump_memory(self, include_dlls=False):
+    def dump_memory(self, sock, include_dlls=False):
 
         limeDump = LimeDump()
         self.find_modules()
@@ -292,7 +292,12 @@ class ProcDump(object):
             if not include_dlls:
                 break
 
+        limeDump.write(sock)
 
 if __name__ == '__main__':
+    class NullSocket(object):
+        def sendall(self, buf):
+            print "Sending %d bytes to null socket" % len(str(buf))
+
     pdump = ProcDump(int(sys.argv[1]))
-    pdump.dump_memory()
+    pdump.dump_memory(NullSocket())
