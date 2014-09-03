@@ -206,6 +206,7 @@ class OdbFile(object):
             assert (type(getattr(binary, 'file_handle')) == types.MethodType)
 
         self.binary = binary
+        self.cuckoo_job = None
         self.object_id = 0
         self.factory = OdaObjectFactory(self)
         self.operations = []
