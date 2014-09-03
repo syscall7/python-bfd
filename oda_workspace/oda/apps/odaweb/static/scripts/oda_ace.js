@@ -1081,6 +1081,15 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
         $scope.openFile();
     });
 
+    var monitorSandbox = function() {
+        var modalInstance = $modal.open({
+          templateUrl: 'monitorSandbox.html',
+          controller: 'MonitorSandboxController',
+          resolve: {  },
+          size: 'lg'
+        });
+    };
+
     $scope.configureFile = function(fileData) {
         console.log(fileData);
         var modalInstance = $modal.open({
@@ -1091,8 +1100,12 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
         });
 
         modalInstance.result.then(function(data){
-            console.log(data, fileData);
-            window.location = "/oda/ace/" + fileData.short_name;
+            if (data.sandbox) {
+                monitorSandbox();
+            } else {
+                console.log(data, fileData);
+                window.location = "/oda/ace/" + fileData.short_name;
+            }
         });
     };
 });
@@ -1117,16 +1130,35 @@ var UploadFileController = function($scope, $modalInstance){
 
 };
 
+var MonitorSandboxController = function($interval, $http) {
+    var checking;
+
+    $http.post('/odaweb/api/sandbox');
+
+    checking = $interval(function(){
+        console.log('checking...');
+
+        $http.get('/odaweb/api/sandbox');
+    }, 3000);
+};
+
 var ConfigureFileController = function($scope, $modalInstance, fileData) {
 
-    $scope.fileData = fileData;
+    console.log(fileData);
+
+    $scope.data = {
+        fileData: fileData,
+        sandbox: false
+    }
 
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
 
     $scope.ok = function () {
-        $modalInstance.close({});
+        $modalInstance.close({
+            sandbox: $scope.data.sandbox
+        });
     };
 
     var arch = fileData.arch;

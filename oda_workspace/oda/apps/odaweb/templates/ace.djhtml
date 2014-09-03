@@ -94,7 +94,7 @@
 <div id="statusBar"><span class="status-mode">online disassembler forever!</span><div class="ace_status-indicator" style="display: inline-block;">61:0</div></div>
 </div>
 
-{% autoescape on %}
+{% verbatim %}
 <script type="text/ng-template" id="commentModal.html">
 
     <div class="modal-header">
@@ -117,7 +117,54 @@
     </div>
 
 </script>
-{% endautoescape %}
+
+<script type="text/ng-template" id="configureFileModal.html">
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()">&times;</button>
+        <h3>Configure Upload...</h3>
+    </div>
+    <div class="modal-body">
+
+        <div class="alert alert-success">
+            We have detected the object file format as {{ fileData.target }}:
+            <ul>
+                <li ng-repeat="f in data.fileData.file_format">{{ f }}</li>
+            </ul>
+            <br>
+            Please select from the platform options below:
+        </div>
+
+        <div class="alert alert-info">
+            <div class="checkbox">
+                <label>
+                  <input type="checkbox" ng-model="data.sandbox">Run Live in a Sandbox and Memory Dump
+                </label>
+            </div>
+        </div>
+
+        <div class="live-mode-platform-options-form" ng-include src="optionsTemplate()">
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
+<script type="text/ng-template" id="monitorSandbox.html">
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()">&times;</button>
+        <h3>Sandbox and Memory Dump</h3>
+    </div>
+    <div class="modal-body">
+        Loading Memory Dump...
+    </div>
+    <div class="modal-footer">
+
+    </div>
+</script>
+{% endverbatim %}
 
 <script type="text/javascript" src="{% static 'scripts/lib/src-noconflict/ace.js' %}" ></script>
 <script type="text/javascript" src="{% static 'scripts/lib/handlebars-v1.3.0.js' %}" ></script>

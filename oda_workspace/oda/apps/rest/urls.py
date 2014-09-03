@@ -23,6 +23,7 @@ router.register(r'find', views.FindViewSet, base_name="find")
 # Additionally, we include login URLs for the browseable API.
 urlpatterns = patterns('',
     url(r'^', include(router.urls)),
+    url(r'^sandbox$', views.SandboxView.as_view(), name='sandbox_api'),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 
 )

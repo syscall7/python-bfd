@@ -1,7 +1,7 @@
 import logging
 
 from rest_framework import viewsets
-from rest_framework.decorators import action, link
+from rest_framework.decorators import action, link, api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from oda.apps.odaweb.models import OdaMaster
@@ -23,6 +23,7 @@ from oda.libs.odb.structures.symbol import Symbol
 from oda.libs.odb.structures.parcel import Parcel
 from oda.libs.odb import structures
 from oda.libs.odb.ops.add_operation import AddOperation
+from oda.libs.procdump.cuckoo_monitor import CuckooMonitor
 
 
 logger = logging.getLogger(__name__)
@@ -176,6 +177,8 @@ class OptionsViewSet(viewsets.GenericViewSet):
         return Response({'status': 'ok'})
 
 
+
+
 class DisplayUnitsViewSet(viewsets.GenericViewSet):
     serializer_class = DisplayUnitSerializer
 
@@ -291,3 +294,13 @@ class FindViewSet(viewsets.GenericViewSet):
         return Response(serializer.data)
 
 
+class SandboxView(APIView):
+
+    def get(self,request):
+        monitor = CuckooMonitor.getMonitor(1)
+        return Response({"status": monitor.status})
+
+    def post(self, request):
+        cm = CuckooMonitor.create(1)
+        monitor = CuckooMonitor.getMonitor(1)
+        return Response({"status": monitor.status})
