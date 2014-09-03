@@ -12,6 +12,7 @@ from oda.apps.rest.serializers import OdaMasterSerializer, SectionSerializer, St
 from oda.libs.odb.bfd.disassembler import Disassembler
 from oda.libs.odb.odb_file import OdbFile, BinaryString
 from oda.libs.odb.ops.load_operation import LoadOperation
+from oda.libs.odb.ops.modify_settings import ModifySettingsFactory
 from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
 from oda.libs.odb.structures.comment import Comment
 from oda.libs.odb.structures.data_string import DataString
@@ -152,6 +153,27 @@ class BinaryStringViewSet(viewsets.GenericViewSet):
         logger.info("updating...")
 
         return Response({'binary_string': request.DATA['binary_string']})
+
+
+class OptionsViewSet(viewsets.GenericViewSet):
+    def partial_update(self,request,pk):
+        oda_master = OdaMaster.objects.get(short_name=request.DATA['short_name'], revision=request.DATA['revision'])
+
+        arch = request.DATA['options[architecture]']
+        base_address = request.DATA['options[base_address]']
+        endian = request.DATA['options[endian]']
+
+        logger.info("updating...")
+
+        odb_file = oda_master.odb_file
+        odb_file.execute(ModifySettingsFactory.set_values({
+            'architecture': arch,
+            'base_address': base_address,
+            'endian': endian
+        }))
+        oda_master.save()
+
+        return Response({'status': 'ok'})
 
 
 class DisplayUnitsViewSet(viewsets.GenericViewSet):

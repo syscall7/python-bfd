@@ -156,6 +156,25 @@ var OdbFile = function(oda_master) {
         }.bind(this));
     };
 
+    this.setOptions = function(options){
+        $.ajax({
+            url: '/odaweb/api/options/'+this.binary.id+"/",
+            type: 'PATCH',
+            data: {
+                options: options,
+                short_name: this.shortName,
+                revision: this.revision
+            }
+        }).success(function(data) {
+            console.log(data);
+            this._signal('liveEntryText', {
+                addr: 0,
+                action: 'liveEntryChanged'
+            });
+
+        }.bind(this));
+    };
+
     this.setLiveEntryText = function(liveEntryText) {
         $.ajax({
             url: '/odaweb/api/binarystrings/'+this.binary.id+"/",
@@ -166,7 +185,7 @@ var OdbFile = function(oda_master) {
                 revision: this.revision
             }
         }).success(function() {
-            this._signal('changed', {
+            this._signal('liveEntryText', {
                 addr: 0,
                 action: 'liveEntryChanged'
             });
@@ -827,6 +846,9 @@ odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor){
 });
 
 $(document).ready(function(){
+    $.ajaxSetup({
+        headers: { "X-CSRFToken": $.cookie("csrftoken") }
+    });
 
     var top = parseInt($('.theeditor').css('top'));
     var bottom = parseInt($('.theeditor').css('bottom'));

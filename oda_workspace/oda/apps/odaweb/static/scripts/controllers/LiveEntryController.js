@@ -25,6 +25,8 @@ odaApplication.controller('LiveEntryController', function LiveEntryController($s
 
     $scope.optionsUpdated = function() {
         console.log($scope.options);
+
+        odbFile.setOptions($scope.options);
     };
 
 });

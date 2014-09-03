@@ -20,6 +20,7 @@
 
     <script type="text/javascript" src="{% static 'scripts/lib/keypress-2.0.3.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/jquery/jquery-1.11.1.min.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/jquery.cookie.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/lib/context/context.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/bootstrap-3.2/js/bootstrap.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/jquery-ui-1.10.4.js' %}"></script>
