@@ -159,6 +159,9 @@
     </div>
     <div class="modal-body">
         Loading Memory Dump...
+
+        {{ job_status }}
+
     </div>
     <div class="modal-footer">
 

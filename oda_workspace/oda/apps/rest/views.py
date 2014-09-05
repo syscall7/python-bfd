@@ -9,6 +9,8 @@ from oda.apps.odaweb.models import OdaMaster
 from oda.apps.rest.serializers import OdaMasterSerializer, SectionSerializer, StringSerializer, DisplayUnitSerializer, \
     FindResultsSerializer, CommentSerializer, FunctionSerializer, DataStringSerializer, SymbolSerializer, \
     LabelSerializer, ParcelSerializer
+from oda.libs.cuckoo import cuckoo
+from oda.libs.cuckoo.cuckoo import CuckooJob
 from oda.libs.odb.bfd.disassembler import Disassembler
 from oda.libs.odb.odb_file import OdbFile, BinaryString
 from oda.libs.odb.ops.load_operation import LoadOperation
@@ -23,8 +25,6 @@ from oda.libs.odb.structures.symbol import Symbol
 from oda.libs.odb.structures.parcel import Parcel
 from oda.libs.odb import structures
 from oda.libs.odb.ops.add_operation import AddOperation
-from oda.libs.procdump.cuckoo_monitor import CuckooMonitor
-
 
 logger = logging.getLogger(__name__)
 
@@ -296,11 +296,23 @@ class FindViewSet(viewsets.GenericViewSet):
 
 class SandboxView(APIView):
 
-    def get(self,request):
-        monitor = CuckooMonitor.getMonitor(1)
-        return Response({"status": monitor.status})
 
     def post(self, request):
-        cm = CuckooMonitor.create(1)
-        monitor = CuckooMonitor.getMonitor(1)
-        return Response({"status": monitor.status})
+        short_name = request.DATA.get('short_name')
+        revision = request.DATA.get('revision')
+        oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
+        odb_file = oda.odb_file
+        job = cuckoo.submit_job(odb_file)
+        return Response({
+            'job_id': job.id,
+            "status": job.status()
+        })
+
+    def get(self,request):
+        job_id = request.QUERY_PARAMS.get('job_id')
+        job = cuckoo.get_job(job_id)
+        return Response({
+            "job_id": job.id,
+            "status": job.status(),
+        })
+

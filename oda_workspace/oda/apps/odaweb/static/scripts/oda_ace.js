@@ -1081,11 +1081,11 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
         $scope.openFile();
     });
 
-    var monitorSandbox = function() {
+    var monitorSandbox = function(shortName, revision) {
         var modalInstance = $modal.open({
           templateUrl: 'monitorSandbox.html',
           controller: 'MonitorSandboxController',
-          resolve: {  },
+          resolve: { fileInfo: function(){return {shortName: shortName, revision:revision};} },
           size: 'lg'
         });
     };
@@ -1101,7 +1101,7 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
 
         modalInstance.result.then(function(data){
             if (data.sandbox) {
-                monitorSandbox();
+                monitorSandbox(data.shortName, data.revision);
             } else {
                 console.log(data, fileData);
                 window.location = "/oda/ace/" + fileData.short_name;
@@ -1130,16 +1130,27 @@ var UploadFileController = function($scope, $modalInstance){
 
 };
 
-var MonitorSandboxController = function($interval, $http) {
+var MonitorSandboxController = function($scope, $interval, $http, fileInfo) {
     var checking;
 
-    $http.post('/odaweb/api/sandbox');
+    $http.post('/odaweb/api/sandbox', {
+        short_name: fileInfo.shortName,
+        revision: fileInfo.revision
+    }).success(function(job){
+        checking = $interval(function(){
+            console.log('checking...');
 
-    checking = $interval(function(){
-        console.log('checking...');
+            $http.get('/odaweb/api/sandbox', {
+                params: {
+                    job_id: job.job_id
+                }
+            }).success(function(job_status) {
+                $scope.job_status = job_status.status
+            });
+        }, 3000);
+    });
 
-        $http.get('/odaweb/api/sandbox');
-    }, 3000);
+
 };
 
 var ConfigureFileController = function($scope, $modalInstance, fileData) {
@@ -1157,7 +1168,10 @@ var ConfigureFileController = function($scope, $modalInstance, fileData) {
 
     $scope.ok = function () {
         $modalInstance.close({
-            sandbox: $scope.data.sandbox
+            sandbox: $scope.data.sandbox,
+            shortName: fileData.short_name,
+            revision: fileData.revision
+
         });
     };
 
