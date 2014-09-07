@@ -57,5 +57,8 @@ class CuckooJob(object):
         now = datetime.datetime.now()
         self.elapsed_seconds = (now - self.started).total_seconds()
 
+        # See http://cuckoo.readthedocs.org/en/latest/usage/api/#tasks-view for a description of what is returned here.
+        # I also added a new dict entry called ret_val['msg'], which provides info about current status.
+        # To check if the job is done, you'll want to check that ret_val['status'] == 'completed'.
         return response.json()['task']
 
