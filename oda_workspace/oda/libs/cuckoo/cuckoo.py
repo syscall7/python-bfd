@@ -2,12 +2,12 @@ import datetime
 import requests
 import hashlib
 
+# TODO: Persist this info in the database in case we have to restart the server
 jobs = {}
 
 def submit_job(odb_file):
     # submit a new job to the Cuckoo server and get the job ID
-    server = 'localhost'
-    job = CuckooJob(server, odb_file.binary.file_handle(), odb_file.binary.name)
+    job = CuckooJob(odb_file.binary.file_handle(), odb_file.binary.name)
     jobs[str(job.id)] = job
     return job
 
@@ -16,16 +16,21 @@ def get_job(job_id):
 
 class CuckooJob(object):
 
-    def __init__(self, server, file_handle, file_name):
-        self.started = datetime.datetime.now()
-        self.elapsed_seconds = 0
-        self.server = server
-        self.port = 8090
+    def __init__(self, file_handle, file_name):
         self.file_handle = file_handle
         self.file_name = file_name
 
+        self.started = datetime.datetime.now()
+        self.elapsed_seconds = 0
+
+        # TODO: Select the server instance from a set of available cuckoo servers
+        self.server = 'localhost'
+        self.port = 8090
+
+        # submit the job
         self.submit()
 
+        # create unique string to identify this cuckoo job
         unique = '{time}{server}{port}{task}'.format(
                     time=self.started,
                     server=self.server,
