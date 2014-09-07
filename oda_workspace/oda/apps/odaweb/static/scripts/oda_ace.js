@@ -1181,7 +1181,7 @@ var MonitorSandboxController = function($scope, $interval, $http, fileInfo) {
                     job_id: job.job_id
                 }
             }).success(function(job_status) {
-                $scope.job_status = job_status.status
+                $scope.job_status = job_status.status['msg']
             });
         }, 3000);
     });

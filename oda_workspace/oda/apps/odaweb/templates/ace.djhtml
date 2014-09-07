@@ -158,7 +158,6 @@
         <h3>Sandbox and Memory Dump</h3>
     </div>
     <div class="modal-body">
-        Loading Memory Dump...
 
         {{ job_status }}
 

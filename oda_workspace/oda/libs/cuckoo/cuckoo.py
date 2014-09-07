@@ -1,13 +1,14 @@
 import datetime
 import requests
+import hashlib
 
 jobs = {}
 
 def submit_job(odb_file):
     # submit a new job to the Cuckoo server and get the job ID
     server = 'localhost'
-    job = CuckooJob(server, odb_file.file_handle, odb_file.name)
-    jobs[str(id)] = job
+    job = CuckooJob(server, odb_file.binary.file_handle(), odb_file.binary.name)
+    jobs[str(job.id)] = job
     return job
 
 def get_job(job_id):
@@ -19,10 +20,18 @@ class CuckooJob(object):
         self.started = datetime.datetime.now()
         self.elapsed_seconds = 0
         self.server = server
-        self.id = id
         self.port = 8090
         self.file_handle = file_handle
         self.file_name = file_name
+
+        self.submit()
+
+        unique = '{time}{server}{port}{task}'.format(
+                    time=self.started,
+                    server=self.server,
+                    port=self.port,
+                    task=self.task_id)
+        self.id = hashlib.sha256(unique).hexdigest()
 
     def submit(self):
         url = 'http://{server}:{port}/tasks/create/file'.format(server=self.server, port=self.port)
