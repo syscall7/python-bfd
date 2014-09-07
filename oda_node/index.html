@@ -30,6 +30,15 @@
                 });
             });
 
+            $('#commentBtn').click(function(){
+                var commentText = $("#commentText").val();
+                var commentOffset = $("#commentOffset").val();
+                socket.emit('comment.create', {
+                    text: commentText,
+                    offset: commentOffset
+                });
+            });
+
             socket.on('event', function(data){
                 console.log('event', data);
                 $('#events').prepend('<p>' + 'event' + ': ' + JSON.stringify(data) + '</p>')
@@ -47,7 +56,14 @@
 <input type="text" value="mkdir" id="room"/>
 <input type="button" value="Connect" id="connect" />
 
-<input type="button" id="move" value="move" />
+<br />
+
+<input type="button" id="move" value="move" /><br/>
+
+<input type="text" value="Comment Text" id="commentText"/>
+<input type="text" value="4220736" id="commentOffset"/>
+<input type="button" value="Comment" id="commentBtn" />
+
 <div id="events">
 
 </div>

@@ -96,6 +96,11 @@ io.on('connection', function (socket) {
         socket.broadcast.to(currentRoom).emit('cursor.change', data);
     });
 
+    socket.on('comment.create', function(data){
+        logger.info("Comment Created", data);
+        socket.broadcast.to(currentRoom).emit('comment.create', data);
+    });
+
 });
 
 /*
