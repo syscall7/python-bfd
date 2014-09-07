@@ -10,12 +10,23 @@
     <script>
         $(document).ready(function(){
             var socket = io();
+            var username =
 
             $('#connect').click(function(){
                 console.log('subscribe');
+                username = $('#username').val();
                 socket.emit('subscribe',{
-                    username: $('#username').val(),
+                    username: username,
                     room: $('#room').val()
+                });
+            });
+
+            var offset = 4220736;
+            $('#move').click(function(){
+                offset += 1000;
+                socket.emit('cursor.change', {
+                    username: username,
+                    offset: offset
                 });
             });
 
@@ -36,6 +47,7 @@
 <input type="text" value="mkdir" id="room"/>
 <input type="button" value="Connect" id="connect" />
 
+<input type="button" id="move" value="move" />
 <div id="events">
 
 </div>
