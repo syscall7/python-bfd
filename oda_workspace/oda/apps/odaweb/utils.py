@@ -2,15 +2,14 @@ from hashlib import sha1
 
 
 def sha1_hash(fh):
-    #fh = open(filePath, 'rb')
+    fh.seek(0)
     s = sha1()
-    s.update("blob ")
     while True:
         data = fh.read(8192)
         if not data:
             break
         s.update(data)
-    s.update("\0")
+    fh.seek(0)
     return s.hexdigest()
 
 import string

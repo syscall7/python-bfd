@@ -302,7 +302,7 @@ class SandboxView(APIView):
         revision = request.DATA.get('revision')
         oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
         odb_file = oda.odb_file
-        job = cuckoo.submit_job(odb_file)
+        job = cuckoo.submit_job(oda)
         return Response({
             'job_id': job.id,
             "status": job.status()

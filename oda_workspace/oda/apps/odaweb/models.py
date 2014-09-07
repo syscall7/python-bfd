@@ -164,9 +164,7 @@ class BinaryFile(models.Model):
     def create(f):
         u = BinaryFile()
         u.filename = f.name
-        f.open('rb')
         u.hash = sha1_hash(f)
-        f.close()
         f.name = u.hash
 
         u.the_file = File(f)
