@@ -6,16 +6,28 @@ var bunyan = require('bunyan');
 server.listen(8080);
 
 function handler (req, res) {
-  fs.readFile(__dirname + '/index.html',
-  function (err, data) {
-    if (err) {
-      res.writeHead(500);
-      return res.end('Error loading index.html');
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Request-Method', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+    res.setHeader('Access-Control-Allow-Headers', '*');
+
+    if ( req.method === 'OPTIONS' ) {
+        res.writeHead(200);
+        res.end();
+        return;
     }
 
-    res.writeHead(200);
-    res.end(data);
-  });
+    fs.readFile(__dirname + '/index.html',
+    function (err, data) {
+        if (err) {
+          res.writeHead(500);
+          return res.end('Error loading index.html');
+        }
+
+        res.writeHead(200);
+        res.end(data);
+    });
 }
 
 var logger = bunyan.createLogger({name: 'socket'});
@@ -27,6 +39,7 @@ io.on('connection', function (socket) {
     logger.info('A New User Has Connected');
 
     var addedUser = false;
+    var currentRoom = null;
 
     // when the client emits 'add user', this listens and executes
     socket.on('subscribe', function (data) {
@@ -50,11 +63,15 @@ io.on('connection', function (socket) {
             numUsers: numUsers
         });
         // echo data.room that a person has connected
-	logger.info("broadcasting join", room);
+
+        logger.info("broadcasting join", room);
+
         socket.to(room).emit('join', {
             username: username,
             numUsers: numUsers
         });
+
+        currentRoom = room;
     });
 
 
@@ -72,6 +89,11 @@ io.on('connection', function (socket) {
                 numUsers: numUsers
             });
         }
+    });
+
+    socket.on('cursor.change', function(data){
+        logger.info("Cursor Changed", data);
+        socket.broadcast.to(currentRoom).emit('cursor.change', data);
     });
 
 });
