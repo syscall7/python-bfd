@@ -1,3 +1,5 @@
+"use strict";
+
 var ace_document = ace.require('ace/document');
 var oop = ace.require("ace/lib/oop");
 var EventEmitter = ace.require("ace/lib/event_emitter").EventEmitter;
@@ -238,7 +240,7 @@ var OdaSession = function(editor, odbFile, windowLoader) {
 
     this.odbFile = odbFile;
 
-    this.onCursorChange = $.Callbacks();
+    this.lastOffset = null;
 
     this.session.selection.on('changeCursor', function(e) {
         var cursor = this.session.getSelection().getCursor();
@@ -253,7 +255,13 @@ var OdaSession = function(editor, odbFile, windowLoader) {
 
         try {
             var offset = lineData.offset;
-            this.onCursorChange.fire(offset);
+            if (offset != this.lastOffset) {
+                this.lastOffset = offset;
+                this._signal('cursor.change', {
+                    offset: offset
+                });
+            }
+            //this.onCursorChange.fire(offset);
         } catch (ex) {
             console.log(ex);
         }
@@ -303,7 +311,23 @@ var OdaSession = function(editor, odbFile, windowLoader) {
         } else {
             odaSession.editor.gotoLine(line, 0, false);
         }
-    }
+    };
+
+
+    this.callbacks = {};
+    this.on = function (name, handler) {
+        if (!this.callbacks[name]) {
+            this.callbacks[name] = $.Callbacks();
+        }
+        this.callbacks[name].add(handler);
+
+    };
+    this._signal = function (name, data) {
+        if (!this.callbacks[name]) {
+            this.callbacks[name] = $.Callbacks();
+        }
+        this.callbacks[name].fire(data);
+    };
 
 };
 
@@ -646,7 +670,8 @@ function start(odbFile) {
     editor.getSession().gutterRenderer = new OdaGutterRenderer(odaSession);
 
 
-    odaSession.onCursorChange.add(function(offset) {
+    odaSession.on('cursor.change', function(e) {
+        var offset = e.offset;
         console.log("CURSOR CHANGE", offset);
         addrBar.setAddress(offset);
         statusBar.setAddress(offset);
@@ -726,6 +751,17 @@ function start(odbFile) {
             //todo username
             username: 'USERNAME',
             room: odbFile.shortName
+        });
+
+
+        socket.on('cursor.change', function(e){
+            addrBar.updateUser(e.username, e.offset);
+        });
+
+        odaSession.on('cursor.change', function(e){
+            socket.emit('cursor.change',{
+                offset: e.offset
+            });
         });
 
     });
