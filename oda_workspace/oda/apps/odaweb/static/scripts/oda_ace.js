@@ -1181,17 +1181,20 @@ var MonitorSandboxController = function($scope, $interval, $http, fileInfo) {
                 params: {
                     job_id: job.job_id
                 }
-            }).success(function(job_status) {
-                $scope.job_status = job_status.status['msg']
-
-                if ($scope.job_status == 'reported') {
-                    window.location = "/oda/ace/" + fileInfo.short_name;
-                }
+            }).success(function(response) {
+                $scope.job_status = response.status
 
             });
         }, 3000);
     });
 
+    $scope.btnDisabled = function() {
+        return $scope.job_status.status != "reported";
+    }
+
+    $scope.continue = function () {
+        window.location = "/oda/ace/" + fileInfo.shortName;
+    };
 
 };
 

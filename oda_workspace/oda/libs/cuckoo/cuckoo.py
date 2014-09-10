@@ -65,6 +65,7 @@ class CuckooJob(object):
 
         now = datetime.datetime.now()
         self.elapsed_seconds = (now - self.started).total_seconds()
+        status['elapsed_time'] = str(datetime.timedelta(seconds=self.elapsed_seconds))
 
         # if the job completed
         if status['status'] == 'reported':
