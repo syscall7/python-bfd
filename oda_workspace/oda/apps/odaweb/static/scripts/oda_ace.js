@@ -760,6 +760,7 @@ function start(odbFile) {
 
         odaSession.on('cursor.change', function(e){
             socket.emit('cursor.change',{
+                username: 'USERNAME',
                 offset: e.offset
             });
         });
@@ -1182,6 +1183,11 @@ var MonitorSandboxController = function($scope, $interval, $http, fileInfo) {
                 }
             }).success(function(job_status) {
                 $scope.job_status = job_status.status['msg']
+
+                if ($scope.job_status == 'reported') {
+                    window.location = "/oda/ace/" + fileInfo.short_name;
+                }
+
             });
         }, 3000);
     });
