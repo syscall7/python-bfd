@@ -741,27 +741,30 @@ function start(odbFile) {
             reconnection: false
         });
 
-        socket.on('join', function(data) {
-            console.log('join', data);
-            addrBar.addUser(data.username);
-            addrBar.updateUser(data.username, 0x403000);
-        });
+        socket.on('connect', function(){
+            console.log('connected');
 
-        socket.emit('subscribe',{
-            //todo username
-            username: 'USERNAME',
-            room: odbFile.shortName
-        });
+            socket.on('join', function(data) {
+                console.log('join', data);
+                addrBar.addUser(data.username);
+                addrBar.updateUser(data.username, 0x403000);
+            });
 
+            socket.on('cursor.change', function(e){
+                addrBar.updateUser(e.username, e.offset);
+            });
 
-        socket.on('cursor.change', function(e){
-            addrBar.updateUser(e.username, e.offset);
-        });
+            odaSession.on('cursor.change', function(e){
+                socket.emit('cursor.change',{
+                    username: 'USERNAME',
+                    offset: e.offset
+                });
+            });
 
-        odaSession.on('cursor.change', function(e){
-            socket.emit('cursor.change',{
+            socket.emit('subscribe',{
+                //todo username
                 username: 'USERNAME',
-                offset: e.offset
+                room: odbFile.shortName
             });
         });
 
