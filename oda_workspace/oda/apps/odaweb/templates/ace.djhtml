@@ -159,7 +159,9 @@
     </div>
     <div class="modal-body">
 
+        <pre>
         {{ job_status }}
+        </pre>
 
     </div>
     <div class="modal-footer">
