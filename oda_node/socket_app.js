@@ -33,7 +33,20 @@ function handler (req, res) {
 var logger = bunyan.createLogger({name: 'socket'});
 
 var numUsers = 0;
-var usernames = {};
+var users = {};
+
+function getUsersInRoom(room) {
+    //TODO: This will work for small numbers of users, but will blow up
+    var foundUsers = [];
+    for (var key in users) {
+        for (var i=0; i<users[key].length; i++) {
+            if (users[key][i].room == room) {
+                foundUsers.push(key);
+            }
+        }
+    }
+    return foundUsers;
+}
 
 io.on('connection', function (socket) {
     logger.info('A New User Has Connected');
@@ -56,19 +69,30 @@ io.on('connection', function (socket) {
 
 
         // add the client's username to the global list
-        usernames[username] = username;
+        if (username in users) {
+            users[username].push(socket);
+        } else {
+            users[username] = [socket];
+        }
         ++numUsers;
+
         addedUser = true;
         socket.emit('login', {
             numUsers: numUsers
         });
         // echo data.room that a person has connected
 
-        logger.info("broadcasting join", room);
+        logger.info("broadcasting join", room, socket.id, socket.rooms);
 
         socket.to(room).emit('join', {
             username: username,
             numUsers: numUsers
+        });
+
+        var usersInRoom = getUsersInRoom(room);
+        logger.info('users in room', usersInRoom);
+        socket.to(socket.id).emit('users',{
+            users: usersInRoom
         });
 
         currentRoom = room;
@@ -80,9 +104,12 @@ io.on('connection', function (socket) {
 
     // remove the username from global usernames list
         if (addedUser) {
-            logger.info(socket.username, ' left ', socket.room, ' leaving ', numUsers);
-            delete usernames[socket.username];
+            var index = users[socket.username].indexOf(socket);
+            users[socket.username].splice(index,1);
+
+            //delete users[socket.username];
             --numUsers;
+            logger.info(socket.username, ' left ', socket.room, ' leaving ', numUsers);
             // echo globally that this client has left
             socket.broadcast.emit('user left', {
                 username: socket.username,
@@ -92,12 +119,12 @@ io.on('connection', function (socket) {
     });
 
     socket.on('cursor.change', function(data){
-        logger.info("Cursor Changed", data);
+        logger.info("Cursor Changed", currentRoom, data);
         socket.broadcast.to(currentRoom).emit('cursor.change', data);
     });
 
     socket.on('comment.create', function(data){
-        logger.info("Comment Created", data);
+        logger.info("Comment Created", currentRoom, data);
         socket.broadcast.to(currentRoom).emit('comment.create', data);
     });
 
