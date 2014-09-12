@@ -1,0 +1,78 @@
+{% load url from future %}
+{% load static from staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{% block head_title %}{% endblock %}</title>
+    {% block extra_head %}
+    {% endblock %}
+    <script type="text/javascript" src="{% static 'scripts/lib/jquery/jquery-1.11.1.min.js' %}" ></script>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/bootstrap-3.2/css/bootstrap.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/bootstrap-3.2/css/bootstrap-theme.css' %}"/>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/toastr/toastr.css' %}"/>
+    <script type="text/javascript" src="{% static 'scripts/lib/toastr/toastr.js' %}"></script>
+
+
+      <style type="text/css">
+
+
+        body {
+            background-color: #F5F5F5;
+            padding-bottom: 40px;
+            padding-top: 20px;
+        }
+
+        .form-signin {
+            background-color: #FFFFFF;
+            border: 1px solid #E5E5E5;
+            border-radius: 5px 5px 5px 5px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            margin: 0 auto 20px;
+            max-width: 600px;
+            padding: 19px 29px 29px;
+        }
+    </style>
+
+  </head>
+  <body>
+    {% block body %}
+
+    {% comment %}
+    <div>
+      <strong>Menu:</strong>
+      <ul>
+	{% if user.is_authenticated %}
+	<li><a href="{% url 'account_email' %}">Change E-mail</a></li>
+	<li><a href="{% url 'account_logout' %}">Sign Out</a></li>
+	{% else %}
+	<li><a href="{% url 'account_login' %}">Sign In</a></li>
+	<li><a href="{% url 'account_signup' %}">Sign Up</a></li>
+	{% endif %}
+      </ul>
+    </div>
+    {% endcomment %}
+
+    <div class="form-signin">
+        <img src="{% static "images/oda_logo4.png" %}"/>
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    {% endblock %}
+
+    {% block extra_body %}
+    {% endblock %}
+  </body>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        {% for message in messages %}
+        toastr.info('{{ message }}');
+        {% endfor %}
+    });
+
+</script>
+</html>

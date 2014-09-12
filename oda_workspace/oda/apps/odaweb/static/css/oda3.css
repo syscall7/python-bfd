@@ -157,7 +157,7 @@
     z-index: 999999;
     }
 
-
+/*Spinner*/
 .loading-spinner {
     position: relative;
     font-size: 100px;
@@ -211,3 +211,8 @@
     100% { -webkit-transform: rotate(180deg); transform: rotate(180deg); }
 }
 
+/* end spinner */
+
+.user-actions a {
+    padding-left: 10px;
+}

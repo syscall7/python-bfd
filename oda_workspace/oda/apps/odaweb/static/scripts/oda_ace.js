@@ -1076,12 +1076,6 @@ odaApplication.controller('DockController', function DockController($scope, $htt
 odaApplication.controller('NavbarController', function NavbarController($scope, $modal, $location, fileUpload, AuthService){
     $scope.examples = window.examples;
 
-
-    $scope.credentials = {
-        username: '',
-        password: ''
-    };
-
     $scope.loadExample = function(example) {
         window.location = "/oda/ace/" + example.short_name;
     };
@@ -1148,6 +1142,14 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
             }
         });
     };
+
+    $scope.loginPage = function() {
+        window.location = "/accounts/login"
+    }
+
+    $scope.createAccount = function() {
+        window.location = "/accounts/signup"
+    }
 });
 
 var UploadFileController = function($scope, $modalInstance){
@@ -1264,6 +1266,7 @@ odaApplication.service('Session', function(){
 
 
 odaApplication.factory('AuthService', function($http, Session){
+
     return {
         login: function(credentials) {
             return $http({
@@ -1279,11 +1282,21 @@ odaApplication.factory('AuthService', function($http, Session){
         },
         isAuthenticated: function() {
             return !!Session.userId
+        },
+        logout: function() {
+            return $http({
+                method: 'POST',
+                url: '/accounts/logout/'
+            }).then(function(){
+                location.reload();
+            });
         }
+
     };
 });
 
-odaApplication.run(function($rootScope, AuthService){
+odaApplication.run(function($rootScope, AuthService, Session){
+
     $rootScope.isAuthenticated = AuthService.isAuthenticated;
 
     $rootScope.currentUser = null;
@@ -1299,6 +1312,18 @@ odaApplication.run(function($rootScope, AuthService){
             console.log("logged in", user);
         });
     };
+
+    $rootScope.logout = function() {
+        AuthService.logout();
+    }
+
+
+    if (window.user.authenticated) {
+        var username = window.user.username;
+        console.log('Username: ',username);
+        Session.create(username);
+        $rootScope.setCurrentUser({username: username});
+    }
 });
 
 

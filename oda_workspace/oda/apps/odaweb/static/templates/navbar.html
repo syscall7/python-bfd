@@ -107,17 +107,25 @@
 
 
       <div class="navbar-form navbar-right" ng-if="!isAuthenticated()">
-        <div class="form-group">
+        <!--<div class="form-group">
           <input type="text" placeholder="Username" class="form-control" ng-model="credentials.username">
         </div>
         <div class="form-group">
           <input type="password" placeholder="Password" class="form-control" ng-model="credentials.password">
-        </div>
-        <button class="btn btn-success" ng-click="login(credentials)">Sign in</button>
+        </div>-->
+          <button class="btn btn-default" ng-click="loginPage()">Sign in</button>
+          <button class="btn btn-success" ng-click="createAccount()">Sign Up</button>
       </div>
 
       <ul class="nav navbar-nav navbar-right" ng-if="isAuthenticated()">
-        <li><p class="navbar-text"><strong>{{ currentUser.username }}</strong></p></li>
+
+        <li>
+            <p class="navbar-text user-actions"><strong>
+                {{ currentUser.username }}
+                <a href=""><i class="fa fa-user fa-lg"></i></a>
+                <a href="" ng-click="logout()"><i class="fa fa-sign-out fa-lg"></i></a>
+            </strong></p>
+        </li>
       </ul>
 
     </div><!--/.navbar-collapse -->

@@ -191,6 +191,11 @@
 
     window.examples = JSON.parse('{{ examples | jsonify }}');
 
+    window.user = {
+        username : '{% if not user.is_authenticated %}anonymous{% else %}{{ user.username }}{% endif %}',
+        authenticated: {{ user.is_authenticated | jsonify }}
+    };
+
     window.oda_master = {
         project_name : {{ master.project_name| jsonify }},
         short_name : '{{master.short_name }}',

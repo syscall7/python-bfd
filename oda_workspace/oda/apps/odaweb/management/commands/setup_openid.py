@@ -48,7 +48,7 @@ class Command(BaseCommand):
             }
             ]
         else:
-            raise Exception('need to set mode')
+            raise Exception('need to set mode "-m [dev|prod]')
 
 
         for location in locations:
