@@ -1,4 +1,4 @@
-{% extends "layout-new.djhtml" %}
+{% extends "layout-ace.djhtml" %}
 
 {% block head %}
 
@@ -17,7 +17,7 @@
 
 {% endblock %}
 
-{% block content %}
+{% block body %}
 
 <div class="container-fluid">
     <div class="row-fluid">

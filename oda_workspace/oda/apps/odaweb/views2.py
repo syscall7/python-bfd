@@ -701,14 +701,33 @@ def download_text_listing(request):
     return response
 
 
+def make_copy(oda_master, user):
+    user_owns = False;
+    if user.is_authenticated() and oda_master.owner is not None and oda_master.owner.id == user.id:
+        user_owns = True
+
+    #make copy
+    oda_master.copy = OdaMaster.objects.get(id=oda_master.id)
+    oda_master.id = None
+
+    if user_owns:
+        oda_master.revision += 1
+    else:
+        oda_master.short_name = id_generator()
+        oda_master.revision = 0
+
+    oda_master.save()
+
+    return oda_master
+
 def ace(request, disassembly_id, version=0):
 
     if not disassembly_id:
         disassembly_id = 'mkdir'
 
-    #todo need to make a copy
-    oda_master = OdaMaster.objects.get(short_name=disassembly_id, revision=version)
-    #oda_master = create_session(request, disassembly_id, version)
+    to_copy_oda_master = OdaMaster.objects.get(short_name=disassembly_id, revision=version)
+
+    oda_master = make_copy(to_copy_oda_master, request.user)
 
     context = {
         'examples': Examples,
@@ -722,12 +741,3 @@ def ace(request, disassembly_id, version=0):
     #dasm = Disassembler(odb_file)
     #dunits = dasm.analyze(0, 10000000)
     return render(request, 'ace.djhtml', context)
-
-def ace2(request):
-    #oda_master = OdaMaster.objects.get(short_name='mkdir', revision=0)
-    #odb_file = oda_master.odb_file
-    #dasm = Disassembler(odb_file)
-    #dunits = dasm.analyze(0, 10000000)
-    return render(request, 'ace2.djhtml', {
-        #'units': simplejson.dumps(dunits)
-    })
