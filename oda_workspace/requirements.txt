@@ -17,4 +17,5 @@ wsgiref==0.1.2
 gsutil==3.42
 django-google-storage==0.3
 bidict==0.1.1
+ipython==2.2.0
 

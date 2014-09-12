@@ -47,26 +47,27 @@ urlpatterns = patterns('',
 
     #User Dealing with URL
     (r'^accounts/', include('allauth.urls')),
+    (r'^user/', include(user_urls.urlpatterns)),
 
-    url(r'^accounts/profile/$', lambda x: HttpResponseRedirect('/odaweb/')),
+    # url(r'^accounts/profile/$', lambda x: HttpResponseRedirect('/odaweb/')),
+    #
+    # url(r'^odaweb/login', 'oda.apps.users.views.login'),
+    # url(r'^odaweb/logout', 'oda.apps.users.views.logout'),
+    #
+    # url(r'^accounts/password/reset$', password_reset, {
+    #     'template_name': 'login/password_reset.djhtml',
+    #     'email_template_name': 'login//password_reset_email.html'
+    # }),
+    # url(r'^accounts/password/reset/confirm/(?P<uidb36>[-\w]+)/(?P<token>[-\w]+)$', password_reset_confirm,
+    #     {'template_name': 'login/password_reset_confirm.djhtml'}),
+    # url(r'^accounts/password/reset/complete$', password_reset_complete,
+    #     {'template_name': 'login/password_reset_complete.djhtml'}),
+    # url(r'^accounts/password/reset_done$', password_reset_done,
+    #     {'template_name': 'login/password_reset_done.djhtml'}),
+    #
+    # url(r'^odaweb/createuser', 'oda.apps.users.views.create_user'),
 
-    url(r'^odaweb/login', 'oda.apps.users.views.login'),
-    url(r'^odaweb/logout', 'oda.apps.users.views.logout'),
-
-    url(r'^accounts/password/reset$', password_reset, {
-        'template_name': 'login/password_reset.djhtml',
-        'email_template_name': 'login//password_reset_email.html'
-    }),
-    url(r'^accounts/password/reset/confirm/(?P<uidb36>[-\w]+)/(?P<token>[-\w]+)$', password_reset_confirm,
-        {'template_name': 'login/password_reset_confirm.djhtml'}),
-    url(r'^accounts/password/reset/complete$', password_reset_complete,
-        {'template_name': 'login/password_reset_complete.djhtml'}),
-    url(r'^accounts/password/reset_done$', password_reset_done,
-        {'template_name': 'login/password_reset_done.djhtml'}),
-
-    url(r'^odaweb/createuser', 'oda.apps.users.views.create_user'),
-
-    url(r'^odaweb/user/', include(user_urls.urlpatterns)),
+    # url(r'^odaweb/user/', include(user_urls.urlpatterns)),
 
     url(r'^odaweb/api/', include(rest_urls.urlpatterns)),
 
