@@ -817,6 +817,71 @@ var CommentController = function($scope, $modalInstance) {
 
 };
 
+odaApplication.run(function($rootScope, editor){
+    //http://lab.jakiestfu.com/contextjs/
+    context.init({preventDoubleContext: false});
+	context.attach('#editor', [
+
+		{header: 'ODA Commands'},
+		{text: 'The Author', subMenu: [
+			{header: '@jakiestfu'},
+			{text: 'Website', href: 'http://jakiestfu.com/', target: '_blank'},
+			{text: 'Forrst', href: 'http://forrst.com/people/jakiestfu', target: '_blank'},
+			{text: 'Twitter', href: 'http://twitter.com/jakiestfu', target: '_blank'},
+			{text: 'Donate?', action: function(e){
+				e.preventDefault();
+				$('#donate').submit();
+			}}
+		]},
+        {text: '<span class="shortcut-text">Comment</span><span class="shortcut-key">;</span>', action: function (e) {
+                var session = editor.getSession();
+
+                var cursor = session.getSelection().getCursor();
+                var line = session.getDocument().getLineData(cursor.row);
+
+
+                $rootScope.$broadcast('command.comment', {
+                    line: line
+                });
+            }
+        },
+        {text: '<span class="shortcut-text">Code -> Data</span><span class="shortcut-key">c</span>', action: function (e) {
+                alert('Code -> Data');
+            }
+        },
+        {text: '<span class="shortcut-text">Data -> Code</span><span class="shortcut-key">d</span>', action: function (e) {
+                alert('Data -> Code');
+            }
+        },
+        {divider: true}
+
+
+		/*{text: 'Hmm?', subMenu: [
+			{header: 'Well, thats lovely.'},
+			{text: '2nd Level', subMenu: [
+				{header: 'You like?'},
+				{text: '3rd Level!?', subMenu: [
+					{header: 'Of course you do'},
+					{text: 'MENUCEPTION', subMenu: [
+						{header:'FUCK'},
+						{text: 'MAKE IT STOP!', subMenu: [
+							{header: 'NEVAH!'},
+							{text: 'Shieeet', subMenu: [
+								{header: 'WIN'},
+								{text: 'Dont Click Me', href: 'http://bit.ly/1dH1Zh1', target:'_blank', action: function(){
+									_gaq.push(['_trackEvent', 'ContextJS Weezy Click', this.pathname, this.innerHTML]);
+								}}
+							]}
+						]}
+					]}
+				]}
+			]}
+		]}*/
+	]);
+
+});
+
+
 odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor){
     odbFile.on('liveEntryText', function(event, liveEntryText) {
         //var odaSession = oda_util.getOdaSession();
@@ -960,60 +1025,6 @@ $(document).ready(function(){
 
     handleSaveButton({saved: window.saved});
 
-    context.init({preventDoubleContext: false});
-	context.attach('#editor', [
-
-		{header: 'Download'},
-		{text: 'The Script', subMenu: [
-			{header: 'Requires jQuery'},
-			{text: 'context.js', action: function(e){
-				alert('here');
-			}}
-		]},
-		/*{text: 'The Styles', subMenu: [
-
-			{text: 'context.bootstrap.css', href: 'http://lab.jakiestfu.com/contextjs/context.bootstrap.css', target:'_blank', action: function(e){
-				_gaq.push(['_trackEvent', 'ContextJS Bootstrap CSS Download', this.pathname, this.innerHTML]);
-			}},
-
-			{text: 'context.standalone.css', href: 'http://lab.jakiestfu.com/contextjs/context.standalone.css', target:'_blank', action: function(e){
-				_gaq.push(['_trackEvent', 'ContextJS Standalone CSS Download', this.pathname, this.innerHTML]);
-			}}
-		]},*/
-		{divider: true},
-		{header: 'Meta'},
-		{text: 'The Author', subMenu: [
-			{header: '@jakiestfu'},
-			{text: 'Website', href: 'http://jakiestfu.com/', target: '_blank'},
-			{text: 'Forrst', href: 'http://forrst.com/people/jakiestfu', target: '_blank'},
-			{text: 'Twitter', href: 'http://twitter.com/jakiestfu', target: '_blank'},
-			{text: 'Donate?', action: function(e){
-				e.preventDefault();
-				$('#donate').submit();
-			}}
-		]},
-		/*{text: 'Hmm?', subMenu: [
-			{header: 'Well, thats lovely.'},
-			{text: '2nd Level', subMenu: [
-				{header: 'You like?'},
-				{text: '3rd Level!?', subMenu: [
-					{header: 'Of course you do'},
-					{text: 'MENUCEPTION', subMenu: [
-						{header:'FUCK'},
-						{text: 'MAKE IT STOP!', subMenu: [
-							{header: 'NEVAH!'},
-							{text: 'Shieeet', subMenu: [
-								{header: 'WIN'},
-								{text: 'Dont Click Me', href: 'http://bit.ly/1dH1Zh1', target:'_blank', action: function(){
-									_gaq.push(['_trackEvent', 'ContextJS Weezy Click', this.pathname, this.innerHTML]);
-								}}
-							]}
-						]}
-					]}
-				]}
-			]}
-		]}*/
-	]);
 
 
 });
