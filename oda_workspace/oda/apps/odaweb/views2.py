@@ -75,14 +75,7 @@ def index(request, disassembly_id, version=0):
 
 def save(request):
     request.session['saved'] = True
-    try:
-        o_id = request.session["disassembly_token"]['id']
-        o_revision = request.session['disassembly_token']['version']
-    except:
-        logger.warn("Save Called With Missing disassembly_token")
-        return redirect('/odaweb/')
-
-    return redirect('/odaweb/' + o_id + '/' + str(o_revision))
+    return HttpResponse("ok", content_type='text/plain')
 
 
 def create_session(request, to_copy_id, to_copy_version):
@@ -725,6 +718,8 @@ def ace(request, disassembly_id, version=0):
     if not disassembly_id:
         disassembly_id = 'mkdir'
 
+    saved = request.session.get('saved', False)
+
     to_copy_oda_master = OdaMaster.objects.get(short_name=disassembly_id, revision=version)
 
     oda_master = make_copy(to_copy_oda_master, request.user)
@@ -733,8 +728,11 @@ def ace(request, disassembly_id, version=0):
         'examples': Examples,
         'master': oda_master,
         'binary': oda_master.odb_file.get_binary(),
-        'section_info': Ofd(oda_master.odb_file.get_binary()).get_loadable_sections()
+        'section_info': Ofd(oda_master.odb_file.get_binary()).get_loadable_sections(),
+        'saved': saved
     }
+
+    request.session['saved'] = False
 
     #oda_master = OdaMaster.objects.get(short_name='mkdir', revision=0)
     #odb_file = oda_master.odb_file

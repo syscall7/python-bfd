@@ -213,7 +213,7 @@
     {% autoescape off %}
 
     window.examples = JSON.parse('{{ examples | jsonify }}');
-
+    window.saved = {{ saved | jsonify }};
     window.oda_master = {
         project_name : {{ master.project_name| jsonify }},
         short_name : '{{master.short_name }}',

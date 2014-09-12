@@ -833,7 +833,7 @@ odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor){
     });
 
     //http://dmauro.github.io/Keypress/
-    var listener = new window.keypress.Listener($('.theeditor')[0]);
+    var listener = new window.keypress.Listener($('#editor')[0]);
 
 
     listener.simple_combo("ctrl g", function() {
@@ -885,9 +885,37 @@ odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor){
     });
 });
 
+
+function handleSaveButton(options) {
+    if (options.saved) {
+
+        // show the popover, but don't close it when clicked
+        $('#menu-item-share').popover('show').click(function(evt) {
+            evt.stopPropagation();
+            $(this).popover('show');
+        });
+
+        // close the popover when clicked anywhere outside the popover
+        setTimeout(function(){
+            $('html').click(function() {
+                $('#menu-item-share').popover('hide');
+            });
+        }, 500);
+    }
+}
+
 $(document).ready(function(){
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
     $.ajaxSetup({
-        headers: { "X-CSRFToken": $.cookie("csrftoken") }
+        beforeSend: function(xhr, settings) {
+            var csrftoken = $.cookie("csrftoken");
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
     });
 
     var top = parseInt($('.theeditor').css('top'));
@@ -929,6 +957,8 @@ $(document).ready(function(){
         start(odbFile);
 
     });
+
+    handleSaveButton({saved: window.saved});
 
     context.init({preventDoubleContext: false});
 	context.attach('#editor', [
@@ -1143,13 +1173,17 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
         });
     };
 
+    $scope.saveAndRedirect = function() {
+        alert('here');
+    };
+
     $scope.loginPage = function() {
         window.location = "/accounts/login"
-    }
+    };
 
     $scope.createAccount = function() {
         window.location = "/accounts/signup"
-    }
+    };
 });
 
 var UploadFileController = function($scope, $modalInstance){

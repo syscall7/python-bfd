@@ -97,6 +97,11 @@
     cursor:pointer;
 }
 
+.share-btn .popover {
+    width:350px;
+}
+
+/* panes */
 
     .plunker-paneselector .pulse-info a i {
   -webkit-animation-name: pulse-info;
