@@ -4,7 +4,8 @@ from rest_framework import viewsets
 from rest_framework.decorators import action, link, api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from oda.apps.odaweb.models import OdaMaster
+from oda.apps.odaweb.models import OdaMaster, Share
+from oda.apps.odaweb.utils import id_generator
 
 from oda.apps.rest.serializers import OdaMasterSerializer, SectionSerializer, StringSerializer, DisplayUnitSerializer, \
     FindResultsSerializer, CommentSerializer, FunctionSerializer, DataStringSerializer, SymbolSerializer, \
@@ -316,3 +317,13 @@ class SandboxView(APIView):
             "status": job.status(),
         })
 
+class ShareView(APIView):
+    def post(self, request):
+        short_name = request.DATA.get('short_name')
+        revision = request.DATA.get('revision')
+        oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
+        share = Share(odaMaster = oda, name = id_generator())
+        share.save()
+        return Response({
+            'shareName': share.name
+        })

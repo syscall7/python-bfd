@@ -704,6 +704,7 @@ def make_copy(oda_master, user):
     oda_master.id = None
 
     if user_owns:
+        #todo can't plus one here, need to get max revison and then plus 1, otherwise might overwrite
         oda_master.revision += 1
     else:
         oda_master.short_name = id_generator()

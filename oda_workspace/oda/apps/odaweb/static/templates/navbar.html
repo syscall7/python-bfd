@@ -120,13 +120,19 @@
 
       <ul class="nav navbar-nav navbar-right" ng-if="isAuthenticated()">
 
-        <li>
-            <p class="navbar-text user-actions"><strong>
-                {{ currentUser.username }}
-                <a href=""><i class="fa fa-user fa-lg"></i></a>
-                <a href="" ng-click="logout()"><i class="fa fa-sign-out fa-lg"></i></a>
-            </strong></p>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle">{{ currentUser.username }} <i class="fa fa-user fa-lg"></i><span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="#">Profile</a></li>
+            <li class="divider"></li>
+            <li><a href="" ng-click="share()">Share This Session Live <i class="fa fa-share-square fa-lg"></i></a></li>
+          </ul>
         </li>
+
+        <li>
+             <a href="" ng-click="logout()"><i class="fa fa-sign-out fa-lg"></i></a>
+        </li>
+
       </ul>
 
     </div><!--/.navbar-collapse -->

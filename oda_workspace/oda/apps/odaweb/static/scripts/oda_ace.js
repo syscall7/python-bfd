@@ -1190,6 +1190,10 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
         $scope.openFile();
     });
 
+    $scope.share = function(){
+        alert('share');
+    };
+
     var monitorSandbox = function(shortName, revision) {
         var modalInstance = $modal.open({
           templateUrl: 'monitorSandbox.html',

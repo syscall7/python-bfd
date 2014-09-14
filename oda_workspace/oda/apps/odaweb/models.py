@@ -199,3 +199,8 @@ class InstDoc(models.Model):
     short = models.TextField()
     long = models.TextField()
 
+
+
+class Share(models.Model):
+    odaMaster = models.ForeignKey(OdaMaster, null=False)
+    name = models.CharField(db_index=True, max_length=16)
