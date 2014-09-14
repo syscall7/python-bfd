@@ -841,7 +841,7 @@ odaApplication.run(function($rootScope, editor){
 	context.attach('#editor', [
 
 		{header: 'ODA Commands'},
-		{text: 'The Author', subMenu: [
+		/*{text: 'The Author', subMenu: [
 			{header: '@jakiestfu'},
 			{text: 'Website', href: 'http://jakiestfu.com/', target: '_blank'},
 			{text: 'Forrst', href: 'http://forrst.com/people/jakiestfu', target: '_blank'},
@@ -850,7 +850,7 @@ odaApplication.run(function($rootScope, editor){
 				e.preventDefault();
 				$('#donate').submit();
 			}}
-		]},
+		]},*/
         {text: '<span class="shortcut-text">Comment</span><span class="shortcut-key">;</span>', action: function (e) {
             var session = editor.getSession();
 
@@ -886,11 +886,11 @@ odaApplication.run(function($rootScope, editor){
             });
 
             }
-        },
+        }/*,
         {divider: true}
 
 
-		/*{text: 'Hmm?', subMenu: [
+		{text: 'Hmm?', subMenu: [
 			{header: 'Well, thats lovely.'},
 			{text: '2nd Level', subMenu: [
 				{header: 'You like?'},
