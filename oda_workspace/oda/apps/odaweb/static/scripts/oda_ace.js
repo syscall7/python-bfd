@@ -775,7 +775,7 @@ function start(odbFile) {
 
 }
 
-odaApplication.run(function($rootScope, $modal, odbFile){
+odaApplication.run(function($rootScope, $modal, odbFile, odaSession){
     $rootScope.$on('command.comment', function(event, line){
 
         var scope = $rootScope.$new(true);
@@ -797,6 +797,24 @@ odaApplication.run(function($rootScope, $modal, odbFile){
             odbFile.addComment(line.line.data.offset, data.comment);
         });
 
+    });
+
+    $rootScope.$on('command.dataToCode', function(event,data){
+        var line = data.line;
+
+        odbFile.makeCode(line.data.offset, function(data){
+            odaSession.windowLoader.reload();
+        });
+
+    });
+
+
+    $rootScope.$on('command.codeToData', function(event,data){
+        var line = data.line;
+
+        odbFile.makeData(line.data.offset, function(data){
+            odaSession.windowLoader.reload();
+        });
     });
 });
 
@@ -834,23 +852,39 @@ odaApplication.run(function($rootScope, editor){
 			}}
 		]},
         {text: '<span class="shortcut-text">Comment</span><span class="shortcut-key">;</span>', action: function (e) {
-                var session = editor.getSession();
+            var session = editor.getSession();
 
-                var cursor = session.getSelection().getCursor();
-                var line = session.getDocument().getLineData(cursor.row);
+            var cursor = session.getSelection().getCursor();
+            var line = session.getDocument().getLineData(cursor.row);
 
 
-                $rootScope.$broadcast('command.comment', {
-                    line: line
-                });
+            $rootScope.$broadcast('command.comment', {
+                line: line
+            });
             }
         },
         {text: '<span class="shortcut-text">Code -> Data</span><span class="shortcut-key">c</span>', action: function (e) {
-                alert('Code -> Data');
+
+            var session = editor.getSession();
+
+            var cursor = session.getSelection().getCursor();
+            var line = session.getDocument().getLineData(cursor.row);
+
+            $rootScope.$broadcast('command.codeToData', {
+                    line: line
+            });
             }
         },
         {text: '<span class="shortcut-text">Data -> Code</span><span class="shortcut-key">d</span>', action: function (e) {
-                alert('Data -> Code');
+            var session = editor.getSession();
+
+            var cursor = session.getSelection().getCursor();
+            var line = session.getDocument().getLineData(cursor.row);
+
+            $rootScope.$broadcast('command.dataToCode', {
+                    line: line
+            });
+
             }
         },
         {divider: true}
@@ -925,8 +959,8 @@ odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor){
         var cursor = session.getSelection().getCursor();
         var line = session.getDocument().getLineData(cursor.row);
 
-        odbFile.makeCode(line.data.offset, function(data){
-            odaSession.windowLoader.reload();
+        $rootScope.$broadcast('command.dataToCode', {
+            line: line
         });
     });
 
@@ -936,8 +970,8 @@ odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor){
         var cursor = session.getSelection().getCursor();
         var line = session.getDocument().getLineData(cursor.row);
 
-        odbFile.makeData(line.data.offset, function(data){
-            odaSession.windowLoader.reload();
+        $rootScope.$broadcast('command.codeToData', {
+            line: line
         });
     });
 
