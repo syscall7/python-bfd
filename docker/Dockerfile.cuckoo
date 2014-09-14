@@ -1,0 +1,21 @@
+# Dockerfile to create an ODA customized instance of the Cuckoo sandbox
+FROM ubuntu:14.04
+MAINTAINER ODA Admin <admin@onlinedisassembler.com>
+
+# install virtualbox
+RUN apt-get install virtualbox
+
+# get the cuckook source
+RUN apt-get install cucko
+
+# apply our patches
+ADD <our cuckoo patches>
+RUN patch <our cucko patches>
+
+# add the Windows XP VirtualBox image to the docker image
+ADD windows_xp.virtualbox
+
+# configure the IP address of the docker image
+
+# kick off the Cuckoo daemon when the docker image starts
+
