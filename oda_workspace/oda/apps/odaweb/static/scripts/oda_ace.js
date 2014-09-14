@@ -177,6 +177,15 @@ var OdbFile = function(oda_master) {
         }.bind(this));
     };
 
+    this.connectLink = function() {
+         var p = $.post("/odaweb/api/share",{
+            short_name: this.shortName,
+            revision: this.revision
+         });
+
+        return p;
+    };
+
     this.setLiveEntryText = function(liveEntryText) {
         $.ajax({
             url: '/odaweb/api/binarystrings/'+this.binary.id+"/",
@@ -1148,7 +1157,8 @@ odaApplication.controller('DockController', function DockController($scope, $htt
 
 });
 
-odaApplication.controller('NavbarController', function NavbarController($scope, $modal, $location, fileUpload, AuthService){
+odaApplication.controller('NavbarController', function NavbarController($scope, $modal, $location,
+                                                                        fileUpload, AuthService, odbFile){
     $scope.examples = window.examples;
 
     $scope.loadExample = function(example) {
@@ -1191,7 +1201,7 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
     });
 
     $scope.share = function(){
-        alert('share');
+        odbFile.connectLink().success(function(){alert('here');});
     };
 
     var monitorSandbox = function(shortName, revision) {

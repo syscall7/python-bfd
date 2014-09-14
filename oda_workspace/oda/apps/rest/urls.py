@@ -24,6 +24,7 @@ router.register(r'find', views.FindViewSet, base_name="find")
 urlpatterns = patterns('',
     url(r'^', include(router.urls)),
     url(r'^sandbox$', views.SandboxView.as_view(), name='sandbox_api'),
+    url(r'^share$', views.ShareView.as_view(), name='share_api'),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 
 )
