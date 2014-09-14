@@ -120,6 +120,7 @@ TEMPLATE_DIRS = (
 
 #ALLAUTH Settings
 ACCOUNT_ADAPTER = 'oda.apps.users.allauth.AccountAdapter'
+ACCOUNT_SIGNUP_FORM_CLASS='oda.apps.users.allauth.SignupForm'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 
