@@ -14,5 +14,5 @@ def sha1_hash(fh):
 
 import string
 import random
-def id_generator(size=6, chars=string.ascii_lowercase + string.digits + string.ascii_uppercase):
+def id_generator(size=8, chars=string.ascii_lowercase + string.digits + string.ascii_uppercase):
     return ''.join(random.choice(chars) for x in range(size))

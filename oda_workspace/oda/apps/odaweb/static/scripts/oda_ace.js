@@ -34,7 +34,7 @@ var OdbFile = function(oda_master) {
 
         var fq = $.get('/odaweb/api/functions/', {
             short_name: this.shortName,
-            revision: 0
+            revision: this.revision
         }).success(function (data) {
             for (var i = 0; i < data.length; i++) {
                 this.functions[data[i].offset] = data[i];
@@ -43,21 +43,21 @@ var OdbFile = function(oda_master) {
 
         var sq = $.get('/odaweb/api/sections/', {
             short_name: this.shortName,
-            revision: 0
+            revision: this.revision
         }).success(function (data) {
             this.sections = data;
         }.bind(this));
 
         var pq = $.get('/odaweb/api/parcels/', {
             short_name: this.shortName,
-            revision: 0
+            revision: this.revision
         }).success(function (data) {
                 this.parcels = data;
         }.bind(this));
 
         var cmq = $.get('/odaweb/api/comments/', {
             short_name: this.shortName,
-            revision: 0
+            revision: this.revision
         }).success(function(data){
             for (var i=0; i<data.length; i++) {
                 this.comments[data[i].offset] = data[i];
@@ -66,21 +66,21 @@ var OdbFile = function(oda_master) {
 
         var dulenq = $.get('/odaweb/api/displayunits/1/size', {
             short_name: this.shortName,
-            revision: 0
+            revision: this.revision
         }).success(function (data) {
             this.displayUnitsLength = data;
         }.bind(this));
 
         var symq = $.get('/odaweb/api/symbols/', {
             short_name: this.shortName,
-            revision: 0
+            revision: this.revision
         }).success(function(data) {
             this.symbols = data;
         }.bind(this));
 
         var stringsq = $.get('/odaweb/api/strings/', {
             short_name: this.shortName,
-            revision: 0
+            revision: this.revision
         }).success(function(data) {
             this.strings = data;
         }.bind(this));
@@ -93,7 +93,7 @@ var OdbFile = function(oda_master) {
     this.duLength = function(callback) {
         $.get('/odaweb/api/displayunits/1/size', {
             short_name: this.shortName,
-            revision: 0
+            revision: this.revision
         }).success(function (data) {
             this.displayUnitsLength = data;
             callback(data);
@@ -103,7 +103,7 @@ var OdbFile = function(oda_master) {
     this.loadDu = function (addr, numUnits, callback) {
         $.get('/odaweb/api/displayunits/', {
             short_name: this.shortName,
-            revision: 0,
+            revision: this.revision,
             addr: addr,
             logical: true,
             units: numUnits
@@ -113,7 +113,7 @@ var OdbFile = function(oda_master) {
     this.vmaToLda = function (vma, callback) {
         $.get('/odaweb/api/displayunits/1/vmaToLda', {
             short_name: this.shortName,
-            revision: 0,
+            revision: this.revision,
             vma: vma
         }).done(callback);
     };
@@ -122,7 +122,7 @@ var OdbFile = function(oda_master) {
         console.log('makeData', vma);
         $.get('/odaweb/api/displayunits/1/makeData', {
             short_name: this.shortName,
-            revision: 0,
+            revision: this.revision,
             vma: vma
         }).success(callback)
     };
@@ -131,7 +131,7 @@ var OdbFile = function(oda_master) {
         console.log('makeCode', vma);
         $.get('/odaweb/api/displayunits/1/makeCode', {
             short_name: this.shortName,
-            revision: 0,
+            revision: this.revision,
             vma: vma
         }).success(callback)
     };
@@ -141,7 +141,7 @@ var OdbFile = function(oda_master) {
 
         $.post("/odaweb/api/comments/",{
             short_name: this.shortName,
-            revision: 0,
+            revision: this.revision,
             comment: comment,
             offset: offset
         }).success(function(data){
