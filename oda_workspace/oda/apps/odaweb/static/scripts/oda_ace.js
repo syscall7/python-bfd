@@ -186,6 +186,15 @@ var OdbFile = function(oda_master) {
         return p;
     };
 
+    this.save = function() {
+        var p = $.post("/odaweb/_save",{
+            short_name: this.shortName,
+            revision: this.revision
+        });
+
+        return p;
+    };
+
     this.setLiveEntryText = function(liveEntryText) {
         $.ajax({
             url: '/odaweb/api/binarystrings/'+this.binary.id+"/",
@@ -995,7 +1004,13 @@ odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor){
 
 
 function handleSaveButton(options) {
+
     if (options.saved) {
+        toastr.options = { positionClass: 'toast-top-full-width', closeButton: true, timeOut: 15000 }
+        toastr.success('You can share this url:</p><a href="' + window.location + '">' +
+            window.location + "</a><p><p>If you make more changes, hit <strong>share</strong> again to get a new link.");
+    }
+   /* if (options.saved) {
 
         // show the popover, but don't close it when clicked
         $('#menu-item-share').popover('show').click(function(evt) {
@@ -1009,7 +1024,7 @@ function handleSaveButton(options) {
                 $('#menu-item-share').popover('hide');
             });
         }, 500);
-    }
+    } */
 }
 
 $(document).ready(function(){
@@ -1161,6 +1176,8 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
                                                                         fileUpload, AuthService, odbFile){
     $scope.examples = window.examples;
 
+    $scope.a = function() {return true;};
+
     $scope.loadExample = function(example) {
         window.location = "/oda/ace/" + example.short_name;
     };
@@ -1240,7 +1257,9 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
     };
 
     $scope.saveAndRedirect = function() {
-        alert('here');
+        odbFile.save().success(function(data){
+            window.location = data.url;
+        });
     };
 
     $scope.loginPage = function() {
@@ -1470,6 +1489,27 @@ odaApplication.service('fileUpload', ['$http', function ($http) {
         });
     }
 }]);
+
+
+function showNotificationBar(message, duration, bgColor, txtColor, height) {
+
+    /*set default values*/
+    duration = typeof duration !== 'undefined' ? duration : 1500;
+    bgColor = typeof bgColor !== 'undefined' ? bgColor : "#F4E0E1";
+    txtColor = typeof txtColor !== 'undefined' ? txtColor : "#A42732";
+    height = typeof height !== 'undefined' ? height : 40;
+    /*create the notification bar div if it doesn't exist*/
+    if ($('#notification-bar').size() == 0) {
+        var HTMLmessage = "<div class='notification-message' style='text-align:center; line-height: " + height + "px;'> " + message + " </div>";
+        $('body').prepend("<div id='notification-bar' style='display:none; width:100%; height:" + height + "px; background-color: " + bgColor + "; position: fixed; z-index: 100; color: " + txtColor + ";border-bottom: 1px solid " + txtColor + ";'>" + HTMLmessage + "</div>");
+    }
+    /*animate the bar*/
+    $('#notification-bar').slideDown(function() {
+        setTimeout(function() {
+            $('#notification-bar').slideUp(function() {});
+        }, duration);
+    });
+}
 
 
 /*

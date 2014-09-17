@@ -1,6 +1,7 @@
 import json
 import socket
 import logging
+from django.core.urlresolvers import reverse
 
 from django.shortcuts import render, redirect
 from django.utils.datastructures import MultiValueDictKeyError
@@ -74,8 +75,19 @@ def index(request, disassembly_id, version=0):
 
 
 def save(request):
-    request.session['saved'] = True
-    return HttpResponse("ok", content_type='text/plain')
+    class SaveForm(forms.Form):
+        short_name = forms.CharField(required=True)
+        revision = forms.CharField(required=True)
+
+    save_form = SaveForm(request.POST)
+
+    if save_form.is_valid():
+        request.session['saved'] = True
+        u = reverse('index', args=(save_form.cleaned_data['short_name'], save_form.cleaned_data['revision']))
+
+        data = json.dumps({'url': u})
+
+        return HttpResponse(data, mimetype='application/json')
 
 
 def create_session(request, to_copy_id, to_copy_version):
@@ -377,7 +389,7 @@ def instdoc(request):
                 'description': doc.short,
             })
 
-        return HttpResponse(simplejson.dumps({
+        return HttpResponse(json.dumps({
             'instdoc': instdoc_html,
         }), mimetype='application/json')
 
@@ -535,7 +547,7 @@ def refresh_hex(request):
 
     hex = render_to_string('hex_listing.djhtml', {'chunks': superchunks})
 
-    return HttpResponse(simplejson.dumps({'hex_dump': hex,
+    return HttpResponse(json.dumps({'hex_dump': hex,
                                           'chunks': chunk_list}), mimetype='application/json')
 
 
