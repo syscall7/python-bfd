@@ -1,4 +1,5 @@
 import logging
+from django.core.urlresolvers import reverse
 
 from rest_framework import viewsets
 from rest_framework.decorators import action, link, api_view
@@ -322,8 +323,9 @@ class ShareView(APIView):
         short_name = request.DATA.get('short_name')
         revision = request.DATA.get('revision')
         oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
-        share = Share(odaMaster = oda, name = id_generator())
+        share = Share(odaMaster = oda, name = id_generator(16))
         share.save()
         return Response({
-            'shareName': share.name
+            'shareName': share.name,
+            'shareUrl': reverse('connect', args=(share.name,))
         })

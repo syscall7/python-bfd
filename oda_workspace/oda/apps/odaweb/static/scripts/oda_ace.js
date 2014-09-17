@@ -1201,7 +1201,14 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
     });
 
     $scope.share = function(){
-        odbFile.connectLink().success(function(){alert('here');});
+        odbFile.connectLink().success(function(shareData){
+            var modalInstance = $modal.open({
+                templateUrl: 'shareLive.html',
+                controller: 'ShareLiveController',
+                resolve: { shareInfo: function() { return shareData; } },
+                size: 'lg'
+            });
+        });
     };
 
     var monitorSandbox = function(shortName, revision) {
@@ -1244,6 +1251,21 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
         window.location = "/accounts/signup"
     };
 });
+
+var ShareLiveController = function($scope, $modalInstance, $location, shareInfo) {
+    console.log("share info ", shareInfo);
+
+    $scope.shareInfo = shareInfo;
+
+    $scope.shareUrl = function() {
+        return $location.protocol() + "://" + $location.host() +":" + $location.port() + shareInfo.shareUrl;
+    }
+
+    $scope.ok = function () {
+        $modalInstance.close();
+    };
+
+};
 
 var UploadFileController = function($scope, $modalInstance){
 

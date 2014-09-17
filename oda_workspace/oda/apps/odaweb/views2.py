@@ -10,7 +10,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseServerError
 from django.utils import simplejson
 
-from oda.apps.odaweb.models import OdaMaster, InstDoc, BinaryFile, BinaryFileModel
+from oda.apps.odaweb.models import OdaMaster, InstDoc, BinaryFile, BinaryFileModel, Share
 from oda.libs.odb.bfd.disassembler import  get_supported_archs, get_supported_endians, get_platform_options, \
     Disassembler
 #from disassembler import Disassembler, get_supported_archs, \
@@ -714,16 +714,29 @@ def make_copy(oda_master, user):
 
     return oda_master
 
+def connect(request, share_name):
+    share = Share.objects.get(name = share_name)
+
+    return odbFileView(request, share.odaMaster)
+
+
 def ace(request, disassembly_id, version=0):
 
     if not disassembly_id:
         disassembly_id = 'mkdir'
 
-    saved = request.session.get('saved', False)
+
 
     to_copy_oda_master = OdaMaster.objects.get(short_name=disassembly_id, revision=version)
 
     oda_master = make_copy(to_copy_oda_master, request.user)
+
+    return odbFileView(request, oda_master)
+
+
+def odbFileView(request, oda_master):
+
+    saved = request.session.get('saved', False)
 
     context = {
         'examples': Examples,

@@ -74,6 +74,7 @@ urlpatterns = patterns('',
     url(r'^odaweb/(?P<disassembly_id>\w{0,16})$$', 'oda.apps.odaweb.views2.index'),
     url(r'^odaweb/(?P<disassembly_id>\w{0,16})/(?P<version>\w{0,16})$$', 'oda.apps.odaweb.views2.index'),
 
+    url(r'^oda/connect/(?P<share_name>\w{0,16})$$', 'oda.apps.odaweb.views2.connect', name='connect'),
     url(r'^oda/ace/(?P<disassembly_id>\w{0,16})$$', 'oda.apps.odaweb.views2.ace'),
     url(r'^oda/ace/(?P<disassembly_id>\w{0,16})/(?P<version>\w{0,16})$$', 'oda.apps.odaweb.views2.ace'),
 

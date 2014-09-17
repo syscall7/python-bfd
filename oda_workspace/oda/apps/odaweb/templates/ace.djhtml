@@ -193,6 +193,20 @@
         <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
     </div>
 </script>
+
+<script type="text/ng-template" id="shareLive.html">
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()">&times;</button>
+        <h3>Share Session Live</h3>
+    </div>
+    <div class="modal-body">
+        <p>Share this URL for live connections</p>
+        <pre>{{ shareUrl() }}</pre>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">OK</button>
+    </div>
+</script>
 {% endverbatim %}
 
 <script type="text/javascript" src="{% static 'scripts/lib/src-noconflict/ace.js' %}" ></script>
