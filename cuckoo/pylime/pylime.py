@@ -14,7 +14,7 @@ class LimeDump():
                     ('version', c_uint),
                     ('start', c_ulonglong),
                     ('end', c_ulonglong),
-                    ('reserved', c_ulong)]
+                    ('reserved', c_ulonglong)]
 
     def __init__(self):
         # store everything internally as a dictionary
