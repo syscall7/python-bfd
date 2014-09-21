@@ -63,6 +63,8 @@ def dump(path, target, arch, numLines=None, start=None, end=None):
         sec_name = '.app_text'
     elif '.data' in b.sections:
         sec_name = '.data'
+    else:
+        sec_name = '.sec1'
     print '\nDisassembly of %s:\n' % sec_name
     sec = b.sections[sec_name]
     (dis,nextAddr, lineCnt) = b.disassemble(sec, start, end, numLines, funcFmtAddr, funcFmtLine, {})
@@ -92,7 +94,7 @@ def main():
     target_archs = bfd.guess_target_arch(exe)
     print 'guessed targets: %s' % target_archs
 
-    dump(exe, 'binary', 'powerpc:common', numLines=numLines)
+    dump(exe, 'lime', 'i386', numLines=numLines)
 
 if __name__ == '__main__':
     main()
