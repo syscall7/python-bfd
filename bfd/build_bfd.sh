@@ -6,11 +6,22 @@
 # 
 # ------------------------------------------------------------------------------
 
-BINUTILS_FULL=binutils-2.24.tar.bz2
-BINUTILS_DIR=binutils-2.24
-PREFIX=/usr/local
+# This is the URL for actual releases
+#BINTUILS_URL=http://ftp.gnu.org/gnu/binutils
 
-patch_bfd()
+# This is the URL for snapshots, which we have to use to get some bug fixes
+BINUTILS_URL=ftp://sourceware.org/pub/binutils/snapshots
+
+# The full name of binutils
+BINUTILS_FULL=binutils-2.24.51.tar.bz2
+
+# The local directory to use
+BINUTILS_DIR=binutils-2.24.51
+
+# Where to install
+PREFIX=/usr/local/oda
+
+patch_bfd_format()
 {
     patch --verbose -u -p0 << HERE_DOC
 diff -ur binutils-2.23.1/bfd/format.c binutils-2.23.1-patched/bfd/format.c
@@ -35,14 +46,32 @@ diff -ur binutils-2.23.1/bfd/format.c binutils-2.23.1-patched/bfd/format.c
 HERE_DOC
 
     if [[ $? -ne 0 ]]; then
-        echo "Failed to apply patch"
+        echo "Don't worry: Anthony needs to port this patch to binutils-2.24"
         exit 1
     fi
+}
+
+patch_bfd_lime()
+{
+    pushd $BINUTILS_DIR
+
+    patch --verbose -u -p1 < ../bfd_lime.patch
+
+    if [[ $? -ne 0 ]]; then
+        echo "Failed to apply lime patch"
+        exit 1
+    fi
+
+    popd
 }
 
 
 build()
 {
+    if [ -d $PREFIX ]; then
+      # Clear out any pre-existing versions
+      sudo rm -rf $PREFIX/*
+    fi
 
     mkdir -p "./build-$BINUTILS_FULL"
     cd "./build-$BINUTILS_FULL"
@@ -63,7 +92,7 @@ build()
     mkdir -p "./libiberty"
     cd "./libiberty"
     echo "Configuring libiberty"
-    ../../$BINUTILS_DIR/libiberty/configure --prefix="$PREFIX" > ../liberty_config.log
+    ../../$BINUTILS_DIR/libiberty/configure --prefix="$PREFIX" --enable-install-libiberty=yes > ../liberty_config.log
     echo "Making libiberty"
     make > ../liberty_make.log
     echo "Installing libiberty"
@@ -85,19 +114,25 @@ build()
 get_src()
 {
     echo "Downloading $BINUTILS_FULL"
-    wget http://ftp.gnu.org/gnu/binutils/$BINUTILS_FULL
+    wget $BINUTILS_URL/$BINUTILS_FULL
 
     echo "Extracting $BINUTILS_FULL"
     tar -xjf $BINUTILS_FULL
 
-    #echo "Patching $BINUTILS_FULL"
-    #patch_bfd
+    # TODO: Port this to binutils-2.24
+    #echo "Applying the bfd format patch to $BINUTILS_FULL"
+    #patch_bfd_format
+
+    echo "Applying the bfd lime patch to $BINUTILS_FULL"
+    patch_bfd_lime
 }
 
+# NOTE: Uncomment this if you do not want to re-download and patch
 # if the source directory doesn't exist, assume we need to download it
-if [ ! -d "$BINUTILS_DIR" ]; then
-    get_src
-fi
+#if [ ! -d "$BINUTILS_DIR" ]; then
+#    get_src
+#fi
+get_src
 
 # launch each build in background for a parallel build
 build

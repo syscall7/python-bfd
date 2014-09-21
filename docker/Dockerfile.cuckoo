@@ -6,14 +6,14 @@ MAINTAINER ODA Admin <admin@onlinedisassembler.com>
 RUN apt-get install virtualbox
 
 # get the cuckook source
-RUN apt-get install cucko
+#RUN apt-get install cucko
 
 # apply our patches
-ADD <our cuckoo patches>
-RUN patch <our cucko patches>
+#ADD <our cuckoo patches>
+#RUN patch <our cucko patches>
 
 # add the Windows XP VirtualBox image to the docker image
-ADD windows_xp.virtualbox
+#ADD windows_xp.virtualbox
 
 # configure the IP address of the docker image
 
