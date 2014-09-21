@@ -26,21 +26,21 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
 
   # Get the Cuckoo patches
   cd ~/cuckoo_sandbox
-  svn co svn://svn.onlinedisassembler.com/oda/cuckoo/patches
+  svn co svn://svn.onlinedisassembler.com/oda/ODA/trunk/cuckoo/patches
 
   # apply the ODA memory dump patch
   pushd ~/cuckoo_sandbox/cuckoo
-  patch --verbose -u -p1 < $ODA/cuckoo/patches/procdump.patch
+  patch --verbose -u -p1 < ../patches/procdump.patch
   popd
 
   # apply the REST API patch
   pushd ~/cuckoo_sandbox/cuckoo
-  patch --verbose -u -p1 < $ODA/cuckoo/patches/rest_api.patch
+  patch --verbose -u -p1 < ../patches/rest_api.patch
   popd
 
   # apply the cuckoo monitor DLL patch
   pushd ~/cuckoo_sandbox/cuckoomon
-  patch --verbose -u -p1 < $ODA/cuckoo/patches/cuckoomon.patch
+  patch --verbose -u -p1 < ../patches/cuckoomon.patch
   popd
 
 3. Build the Cuckoo monitor DLL
@@ -90,28 +90,35 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
     cd ~/cuckoo_sandbox
     tar -xjf windows_xp_cuckoo_vm.tar.bz2
 
-8. Configure Cuckoo
+8. Add the VM image to VirtualBox
+
+  Start VirtualBox and add the Windows XP VM.
+
+    Click Machine->Add and navigate to the XP VM image.
+
+    Launch the VM and let it boot into Windows XP
+
+    Pause the VM, saving the machine state
+
+    Close VirtualBox
+
+9. Configure Cuckoo
 
   Edit ~/cuckoo_sandbox/cuckoo/conf/cuckoo.conf with the following changes:
     
     # This should be the IP address of the machine running Cuckoo
     ip = 192.168.1.124
 
-    # use SQLite for ease of use
-    connection = sqlite:///cuckoo.db
-    
     # set the default timeout
     default = 10
 
   Edit ~/cuckoo_sandbox/cuckoo/conf/virtualbox.conf with the following changes:
 
-    # Use the Windows XP vm
-    machines = windows_xp_cuckoo_vm
+    # Under the [cuckoo1] section
+    label = windows_xp_cuckoo_vm
 
-    # Specify the IP address of the VM
-    ip = 192.168.1.126
 
-Launching Cuckoo
+Running Cuckoo
 ================
 
 Running Cuckoo involves starting the main Cuckoo server as well as the REST
@@ -126,4 +133,8 @@ To start the Cuckoo API server in another terminal:
 
   cd ~/cuckoo_sandbox/cuckoo
   sudo ./utils/api.py
+
+To submit a new job:
+
+  sudo ./utils/submit.py --package exe --options procmemdump=yes ./path/to/ipconfig.exe
 
