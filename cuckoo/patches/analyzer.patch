@@ -1,14 +1,5 @@
---- cuckoo_sandbox/cuckoo/analyzer/windows/analyzer.py	2014-09-21 13:54:40.961743164 -0400
-+++ cuckoo_oda/analyzer/windows/analyzer.py	2014-09-21 14:51:52.057820957 -0400
-@@ -18,7 +18,7 @@
- from datetime import datetime
- 
- from lib.api.process import Process
--from lib.common.abstracts import Package, Auxiliary
-+from lib.common.abstracts import Package, PackageEvent, Auxiliary
- from lib.common.constants import PATHS, PIPE, SHUTDOWN_MUTEX
- from lib.common.defines import KERNEL32
- from lib.common.defines import ERROR_MORE_DATA, ERROR_PIPE_CONNECTED
+--- cuckoo/analyzer/windows/analyzer.py	2014-09-21 12:28:38.281626110 -0400
++++ cuckoo_oda/analyzer/windows/analyzer.py	2014-09-21 14:59:56.789831947 -0400
 @@ -33,6 +33,7 @@
  from lib.core.privileges import grant_debug_privilege
  from lib.core.startup import create_folders, init_logging
@@ -17,7 +8,7 @@
  
  log = logging.getLogger()
  
-@@ -42,6 +43,7 @@
+@@ -42,10 +43,18 @@
  PROCESS_LIST = []
  PROCESS_LOCK = Lock()
  DEFAULT_DLL = None
@@ -25,7 +16,18 @@
  
  PID = os.getpid()
  PPID = Process(pid=PID).get_parent_pid()
-@@ -195,6 +197,8 @@
+ 
++# This ought to be moved somewhere accessiable by the packages in case we
++# someday expose process events to the packages.
++class PackageEvent(object):
++    def __init__(self, pid, name):
++        self.pid = pid
++        self.name = name
++
+ # This is still in preparation status - needs finalizing.
+ def protected_filename(fname):
+     """Checks file name against some protected names."""
+@@ -195,6 +204,8 @@
          if data:
              command = data.strip()
  
@@ -34,7 +36,7 @@
              # Debug, Regular, or Critical information from CuckooMon.
              if command.startswith("DEBUG:"):
                  log.debug(command[6:])
-@@ -203,6 +207,14 @@
+@@ -203,6 +214,14 @@
              elif command.startswith("CRITICAL:"):
                  log.critical(command[9:])
  
@@ -49,7 +51,7 @@
              # Parse the prefix for the received notification.
              # In case of GETPIDS we're gonna return the current process ID
              # and the process ID of our parent process (agent.py).
-@@ -598,6 +610,13 @@
+@@ -598,6 +617,13 @@
          time_counter = 0
  
          while True:
