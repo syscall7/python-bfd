@@ -2,7 +2,7 @@
 Installing Cuckoo with ODA Modifications
 ========================================
 
-1. Get the source
+1. Get the Cuckoo source
 
 You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b) the Cuckoo monitor DLL repo.
 
@@ -16,7 +16,7 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
   git checkout -q 239fb440b05038d0016cb416bc1c1768a0870100
   popd
 
-  # cuckoo monitor DLL
+  # cuckoo monitor DLL (not necessary if using pre-built ODA Cuckoo DLL)
   git clone https://github.com/cuckoobox/cuckoomon.git
   pushd cuckoomon
   git checkout -q cccba1ae19755ab5e45327a9683d230897269e41
@@ -38,16 +38,25 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
   patch --verbose -u -p1 < ../patches/rest_api.patch
   popd
 
+  # apply the analyzer patch
+  pushd ~/cuckoo_sandbox/cuckoo
+  patch --verbose -u -p1 < ../patches/analyzer.patch
+  popd
+
   # apply the cuckoo monitor DLL patch
+  # NOTE: Not necessary if using pre-built ODA Cuckoo DLL
   pushd ~/cuckoo_sandbox/cuckoomon
   patch --verbose -u -p1 < ../patches/cuckoomon.patch
   popd
 
 3. Build the Cuckoo monitor DLL
 
-  NOTE: Skip this step by using ODA's pre-built version of cuckoomon.dll.
+  NOTE: You can skip this step by using ODA's pre-built version of
+        cuckoomon.dll.  You can check it out here:
 
-  First you'll have to install a mingw environment:
+        svn co svn://svn.onlinedisassembler.com/oda/ODA/trunk/cuckoo/cuckoomon.dll
+
+  To build from source, you'll first have to install a mingw environment:
       sudo apt-get install mingw32
 
   Next, build the DLL:
@@ -92,14 +101,10 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
 
 8. Add the VM image to VirtualBox
 
-  Start VirtualBox and add the Windows XP VM.
+  Start VirtualBox and add the Windows XP VM:
 
+    sudo virtualbox
     Click Machine->Add and navigate to the XP VM image.
-
-    Launch the VM and let it boot into Windows XP
-
-    Pause the VM, saving the machine state
-
     Close VirtualBox
 
 9. Configure Cuckoo
@@ -116,6 +121,8 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
 
     # Under the [cuckoo1] section
     label = windows_xp_cuckoo_vm
+    ip = 192.168.1.126
+    snapshot = Snapshot1
 
 
 Running Cuckoo
