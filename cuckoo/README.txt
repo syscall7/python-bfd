@@ -28,19 +28,14 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
   cd ~/cuckoo_sandbox
   svn co svn://svn.onlinedisassembler.com/oda/ODA/trunk/cuckoo/patches
 
-  # apply the ODA memory dump patch
+  # apply the analyzer patch
   pushd ~/cuckoo_sandbox/cuckoo
-  patch --verbose -u -p1 < ../patches/procdump.patch
+  patch --verbose -u -p1 < ../patches/analyzer.patch
   popd
 
   # apply the REST API patch
   pushd ~/cuckoo_sandbox/cuckoo
   patch --verbose -u -p1 < ../patches/rest_api.patch
-  popd
-
-  # apply the analyzer patch
-  pushd ~/cuckoo_sandbox/cuckoo
-  patch --verbose -u -p1 < ../patches/analyzer.patch
   popd
 
   # apply the cuckoo monitor DLL patch
@@ -93,11 +88,11 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
   Grab and extract a copy of the Windows XP VM:
     
     # Download the Windows XP VM from my Google Drive
-    https://drive.google.com/a/ransomed.us/file/d/0B6vDgWy-q6DxVFVoTUt0bzFoZDA/edit?usp=sharing
+    https://drive.google.com/a/ransomed.us/file/d/0B6vDgWy-q6Dxc2s0NHB3Z2NGNTA/edit?usp=sharing
 
     # Extract the image
     cd ~/cuckoo_sandbox
-    tar -xjf windows_xp_cuckoo_vm.tar.bz2
+    tar -xJf windows_xp_cuckoo_vm.tar.xz
 
 8. Add the VM image to VirtualBox
 
@@ -112,6 +107,8 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
   Edit ~/cuckoo_sandbox/cuckoo/conf/cuckoo.conf with the following changes:
     
     # This should be the IP address of the machine running Cuckoo
+    # NOTE: If this will not work for your network, you will have to change the
+    #       interface IP address inside the VM and make it match here.
     ip = 192.168.1.124
 
     # set the default timeout
@@ -121,7 +118,12 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
 
     # Under the [cuckoo1] section
     label = windows_xp_cuckoo_vm
+
+    # NOTE: If this will not work for your network, just use the IP address of
+    #       your host machine (the one running the Cuckoo server).
     ip = 192.168.1.126
+  
+    # Our Windows XP VM has a snapshot named Snapshot1
     snapshot = Snapshot1
 
 
@@ -143,5 +145,13 @@ To start the Cuckoo API server in another terminal:
 
 To submit a new job:
 
+  # Checkout some Win32 example programs
+  svn co svn://svn.onlinedisassembler.com/oda/ODA/trunk/cuckoo/samples
+
+  # Submit a job
   sudo ./utils/submit.py --package exe --options procmemdump=yes ./path/to/ipconfig.exe
 
+  # Look for memory dump output (you should see a file called <pid>.dmp)
+  ls ~/cuckoo_sandbox/cuckoo/storage/analyses/latest/memory/
+
+  
