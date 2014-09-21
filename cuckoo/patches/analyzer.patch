@@ -1,0 +1,65 @@
+--- cuckoo_sandbox/cuckoo/analyzer/windows/analyzer.py	2014-09-21 13:54:40.961743164 -0400
++++ cuckoo_oda/analyzer/windows/analyzer.py	2014-09-21 14:51:52.057820957 -0400
+@@ -18,7 +18,7 @@
+ from datetime import datetime
+ 
+ from lib.api.process import Process
+-from lib.common.abstracts import Package, Auxiliary
++from lib.common.abstracts import Package, PackageEvent, Auxiliary
+ from lib.common.constants import PATHS, PIPE, SHUTDOWN_MUTEX
+ from lib.common.defines import KERNEL32
+ from lib.common.defines import ERROR_MORE_DATA, ERROR_PIPE_CONNECTED
+@@ -33,6 +33,7 @@
+ from lib.core.privileges import grant_debug_privilege
+ from lib.core.startup import create_folders, init_logging
+ from modules import auxiliary
++from Queue import Queue
+ 
+ log = logging.getLogger()
+ 
+@@ -42,6 +43,7 @@
+ PROCESS_LIST = []
+ PROCESS_LOCK = Lock()
+ DEFAULT_DLL = None
++MONITOR_EVENT_QUEUE = Queue()
+ 
+ PID = os.getpid()
+ PPID = Process(pid=PID).get_parent_pid()
+@@ -195,6 +197,8 @@
+         if data:
+             command = data.strip()
+ 
++            log.critical('COMMAND: ' + command)
++
+             # Debug, Regular, or Critical information from CuckooMon.
+             if command.startswith("DEBUG:"):
+                 log.debug(command[6:])
+@@ -203,6 +207,14 @@
+             elif command.startswith("CRITICAL:"):
+                 log.critical(command[9:])
+ 
++            # EVENT: <PID> <EVENT_NAME>
++            elif command.startswith("EVENT:"):
++                (pid, name) = command[6:].split()
++                log.info("Process %d is exiting" % pid)
++                event = PackageEvent(pid, name)
++                MONITOR_EVENT_QUEUE.put(event)
++                MONITOR_EVENT_QUEUE.join()
++
+             # Parse the prefix for the received notification.
+             # In case of GETPIDS we're gonna return the current process ID
+             # and the process ID of our parent process (agent.py).
+@@ -598,6 +610,13 @@
+         time_counter = 0
+ 
+         while True:
++            
++            # Process all pending monitor events
++            while not MONITOR_EVENT_QUEUE.empty():
++                event = MONITOR_EVENT_QUEUE.get()
++                pack.event_handler(event)
++                MONITOR_EVENT_QUEUE.task_done()
++
+             time_counter += 1
+             if time_counter == int(self.config.timeout):
+                 log.info("Analysis timeout hit, terminating analysis.")
