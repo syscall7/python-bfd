@@ -118,7 +118,14 @@
       </div>
 
       <ul class="nav navbar-nav navbar-right" ng-if="isAuthenticated()">
-
+        <li
+            ng-repeat="user in connectedUsers"
+            class="navbar-text"
+            popover="{{ user.username }}"
+            style="padding:0px 5px; background-color:{{ user.color }}; color:black;  border: 1px solid rgba(0, 0, 0, 0.1);"
+            popover-trigger="mouseenter"
+            popover-placement="bottom"
+        >{{ user.username | limitTo:1 | uppercase}}</li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle">{{ currentUser.username }} <i class="fa fa-user fa-lg"></i><span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">

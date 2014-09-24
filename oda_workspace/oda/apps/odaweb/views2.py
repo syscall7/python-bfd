@@ -1,6 +1,7 @@
 import json
 import socket
 import logging
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 
 from django.shortcuts import render, redirect
@@ -726,6 +727,7 @@ def make_copy(oda_master, user):
 
     return oda_master
 
+@login_required
 def connect(request, share_name):
     share = Share.objects.get(name = share_name)
 

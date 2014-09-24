@@ -766,6 +766,7 @@ function start(odbFile) {
                 console.log('join', data);
                 addrBar.addUser(data.username);
                 addrBar.updateUser(data.username, 0x403000);
+                $rootScope.$broadcast('user.connect', data.username);
             });
 
             socket.on('cursor.change', function(e){
@@ -773,16 +774,25 @@ function start(odbFile) {
             });
 
             odaSession.on('cursor.change', function(e){
+                var currentUser = $rootScope.currentUser;
                 socket.emit('cursor.change',{
-                    username: 'USERNAME',
+                    username: currentUser.username,
                     offset: e.offset
                 });
             });
 
+            var currentUser = $rootScope.currentUser;
             socket.emit('subscribe',{
                 //todo username
-                username: 'USERNAME',
+                username: currentUser.username,
                 room: odbFile.shortName
+            });
+
+            socket.on('users', function(e) {
+                console.log('users', e);
+                for (var i=0;i< e.users.length; i++ ) {
+                    $rootScope.$broadcast('user.connect', e.users[i]);
+                }
             });
         });
 
@@ -1212,6 +1222,18 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
     $scope.$on('command.goto', function(event) {
         $scope.goToAddressPrompt();
     });
+
+    $scope.connectedUsers = [];
+    $scope.$on('user.connect', function(event, username){
+        console.log('user.connect', event, username);
+        $scope.$apply(function(){
+            $scope.connectedUsers.push({
+                username: username,
+                color: '#'+Math.floor(Math.random()*16777215).toString(16)
+            });
+        });
+    });
+
 
     $scope.$on('command.open', function(event) {
         $scope.openFile();
