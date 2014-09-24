@@ -95,7 +95,7 @@ class CuckooJob(object):
         options = orig_binary_file.options
 
         # TODO: set the target to a new target type called 'cuckoo' or something and add support in ofd
-        options.target = 'binary'
+        options.target = 'lime'
         bfm.options = options
 
         odb_file = OdbFile(bfm)
