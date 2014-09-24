@@ -61,6 +61,8 @@ io.on('connection', function (socket) {
         var username = data.username;
         var room = data.room;
 
+        var usersInRoom = getUsersInRoom(room);
+
         // we store the username in the socket session for this client
         socket.username = username;
         socket.room = room;
@@ -89,9 +91,8 @@ io.on('connection', function (socket) {
             numUsers: numUsers
         });
 
-        var usersInRoom = getUsersInRoom(room);
         logger.info('users in room', usersInRoom);
-        socket.to(socket.id).emit('users',{
+        socket.emit('users',{
             users: usersInRoom
         });
 
