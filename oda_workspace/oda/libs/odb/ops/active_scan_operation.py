@@ -4,6 +4,7 @@ from oda.libs.odb.bfd import ofd
 from oda.libs.odb.bfd.analyzer import analyzer_factory
 from oda.libs.odb.ops.operation import Operation
 from oda.libs.odb.structures.parcel import Parcel, ParcelList
+from oda.libs.odb.structures.symbol import Symbol
 from oda.libs.odb.ops.scanners import FunctionScanner, BranchScanner, ParcelOffsetScanner, BadCodeScanner, HaltScanException
 from oda.libs.odb.ops.split_parcel_operation import SplitParcelOperation
 
@@ -51,7 +52,7 @@ class ActiveScanOperation(Operation):
             raise Exception("Failed to make code: invalid opcode")
 
         bad_code_scanner = BadCodeScanner(analyzer)
-        function_scanner = FunctionScanner(analyzer)
+        function_scanner = FunctionScanner(analyzer, odb_file.get_structure_list(Symbol))
         branch_scanner = BranchScanner(analyzer)
         parcel_scanner = ParcelOffsetScanner()
 

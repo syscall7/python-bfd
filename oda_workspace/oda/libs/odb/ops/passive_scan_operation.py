@@ -4,6 +4,7 @@ from oda.libs.odb.bfd import ofd
 from oda.libs.odb.bfd.analyzer import analyzer_factory
 from oda.libs.odb.ops.operation import Operation
 from oda.libs.odb.structures.parcel import Parcel
+from oda.libs.odb.structures.symbol import Symbol
 from oda.libs.odb.ops.scanners import FunctionScanner, BranchScanner, ParcelOffsetScanner
 
 logger = logging.getLogger(__name__)
@@ -19,7 +20,7 @@ class PassiveScanOperation(Operation):
 
         self.object_id = odb_file.get_object_id()
 
-        function_scanner = FunctionScanner(analyzer_factory(odb_file.get_arch()))
+        function_scanner = FunctionScanner(analyzer_factory(odb_file.get_arch()), odb_file.get_structure_list(Symbol))
         branch_scanner = BranchScanner(analyzer_factory(odb_file.get_arch()))
         parcel_scanner = ParcelOffsetScanner()
 

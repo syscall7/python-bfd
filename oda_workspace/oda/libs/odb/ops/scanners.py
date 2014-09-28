@@ -72,13 +72,16 @@ class BranchScanner(Scanner):
 
 class FunctionScanner(Scanner):
 
-    def __init__(self, analyzer):
+    def __init__(self, analyzer, symbols):
 
         self.analyzer = analyzer
         self.error_instruction_regex = re.compile(analyzer.errorInstRegExStr)
         self.opcode_regex = re.compile(analyzer.opcodeRegExStr)
 
         self.functions = {}
+
+        # Create a dictionary of symbols from the symbol table
+        self.symbols = {sym.offset: sym for sym in symbols}
 
     def scan_line(self, addr, rawData, instr, abfd, parcel):
         ''' Disassembly line parser optimized for finding functions '''
@@ -97,8 +100,15 @@ class FunctionScanner(Scanner):
                 # If this is a new Function
                 if du.targetAddr not in self.functions:
 
+                    # Create a generic function name
+                    func_name = 'func_%0.8x' % du.targetAddr
+                    # If this function exists in the symbol table
+                    if du.targetAddr in self.symbols:
+                        # Use the function name from the symbol table
+                        func_name = self.symbols[du.targetAddr].name
+
                     self.functions[du.targetAddr] = {
-                        'name': 'func_%0.8x' % du.targetAddr,
+                        'name': func_name,
                         'offset': du.targetAddr,
                         'sym_type': 't',
                         'xrefs':  set([du.offset]),
