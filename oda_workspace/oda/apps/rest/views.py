@@ -126,12 +126,24 @@ class SymbolsViewSet(OdaStructureViewSet):
     structure = Symbol
 
     def get_structure_list(self):
-        syms = [x for x in self.odb_file.get_structure_list(Symbol) if x.type == 't' or x.type=='T']
 
-        # TODO: We need to work out more clearly the difference between a symbol and a function
-        syms += [x for x in self.odb_file.get_structure_list(Function)]
+        # NOTE: If there are multiple symbols for the same address, we will ignore all but one of them here when
+        #       creating this dictionary.
+        sym_dict = {
+            sym.offset: sym
+                for sym in self.odb_file.get_structure_list(Symbol)
+                    if (sym.type == 't' or sym.type=='T')
+        }
 
-        return syms
+        # include functions, which we or the user identified through analysis, in the symbol listing
+        func_dict = {
+            func.offset: func
+                for func in self.odb_file.get_structure_list(Function)
+                    # give preference to symbols, because they are likely to have better names
+                    if func.offset not in sym_dict
+        }
+
+        return sym_dict.values() + func_dict.values()
 
 class ParcelsViewSet(OdaStructureViewSet):
     serializer_class = ParcelSerializer
