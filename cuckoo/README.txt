@@ -149,7 +149,7 @@ To submit a new job:
   svn co svn://svn.onlinedisassembler.com/oda/ODA/trunk/cuckoo/samples
 
   # Submit a job
-  sudo ./utils/submit.py --package exe --options procmemdump=yes ./path/to/ipconfig.exe
+  sudo ./utils/submit.py --package exe --options procmemdump=yes ./samples/ipconfig.exe
 
   # Look for memory dump output (you should see a file called <pid>.dmp)
   ls ~/cuckoo_sandbox/cuckoo/storage/analyses/latest/memory/

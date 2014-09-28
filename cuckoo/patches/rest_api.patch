@@ -8,16 +8,15 @@
  from StringIO import StringIO
  from zipfile import ZipFile, ZIP_STORED
  
-@@ -146,6 +147,18 @@
+@@ -146,6 +147,17 @@
  
      return jsonize(response)
  
 +def get_status_msg(task_id):
-+    # hardcode path for now
-+    log_path = '/home/anthony/cuckoo/storage/analyses/%s/analysis.log' % task_id
++    this_dir = os.path.dirname(os.path.abspath(__file__))
++    log_path = os.path.join(this_dir, '..', 'storage', 'analyses', str(task_id), 'analysis.log')
 +    try:
 +        with open(log_path,'rb') as f:
-+            #msg = f.readlines()[-1]
 +            msg = f.read()
 +    except Exception:
 +        # default message to relay until more is available
