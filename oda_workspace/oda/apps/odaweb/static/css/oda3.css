@@ -203,7 +203,8 @@
 
 .xref-location {
    /* http://stackoverflow.com/questions/20376008/how-to-underline-text-and-change-mouse-cursor-to-pointer-in-ace-editor */
-   border-bottom: 1px solid black;
+   /* border-bottom: 1px solid black; */
+    font-weight: bold;
    position: absolute;
    cursor: pointer !important;
    pointer-events: auto;
