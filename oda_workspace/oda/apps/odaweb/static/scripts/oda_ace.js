@@ -196,7 +196,7 @@ var OdbFile = function(oda_master) {
     };
 
     this.createFunction = function(offset, name, retval, args) {
-        var p = $.post('/odaweb/api/createFunction', {
+        var p = $.post('/odaweb/api/makeFunction', {
             offset: offset,
             name: name,
             retval: retval,
@@ -942,8 +942,8 @@ var MakeFunctionController = function($scope, $modalInstance) {
     };
 
     $scope.ok = function() {
-        $scope.odbFile.createFunction(offset, $scope.data.name,
-            $scope.data.retval, $scope.data.args);
+        $scope.odbFile.createFunction(offset, $scope.data.function.name,
+            $scope.data.function.retval, $scope.data.function.args);
     };
 
     $scope.cancel = function () {
