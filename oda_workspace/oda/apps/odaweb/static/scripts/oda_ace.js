@@ -456,7 +456,8 @@ var Renderer = function(odbFile) {
     this.renderTargetRef = function(du) {
         var label = "0x" + du.targetRef.offset.toString(16);
         if (odbFile.functions[du.targetRef.offset]) {
-            label =  odbFile.functions[du.targetRef.offset].name + '[<a href="" class="xref-location">0x' + intToHex(du.targetRef.offset) + '</a>]';
+             //+ '[<a href="" class="xref-location">0x' + intToHex(du.targetRef.offset) + '</a>]'
+            label =  '<a href="" data-addr="' + du.targetRef.offset + '" class="xref-location">' + odbFile.functions[du.targetRef.offset].name + "</a>";
         }
         return label;
     };
@@ -712,8 +713,15 @@ function start(odbFile) {
         });
 
         if (xrefLocation.length > 0){
-            console.log("xref-location", xrefLocation[0].value);
-            var xrefdecimal = parseInt(xrefLocation[0].value.substring(2),16);
+            var targetRef = odaSession.getRowData(cursor.row).data.targetRef
+            var targetRefOffset;
+            if (targetRef != null) {
+                targetRefOffset = targetRef.offset;
+            } else {
+                targetRefOffset = parseInt(xrefLocation[0].value.substring(2),16);
+            }
+            console.log("xref-location", targetRefOffset);
+            var xrefdecimal = targetRefOffset;
             odaSession.moveToOffset(xrefdecimal);
         }
 

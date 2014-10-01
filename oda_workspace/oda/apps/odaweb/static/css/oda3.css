@@ -200,6 +200,16 @@
     border-radius: inherit;
 }
 
+
+.xref-location {
+   /* http://stackoverflow.com/questions/20376008/how-to-underline-text-and-change-mouse-cursor-to-pointer-in-ace-editor */
+   border-bottom: 1px solid black;
+   position: absolute;
+   cursor: pointer !important;
+   pointer-events: auto;
+}
+
+
 @-webkit-keyframes mask {
     0% { }
     25%  { -webkit-transform: rotate(270deg); }
