@@ -185,6 +185,7 @@ def parseFunctionsOnly(addr, rawData, instr, abfd, self, parcel):
                 # Add new cross reference to set
                 self.functions[du.targetAddr].xrefs.update([du.offset])
 
+
 class defaultAnalyzer(object):
     '''
     classdocs
@@ -410,4 +411,76 @@ class defaultAnalyzer(object):
             dataStr = ""
 
         return dataStr
+
+    # TODO: Find a better place for this function
+    def find(self, odb_file, pattern):
+
+        ofd = Ofd(odb_file.get_binary())
+
+        # NOTE: This function is obnoxiously complex because we want to find sequences of bytes that span contiguous
+        #       sections
+
+        # dictionary of results with key=address value=section_name
+        results = {}
+
+        # current contiguous chunk of bytes to search within
+        haystack = ''
+
+        # last address of the chunk of bytes in haystack
+        lastAddr = -1
+
+        # first address of the chunk of bytes in haystack
+        baseAddr = -1
+
+        # sections making up haystack
+        sectionGroup = []
+
+        # make sense of the user's search pattern
+        def parsePattern(pattern):
+            import binascii
+            if pattern.startswith('"') and pattern.endswith('"'):
+                return pattern[1:-1]
+            else:
+                return binascii.unhexlify(pattern)
+
+        # find the pattern in the current haystack
+        def needleInHaystack(needle, haystack, baseAddr, sectionGroup, results):
+
+            for m in re.finditer("(%s)" % re.escape(needle), haystack):
+
+                foundAddr = baseAddr+m.start()
+
+                for s in sectionGroup:
+                    if foundAddr > s.vma and foundAddr < s.vma+s.size:
+                        results[foundAddr] = s.name
+                        break;
+
+        pattern = parsePattern(pattern)
+
+        # we only search within loadable sections
+        for s in ofd.get_loadable_sections().sections:
+
+            # if this section is contiguous with the previous section
+            if s.vma == lastAddr:
+                haystack += ofd.bfd.raw_data(s, s.vma, s.size)
+                sectionGroup.append(s)
+                lastAddr = s.vma+s.size
+
+            # else, this section is not contiguous
+            else:
+                if lastAddr != -1:
+                    needleInHaystack(pattern, haystack, baseAddr, sectionGroup, results)
+
+                # start fresh
+                haystack = ofd.bfd.raw_data(s, s.vma, s.size)
+                baseAddr = s.vma
+                lastAddr = s.vma+s.size
+                sectionGroup = [s]
+
+        # search the last contiguous group
+        if lastAddr != -1:
+            needleInHaystack(pattern, haystack, baseAddr, sectionGroup, results)
+
+        return results
+
 

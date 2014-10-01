@@ -133,3 +133,9 @@ class Disassembler(object):
             pass
 
         return arch, target
+
+    def find(self, pattern):
+        architecture = self.odb_file.get_binary().options.architecture
+        analyzer = analyzer_factory(architecture)
+        return analyzer.find(self.odb_file, pattern)
+

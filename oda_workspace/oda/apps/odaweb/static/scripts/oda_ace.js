@@ -195,6 +195,15 @@ var OdbFile = function(oda_master) {
         return p;
     };
 
+    this.find = function(bytes) {
+        var results =  $.get('/odaweb/api/find/', {
+            short_name: this.shortName,
+            revision: this.revision,
+            bytes: bytes
+            });
+        return results;
+    };
+
     this.setLiveEntryText = function(liveEntryText) {
         $.ajax({
             url: '/odaweb/api/binarystrings/'+this.binary.id+"/",
@@ -1427,7 +1436,6 @@ odaApplication.service('Session', function(){
         this.userId = userId;
     };
 });
-
 
 odaApplication.factory('AuthService', function($http, Session){
 

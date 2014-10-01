@@ -1,17 +1,24 @@
-odaApplication.controller('FindBytesController', function FindBytesController($q, $rootScope, $scope, $http, $window, odaStatus) {
+odaApplication.controller('FindBytesController', function FindBytesController($scope, odbFile) {
+
+    //http://stackoverflow.com/questions/18716113/scope-issue-in-angularjs-using-angularui-bootstrap-modal
+    $scope.data = {
+        search_pattern: null,
+        results: null,
+        searchHelp: 'To search for ASCII strings, use <b>double quotes</b>, as in:<br>' +
+                    '&nbsp;&nbsp;&nbsp;&nbsp;"this is some long string to find"<br><br>' +
+                    'To search for a sequnce of hex bytes, use one of the following formats:<br><br>' +
+                    '&nbsp;&nbsp;&nbsp;&nbsp;00 01 02 03 de ad be ef<br>' +
+                    '&nbsp;&nbsp;&nbsp;&nbsp;00010203deadbeef<br>'
+    };
 
     $scope.find = function(bytes)  {
-        var deferred = $q.defer();
-        odaStatus.setStatus("Searching....");
-        var master = oda_util.getMaster();
-        odaApi.find(master.short_name, master.revision, bytes).success(function(data){
-            odaStatus.setStatus("Done searching");
-            $scope.results = data;
-            deferred.resolve(data);
+        //odaStatus.setStatus("Searching....");
+        odbFile.find(bytes).success(function(data){
+            //odaStatus.setStatus("Done searching");
+            $scope.data.results = data;
+            $scope.$apply();
         }).error(function(data, status){
-            deferred.reject(data);
         });
-        return deferred.promise;
     };
 
     /*
@@ -31,11 +38,6 @@ odaApplication.controller('FindBytesController', function FindBytesController($q
         //odaApi.setPosition(position);
     };
 
-    $scope.searchHelp = 'To search for ASCII strings, use <b>double quotes</b>, as in:<br>' +
-                        '&nbsp;&nbsp;&nbsp;&nbsp;"this is some long string to find"<br><br>' +
-                        'To search for a sequnce of hex bytes, use one of the following formats:<br><br>' +
-                        '&nbsp;&nbsp;&nbsp;&nbsp;00 01 02 03 de ad be ef<br>' +
-                        '&nbsp;&nbsp;&nbsp;&nbsp;00010203deadbeef<br>';
 
     /*odaApi.shortcut("ctrl f", function() {
         $("#sidebar-find-btn").trigger("click");

@@ -1,19 +1,17 @@
 <div  ng-controller="FindBytesController">
 
-    <form ng-submit="find(search_pattern)">
+    <form ng-submit="find(data.search_pattern)">
         <fieldset>
             <!-- Find Pattern -->
             <div class="form-group">
                 <div class="input-group">
                     <input id="search-pattern" name="search-pattern" class="form-control"
-                         placeholder="search pattern" type="text" ng-model="search_pattern"
-                         popover="{
-                            title: 'Search Pattern',
-                            content: searchHelp,
-                            trigger:'hover',
-                            placement: 'bottom',
-                            html: 'true'
-                         }" />
+                         placeholder="search pattern" type="text" ng-model="data.search_pattern"
+                         popover-title="Search Pattern"
+                         popover-placement="bottom"
+                         popover="{{ data.searchHelp }}"
+                         popover-trigger="focus"
+                    />
                     <div class="input-group-btn">
                         <input type="submit" class="btn btn-primary" value="Find" />
                     </div>
@@ -31,7 +29,7 @@
                 </tr>
             </thead>
             <tbody class="scrollContent">
-                    <tr ng-repeat="result in results">
+                    <tr ng-repeat="result in data.results">
                         <td class="result-offset" style="width:1%">
                             <span class="clickable" ng-click="setPosition(result.addr)">0x{{ result.addr.toString(16) }}</span>
                         </td>
@@ -40,7 +38,7 @@
             </tbody>
         </table>
 
-        <div ng-show="!results">
+        <div ng-show="!data.results">
             <em>No results found</em>
         </div>
     </div>

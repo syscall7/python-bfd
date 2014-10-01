@@ -300,8 +300,7 @@ class FindViewSet(viewsets.GenericViewSet):
         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
                                     revision=request.QUERY_PARAMS.get('revision'))
 
-        binary = oda.binary
-        dasm = Disassembler(binary)
+        dasm = Disassembler(oda.odb_file)
         results = [{'addr': key, 'section': value} for key, value in
                    sorted(dasm.find(bytes).items(), key=lambda s: s[0])]
         serializer = self.get_serializer(results, many=True)
