@@ -292,6 +292,37 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
 
         return Response({'error': error})
 
+    @link()
+    def makeFunction(self, request, pk):
+        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
+                                    revision=request.QUERY_PARAMS.get('revision'))
+
+        error = None
+        vma = 0
+        if request.QUERY_PARAMS.get('vma'):
+            vma = int(request.QUERY_PARAMS.get('vma'), 0)
+
+        name = 'func_%x' % vma
+        if request.QUERY_PARAMS.get('name'):
+            name = int(request.QUERY_PARAMS.get('name'), 0)
+
+        args = None
+        if request.QUERY_PARAMS.get('args'):
+            name = int(request.QUERY_PARAMS.get('args'), 0)
+
+        retval = None
+        if request.QUERY_PARAMS.get('retval'):
+            name = int(request.QUERY_PARAMS.get('retval'), 0)
+
+        dasm = Disassembler(oda.odb_file)
+        try:
+            dasm.make_function(vma, name, args, retval)
+        except Exception as e:
+            error = e.message
+        oda.save()
+
+        return Response({'error': error})
+
 class FindViewSet(viewsets.GenericViewSet):
     serializer_class = FindResultsSerializer
 
