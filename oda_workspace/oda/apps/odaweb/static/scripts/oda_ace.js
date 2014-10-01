@@ -713,7 +713,7 @@ function start(odbFile) {
         });
 
         if (xrefLocation.length > 0){
-            var targetRef = odaSession.getRowData(cursor.row).data.targetRef
+            var targetRef = odaSession.getRowData(cursor.row).data.targetRef;
             var targetRefOffset;
             if (targetRef != null) {
                 targetRefOffset = targetRef.offset;
