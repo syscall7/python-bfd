@@ -1,4 +1,4 @@
-odaApplication.controller('SectionsController', function SectionsController($scope, $http, $window, odbFile) {
+odaApplication.controller('SectionsController', function SectionsController($scope, $http, $window, odbFile, odaSession) {
 
     $scope.sections = odbFile.sections;
 
@@ -24,9 +24,9 @@ odaApplication.controller('SectionsController', function SectionsController($sco
         var s = flag.split('_');
         return s[s.length-1];
     };
-/*
+
     $scope.setPosition = function(position) {
-        odaApi.setPosition(position);
-    }*/
+        odaSession.moveToOffset(position);
+    }
 });
 
