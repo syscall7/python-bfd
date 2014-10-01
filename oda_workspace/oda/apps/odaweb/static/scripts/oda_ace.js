@@ -195,6 +195,16 @@ var OdbFile = function(oda_master) {
         return p;
     };
 
+    this.createFunction = function(offset, name, retval, args) {
+        var p = $.post('/odaweb/api/createFunction', {
+            offset: offset,
+            name: name,
+            retval: retval,
+            args: args
+        });
+        return p;
+    };
+
     this.find = function(bytes) {
         var results =  $.get('/odaweb/api/find/', {
             short_name: this.shortName,
@@ -861,7 +871,86 @@ odaApplication.run(function($rootScope, $modal, odbFile, odaSession){
             odaSession.windowLoader.reload();
         });
     });
+
+    $rootScope.$on("command.makeFunction", function(event, data) {
+        var line= data.line;
+
+        var scope = $rootScope.$new(true);
+        scope.line = line;
+        scope.odbFile = odbFile;
+
+        var modalInstance = $modal.open({
+          templateUrl: 'makeFunction.html',
+          controller: 'MakeFunctionController',
+          size: 'lg',
+          scope: scope
+        });
+
+    });
+
+    $rootScope.$on("command.makeFunction", function(event, data) {
+        var line= data.line;
+
+        var scope = $rootScope.$new(true);
+        scope.line = line;
+        scope.odbFile = odbFile;
+
+        var modalInstance = $modal.open({
+          templateUrl: 'makeFunction.html',
+          controller: 'MakeFunctionController',
+          size: 'lg',
+          scope: scope
+        });
+
+    });
 });
+
+var MakeFunctionController = function($scope, $modalInstance) {
+
+    var offset = $scope.line.data.offset;
+    var hex = intToHex(offset);
+
+    $scope.data = {
+        function: {
+            name: 'FUNCTION_' + hex,
+            retval: 'unknown',
+            args: 'unknown'
+        }
+    };
+
+    $scope.ok = function() {
+        $scope.odbFile.createFunction(offset, $scope.data.name,
+            $scope.data.retval, $scope.data.args);
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+};
+
+var MakeFunctionController = function($scope, $modalInstance) {
+
+    var offset = $scope.line.data.offset;
+    var hex = intToHex(offset);
+
+    $scope.data = {
+        function: {
+            name: 'FUNCTION_' + hex,
+            retval: 'unknown',
+            args: 'unknown'
+        }
+    };
+
+    $scope.ok = function() {
+        $scope.odbFile.createFunction(offset, $scope.data.name,
+            $scope.data.retval, $scope.data.args);
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+};
+
 
 var CommentController = function($scope, $modalInstance) {
     $scope.comment = {
@@ -931,7 +1020,19 @@ odaApplication.run(function($rootScope, editor){
             });
 
             }
-        }/*,
+        },
+        {text: '<span class="shortcut-text">Define Function</span>', action: function (e) {
+            var session = editor.getSession();
+
+            var cursor = session.getSelection().getCursor();
+            var line = session.getDocument().getLineData(cursor.row);
+
+            $rootScope.$broadcast('command.makeFunction', {
+                    line: line
+            });
+            }
+        },
+        /*,
         {divider: true}
 
 
