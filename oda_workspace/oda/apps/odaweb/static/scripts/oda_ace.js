@@ -815,6 +815,12 @@ function start(odbFile) {
                 room: odbFile.shortName
             });
 
+            socket.on('user.left', function(e) {
+                console.log('leave', e);
+                $rootScope.$broadcast('user.disconnect', e.username)
+            });
+
+
             socket.on('users', function(e) {
                 console.log('users', e);
                 for (var i=0;i< e.users.length; i++ ) {
@@ -1349,6 +1355,13 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
                 username: username,
                 color: '#'+Math.floor(Math.random()*16777215).toString(16)
             });
+        });
+    });
+
+    $scope.$on('user.disconnect', function(event, username) {
+        console.log('user.disconnect', event, username);
+        $scope.$apply(function(){
+
         });
     });
 
