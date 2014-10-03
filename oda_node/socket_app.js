@@ -112,7 +112,7 @@ io.on('connection', function (socket) {
             --numUsers;
             logger.info(socket.username, ' left ', socket.room, ' leaving ', numUsers);
             // echo globally that this client has left
-            socket.broadcast.emit('user left', {
+            socket.to(socket.room).emit('user.left', {
                 username: socket.username,
                 numUsers: numUsers
             });
