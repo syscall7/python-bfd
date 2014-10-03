@@ -1,47 +1,48 @@
+#!/bin/sh
 These are rough notes, and you must not mindlessly follow them.
+
+ODA_INSTALL_DIR=/var/www/oda
 
 # Upgrade the server
 sudo apt-get update
-sudo apt-get upgrade
+sudo apt-get upgrade -y
 
 # Install subversion
-sudo apt-get install subversion
+sudo apt-get install subversion install texinfo patch bzip2 gcc make autoconf  -y
 
-# Build BFD library
-sudo apt-get install texinfo
-sudo apt-get install patch
-sudo apt-get install bzip2
-sudo apt-get install gcc make autoconf
 cd ~
-svn co svn://svn.onlinedisassembler.com/oda/ODA/trunk/bfd
+svn co svn://svn.onlinedisassembler.com/oda/ODA/trunk/bfd --username --password ***REMOVED***
 cd bfd
 sudo ./build_bfd.sh
 
 # Setup apache and mysql
-sudo apt-get install apache2 libapache2-mod-wsgi mysql-server libmysqlclient-dev
-sudo usermod -aG www-data anthony
+echo mysql-server mysql-server/root_password password password | sudo debconf-set-selections
+echo mysql-server mysql-server/root_password_again password password | sudo debconf-set-selections
+
+sudo apt-get install apache2 libapache2-mod-wsgi mysql-server libmysqlclient-dev -y
+# sudo usermod -aG www-data anthony
 
 # Setup the python environment
-sudo apt-get install python-pip
-sudo apt-get install python-virtualenv
-sudo mkdir /var/www/oda2
-sudo chown www-data /var/www/oda2
-sudo chgrp www-data /var/www/oda2
-sudo virtualenv /var/www/oda2/env
-sudo chown -R www-data /var/www/oda2/env/
-sudo chgrp -R www-data /var/www/oda2/env/
-sudo apt-get install libffi-dev # for gsutil
-sudo /var/www/oda2/env/bin/pip install -r requirements.txt
+sudo apt-get install python-pip python-virtualenv libpython-dev libssl-dev libffi-dev cython -y # for gsutil
+sudo mkdir $ODA_INSTALL_DIR
+sudo virtualenv $ODA_INSTALL_DIR/env
+
+mkdir $ODA_INSTALL_DIR/site
+cd $ODA_INSTALL_DIR/site/
+svn co svn://svn.onlinedisassembler.com/oda/ODA/trunk/oda_workspace --username davis --password ***REMOVED*** .
+sudo ODA_INSTALL_DIR/env/bin/pip install -r requirements.txt
 
 # Build BFD module
-cd ~/bfd
-sudo apt-get install python-dev cython
-sudo /var/www/oda2/env/bin/python setup.py install
+mkdir ~/bfd_python
+cd ~/bfd_python
+svn co svn://svn.onlinedisassembler.com/oda/ODA/trunk/bfd --username davis --password ***REMOVED*** .
+sudo $ODA_INSTALL_DIR/env/bin/python setup.py install
+
+sudo chown -R www-data $ODA_INSTALL_DIR
+sudo chgrp -R www-data $ODA_INSTALL_DIR
 
 # Create database
-mysql -u root -p
-create database odapython2;
-exit;
+echo "create database odapython2;" | mysql --user=root --password=password
 
 # Setup webapp
 sudo svn co svn://svn.onlinedisassembler.com/oda/ODA/tags/v1.2.3/django webapp
