@@ -1,9 +1,9 @@
 <VirtualHost *:80>
         ServerAdmin admin@onlinedisassembler.com
 
-        Alias /static/ $ODA_INSTALL_DIR/site/oda/apps/odaweb/static/
-        Alias /static2/ $ODA_INSTALL_DIR/site/oda/apps/odaweb/static/
-        WSGIScriptAlias / $ODA_INSTALL_DIR/site/oda.wsgi
+        Alias /static/ ${ODA_INSTALL_DIR}/site/oda/apps/odaweb/static/
+        Alias /static2/ ${ODA_INSTALL_DIR}/site/oda/apps/odaweb/static/
+        WSGIScriptAlias / ${ODA_INSTALL_DIR}/site/oda.wsgi
 
         # AVD 4/9/13 - hard limit for file upload size
         LimitRequestBody 7097152
