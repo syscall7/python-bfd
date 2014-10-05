@@ -21,6 +21,7 @@ DATABASES = {
 ALLOWED_HOSTS = (
     'onlinedisassembler.com',
     'www.onlinedisassembler.com',
+    '.onlinedisassembler.com'
 )
 
 # Absolute path to the directory static files should be collected to.

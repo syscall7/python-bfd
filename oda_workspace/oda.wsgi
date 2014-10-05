@@ -8,7 +8,7 @@ sys.stdout = sys.stderr
 site.addsitedir('${ODA_INSTALL_DIR}/env/lib/python2.7/site-packages')
 
 # Add the app's directory to the PYTHONPATH
-path = '/var/www/oda2/webapp'
+path = '${ODA_INSTALL_DIR}/site'
 if path not in sys.path:
     sys.path.append(path)
 
