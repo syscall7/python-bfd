@@ -45,8 +45,8 @@ sudo chgrp -R www-data $ODA_INSTALL_DIR
 install_mysql()
 {
 # Setup apache and mysql
-echo mysql-server mysql-server/root_password password ***REMOVED*** | sudo debconf-set-selections
-echo mysql-server mysql-server/root_password_again password ***REMOVED*** | sudo debconf-set-selections
+echo mysql-server mysql-server/root_password password '***REMOVED***' | sudo debconf-set-selections
+echo mysql-server mysql-server/root_password_again password '***REMOVED***' | sudo debconf-set-selections
 
 sudo apt-get install mysql-server libmysqlclient-dev -y
 }
@@ -54,7 +54,7 @@ sudo apt-get install mysql-server libmysqlclient-dev -y
 configure_database()
 {
 # Create database
-echo "create database odapython2;" | mysql --user=root --password=password
+echo "create database odapython2;" | mysql --user=root --password='***REMOVED***'
 
 sudo $ODA_INSTALL_DIR/env/bin/python manage.py syncdb --settings=oda.settings.production
 sudo $ODA_INSTALL_DIR/env/bin/python manage.py setup_oda --settings=oda.settings.production
@@ -62,6 +62,18 @@ sudo $ODA_INSTALL_DIR/env/bin/python manage.py setup_openid --settings=oda.setti
 
 }
 
+fixup_wsgi()
+{
+
+perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < $ODA_INSTALL_DIR/site/oda.wsgi  > $ODA_INSTALL_DIR/site/oda.wsgi_2
+mv $ODA_INSTALL_DIR/site/oda.wsgi_2 $ODA_INSTALL_DIR/site/oda.wsgi
+
+perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < $ODA_INSTALL_DIR/site/apache_odaweb.site > $ODA_INSTALL_DIR/site/onlinedisassembler.conf
+mv $ODA_INSTALL_DIR/site/onlinedisassembler.conf /etc/apache2/sites-available/
+
+#need to a2ensite
+
+}
 
 
 
