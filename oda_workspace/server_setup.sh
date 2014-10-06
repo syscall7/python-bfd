@@ -26,16 +26,16 @@ sudo apt-get install apache2 libapache2-mod-wsgi libmysqlclient-dev -y
 sudo mkdir $ODA_INSTALL_DIR
 sudo virtualenv $ODA_INSTALL_DIR/env
 
-mkdir $ODA_INSTALL_DIR/site
+sudo mkdir $ODA_INSTALL_DIR/site
 cd $ODA_INSTALL_DIR/site/
-svn co svn://svn.onlinedisassembler.com/oda/ODA/trunk/oda_workspace --username davis --password ***REMOVED*** .
+sudo svn co svn://svn.onlinedisassembler.com/oda/ODA/trunk/oda_workspace --username davis --password ***REMOVED*** .
 sudo $ODA_INSTALL_DIR/env/bin/pip install -r requirements.txt
 
 # Build BFD module
 mkdir ~/bfd_python
 cd ~/bfd_python
 svn co svn://svn.onlinedisassembler.com/oda/ODA/trunk/bfd --username davis --password ***REMOVED*** .
-sudo $ODA_INSTALL_DIR/env/bin/python setup.py install
+$ODA_INSTALL_DIR/env/bin/python setup.py install
 
 sudo chown -R www-data $ODA_INSTALL_DIR
 sudo chgrp -R www-data $ODA_INSTALL_DIR
