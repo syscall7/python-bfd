@@ -13,7 +13,7 @@ sudo apt-get upgrade -y
 install_odaweb ()
 {
 # Install subversion
-sudo apt-get install subversion texinfo patch bzip2 gcc make autoconf python-pip python-virtualenv libpython-dev libssl-dev libffi-dev cython -y
+sudo apt-get install libxml2-dev libxslt1-dev subversion texinfo patch bzip2 gcc make autoconf python-pip python-virtualenv libpython-dev libssl-dev libffi-dev cython -y
 
 cd ~
 svn co svn://svn.onlinedisassembler.com/oda/ODA/trunk/bfd --username davis --password ***REMOVED***
