@@ -42,6 +42,12 @@ sudo chgrp -R www-data $ODA_INSTALL_DIR
 
 }
 
+install_node()
+{
+curl -sL https://deb.nodesource.com/setup | sudo bash -
+sudo apt-get install nodejs
+}
+
 install_mysql()
 {
 # Setup apache and mysql
