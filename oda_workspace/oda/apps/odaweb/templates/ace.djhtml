@@ -142,7 +142,9 @@
               enctype="multipart/form-data"
               action="_upload" method="post">
 
+            {% endverbatim %}
             {% csrf_token %}
+            {% verbatim %}
 
             <div class="form-group">
                 <label for="project_name" class="col-sm-4 control-label">Project Name</label>
