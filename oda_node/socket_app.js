@@ -48,6 +48,18 @@ function getUsersInRoom(room) {
     return foundUsers;
 }
 
+function isUserInRoom(username, roomName) {
+    var usersInRoom = getUsersInRoom(roomName);
+
+    for(var i=0; i<usersInRoom.length; i++) {
+        if (usersInRoom[i] == username) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 io.on('connection', function (socket) {
     logger.info('A New User Has Connected');
 
@@ -60,6 +72,13 @@ io.on('connection', function (socket) {
 
         var username = data.username;
         var room = data.room;
+
+        if (isUserInRoom(username, room)) {
+            logger.info("user " + username + " already in " + room);
+            socket.emit('user.error', {error: "User " + username + " is already sharing this file"});
+            return;
+        }
+
 
         var usersInRoom = getUsersInRoom(room);
 
