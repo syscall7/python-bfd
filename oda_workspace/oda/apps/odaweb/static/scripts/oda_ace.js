@@ -4,267 +4,24 @@ var ace_document = ace.require('ace/document');
 var oop = ace.require("ace/lib/oop");
 var EventEmitter = ace.require("ace/lib/event_emitter").EventEmitter;
 
-var OdbFile = function(oda_master) {
+var Section = function(sectionDescriptor) {
+    $.extend(this,sectionDescriptor);
 
-    this.oda_master = oda_master;
-
-    this.binary = oda_master.binary;
-
-    this.functions = [];
-
-    this.sections = [];
-
-    this.parcels = [];
-
-    this.comments = [];
-
-    this.symbols = [];
-
-    this.displayUnitsLength = -1;
-
-    this.shortName = null;
-
-    this.revision = 0;
-
-    this.strings = [];
-
-
-    this.load = function () {
-        this.shortName = this.oda_master.short_name;
-
-        var fq = $.get('/odaweb/api/functions/', {
-            short_name: this.shortName,
-            revision: this.revision
-        }).success(function (data) {
-            for (var i = 0; i < data.length; i++) {
-                this.functions[data[i].offset] = data[i];
+    this.isCode = function() {
+        for (var i=0; i<this.flags.length; i++) {
+            if (this.flags[i].name == 'SEC_CODE') {
+                return true;
             }
-        }.bind(this));
-
-        var sq = $.get('/odaweb/api/sections/', {
-            short_name: this.shortName,
-            revision: this.revision
-        }).success(function (data) {
-            this.sections = data;
-        }.bind(this));
-
-        var pq = $.get('/odaweb/api/parcels/', {
-            short_name: this.shortName,
-            revision: this.revision
-        }).success(function (data) {
-                this.parcels = data;
-        }.bind(this));
-
-        var cmq = $.get('/odaweb/api/comments/', {
-            short_name: this.shortName,
-            revision: this.revision
-        }).success(function(data){
-            for (var i=0; i<data.length; i++) {
-                this.comments[data[i].offset] = data[i];
-            }
-        }.bind(this));
-
-        var dulenq = $.get('/odaweb/api/displayunits/1/size', {
-            short_name: this.shortName,
-            revision: this.revision
-        }).success(function (data) {
-            this.displayUnitsLength = data;
-        }.bind(this));
-
-        var symq = $.get('/odaweb/api/symbols/', {
-            short_name: this.shortName,
-            revision: this.revision
-        }).success(function(data) {
-            this.symbols = data;
-        }.bind(this));
-
-        var stringsq = $.get('/odaweb/api/strings/', {
-            short_name: this.shortName,
-            revision: this.revision
-        }).success(function(data) {
-            this.strings = data;
-        }.bind(this));
-
-        $.when(fq, sq, pq, symq, stringsq, dulenq, cmq).done(function (data) {
-            this._signal('loaded', this);
-        }.bind(this));
+        }
+        return false;
     };
 
-    this.duLength = function(callback) {
-        $.get('/odaweb/api/displayunits/1/size', {
-            short_name: this.shortName,
-            revision: this.revision
-        }).success(function (data) {
-            this.displayUnitsLength = data;
-            callback(data);
-        }.bind(this));
+    this.isData = function() {
+        return !this.isCode();
     }
 
-    this.loadDu = function (addr, numUnits, callback) {
-        $.get('/odaweb/api/displayunits/', {
-            short_name: this.shortName,
-            revision: this.revision,
-            addr: addr,
-            logical: true,
-            units: numUnits
-        }).done(callback);
-    };
+    return this;
 
-    this.vmaToLda = function (vma, callback) {
-        $.get('/odaweb/api/displayunits/1/vmaToLda', {
-            short_name: this.shortName,
-            revision: this.revision,
-            vma: vma
-        }).done(callback);
-    };
-
-    this.makeData = function (vma, callback) {
-        console.log('makeData', vma);
-        $.get('/odaweb/api/displayunits/1/makeData', {
-            short_name: this.shortName,
-            revision: this.revision,
-            vma: vma
-        }).success(callback)
-    };
-
-    this.makeCode = function (vma, callback) {
-        console.log('makeCode', vma);
-        $.get('/odaweb/api/displayunits/1/makeCode', {
-            short_name: this.shortName,
-            revision: this.revision,
-            vma: vma
-        }).success(callback)
-    };
-
-    this.addComment = function (offset, comment) {
-        console.log("Comment", offset, comment);
-
-        $.post("/odaweb/api/comments/",{
-            short_name: this.shortName,
-            revision: this.revision,
-            comment: comment,
-            offset: offset
-        }).success(function(data){
-            this.comments[offset] = {
-                comment: comment,
-                offset: offset
-            };
-
-
-            this._signal('changed', {
-                addr: offset,
-                action: 'insertComment'
-            });
-        }.bind(this));
-    };
-
-    this.setOptions = function(options){
-        $.ajax({
-            url: '/odaweb/api/options/'+this.binary.id+"/",
-            type: 'PATCH',
-            data: {
-                options: options,
-                short_name: this.shortName,
-                revision: this.revision
-            }
-        }).success(function(data) {
-            console.log(data);
-            this._signal('liveEntryText', {
-                addr: 0,
-                action: 'liveEntryChanged'
-            });
-
-        }.bind(this));
-    };
-
-    this.connectLink = function() {
-         var p = $.post("/odaweb/api/share",{
-            short_name: this.shortName,
-            revision: this.revision
-         });
-
-        return p;
-    };
-
-    this.save = function() {
-        var p = $.post("/odaweb/_save",{
-            short_name: this.shortName,
-            revision: this.revision
-        });
-
-        return p;
-    };
-
-    this.createFunction = function(offset, name, retval, args) {
-        console.log('Create Function', offset, name, retval, args);
-        var p = $.post('/odaweb/api/displayunits/1/makeFunction/', {
-            short_name: this.shortName,
-            revision: this.revision,
-            offset: offset,
-            name: name,
-            retval: retval,
-            args: args
-        });
-        return p;
-    };
-
-    this.find = function(bytes) {
-        var results =  $.get('/odaweb/api/find/', {
-            short_name: this.shortName,
-            revision: this.revision,
-            bytes: bytes
-            });
-        return results;
-    };
-
-    this.setLiveEntryText = function(liveEntryText) {
-        $.ajax({
-            url: '/odaweb/api/binarystrings/'+this.binary.id+"/",
-            type: 'PATCH',
-            data: {
-                binary_string: liveEntryText.replace(/\s/g, ''),
-                short_name: this.shortName,
-                revision: this.revision
-            }
-        }).success(function() {
-            this._signal('liveEntryText', {
-                addr: 0,
-                action: 'liveEntryChanged'
-            });
-        }.bind(this));
-
-        /*
-        var deferred = $q.defer();
-
-        $http({
-            method: 'PATCH',
-            url: '/odaweb/api/binarystrings/'+this.binary.id+"/",
-            data: {
-
-            }
-        }).success(function(data){
-            this._signal('liveEntryText', { });
-            deferred.resolve(data);
-        }.bind(this)).error(function(){
-            deferred.reject("Use only hex characters!");
-        });
-        return deferred.promise;*/
-    };
-
-    this.callbacks = {};
-    this.on = function (name, handler) {
-        if (!this.callbacks[name]) {
-            this.callbacks[name] = $.Callbacks();
-        }
-        this.callbacks[name].add(handler);
-
-    };
-    this._signal = function (name, data) {
-        if (!this.callbacks[name]) {
-            this.callbacks[name] = $.Callbacks();
-        }
-        this.callbacks[name].fire(data);
-    };
 
 };
 
@@ -754,6 +511,7 @@ function start(odbFile) {
     odaApplication.value('odbFile', odbFile);
     odaApplication.value('editor', editor);
     odaApplication.value('odaSession', odaSession);
+    odaApplication.value('addrBar', addrBar);
 
     //Keyboard Handling
     odaApplication.run(function($rootScope){
@@ -782,63 +540,6 @@ function start(odbFile) {
             };
         });
     });
-
-    //Socket IO
-    odaApplication.run(function($rootScope){
-        var socket = io.connect("http://" + window.location.hostname + ":8080", {
-            reconnection: false
-        });
-
-        socket.on('connect', function(){
-            console.log('connected');
-
-            socket.on('join', function(data) {
-                console.log('join', data);
-                addrBar.addUser(data.username);
-                addrBar.updateUser(data.username, 0x403000);
-                $rootScope.$broadcast('user.connect', data.username);
-            });
-
-            socket.on('cursor.change', function(e){
-                addrBar.updateUser(e.username, e.offset);
-            });
-
-            odaSession.on('cursor.change', function(e){
-                var currentUser = $rootScope.currentUser;
-                socket.emit('cursor.change',{
-                    username: currentUser.username,
-                    offset: e.offset
-                });
-            });
-
-            var currentUser = $rootScope.currentUser;
-            socket.emit('subscribe',{
-                //todo username
-                username: currentUser.username,
-                room: odbFile.shortName
-            });
-
-            socket.on('user.left', function(e) {
-                console.log('leave', e);
-                $rootScope.$broadcast('user.disconnect', e.username)
-            });
-
-
-            socket.on('users', function(e) {
-                console.log('users', e);
-                for (var i=0;i< e.users.length; i++ ) {
-                    $rootScope.$broadcast('user.connect', e.users[i]);
-                }
-            });
-
-            socket.on('user.error', function(e) {
-                toastr.error("Connection Error: " + e.error);
-            })
-
-        });
-
-    });
-
 
     angular.bootstrap(document, ['odaApp']);
 
@@ -886,12 +587,35 @@ odaApplication.run(function($rootScope, $modal, odbFile, odaSession){
         });
     });
 
+
     $rootScope.$on("command.makeFunction", function(event, data) {
         var line= data.line;
 
         var scope = $rootScope.$new(true);
+
+        var offset = line.data.offset;
+        var hex = intToHex(offset);
+
         scope.line = line;
         scope.odbFile = odbFile;
+
+        var existingFunc = odbFile.functions[offset];
+
+        scope.data = {
+            function: {
+                name: 'FUNCTION_' + hex,
+                retval: 'unknown',
+                args: 'unknown'
+            }
+        };
+        scope.data.offsetHex = hex
+        scope.data.modify = (existingFunc != null);
+
+        if(existingFunc != null) {
+            scope.data.function.name = existingFunc.name;
+            scope.data.function.retval = existingFunc.retval;
+            scope.data.function.args = existingFunc.args;
+        }
 
         var modalInstance = $modal.open({
           templateUrl: 'makeFunction.html',
@@ -900,62 +624,36 @@ odaApplication.run(function($rootScope, $modal, odbFile, odaSession){
           scope: scope
         });
 
-        modalInstance.result.then(function(){
-            odaSession.windowLoader.reload();
-        });
+        modalInstance.result.then(function(funcDef){
+            if (existingFunc != null) {
+                console.log('update function', existingFunc);
+                odbFile.updateFunction(offset, scope.data.function.name,
+                    scope.data.function.retval, scope.data.function.args);
+                odaSession.windowLoader.reload();
+            } else {
+                console.log('create function', funcDef);
 
+                odbFile.createFunction(offset, scope.data.function.name,
+                    scope.data.function.retval, scope.data.function.args).success(function(){
+                        odaSession.windowLoader.reload();
+                    });
+            }
+
+        });
     });
 });
 
 var MakeFunctionController = function($scope, $modalInstance) {
 
-    var offset = $scope.line.data.offset;
-    var hex = intToHex(offset);
-
-    $scope.data = {
-        function: {
-            name: 'FUNCTION_' + hex,
-            retval: 'unknown',
-            args: 'unknown'
-        }
-    };
-
     $scope.ok = function() {
-        $scope.odbFile.createFunction(
-            offset, $scope.data.function.name, $scope.data.function.retval, $scope.data.function.args)
-            .success(function(){
-                $modalInstance.close();
-            });
+        $modalInstance.close($scope.data.function);
     };
+
 
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
 };
-
-var MakeFunctionController = function($scope, $modalInstance) {
-
-    var offset = $scope.line.data.offset;
-    var hex = intToHex(offset);
-
-    $scope.data = {
-        function: {
-            name: 'FUNCTION_' + hex,
-            retval: 'unknown',
-            args: 'unknown'
-        }
-    };
-
-    $scope.ok = function() {
-        $scope.odbFile.createFunction(offset, $scope.data.function.name,
-            $scope.data.function.retval, $scope.data.function.args);
-    };
-
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-};
-
 
 var CommentController = function($scope, $modalInstance) {
     $scope.comment = {
@@ -974,164 +672,19 @@ var CommentController = function($scope, $modalInstance) {
 
 };
 
-odaApplication.run(function($rootScope, editor){
-    //http://lab.jakiestfu.com/contextjs/
-    context.init({preventDoubleContext: false});
-	context.attach('#editor', [
-
-		{header: 'ODA Commands'},
-		/*{text: 'The Author', subMenu: [
-			{header: '@jakiestfu'},
-			{text: 'Website', href: 'http://jakiestfu.com/', target: '_blank'},
-			{text: 'Forrst', href: 'http://forrst.com/people/jakiestfu', target: '_blank'},
-			{text: 'Twitter', href: 'http://twitter.com/jakiestfu', target: '_blank'},
-			{text: 'Donate?', action: function(e){
-				e.preventDefault();
-				$('#donate').submit();
-			}}
-		]},*/
-        {text: '<span class="shortcut-text">Comment</span><span class="shortcut-key">;</span>', action: function (e) {
-            var session = editor.getSession();
-
-            var cursor = session.getSelection().getCursor();
-            var line = session.getDocument().getLineData(cursor.row);
-
-
-            $rootScope.$broadcast('command.comment', {
-                line: line
-            });
-            }
-        },
-        {text: '<span class="shortcut-text">Code -> Data</span><span class="shortcut-key">c</span>', action: function (e) {
-
-            var session = editor.getSession();
-
-            var cursor = session.getSelection().getCursor();
-            var line = session.getDocument().getLineData(cursor.row);
-
-            $rootScope.$broadcast('command.codeToData', {
-                    line: line
-            });
-            }
-        },
-        {text: '<span class="shortcut-text">Data -> Code</span><span class="shortcut-key">d</span>', action: function (e) {
-            var session = editor.getSession();
-
-            var cursor = session.getSelection().getCursor();
-            var line = session.getDocument().getLineData(cursor.row);
-
-            $rootScope.$broadcast('command.dataToCode', {
-                    line: line
-            });
-
-            }
-        },
-        {text: '<span class="shortcut-text">Define Function</span>', action: function (e) {
-            var session = editor.getSession();
-
-            var cursor = session.getSelection().getCursor();
-            var line = session.getDocument().getLineData(cursor.row);
-
-            $rootScope.$broadcast('command.makeFunction', {
-                    line: line
-            });
-            }
-        },
-        /*,
-        {divider: true}
-
-
-		{text: 'Hmm?', subMenu: [
-			{header: 'Well, thats lovely.'},
-			{text: '2nd Level', subMenu: [
-				{header: 'You like?'},
-				{text: '3rd Level!?', subMenu: [
-					{header: 'Of course you do'},
-					{text: 'MENUCEPTION', subMenu: [
-						{header:'FUCK'},
-						{text: 'MAKE IT STOP!', subMenu: [
-							{header: 'NEVAH!'},
-							{text: 'Shieeet', subMenu: [
-								{header: 'WIN'},
-								{text: 'Dont Click Me', href: 'http://bit.ly/1dH1Zh1', target:'_blank', action: function(){
-									_gaq.push(['_trackEvent', 'ContextJS Weezy Click', this.pathname, this.innerHTML]);
-								}}
-							]}
-						]}
-					]}
-				]}
-			]}
-		]}*/
-	]);
-
-});
-
-
-odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor){
-    odbFile.on('liveEntryText', function(event, liveEntryText) {
+odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor) {
+    odbFile.on('liveEntryText', function (event, liveEntryText) {
         //var odaSession = oda_util.getOdaSession();
         //var odbFile = oda_util.getOdbFile();
         if (odaSession != null && odbFile != null) {
             //We have to get the new size here since the number of DUs could possibly have changed
-            odbFile.duLength(function(length){
+            odbFile.duLength(function (length) {
                 editor.getSession().getDocument().setLength(length);
                 odaSession.windowLoader.reload(true)
             });
 
 
         }
-    });
-
-    //http://dmauro.github.io/Keypress/
-    var listener = new window.keypress.Listener($('#editor')[0]);
-
-
-    listener.simple_combo("ctrl g", function() {
-        console.log("You pressed ctrl g");
-        //todo activate textbox
-        $rootScope.$broadcast('command.goto');
-    });
-
-    listener.simple_combo(';', function(){
-        var session = editor.getSession();
-
-        var cursor = session.getSelection().getCursor();
-        var line = session.getDocument().getLineData(cursor.row);
-
-
-        $rootScope.$broadcast('command.comment', {
-            line: line
-        });
-    });
-
-    listener.simple_combo('c', function(){
-        var session = editor.getSession();
-
-        var cursor = session.getSelection().getCursor();
-        var line = session.getDocument().getLineData(cursor.row);
-
-        $rootScope.$broadcast('command.dataToCode', {
-            line: line
-        });
-    });
-
-    listener.simple_combo('d', function(){
-        var session = editor.getSession();
-
-        var cursor = session.getSelection().getCursor();
-        var line = session.getDocument().getLineData(cursor.row);
-
-        $rootScope.$broadcast('command.codeToData', {
-            line: line
-        });
-    });
-
-    listener.simple_combo("ctrl u", function(){
-        $rootScope.$broadcast('command.open');
-    });
-
-    listener.simple_combo("ctrl f", function(){
-        $rootScope.$apply(function(){Docker.select(Docker.docks[2]);});
     });
 });
 
@@ -1235,7 +788,7 @@ odaApplication.filter('hex', function () {
     };
 });
 
-odaApplication.factory('odaStatus', function($rootScope, $q, $http) {
+/*odaApplication.factory('odaStatus', function($rootScope, $q, $http) {
     var status= {
         text: 'Loaded'
     };
@@ -1248,7 +801,7 @@ odaApplication.factory('odaStatus', function($rootScope, $q, $http) {
         }
 
     };
-});
+});*/
 
 odaApplication.service('CursorPosition', function(){
 

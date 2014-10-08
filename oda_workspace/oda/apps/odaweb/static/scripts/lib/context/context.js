@@ -16,6 +16,8 @@ var context = context || (function () {
 		compress: false
 	};
 
+    var showEvent = $.Callbacks();
+
 	function initialize(opts) {
 		
 		options = $.extend({}, options, opts);
@@ -101,6 +103,8 @@ var context = context || (function () {
 		$(document).on('contextmenu', selector, function (e) {
 			e.preventDefault();
 			e.stopPropagation();
+
+            showEvent.fire($menu);
 			
 			$('.dropdown-context:not(.dropdown-context-sub)').hide();
 			
@@ -136,6 +140,7 @@ var context = context || (function () {
 		init: initialize,
 		settings: updateOptions,
 		attach: addContext,
-		destroy: destroyContext
+		destroy: destroyContext,
+        show: showEvent
 	};
 })();

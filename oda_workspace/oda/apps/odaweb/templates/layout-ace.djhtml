@@ -29,9 +29,9 @@
     <script type="text/javascript" src="{% static 'scripts/lib/context/context.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/bootstrap-3.2/js/bootstrap.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/jquery-ui-1.10.4.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.10/angular.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.10/angular-route.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.10/angular-sanitize.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.26/angular.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.26/angular-route.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.26/angular-sanitize.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/ui-utils-0.1.1/ui-utils.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/ui-bootstrap-tpls-0.11.0.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/socket.io-1.0.6.js' %}"></script>
@@ -44,6 +44,11 @@
     <script type="text/javascript" src="{% static 'scripts/lib/handlebars-v1.3.0.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/addrbar.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda_ace.js' %}" ></script>
+
+    <script type="text/javascript" src="{% static 'scripts/odbfile.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/context.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/shortcuts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/socket.js' %}"></script>
 
 
     <script type="text/javascript" src="{% static 'scripts/controllers/SymbolsController.js' %}"></script>

@@ -237,6 +237,11 @@
     width:95px;
     display:inline-block;
 }
+
+.shortcut-text-disabled {
+    color:#e1e1e8;
+}
+
 .shortcut-key {
     margin-left:8px;
     padding:2px 8px 2px 8px;

@@ -215,7 +215,8 @@
 <script type="text/ng-template" id="makeFunction.html">
     <div class="modal-header">
         <button type="button" class="close" ng-click="cancel()">&times;</button>
-        <h3>Create Function</h3>
+        <h3 ng-if="data.modify">Edit Function at 0x{{ data.offsetHex }}</h3>
+        <h3 ng-if="!data.modify">Create Function at 0x{{ data.offsetHex }}</h3>
     </div>
     <div class="modal-body">
         <div class="form-group">

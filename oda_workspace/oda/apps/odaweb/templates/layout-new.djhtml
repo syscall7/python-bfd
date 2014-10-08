@@ -31,32 +31,32 @@
     <script type="text/javascript" src="{% static 'scripts/lib/splitter.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/socket.io.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/scroll-startstop.events.jquery.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/fixed-table.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/history.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/hex-handler.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/deprecated/fixed-table.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/deprecated/history.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/deprecated/hex-handler.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/jquery.form.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/jquery.visible.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/keypress-2.0.1.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/app.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/live-hex.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/deprecated/app.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/deprecated/live-hex.js' %}"></script>
 
     <script type="text/javascript" src="{% static 'scripts/addrbar.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/socket.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/oda_application.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/directives.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/deprecated/socket.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/deprecated/oda_application.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/deprecated/directives.js' %}"></script>
 
-    <script type="text/javascript" src="{% static 'scripts/controllers/HexController.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/controllers/DisassemblyController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/../static/scripts/deprecated/controllers/HexController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/../static/scripts/deprecated/controllers/DisassemblyController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/StringsController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/SectionsController.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/controllers/SliderController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/../static/scripts/deprecated/controllers/SliderController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/LiveEntryController.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/controllers/SidebarToolbarController.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/controllers/StatusController.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/controllers/SymbolsController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/../static/scripts/deprecated/controllers/SidebarToolbarController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/../static/scripts/deprecated/controllers/StatusController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/../static/scripts/deprecated/controllers/SymbolsController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/OptionsViewController.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/controllers/EditMenuController.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/controllers/FindBytesController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/../static/scripts/deprecated/controllers/EditMenuController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/../static/scripts/deprecated/controllers/FindBytesController.js' %}"></script>
 
     {%  endcompress %}
     <script src="https://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
