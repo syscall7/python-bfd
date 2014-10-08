@@ -28,7 +28,7 @@ ALLOWED_HOSTS = (
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = '/var/www/oda2/webapp/odaweb/static/'
+STATIC_ROOT = '/var/www/oda/site/oda/apps/odaweb/static/'
 
 # File storage settings
 # NOTE: In order for GoogleStorage to work, you have to add the IP address of the server that will be accessing Google
