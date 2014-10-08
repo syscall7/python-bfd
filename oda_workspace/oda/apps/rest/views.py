@@ -96,6 +96,12 @@ class FunctionViewSet(OdaStructureViewSet):
     serializer_class = FunctionSerializer
     structure = Function
 
+    def partial_update(self,request,pk):
+        oda_master = OdaMaster.objects.get(short_name=request.DATA['short_name'], revision=request.DATA['revision'])
+
+        #TODO actually store function
+
+        return Response({'binary_string': 'FUNC'})
 
 class SectionsViewSet(OdaStructureViewSet):
     serializer_class = SectionSerializer

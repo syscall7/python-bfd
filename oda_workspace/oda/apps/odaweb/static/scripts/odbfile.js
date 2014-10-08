@@ -203,13 +203,29 @@ var OdbFile = function(oda_master) {
     };
 
     this.updateFunction = function(offset, name, retval, args) {
-         console.log('Update Function', offset, name, retval, args);
+        console.log('Update Function', offset, name, retval, args);
 
         var func = this.functions[offset];
 
         func.name = name;
         func.retval = retval;
         func.args = args;
+
+        $.ajax({
+            url: '/odaweb/api/functions/'+this.binary.id+"/",
+            type: 'PATCH',
+            data: {
+                short_name: this.shortName,
+                revision: this.revision,
+                offset: offset,
+                name: name,
+                retval: retval,
+                args: args
+            }
+        }).success(function(){
+
+        });
+
     };
 
     this.find = function(bytes) {
