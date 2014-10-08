@@ -238,18 +238,7 @@
 
 {% endverbatim %}
 
-<script type="text/javascript" src="{% static 'scripts/lib/src-noconflict/ace.js' %}" ></script>
-<script type="text/javascript" src="{% static 'scripts/lib/handlebars-v1.3.0.js' %}" ></script>
-<script type="text/javascript" src="{% static 'scripts/addrbar.js' %}" ></script>
-<script type="text/javascript" src="{% static 'scripts/oda_ace.js' %}" ></script>
 
-
-<script type="text/javascript" src="{% static 'scripts/controllers/SymbolsController.js' %}"></script>
-<script type="text/javascript" src="{% static 'scripts/controllers/LiveEntryController.js' %}"></script>
-<script type="text/javascript" src="{% static 'scripts/controllers/OptionsViewController.js' %}"></script>
-<script type="text/javascript" src="{% static 'scripts/controllers/StringsController.js' %}"></script>
-<script type="text/javascript" src="{% static 'scripts/controllers/FindBytesController.js' %}"></script>
-<script type="text/javascript" src="{% static 'scripts/controllers/SectionsController.js' %}"></script>
 
 <script type="text/javascript">
 

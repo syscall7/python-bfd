@@ -1,5 +1,6 @@
 {% load staticfiles %}
 {% load tags %}
+{% load compress %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -18,6 +19,10 @@
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/context/context.standalone.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/font-awesome-4.0.3/css/font-awesome.css' %}" />
 
+    <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/ui-layout/layout-default-latest.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/toastr/toastr.css' %}"/>
+
+    {% compress js %}
     <script type="text/javascript" src="{% static 'scripts/lib/keypress-2.0.3.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/jquery/jquery-1.11.1.min.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/lib/jquery.cookie.js' %}" ></script>
@@ -31,12 +36,23 @@
     <script type="text/javascript" src="{% static 'scripts/lib/ui-bootstrap-tpls-0.11.0.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/socket.io-1.0.6.js' %}"></script>
 
-    <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/toastr/toastr.css' %}"/>
     <script type="text/javascript" src="{% static 'scripts/lib/toastr/toastr.js' %}"></script>
 
-    <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/ui-layout/layout-default-latest.css' %}" />
     <script type="text/javascript" src="{% static 'scripts/lib/ui-layout/jquery.layout-rc30.79.js' %}"></script>
 
+    <script type="text/javascript" src="{% static 'scripts/lib/src-noconflict/ace.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/handlebars-v1.3.0.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'scripts/addrbar.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'scripts/oda_ace.js' %}" ></script>
+
+
+    <script type="text/javascript" src="{% static 'scripts/controllers/SymbolsController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/LiveEntryController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/OptionsViewController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/StringsController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/FindBytesController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/SectionsController.js' %}"></script>
+    {%  endcompress %}
 
     <script type="text/javascript">
         window.user = {
