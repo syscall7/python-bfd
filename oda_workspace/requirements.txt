@@ -18,4 +18,5 @@ gsutil==3.42
 django-google-storage==0.3
 bidict==0.1.5
 ipython==2.2.0
+beautifulsoup4==4.3.2
 
