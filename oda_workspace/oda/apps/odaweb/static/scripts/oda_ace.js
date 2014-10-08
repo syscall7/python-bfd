@@ -830,6 +830,11 @@ function start(odbFile) {
                     $rootScope.$broadcast('user.connect', e.users[i]);
                 }
             });
+
+            socket.on('user.error', function(e) {
+                toastr.error("Connection Error: " + e.error);
+            })
+
         });
 
     });
@@ -1349,13 +1354,19 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
                 username: username,
                 color: '#'+Math.floor(Math.random()*16777215).toString(16)
             });
+
         });
     });
 
     $scope.$on('user.disconnect', function(event, username) {
         console.log('user.disconnect', event, username);
         $scope.$apply(function(){
-
+            for (var i=$scope.connectedUsers.length-1; i>=0; i--) {
+                if ($scope.connectedUsers[i].username === username) {
+                    $scope.connectedUsers.splice(i, 1);
+                    break;
+                }
+            }
         });
     });
 
