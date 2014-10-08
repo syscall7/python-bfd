@@ -1,7 +1,7 @@
 import logging
 from django.core.urlresolvers import reverse
 
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.decorators import action, link, api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -292,36 +292,40 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
 
         return Response({'error': error})
 
-    @link()
+    @action()
     def makeFunction(self, request, pk):
-        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-                                    revision=request.QUERY_PARAMS.get('revision'))
+        oda = OdaMaster.objects.get(short_name=request.DATA.get('short_name'),
+                                    revision=request.DATA.get('revision'))
 
         error = None
-        vma = 0
-        if request.QUERY_PARAMS.get('vma'):
-            vma = int(request.QUERY_PARAMS.get('vma'), 0)
+        offset = 0
+        if request.DATA.get('offset'):
+            offset = int(request.DATA.get('offset'), 0)
 
-        name = 'func_%x' % vma
-        if request.QUERY_PARAMS.get('name'):
-            name = int(request.QUERY_PARAMS.get('name'), 0)
+        name = 'func_%x' % offset
+        if request.DATA.get('name'):
+            name = request.DATA.get('name')
 
-        args = None
-        if request.QUERY_PARAMS.get('args'):
-            name = int(request.QUERY_PARAMS.get('args'), 0)
+        args = 'unknown'
+        if request.DATA.get('args'):
+            args = request.DATA.get('args')
 
-        retval = None
-        if request.QUERY_PARAMS.get('retval'):
-            name = int(request.QUERY_PARAMS.get('retval'), 0)
+        retval = 'unknown'
+        if request.DATA.get('retval'):
+            retval = request.DATA.get('retval')
 
         dasm = Disassembler(oda.odb_file)
         try:
-            dasm.make_function(vma, name, args, retval)
+            dasm.make_function(offset, name, args, retval)
         except Exception as e:
             error = e.message
+            return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
+
         oda.save()
 
-        return Response({'error': error})
+        return Response({'function', name})
+
+
 
 class FindViewSet(viewsets.GenericViewSet):
     serializer_class = FindResultsSerializer

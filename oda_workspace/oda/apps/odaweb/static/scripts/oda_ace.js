@@ -196,7 +196,10 @@ var OdbFile = function(oda_master) {
     };
 
     this.createFunction = function(offset, name, retval, args) {
-        var p = $.post('/odaweb/api/makeFunction', {
+        console.log('Create Function', offset, name, retval, args);
+        var p = $.post('/odaweb/api/displayunits/1/makeFunction/', {
+            short_name: this.shortName,
+            revision: this.revision,
             offset: offset,
             name: name,
             retval: retval,
@@ -892,20 +895,8 @@ odaApplication.run(function($rootScope, $modal, odbFile, odaSession){
           scope: scope
         });
 
-    });
-
-    $rootScope.$on("command.makeFunction", function(event, data) {
-        var line= data.line;
-
-        var scope = $rootScope.$new(true);
-        scope.line = line;
-        scope.odbFile = odbFile;
-
-        var modalInstance = $modal.open({
-          templateUrl: 'makeFunction.html',
-          controller: 'MakeFunctionController',
-          size: 'lg',
-          scope: scope
+        modalInstance.result.then(function(){
+            odaSession.windowLoader.reload();
         });
 
     });
@@ -925,8 +916,11 @@ var MakeFunctionController = function($scope, $modalInstance) {
     };
 
     $scope.ok = function() {
-        $scope.odbFile.createFunction(offset, $scope.data.name,
-            $scope.data.retval, $scope.data.args);
+        $scope.odbFile.createFunction(
+            offset, $scope.data.function.name, $scope.data.function.retval, $scope.data.function.args)
+            .success(function(){
+                $modalInstance.close();
+            });
     };
 
     $scope.cancel = function () {
