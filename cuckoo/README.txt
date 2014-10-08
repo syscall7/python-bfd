@@ -116,6 +116,9 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
 
   Edit ~/cuckoo_sandbox/cuckoo/conf/virtualbox.conf with the following changes:
 
+    # Under the [virtualbox] section
+    mode = headless
+
     # Under the [cuckoo1] section
     label = windows_xp_cuckoo_vm
 
