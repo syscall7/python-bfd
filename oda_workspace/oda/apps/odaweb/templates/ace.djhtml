@@ -32,7 +32,27 @@
     </div>
 
     <div class="ui-layout-center">
-        <div id="editor"></div>
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs oda-nav" role="tablist">
+          <li class="active"><a href="#home" role="tab" data-toggle="tab">Disassembly</a></li>
+          <li><a href="#sections" role="tab" data-toggle="tab">Sections</a></li>
+          <li><a href="#tab-fileinfo" role="tab" data-toggle="tab">File Info</a></li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+          <div class="tab-pane active" id="home">
+              <div id="editor"></div>
+          </div>
+          <div class="tab-pane" id="sections">
+              <div ng-include src="'/static2/templates/sections.html'"></div>
+          </div>
+          <div class="tab-pane" id="tab-fileinfo">
+            {% include "tab_fileinfo.djhtml" %}
+          </div>
+        </div>
+
+
     </div>
 
 </div>

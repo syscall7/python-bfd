@@ -10,7 +10,6 @@
     <link rel="icon" type="image/png" href="{% static 'images/oda.png' %}" />
 
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/nprogress/nprogress.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'css/oda3.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/font-awesome-4.0.3/css/font-awesome.css' %}" />
 
 
@@ -21,6 +20,8 @@
 
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/ui-layout/layout-default-latest.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/toastr/toastr.css' %}"/>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/oda3.css' %}" />
 
     {% compress js %}
     <script type="text/javascript" src="{% static 'scripts/lib/keypress-2.0.3.min.js' %}"></script>

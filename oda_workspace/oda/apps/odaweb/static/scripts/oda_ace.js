@@ -549,6 +549,7 @@ function start(odbFile) {
     odaApplication.value('editor', editor);
     odaApplication.value('odaSession', odaSession);
     odaApplication.value('addrBar', addrBar);
+    odaApplication.value('statusBar', statusBar);
 
     //Keyboard Handling
     odaApplication.run(function($rootScope){
@@ -581,6 +582,12 @@ function start(odbFile) {
     angular.bootstrap(document, ['odaApp']);
 
 }
+
+odaApplication.run(function($rootScope, statusBar){
+    $rootScope.$on('user.connect', function(e, data){
+        console.log('user.connect', e);
+    });
+});
 
 odaApplication.run(function($rootScope, $modal, odbFile, odaSession){
     $rootScope.$on('command.comment', function(event, line){
@@ -766,9 +773,9 @@ $(document).ready(function(){
 
     var top = parseInt($('.theeditor').css('top'));
     var bottom = parseInt($('.theeditor').css('bottom'));
-    $('#editor').height($(window).height()-top-bottom - 5);
+    $('#editor').height($(window).height()-top-bottom - 35 );
     $(window).resize(function(){
-        $('#editor').height($(window).height()-top-bottom - 5 );
+        $('#editor').height($(window).height()-top-bottom - 35 );
     });
 
 
@@ -868,10 +875,10 @@ odaApplication.service('Docker', function(odbFile) {
         this.activeDock = this.docks[1];
     }
 
-    this.docks.push({
+    /*this.docks.push({
         icon: 'fa-th-large',
         template: '/static2/templates/sections.html'
-    });
+    });*/
 
     this.select = function(thing) { this.activeDock = thing; };
     this.clear = function(thing) { this.activeDock = null; };

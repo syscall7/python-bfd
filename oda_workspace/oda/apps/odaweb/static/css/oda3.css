@@ -40,7 +40,7 @@
         font-weight: bold;
     }
 
-
+/** STATUS BAR CONTROLS **/
      #messages-container {
         margin: 0;
         padding: 0;
@@ -111,6 +111,18 @@
         display: inline-block;
         text-align: right;
     }
+
+    /** End status bar **/
+
+    /** Tab Modifications **/
+    .oda-nav > li > a {
+        padding: 1px 15px;
+    }
+    .oda-nav {
+        background-color: #def;
+        border-bottom: 2px solid #888;
+    }
+
 
     .navbar-brand {
         background: url('/static2/images/oda.png') no-repeat center;
