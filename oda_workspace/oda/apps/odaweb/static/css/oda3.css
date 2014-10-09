@@ -51,6 +51,7 @@
         width: 300px;
         background-color:#c0c0c0;
          padding:8px;
+         overflow:hidden;
      }
      a.oda_error-indicator {
          color:red;
