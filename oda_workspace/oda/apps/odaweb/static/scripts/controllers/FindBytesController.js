@@ -1,4 +1,6 @@
-odaApplication.controller('FindBytesController', function FindBytesController($scope, odbFile) {
+"use strict";
+
+odaApplication.controller('FindBytesController', function FindBytesController($scope, odbFile, odaSession) {
 
     //http://stackoverflow.com/questions/18716113/scope-issue-in-angularjs-using-angularui-bootstrap-modal
     $scope.data = {
@@ -35,7 +37,7 @@ odaApplication.controller('FindBytesController', function FindBytesController($s
     */
 
     $scope.setPosition = function(position) {
-        //odaApi.setPosition(position);
+        odaSession.moveToOffset(position);
     };
 
 
