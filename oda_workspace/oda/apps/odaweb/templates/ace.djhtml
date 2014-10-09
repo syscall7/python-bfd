@@ -52,7 +52,20 @@
 
 </div>
 <div id="statusbar-container">
-<div id="statusBar"><span class="status-mode">online disassembler forever!</span><div class="ace_status-indicator" style="display: inline-block;">61:0</div></div>
+    <div id="statusBar">
+        <span class="status-mode">online disassembler forever!</span>
+        <div class="oda_loading-indicator-box">
+            <i class="fa fa-cloud-download fa-lg oda_loading-indicator" style="display: none;"></i>
+        </div>
+        <div class="oda_loading-error-box">
+            <a href="" class="oda_error-indicator" style="display:none;"><i class="fa fa-exclamation-triangle fa-lg"></i></a>
+        </div>
+        <div class="ace_status-indicator">0:0</div>
+    </div>
+    <div id="messages-container" style="display: none;">
+        <h4>Messages</h4>
+        <div class="oda-error-messages"></div>
+    </div>
 </div>
 
 {% verbatim %}

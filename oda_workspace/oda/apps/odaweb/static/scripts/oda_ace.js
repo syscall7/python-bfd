@@ -139,16 +139,39 @@ var StatusBar = function() {
     this.setAddress = function(address) {
         $('.ace_status-indicator').html("0x" + address.toString(16));
     };
+    this.templateString = "[{{mode}}] {{status}}";
 
-    this.templateString = "[{{mode}}] ONLINE DISASSEMBLER 4EVER!";
+    var status = 'ONLINE DISASSEMBLER 4EVER!';
 
-    this.setMode = function(mode) {
-        var template = Handlebars.compile(this.templateString);
-        var renderedText = template({mode:mode});
-        $('.status-mode').html(renderedText)
-    };
+    var mode = 'normal';
 
-    this.setMode('normal');
+    var template = Handlebars.compile(this.templateString);
+    var renderedText = template({mode:mode, status: status});
+    $('.status-mode').html(renderedText);
+
+
+    var ajaxOuts = 0;
+    $( document ).ajaxSend(function(e, jqXHR, ajaxOptions){
+        if (ajaxOuts == 0) {
+            $('.oda_loading-indicator').fadeOut(250).fadeIn(250).fadeOut(250).fadeIn(250);
+        }
+        ajaxOuts +=1;
+        //console.log("ajaxSend", e, jqXHR, ajaxOptions);
+    } );
+    $( document ).ajaxSend(function(e, jqXHR, ajaxOptions){
+        ajaxOuts -= 1;
+        if (ajaxOuts == 0) {
+            $('.oda_loading-indicator').fadeOut(500);
+        }
+    });
+    $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError){
+        $('.oda_error-indicator').fadeIn(250);
+        console.log(jqXHR, ajaxSettings.url, thrownError);
+        $('.oda-error-messages').append('<p>' + thrownError + ":" + ajaxSettings.url + '</p>');
+    });
+    $('.oda_error-indicator').click(function(){
+        $('#messages-container').slideToggle();
+    });
 };
 
 var intToHex = function(value){
@@ -462,6 +485,7 @@ function start(odbFile) {
     editor.renderer.setShowGutter(true);
 
     var odaSession = new OdaSession(editor, odbFile, windowLoader);
+
     var statusBar = new StatusBar();
 
     windowLoader.session = editor.getSession();

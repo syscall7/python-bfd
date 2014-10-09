@@ -40,6 +40,22 @@
         font-weight: bold;
     }
 
+
+     #messages-container {
+        margin: 0;
+        padding: 0;
+        position: absolute;
+        right: 0;
+        bottom: 20px;
+        height: 200px;
+        width: 300px;
+        background-color:#c0c0c0;
+         padding:8px;
+     }
+     a.oda_error-indicator {
+         color:red;
+     }
+
      #statusBar {
         margin: 0;
         padding: 0;
@@ -51,11 +67,35 @@
         background-color: rgb(245, 245, 245);
         color: gray;
     }
+     .oda_loading-indicator-box {
+         display: inline-block;
+         position: absolute;
+         right: 90px;
+         padding-left:10px;
+         border-left: 1px solid;
+         height:20px;
+         overflow: hidden;
+         width:30px;
+     }
+      .oda_loading-error-box {
+         display: inline-block;
+         position: absolute;
+         right: 130px;
+         padding-left:10px;
+         border-left: 1px solid;
+         height:20px;
+         overflow: hidden;
+         width:30px;
+     }
+
     .ace_status-indicator {
         color: gray;
         position: absolute;
         right: 0;
         border-left: 1px solid;
+        width:80px;
+        display: inline-block;
+        text-align: right;
     }
 
     .navbar-brand {
