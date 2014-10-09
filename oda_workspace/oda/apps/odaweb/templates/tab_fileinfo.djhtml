@@ -1,5 +1,4 @@
-<div class="row">&nbsp;</div>
-
+<div class="container">
 <div class="row">
     <div class="span9 group">
         <table class="table-file-props">
@@ -100,4 +99,5 @@ data-content="Lookup in the <a href='http://www.team-cymru.org/Services/MHR/'>Ma
         <br>
     </div>
     -->
+</div>
 </div>
