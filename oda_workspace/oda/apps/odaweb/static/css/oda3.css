@@ -66,6 +66,7 @@
         height: 20px;
         background-color: rgb(245, 245, 245);
         color: gray;
+        font-family: "Courier New",Courier,monospace;
     }
      .oda_loading-indicator-box {
          display: inline-block;
