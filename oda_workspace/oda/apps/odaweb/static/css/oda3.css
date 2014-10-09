@@ -78,6 +78,18 @@
          overflow: hidden;
          width:30px;
      }
+
+     .oda_status-name-box {
+         display: inline-block;
+         position: absolute;
+         right: 170px;
+         padding-left:10px;
+         border-left: 1px solid;
+         height:20px;
+         overflow: hidden;
+         text-align: right;
+     }
+
       .oda_loading-error-box {
          display: inline-block;
          position: absolute;

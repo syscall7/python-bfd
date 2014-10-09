@@ -135,11 +135,16 @@ function string_insert(original, index, string) {
     return string + original;
 };
 
-var StatusBar = function() {
+var StatusBar = function(odbFile) {
     this.setAddress = function(address) {
         $('.ace_status-indicator').html("0x" + address.toString(16));
     };
     this.templateString = "[{{mode}}] {{status}}";
+
+    var projectNameTemplate = Handlebars.compile('{{odaMaster.project_name}} : {{odaMaster.binary.arch}} ({{odaMaster.binary.size}})');
+    $('.oda_status-name-box').html(projectNameTemplate({
+        odaMaster: odbFile.oda_master
+    }));
 
     var status = 'ONLINE DISASSEMBLER 4EVER!';
 
@@ -164,11 +169,19 @@ var StatusBar = function() {
             $('.oda_loading-indicator').fadeOut(500);
         }
     });
+
+    var errorTemplate = Handlebars.compile("<p>{{time}}: {{thrownError}} -- {{url}}</p>");
     $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError){
         $('.oda_error-indicator').fadeIn(250);
         console.log(jqXHR, ajaxSettings.url, thrownError);
-        $('.oda-error-messages').append('<p>' + thrownError + ":" + ajaxSettings.url + '</p>');
+        var d = new Date();
+        $('.oda-error-messages').append(errorTemplate({
+            thrownError: thrownError,
+            url: ajaxSettings.url,
+            time: d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds() + "." + d.getMilliseconds()
+        }));
     });
+
     $('.oda_error-indicator').click(function(){
         $('#messages-container').slideToggle();
     });
@@ -486,7 +499,7 @@ function start(odbFile) {
 
     var odaSession = new OdaSession(editor, odbFile, windowLoader);
 
-    var statusBar = new StatusBar();
+    var statusBar = new StatusBar(odbFile);
 
     windowLoader.session = editor.getSession();
     editor.getSession().gutterRenderer = new OdaGutterRenderer(odaSession);
@@ -1244,6 +1257,30 @@ function showNotificationBar(message, duration, bgColor, txtColor, height) {
         }, duration);
     });
 }
+
+
+//To allow html to be present in the popovers
+//http://stackoverflow.com/questions/16722424/how-do-i-create-an-angularjs-ui-bootstrap-popover-with-html-content/21979258#21979258
+odaApplication.filter('unsafe', ['$sce', function ($sce) {
+    return function (val) {
+        return $sce.trustAsHtml(val);
+    };
+}]);
+// update popover template for binding unsafe html
+angular.module("template/popover/popover.html", []).run(["$templateCache", function ($templateCache) {
+    $templateCache.put("template/popover/popover.html",
+      "<div class=\"popover {{placement}}\" ng-class=\"{ in: isOpen(), fade: animation() }\">\n" +
+      "  <div class=\"arrow\"></div>\n" +
+      "\n" +
+      "  <div class=\"popover-inner\">\n" +
+      "      <h3 class=\"popover-title\" ng-bind-html=\"title | unsafe\" ng-show=\"title\"></h3>\n" +
+      "      <div class=\"popover-content\"ng-bind-html=\"content | unsafe\"></div>\n" +
+      "  </div>\n" +
+      "</div>\n" +
+      "");
+}]);
+
+
 
 
 /*

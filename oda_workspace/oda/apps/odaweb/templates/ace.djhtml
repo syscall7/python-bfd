@@ -60,6 +60,9 @@
         <div class="oda_loading-error-box">
             <a href="" class="oda_error-indicator" style="display:none;"><i class="fa fa-exclamation-triangle fa-lg"></i></a>
         </div>
+        <div class="oda_status-name-box">
+
+        </div>
         <div class="ace_status-indicator">0:0</div>
     </div>
     <div id="messages-container" style="display: none;">
