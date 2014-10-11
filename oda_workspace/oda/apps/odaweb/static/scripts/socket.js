@@ -57,6 +57,9 @@ odaApplication.run(function($rootScope, addrBar, odbFile, odaSession){
             }
             else if (e.action == 'makeCode') {
                 odbFile.makeData(e.data.offset, true);
+            } else if (e.action  == 'updateFunction') {
+                odbFile.updateFunction(e.data.offset, e.data.name,
+                    e.data.retval, e.data.args, true);
             }
         });
 

@@ -264,7 +264,9 @@ var OdbFile = function(oda_master) {
         return p;
     };
 
-    this.updateFunction = function(offset, name, retval, args) {
+    this.updateFunction = function(offset, name, retval, args, remote) {
+        if(typeof(remote)==='undefined') remote = false;
+
         console.log('Update Function', offset, name, retval, args);
 
         var func = this.functions[offset];
@@ -273,6 +275,21 @@ var OdbFile = function(oda_master) {
         func.retval = retval;
         func.args = args;
 
+        var apply = function() {
+            this._signal(ODB_EVENTS.CHANGED, {
+                addr: offset,
+                action: 'updateFunction',
+                remote: remote,
+                data: {
+                    offset: offset,
+                    name: name,
+                    retval: retval,
+                    args: args
+                }
+            });
+        }.bind(this);
+
+        if (!remote) {
         $.ajax({
             url: '/odaweb/api/functions/'+this.binary.id+"/",
             type: 'PATCH',
@@ -284,14 +301,10 @@ var OdbFile = function(oda_master) {
                 retval: retval,
                 args: args
             }
-        }).success(function(){
-
-        });
-
-        this._signal(ODB_EVENTS.CHANGED, {
-            addr: offset,
-            action: 'updateFunction'
-        });
+        }).success(apply);
+        } else {
+            apply();
+        }
     };
 
     this.find = function(bytes) {
