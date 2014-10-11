@@ -696,9 +696,7 @@ odaApplication.run(function($rootScope, $modal, odbFile, odaSession){
                 console.log('create function', funcDef);
 
                 odbFile.createFunction(offset, scope.data.function.name,
-                    scope.data.function.retval, scope.data.function.args).success(function(){
-                        odaSession.windowLoader.reload();
-                    });
+                    scope.data.function.retval, scope.data.function.args);
             }
 
         });

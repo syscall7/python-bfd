@@ -251,17 +251,37 @@ var OdbFile = function(oda_master) {
         return p;
     };
 
-    this.createFunction = function(offset, name, retval, args) {
+    this.createFunction = function(offset, name, retval, args, remote) {
+        if(typeof(remote)==='undefined') remote = false;
+
         console.log('Create Function', offset, name, retval, args);
-        var p = $.post('/odaweb/api/displayunits/1/makeFunction/', {
-            short_name: this.shortName,
-            revision: this.revision,
-            offset: offset,
-            name: name,
-            retval: retval,
-            args: args
-        });
-        return p;
+
+        var apply = function() {
+            this._signal(ODB_EVENTS.CHANGED, {
+                addr: offset,
+                action: 'createFunction',
+                remote: remote,
+                data: {
+                    offset: offset,
+                    name: name,
+                    retval: retval,
+                    args: args
+                }
+            });
+        }.bind(this);
+
+        if (!remote) {
+            $.post('/odaweb/api/displayunits/1/makeFunction/', {
+                short_name: this.shortName,
+                revision: this.revision,
+                offset: offset,
+                name: name,
+                retval: retval,
+                args: args
+        }).success(apply);
+        } else {
+            apply();
+        }
     };
 
     this.updateFunction = function(offset, name, retval, args, remote) {
