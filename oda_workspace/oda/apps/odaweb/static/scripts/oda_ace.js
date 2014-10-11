@@ -146,13 +146,35 @@ var StatusBar = function(odbFile) {
         odaMaster: odbFile.oda_master
     }));
 
-    var status = 'ONLINE DISASSEMBLER 4EVER!';
+    var defaultStatus = 'ONLINE DISASSEMBLER 4EVER!';
+    this.status = 'ONLINE DISASSEMBLER 4EVER!';
 
     var mode = 'normal';
 
-    var template = Handlebars.compile(this.templateString);
-    var renderedText = template({mode:mode, status: status});
-    $('.status-mode').html(renderedText);
+    this._setStatus = function(){
+        var template = Handlebars.compile(this.templateString);
+        var renderedText = template({mode:mode, status: this.status});
+        $('.status-mode').html(renderedText);
+    };
+    this._setStatus();
+
+
+    var timer = null;
+    this.pushStatus = function(newStatus) {
+        this.status = newStatus;
+        this._setStatus();
+        if (timer != null) {
+            clearInterval(timer);
+        }
+        timer = setTimeout(function(){
+            timer = null;
+            this.status = defaultStatus;
+            this._setStatus();
+        }.bind(this), 5000);
+
+    }
+
+
 
 
     var ajaxOuts = 0;
@@ -584,8 +606,9 @@ function start(odbFile) {
 }
 
 odaApplication.run(function($rootScope, statusBar){
-    $rootScope.$on('user.connect', function(e, data){
-        console.log('user.connect', e);
+    $rootScope.$on('user.connect', function(e, username){
+        //console.log('user.connect', e);
+        statusBar.pushStatus("USER " + username + " HAS CONNECTED...");
     });
 });
 
