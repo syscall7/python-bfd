@@ -1,3 +1,8 @@
+"use strict";
+
+var ODB_EVENTS = {
+    CHANGED : 'odb.changed'
+};
 var OdbFile = function(oda_master) {
 
     this.oda_master = oda_master;
@@ -112,44 +117,101 @@ var OdbFile = function(oda_master) {
         }).done(callback);
     };
 
-    this.makeData = function (vma, callback) {
+    this.makeData = function (vma, remote) {
+        if(typeof(remote)==='undefined') remote = false;
+
         console.log('makeData', vma);
-        $.get('/odaweb/api/displayunits/1/makeData', {
-            short_name: this.shortName,
-            revision: this.revision,
-            vma: vma
-        }).success(callback)
+
+        var apply = function() {
+             this._signal(ODB_EVENTS.CHANGED, {
+                addr: vma,
+                action: 'makeData',
+                remote: remote,
+                data: {
+                    offset: vma
+                }
+            });
+
+        }.bind(this);
+
+        if (!remote) {
+            $.get('/odaweb/api/displayunits/1/makeData', {
+                short_name: this.shortName,
+                revision: this.revision,
+                vma: vma
+            }).success(apply);
+        } else {
+            apply();
+        }
+
     };
 
-    this.makeCode = function (vma, callback) {
+    this.makeCode = function (vma, remote) {
+        if(typeof(remote)==='undefined') remote = false;
+
         console.log('makeCode', vma);
-        $.get('/odaweb/api/displayunits/1/makeCode', {
-            short_name: this.shortName,
-            revision: this.revision,
-            vma: vma
-        }).success(callback)
+
+        var apply = function() {
+             this._signal(ODB_EVENTS.CHANGED, {
+                addr: vma,
+                action: 'makeCode',
+                remote: remote,
+                data: {
+                    offset: vma
+                }
+            });
+
+        }.bind(this);
+
+        if (!remote) {
+
+            $.get('/odaweb/api/displayunits/1/makeCode', {
+                short_name: this.shortName,
+                revision: this.revision,
+                vma: vma
+            }).success(apply)
+        } else {
+            apply();
+        }
+
     };
 
-    this.addComment = function (offset, comment) {
+    this.addComment = function (offset, comment, remote) {
+        if(typeof(remote)==='undefined') remote = false;
+
         console.log("Comment", offset, comment);
 
-        $.post("/odaweb/api/comments/",{
-            short_name: this.shortName,
-            revision: this.revision,
-            comment: comment,
-            offset: offset
-        }).success(function(data){
+        var apply = function() {
             this.comments[offset] = {
                 comment: comment,
-                offset: offset
+                offset: offset,
+                remote: remote
             };
 
 
-            this._signal('changed', {
+            this._signal(ODB_EVENTS.CHANGED, {
                 addr: offset,
-                action: 'insertComment'
+                action: 'insertComment',
+                remote: remote,
+                data: {
+                    comment: comment,
+                    offset: offset
+                }
             });
-        }.bind(this));
+
+        }.bind(this);
+
+        if (!remote) {
+            $.post("/odaweb/api/comments/",{
+                short_name: this.shortName,
+                revision: this.revision,
+                comment: comment,
+                offset: offset
+            }).success(apply);
+        } else {
+            apply();
+        }
+
     };
 
     this.setOptions = function(options){
@@ -226,6 +288,10 @@ var OdbFile = function(oda_master) {
 
         });
 
+        this._signal(ODB_EVENTS.CHANGED, {
+            addr: offset,
+            action: 'updateFunction'
+        });
     };
 
     this.find = function(bytes) {

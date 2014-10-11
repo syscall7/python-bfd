@@ -536,8 +536,8 @@ function start(odbFile) {
 
 
 
-    odbFile.on('changed', function(e){
-        console.log("odbFile.on('changed')", e);
+    odbFile.on(ODB_EVENTS.CHANGED, function(e){
+        console.log("odbFile.on('odbfile.changed')", e);
         windowLoader.reload();
     });
 
@@ -639,9 +639,7 @@ odaApplication.run(function($rootScope, $modal, odbFile, odaSession){
     $rootScope.$on('command.dataToCode', function(event,data){
         var line = data.line;
 
-        odbFile.makeCode(line.data.offset, function(data){
-            odaSession.windowLoader.reload();
-        });
+        odbFile.makeCode(line.data.offset);
 
     });
 
@@ -649,9 +647,7 @@ odaApplication.run(function($rootScope, $modal, odbFile, odaSession){
     $rootScope.$on('command.codeToData', function(event,data){
         var line = data.line;
 
-        odbFile.makeData(line.data.offset, function(data){
-            odaSession.windowLoader.reload();
-        });
+        odbFile.makeData(line.data.offset);
     });
 
 
@@ -696,7 +692,6 @@ odaApplication.run(function($rootScope, $modal, odbFile, odaSession){
                 console.log('update function', existingFunc);
                 odbFile.updateFunction(offset, scope.data.function.name,
                     scope.data.function.retval, scope.data.function.args);
-                odaSession.windowLoader.reload();
             } else {
                 console.log('create function', funcDef);
 

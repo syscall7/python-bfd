@@ -1,4 +1,7 @@
+"use strict";
+
 //Socket IO
+
 odaApplication.run(function($rootScope, addrBar, odbFile, odaSession){
     var socket = io.connect("http://" + window.location.hostname + ":8080", {
         reconnection: false
@@ -18,14 +21,6 @@ odaApplication.run(function($rootScope, addrBar, odbFile, odaSession){
             addrBar.updateUser(e.username, e.offset);
         });
 
-        odaSession.on('cursor.change', function(e){
-            var currentUser = $rootScope.currentUser;
-            socket.emit('cursor.change',{
-                username: currentUser.username,
-                offset: e.offset
-            });
-        });
-
         var currentUser = $rootScope.currentUser;
         socket.emit('subscribe',{
             //todo username
@@ -42,14 +37,48 @@ odaApplication.run(function($rootScope, addrBar, odbFile, odaSession){
         socket.on('users', function(e) {
             console.log('users', e);
             for (var i=0;i< e.users.length; i++ ) {
+                addrBar.addUser(e.users[i]);
                 $rootScope.$broadcast('user.connect', e.users[i]);
             }
         });
 
         socket.on('user.error', function(e) {
             toastr.error("Connection Error: " + e.error);
-        })
+        });
+
+        socket.on('odbfile.changed', function(e) {
+            console.log('INCOMING', e);
+
+            if (e.action == 'insertComment') {
+                odbFile.addComment(e.data.offset, e.data.comment, true)
+            }
+            else if (e.action == 'makeData') {
+                odbFile.makeData(e.data.offset, true);
+            }
+            else if (e.action == 'makeCode') {
+                odbFile.makeData(e.data.offset, true);
+            }
+        });
+
 
     });
+
+    odaSession.on('cursor.change', function(e){
+        var currentUser = $rootScope.currentUser;
+        socket.emit('cursor.change',{
+            username: currentUser.username,
+            offset: e.offset
+        });
+    });
+
+
+    odbFile.on(ODB_EVENTS.CHANGED, function(e){
+        if (e.remote) {
+            return;
+        }
+        socket.emit('odbfile.changed', e);
+    });
+
+
 
 });
