@@ -1,0 +1,71 @@
+from rest_framework import status
+from oda_api_tests import OdaApiTestCase
+
+class MakeFunctionUnitTest(OdaApiTestCase):
+    urls = 'oda.urls'
+
+    def test_simple_make_function(self):
+        # the year I was born...well, kinda
+        FUNC_ADDR = 0x401981
+        FUNC_NAME = 'birthday_func'
+        FUNC_ARGS = 'uint8_t,uint16_t'
+        FUNC_RETVAL = 'uint32_t'
+
+        # create a function
+        response = self.client.post('/odaweb/api/displayunits/1/makeFunction/',
+                                    { 'revision': 0,
+                                      'short_name': 'mkdir',
+                                      'offset': '0x%x' % FUNC_ADDR,
+                                      'name': FUNC_NAME,
+                                      'args': FUNC_ARGS,
+                                      'retval': FUNC_RETVAL},
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['error'], None)
+        self.assertEqual(response.data['function'], FUNC_NAME)
+
+        # verify the function now appears in the function list
+        response = self.client.get('/odaweb/api/functions/',
+                                   {'revision': 0, 'short_name': 'mkdir'},
+                                   format='json')
+
+        funcs = { func['offset']: func for func in response.data }
+
+        self.assertEqual(funcs[FUNC_ADDR]['name'], FUNC_NAME)
+        self.assertEqual(funcs[FUNC_ADDR]['offset'], FUNC_ADDR)
+        self.assertEqual(funcs[FUNC_ADDR]['args'], FUNC_ARGS)
+        self.assertEqual(funcs[FUNC_ADDR]['retval'], FUNC_RETVAL)
+
+        # verify the function now appears in the symbol list
+        response = self.client.get('/odaweb/api/symbols/',
+                                   {'revision': 0, 'short_name': 'mkdir'},
+                                   format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        syms = {sym['offset']: sym for sym in response.data }
+
+        self.assertEqual(syms[FUNC_ADDR]['name'], FUNC_NAME)
+        self.assertEqual(syms[FUNC_ADDR]['offset'], FUNC_ADDR)
+        self.assertEqual(syms[FUNC_ADDR]['type'], 't')
+
+    def test_make_function_on_data(self):
+        # TODO
+        pass
+
+    def test_make_function_that_already_exists(self):
+        # TODO
+        pass
+
+    def test_make_function_at_illegal_address(self):
+        # TODO
+        pass
+
+    def test_make_function_verify_args(self):
+        # TODO
+        pass
+
+    def test_make_function_verify_retval(self):
+        # TODO
+        pass
+
+

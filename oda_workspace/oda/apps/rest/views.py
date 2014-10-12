@@ -323,13 +323,15 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         dasm = Disassembler(oda.odb_file)
         try:
             dasm.make_function(offset, name, args, retval)
+            oda.save()
         except Exception as e:
             error = e.message
             return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
 
-        oda.save()
-
-        return Response({'function', name})
+        return Response({
+                    'function': name,
+                    'error': error
+        })
 
 
 
