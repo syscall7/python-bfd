@@ -87,7 +87,7 @@ class SymbolsTest(OdaApiTestCase):
         rd = response.data
 
         self.assertIsNotNone(rd)
-        self.assertEqual(455, len(rd))
+        self.assertEqual(214, len(rd))
         self.assertIsNotNone(rd[0]['name'])
         self.assertIsNotNone(rd[0]['offset'])
         self.assertNotEqual(rd[0]['offset'], 0)
