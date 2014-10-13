@@ -22,6 +22,11 @@ odaApplication.run(function($rootScope, addrBar, odbFile, odaSession, statusBar)
         });
 
         var currentUser = $rootScope.currentUser;
+
+        if (currentUser == null) {
+            return;
+        }
+
         socket.emit('subscribe',{
             //todo username
             username: currentUser.username,
