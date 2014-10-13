@@ -135,7 +135,7 @@
             Please select from the platform options below:
         </div>
 
-        <div class="alert alert-info">
+        <div class="alert alert-info" ng-show="runtimeSupported()">
             <div class="checkbox">
                 <label>
                   <input type="checkbox" ng-model="data.sandbox">Run Live in a Sandbox and Memory Dump

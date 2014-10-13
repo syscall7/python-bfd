@@ -1196,6 +1196,15 @@ var ConfigureFileController = function($scope, $modalInstance, fileData) {
         console.log($scope.options);
     };
 
+    /* determine if we support running the file in the sandbox */
+    $scope.runtimeSupported = function() {
+        var enabled = false;
+        /* TODO: Add other targets that will run in the Windows XP VM */
+        if (fileData.target == 'pei-i386') {
+            enabled = true;
+        }
+        return enabled;
+    };
 };
 
 var GotoAddressController = function($scope, $modalInstance, odaSession) {
