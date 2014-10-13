@@ -161,12 +161,12 @@
     <div class="modal-body">
 
         <p><strong>Status:</strong> {{ job_status.status || "provisioning"}}</p>
-        <p><strong>Elapsed Time:</strong> {{ job_status.elapsed_time }}</p>
+        <p><strong>Elapsed Time:</strong> {{ elapsedSeconds | date:'mm:ss' }}</p>
         <pre>{{ job_status.msg }}</pre>
 
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" ng-disabled="job_status.status != 'reported'" ng-click="continue()">continue</button>
+        <button class="btn btn-primary" ng-disabled="!jobDone()" ng-click="continue()">continue</button>
     </div>
 </script>
 

@@ -1120,6 +1120,9 @@ var UploadFileController = function($scope, $modalInstance){
 
 var MonitorSandboxController = function($scope, $interval, $http, fileInfo) {
     var checking;
+    var UPDATE_INTERVAL = 3000;
+    $scope.elapsedSeconds = 0;
+    $scope.job_status = null;
 
     $http.post('/odaweb/api/sandbox/1/submit/', {
         short_name: fileInfo.shortName,
@@ -1127,6 +1130,10 @@ var MonitorSandboxController = function($scope, $interval, $http, fileInfo) {
     }).success(function(job){
         checking = $interval(function(){
             console.log('checking...');
+
+            if (!$scope.jobDone()) {
+                $scope.elapsedSeconds += UPDATE_INTERVAL;
+            }
 
             $http.get('/odaweb/api/sandbox/1/status/', {
                 params: {
@@ -1137,11 +1144,15 @@ var MonitorSandboxController = function($scope, $interval, $http, fileInfo) {
                 $scope.job_status = response.status
 
             });
-        }, 3000);
+        }, UPDATE_INTERVAL);
     });
 
-    $scope.btnDisabled = function() {
-        return $scope.job_status.status != "reported";
+    $scope.jobDone = function() {
+        var done = false;
+        if ($scope.job_status) {
+            done = $scope.job_status.status == "reported";
+        }
+        return done;
     }
 
     $scope.continue = function () {
