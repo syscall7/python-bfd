@@ -143,10 +143,13 @@ io.on('connection', function (socket) {
         socket.broadcast.to(currentRoom).emit('cursor.change', data);
     });
 
-    socket.on('comment.create', function(data){
-        logger.info("Comment Created", currentRoom, data);
-        socket.broadcast.to(currentRoom).emit('comment.create', data);
+    socket.on('odbfile.changed', function(data){
+        logger.info("odbfile.changed", currentRoom, data);
+        socket.broadcast.to(currentRoom).emit('odbfile.changed', data);
     });
+
+
+
 
 });
 
