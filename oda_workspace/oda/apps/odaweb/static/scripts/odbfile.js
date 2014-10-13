@@ -303,6 +303,13 @@ var OdbFile = function(oda_master) {
         console.log('Create Function', offset, name, retval, args);
 
         var apply = function() {
+            this.functions[offset] = {
+                retval: retval,
+                args: args,
+                offet: offset,
+                name: name
+            };
+
             this._signal(ODB_EVENTS.CHANGED, {
                 addr: offset,
                 action: 'createFunction',
