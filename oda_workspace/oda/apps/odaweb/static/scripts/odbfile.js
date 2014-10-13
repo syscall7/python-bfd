@@ -1,7 +1,8 @@
 "use strict";
 
 var ODB_EVENTS = {
-    CHANGED : 'odb.changed'
+    CHANGED : 'odb.changed',
+    PARCELS_RELOADED: 'odb.parcelReload'
 };
 var OdbFile = function(oda_master) {
 
@@ -107,6 +108,17 @@ var OdbFile = function(oda_master) {
         }.bind(this));
     };
 
+    this.reloadParcels = function() {
+        var pq = $.get('/odaweb/api/parcels/', {
+            short_name: this.shortName,
+            revision: this.revision
+        }).success(function (data) {
+            this.parcels = data;
+            this._signal(ODB_EVENTS.PARCELS_RELOADED, {
+            });
+        }.bind(this));
+    };
+
     this.duLength = function(callback) {
         $.get('/odaweb/api/displayunits/1/size', {
             short_name: this.shortName,
@@ -115,7 +127,7 @@ var OdbFile = function(oda_master) {
             this.displayUnitsLength = data;
             callback(data);
         }.bind(this));
-    }
+    };
 
     this.loadDu = function (addr, numUnits, callback) {
         $.get('/odaweb/api/displayunits/', {
@@ -150,6 +162,8 @@ var OdbFile = function(oda_master) {
                 }
             });
 
+            this.reloadParcels();
+
         }.bind(this);
 
         if (!remote) {
@@ -178,6 +192,8 @@ var OdbFile = function(oda_master) {
                     offset: vma
                 }
             });
+
+            this.reloadParcels();
 
         }.bind(this);
 

@@ -613,6 +613,13 @@ odaApplication.run(function($rootScope, statusBar){
     });
 });
 
+odaApplication.run(function(odbFile, addrBar){
+    odbFile.on(ODB_EVENTS.PARCELS_RELOADED, function(){
+        addrBar.setParcels(odbFile.parcels);
+    });
+
+});
+
 odaApplication.run(function($rootScope, $modal, odbFile, odaSession){
     $rootScope.$on('command.comment', function(event, line){
 
