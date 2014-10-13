@@ -67,6 +67,7 @@
     <script type="text/javascript" src="{% static 'scripts/controllers/FindBytesController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/SectionsController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/StructTypesController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/RuntimeDumpController.js' %}"></script>
     {%  endcompress %}
 
     <script type="text/javascript">

@@ -37,6 +37,7 @@
           <li class="active"><a href="#home" role="tab" data-toggle="tab">Disassembly</a></li>
           <li><a href="#sections" role="tab" data-toggle="tab">Sections</a></li>
           <li><a href="#tab-fileinfo" role="tab" data-toggle="tab">File Info</a></li>
+            <li><a href="#tab-runtime" role="tab" data-toggle="tab">Runtime Dump</a></li>
         </ul>
 
         <!-- Tab panes -->
@@ -49,6 +50,9 @@
           </div>
           <div class="tab-pane" id="tab-fileinfo">
             {% include "tab_fileinfo.djhtml" %}
+          </div>
+          <div class="tab-pane" id="tab-runtime">
+              <div ng-include src="'runtime.html'"></div>
           </div>
         </div>
 
@@ -295,6 +299,13 @@
     </div>
 </script>
 
+
+<script type="text/ng-template" id="runtime.html">
+<div ng-controller="RuntimeDumpController">
+    RUNTIME
+    {{ data }}
+</div>
+</script>
 {% endverbatim %}
 
 
