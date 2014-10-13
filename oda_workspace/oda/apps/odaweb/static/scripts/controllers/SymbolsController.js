@@ -10,6 +10,10 @@ odaApplication.controller('SymbolsController', function SymbolsController($scope
 
     };
 
+    odbFile.on(ODB_EVENTS.CHANGED, function(){
+        $scope.$apply();
+    });
+
     $scope.setPosition = function(position) {
         console.log('set position', position);
         odaSession.moveToOffset(position);

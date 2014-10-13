@@ -310,6 +310,12 @@ var OdbFile = function(oda_master) {
                 name: name
             };
 
+            this.symbols.push({
+                name: name,
+                offset: offset,
+                type: 'T'
+            });
+
             this._signal(ODB_EVENTS.CHANGED, {
                 addr: offset,
                 action: 'createFunction',
