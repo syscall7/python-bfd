@@ -24,6 +24,7 @@ odaApplication.run(function($rootScope, addrBar, odbFile, odaSession, statusBar)
         var currentUser = $rootScope.currentUser;
 
         if (currentUser == null) {
+            console.log('current user is null!');
             return;
         }
 
