@@ -126,6 +126,129 @@ class BinaryStringTest(OdaApiTestCase):
 
 
 
+class CStructsTest(OdaApiTestCase):
+    urls = 'oda.urls'
+
+    def test_cstructs(self):
+
+        # Add a struct object
+        response = self.client.get('/odaweb/api/cstructs/',
+                                   {'revision': 0, 'short_name': 'mkdir'},
+                                   format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        rd = response.data
+
+        self.assertIsNotNone(rd)
+        self.assertEquals(0, len(rd))
+
+        # Check that the struct exists
+        response = self.client.post('/odaweb/api/cstructs/',
+                                   {'revision': 0,
+                                    'short_name': 'mkdir',
+                                    'name' : 'foo_struct_t',
+                                    'is_packed' : True
+                                    },
+                                   format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get('/odaweb/api/cstructs/',
+                                   {'revision': 0, 'short_name': 'mkdir'},
+                                   format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        rd = response.data
+
+        self.assertIsNotNone(rd)
+        self.assertEquals(1, len(rd))
+
+        # Add a second struct
+        response = self.client.post('/odaweb/api/cstructs/',
+                                   {'revision': 0,
+                                    'short_name': 'mkdir',
+                                    'name' : 'bar_struct_t',
+                                    'is_packed' : True
+                                    },
+                                   format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+        # Get a list of available fields
+        response = self.client.get('/odaweb/api/cstructfields/',
+                                   {'revision': 0, 'short_name': 'mkdir'},
+                                   format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+        rd = response.data
+
+        self.assertIsNotNone(rd)
+        self.assertEquals(10, len(rd))
+
+        #str(rd[0]['object_id'])
+
+        # Add a built-in type field
+        response = self.client.get('/odaweb/api/cstructs/'+ '0' + '/append_field/',
+                                   {'revision': 0,
+                                    'short_name': 'mkdir',
+                                    'field_type' : 'Uint16',
+                                    'field_name' : 'my_field'},
+                                   format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Add a built-in type field
+        response = self.client.get('/odaweb/api/cstructs/'+ '1' + '/append_field/',
+                                   {'revision': 0,
+                                    'short_name': 'mkdir',
+                                    'field_type' : 'Uint16',
+                                    'field_name' : 'my_inner_field'},
+                                   format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+        # Add a field that is another struct
+        response = self.client.get('/odaweb/api/cstructs/'+ '0' + '/append_field/',
+                                   {'revision': 0,
+                                    'short_name': 'mkdir',
+                                    'field_type' : 'bar_struct_t',
+                                    'field_name' : 'my_field2'},
+                                   format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+        # Add a structure object
+        response = self.client.get('/odaweb/api/displayunits/1/makeStruct/',
+                           { 'revision': 0,
+                             'short_name': 'mkdir',
+                             'vma': 0x400238,
+                             'struct_type': 'foo_struct_t',
+                             'variable_name' : 'fooObj',},
+                           format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+        # before the split
+        after_struct_add = (
+            ('',     0x4014d9, '.init', 'e8'),
+            ('',     0x4014da, '.init', '12'),
+            ('',     0x4014db, '.init', '05'),
+            ('',     0x4014dc, '.init', '00'),
+            ('',     0x4014dd, '.init', '00'),
+        )
+
+        response = self.client.get('/odaweb/api/displayunits/',
+                                   { 'revision': 0,
+                                     'short_name': 'mkdir',
+                                     'addr' : '0x400238',
+                                     'units' : len(after_struct_add)},
+                                   format='json')
+
+        # for expected, actual in zip(after_struct_add, rd):
+        #     self.assertEquals(expected[0], actual['opcode'])
+        #     self.assertEquals(expected[1], actual['offset'])
+        #     self.assertEquals(expected[2], actual['section_name'])
+        #     self.assertEquals(expected[3], actual['rawBytes'])
+        #
+        # self.assertEqual(response.status_code, status.HTTP_200_OK)

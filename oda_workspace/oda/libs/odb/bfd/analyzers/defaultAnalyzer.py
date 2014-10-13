@@ -16,6 +16,9 @@ from oda.libs.odb.bfd.ofd import Ofd
 from oda.libs.odb.structures import symbol
 from oda.libs.odb.structures import branch as branch2
 from oda.libs.odb.structures import function as function2
+from oda.libs.odb.structures.c_struct import BuiltinField
+from oda.libs.odb.structures import c_struct
+
 logger = logging.getLogger(__name__)
 
 class Function(object):
@@ -25,7 +28,36 @@ class Function(object):
         self.name = name
         self.type = type
 
-def parseDataParcel(section_name, start_addr, end_addr, self, displayUnits, is_data, maxLines):
+def parseField(section_name, addr, self, displayUnits, field, prefix, byteList):
+
+    valueStr = '0x'
+    for i in range(field.size):
+        c = byteList.pop()
+        valueStr += "%02x" % c
+    du = DisplayUnit()
+    insn = prefix + '.' + field.name
+    du.instStr = "<insn>%s</insn>  <span class='comment'>%s</span> <span class='raw'>; %s</span>" % (insn, valueStr, html.escape(chr(c)) if chr(c) in string.printable else ' ')
+    du.rawBytes =  '%02x' % c
+    du.isArray = False
+    du.dataSize = field.size
+    du.offset = addr
+    displayUnits[du.offset] = du
+
+def parseStruct(section_name, start_addr, self, displayUnits, maxLines, struct, prefix, byteList):
+    addr = start_addr
+    numLines = len(displayUnits)
+    for field in struct.fields:
+        if isinstance(field ,BuiltinField):
+            parseField(section_name, addr, self, displayUnits, field, prefix, byteList)
+        else:
+            parseStruct(section_name, addr, self, displayUnits, maxLines, field.cstruct, prefix + '.' + field.name, byteList)
+        addr += field.size
+        numLines += 1
+        if numLines == maxLines:
+            break
+
+
+def parseDataParcel(section_name, start_addr, end_addr, self, displayUnits, is_data, maxLines, structs=None):
 
     dataLen = end_addr - start_addr
     numLines = 0
@@ -44,6 +76,7 @@ def parseDataParcel(section_name, start_addr, end_addr, self, displayUnits, is_d
             du.isArray = False
             du.dataSize = 1
             displayUnits[du.offset] = du
+            numLines += 1
 
             addr += 1
 
@@ -51,21 +84,33 @@ def parseDataParcel(section_name, start_addr, end_addr, self, displayUnits, is_d
     else:
         # Undefined. Treat as single byte per line
         addr = start_addr
-        for c in map(ord, rawData):
-            du = DisplayUnit()
-            du.offset = addr
-            du.section_name = section_name
-            du.rawBytes =  '%02x' % c
-            du.isArray = False
-            du.dataSize = 1
+        byteList = map(ord, rawData)
+        while len(byteList) and numLines < maxLines:
+            if addr in structs:
+                struct_type = next(tmpStructType for tmpStructType in self.struct_types if tmpStructType.name == structs[addr].struct_type)
 
-            # TODO: Don't specify the css class here - it's not very classy, ha, ha
-            du.instStr = "<insn>db</insn>  <span class='comment'>%02xh</span> <span class='raw'>; %s</span>" % (c, html.escape(chr(c)) if chr(c) in string.printable else ' ')
+            if addr in structs and len(byteList) >= struct_type.size:
+                curStruct = structs[addr]
+                parseStruct(section_name, start_addr, self, displayUnits, maxLines, struct_type, curStruct.name, byteList)
+                addr += struct_type.size
+                numLines += len(struct_type.fields)
+                if (numLines >= maxLines):
+                    break
+            else:
+                # TODO: Don't specify the css class here - it's not very classy, ha, ha
+                c = byteList.pop(0)
+                du = DisplayUnit()
+                du.offset = addr
+                du.section_name = section_name
+                du.instStr = "<insn>db</insn>  <span class='comment'>%02xh</span> <span class='raw'>; %s</span>" % (c, html.escape(chr(c)) if chr(c) in string.printable else ' ')
+                du.rawBytes =  '%02x' % c
+                du.isArray = False
+                du.dataSize = 1
+                addr += 1
+                numLines += 1
+                displayUnits[du.offset] = du
 
-            displayUnits[du.offset] = du
 
-            addr += 1
-            numLines += 1
             if (numLines == maxLines):
                 break
 
@@ -245,7 +290,7 @@ class defaultAnalyzer(object):
                                                   'section_name': s.name,
                                               })
         else:
-            parseDataParcel(s.name, dis_start, dis_end, self, displayUnits, False, maxUnits)
+            parseDataParcel(s.name, dis_start, dis_end, self, displayUnits, False, maxUnits, parcel.structs)
 
         return displayUnits
 
@@ -273,6 +318,8 @@ class defaultAnalyzer(object):
 
         # Grab the symbols and sections for convenience and performance reasons
         self.symbols = self.odb_file.get_structure_list(symbol.Symbol)
+
+        self.struct_types = self.odb_file.get_structure_list(c_struct.CStruct)
 
         # Add symbols from the database to the functions list
         for f in self.odb_file.get_structure_list(function2.Function):

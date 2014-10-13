@@ -1,9 +1,15 @@
 from oda.libs.odb.structures.oda_object import OdaObject
-from abc import ABCMeta
+from abc import ABCMeta, abstractproperty
+import inspect
+import sys
 
 # NOTE: Does not inherit from OdaObject
-class BuiltinType():
+class BuiltinType(object):
     __metaclass__ = ABCMeta
+
+    @abstractproperty
+    def size(self):
+        ''''''
 
 class Integer(BuiltinType):
     __metaclass__ = ABCMeta
@@ -24,34 +30,93 @@ class UnsignedInteger(Integer):
     def format(self, bytes):
         return '0x{0:0{width}x}'.format(Integer.from_bytes(bytes[:self.size]), width=self.size*2)
 
+# TODO: Fix the name property which is dumb, but matches cstruct objects
 class Uint8(UnsignedInteger):
-    size = 1
-    name = 'uint8'
+
+    @property
+    def size(self):
+        return 1
+
+    name = 'Uint8'
 
 class Uint16(UnsignedInteger):
-    size = 2
-    name = 'uint16'
+    @property
+    def size(self):
+        return 2
+
+    name = 'Uint16'
 
 class Uint32(UnsignedInteger):
-    size = 4
-    name = 'uint32'
+    @property
+    def size(self):
+        return 4
+
+    name = 'Uint32'
 
 class Uint64(UnsignedInteger):
-    size = 8
-    name = 'uint64'
+    @property
+    def size(self):
+        return 8
+
+    name = 'Uint64'
 
 class Int8(SignedInteger):
-    size = 1
-    name = 'int8'
+    @property
+    def size(self):
+        return 1
+
+    name = 'Int8'
 
 class Int16(SignedInteger):
-    size = 2
-    name = 'int8'
+    @property
+    def size(self):
+        return 2
+
+    name = 'Int16'
 
 class Int32(SignedInteger):
-    size = 4
-    name = 'int32'
+    @property
+    def size(self):
+        return 4
+
+    name = 'Int32'
 
 class Int64(SignedInteger):
-    size = 8
-    name = 'int32'
+    @property
+    def size(self):
+        return 8
+
+    name = 'Int64'
+
+def BuiltInTypes():
+    clsmembers = inspect.getmembers(sys.modules[__name__], inspect.isclass)
+    clstypes = [cls for name, cls in clsmembers if hasattr(cls,'name')]
+    return clstypes
+
+
+def BuiltInTypeNames():
+    clsmembers = inspect.getmembers(sys.modules[__name__], inspect.isclass)
+    typenames = [name for name, cls in clsmembers if hasattr(cls,'name')]
+    return typenames
+    #return inspect.getmembers(sys.modules[__name__], lambda member: inspect.isclass(member) and member.__module__ == __name__
+
+def BuiltInTypeFactory(type_name):
+    # for now, ignore everything after the colon
+    name = 'oda.libs.odb.structures.types'
+    try:
+        mod = __import__(name)
+    except ImportError as e:
+        return None
+
+    components = name.split('.')
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+
+    try:
+        initFunc = getattr(mod, type_name)
+    except:
+        return None
+
+    obj = initFunc()
+
+    return obj

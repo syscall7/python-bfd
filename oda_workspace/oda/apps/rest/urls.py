@@ -16,6 +16,8 @@ router.register(r'binarystrings', views.BinaryStringViewSet, base_name="binaryst
 router.register(r'options', views.OptionsViewSet, base_name="options")
 # router.register(r'odaoptions', views.OdaOptionsViewSet, base_name="odaoptions")
 router.register(r'find', views.FindViewSet, base_name="find")
+router.register(r'cstructs', views.CStructsViewSet, base_name='cstructs')
+router.register(r'cstructfields', views.CStructFieldsViewSet, base_name='cstructfields')
 
 #router.register(r'superchunks', views.SuperChunksViewSet, base_name="superchunks")
 

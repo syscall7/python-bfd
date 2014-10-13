@@ -91,6 +91,7 @@ class Parcel(OdaObject):
         self.vma_end = vma_end
         self.sec_name = sec_name
         self.lda_start = 0
+        self.structs = {}
 
         # lda_bidict[lda_rel_to_start] = vma
         self.lda_bidict = bidict({})
@@ -122,6 +123,7 @@ class Parcel(OdaObject):
         self.lda_start = other.lda_start
         self.lda_bidict = other.lda_bidict
         self.sec_name = other.sec_name
+        self.structs = other.structs
 
     def merge(self, other):
 
@@ -324,6 +326,12 @@ class DataParcel(Parcel):
             return None
 
         return self.lda_start + (vma - self.vma_start)
+
+    def add_struct_variable(self, vma, struct_obj):
+        self.structs[vma] = struct_obj
+
+    def delete_struct_variable(self, vma):
+        del self.structs[vma]
 
     def lda_to_vma(self, lda):
         if not self.contains_lda(lda):

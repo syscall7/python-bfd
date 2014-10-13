@@ -1,0 +1,26 @@
+<div  ng-controller="StructTypesController">
+    <div class="input-group">
+        <span class="input-group-addon">Filter</span>
+        <input type="text" class="form-control" placeholder="Substring" ng-model="search.string">
+    </div>
+    <div class="sidebar-scroll-container">
+        <table class="table table-striped sidebar-table table-condensed" id="structtypes-table">
+            <thead>
+                <tr>
+                    <th class="col-sm-4" style="width:1%">Type</th>
+                    <th class="col-sm-4" style="text-align: left; width:100%">Size</th>
+                </tr>
+            </thead>
+            <tbody class="scrollContent">
+                    <tr ng-repeat="struct in structTypes | filter:search">
+                        <td class="string" style="text-align: left; width:100%">{{ struct.name }}</td>
+                        <td class="string" style="text-align: left; width:100%">{{ struct.size }}</td>
+                    </tr>
+            </tbody>
+        </table>
+
+        <div ng-show="!structTypes">
+            <em>No structs found</em>
+        </div>
+    </div>
+</div>

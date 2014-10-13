@@ -19,6 +19,7 @@ from oda.libs.odb.structures.parcel import Parcel
 from oda.libs.odb.structures.section import Section
 from oda.libs.odb.structures.symbol import Symbol
 from oda.libs.odb.structures.label import Label
+from oda.libs.odb.structures.c_struct import CStruct, CStructObject
 
 
 __author__ = 'davis'
@@ -26,7 +27,7 @@ __author__ = 'davis'
 logger = logging.getLogger(__name__)
 
 STRUCTURE_TYPES = [
-    Function, Section, Symbol, Parcel, Branch, DataString, Comment, Label
+    Function, Section, Symbol, Parcel, Branch, DataString, Comment, Label, CStruct, CStructObject
 ]
 
 

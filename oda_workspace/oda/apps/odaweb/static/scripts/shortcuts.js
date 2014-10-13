@@ -48,6 +48,10 @@ odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor){
         $rootScope.$broadcast('command.open');
     });
 
+    listener.simple_combo("t", function(){
+        $rootScope.$broadcast('command.makeStructType');
+    });
+
     listener.simple_combo("ctrl f", function(){
         $rootScope.$apply(function(){Docker.select(Docker.docks[2]);});
     });

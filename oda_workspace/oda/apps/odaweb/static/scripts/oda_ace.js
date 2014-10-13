@@ -701,9 +701,46 @@ odaApplication.run(function($rootScope, $modal, odbFile, odaSession){
 
         });
     });
+
+    $rootScope.$on("command.makeStructType", function(event, data) {
+        var scope = $rootScope.$new(true);
+
+        scope.odbFile = odbFile;
+
+        scope.data = {
+            structData: {
+                name: 'StructName',
+                is_packed: true
+            }
+        };
+
+        var modalInstance = $modal.open({
+          templateUrl: 'makeStructType.html',
+          controller: 'MakeStructTypeController',
+          size: 'lg',
+          scope: scope
+        });
+
+        modalInstance.result.then(function(structDef){
+            console.log('create structure type');
+            odbFile.addStructType(scope.data.structData.name);
+        });
+    });
 });
 
 var MakeFunctionController = function($scope, $modalInstance) {
+
+    $scope.ok = function() {
+        $modalInstance.close($scope.data.function);
+    };
+
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+};
+
+var MakeStructTypeController = function($scope, $modalInstance) {
 
     $scope.ok = function() {
         $modalInstance.close($scope.data.function);
@@ -887,6 +924,9 @@ odaApplication.service('Docker', function(odbFile) {
         }, {
             icon: 'fa-search',
             template: '/static2/templates/find_results.html'
+        }, {
+            icon: 'fa-search',
+            template: '/static2/templates/struct_types.html'
         });
         this.activeDock = this.docks[1];
     }

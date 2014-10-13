@@ -10,12 +10,13 @@ from oda.apps.odaweb.utils import id_generator
 
 from oda.apps.rest.serializers import OdaMasterSerializer, SectionSerializer, StringSerializer, DisplayUnitSerializer, \
     FindResultsSerializer, CommentSerializer, FunctionSerializer, DataStringSerializer, SymbolSerializer, \
-    LabelSerializer, ParcelSerializer
+    LabelSerializer, ParcelSerializer, CStructSerializer, CStructFieldSerializer
 from oda.libs.cuckoo import cuckoo
 from oda.libs.cuckoo.cuckoo import CuckooJob
 from oda.libs.odb.bfd.disassembler import Disassembler
 from oda.libs.odb.odb_file import OdbFile, BinaryString
 from oda.libs.odb.ops.load_operation import LoadOperation
+from oda.libs.odb.ops.add_struct_operation import AddStructOperation
 from oda.libs.odb.ops.modify_settings import ModifySettingsFactory
 from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
 from oda.libs.odb.structures.comment import Comment
@@ -25,8 +26,11 @@ from oda.libs.odb.structures.label import Label
 from oda.libs.odb.structures.section import Section
 from oda.libs.odb.structures.symbol import Symbol
 from oda.libs.odb.structures.parcel import Parcel
+from oda.libs.odb.structures.types import BuiltInTypeFactory, BuiltInTypeNames, BuiltInTypes
 from oda.libs.odb import structures
 from oda.libs.odb.ops.add_operation import AddOperation
+from oda.libs.odb.structures.c_struct import CStruct, BuiltinField, CStructField
+
 
 logger = logging.getLogger(__name__)
 
@@ -280,6 +284,26 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         return Response({'error': error})
 
     @link()
+    def makeStruct(self, request, pk):
+        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
+                                    revision=request.QUERY_PARAMS.get('revision')
+                                    )
+
+        error = None
+        vma = 0
+        if request.QUERY_PARAMS.get('vma'):
+            vma = int(request.QUERY_PARAMS.get('vma'), 0)
+
+        struct_type = request.QUERY_PARAMS.get('struct_type')
+        variable_name = request.QUERY_PARAMS.get('variable_name')
+
+        oda.odb_file.execute(AddStructOperation(vma,struct_type,variable_name))
+
+        oda.save()
+
+        return Response({'error': error})
+
+    @link()
     def makeCode(self, request, pk):
         oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
                                     revision=request.QUERY_PARAMS.get('revision'))
@@ -349,6 +373,84 @@ class FindViewSet(viewsets.GenericViewSet):
         serializer = self.get_serializer(results, many=True)
         return Response(serializer.data)
 
+class CStructFieldsViewSet(OdaStructureViewSet):
+    serializer_class = CStructFieldSerializer
+    structure = CStructField
+
+    def get_structure_list(self):
+        #fields = self.odb_file.get_structure_list(CStructField)
+
+        fields = BuiltInTypes()
+
+        # Include the built in types
+        instances = [field() for field in fields]
+
+        # Include c_structs too
+        cstructs = self.odb_file.get_structure_list(CStruct)
+
+        return sorted(instances + cstructs, key=lambda s: type(s).__name__)
+
+class CStructsViewSet(OdaStructureViewSet):
+    serializer_class = CStructSerializer
+    structure = CStruct
+
+    def get_structure_list(self):
+        cstructs = self.odb_file.get_structure_list(CStruct)
+        return sorted(cstructs, key=lambda s: s.name)
+
+    def create(self, request):
+
+        logger.info("Creating cstruct " + str(request))
+
+        name = request.DATA['name']
+        is_packed = request.DATA['is_packed']
+        short_name = request.DATA['short_name']
+        revision = request.DATA['revision']
+
+        oda = OdaMaster.objects.get(short_name=short_name, revision=revision)
+        odb_file = oda.odb_file
+        item = odb_file.create_item(CStruct, {
+            'name': name,
+            'is_packed': is_packed
+        })
+
+        odb_file.execute(structures.c_struct.generate_operation(AddOperation, item))
+
+        oda.save()
+
+        serializer = self.get_serializer(item, many=False)
+        return Response(serializer.data)
+
+
+
+    @link()
+    def append_field(self, request, pk):
+
+        logger.info("Adding field to cstruct " + str(request))
+
+        short_name = request.QUERY_PARAMS.get('short_name')
+        revision = request.QUERY_PARAMS.get('revision')
+        field_name = request.QUERY_PARAMS.get('field_name')
+        field_type = request.QUERY_PARAMS.get('field_type')
+
+        oda = OdaMaster.objects.get(short_name=short_name, revision=revision)
+        struct_list = oda.odb_file.get_structure_list(CStruct)
+        item = struct_list[int(pk)]
+
+        # Check if the field is a built-in type
+        builtin = BuiltInTypeFactory(field_type)
+        if ( builtin != None ):
+            item.append_field( BuiltinField(name=field_name,type=builtin) )
+        else:
+            # Check if the field is an existing c_struct
+            for struct in struct_list:
+                if struct.name == field_type:
+                   item.append_field( CStructField(name=field_name,c_struct_obj=struct) )
+
+        oda.save()
+
+        serializer = self.get_serializer(item, many=False)
+        return Response(serializer.data)
 
 class SandboxView(APIView):
 

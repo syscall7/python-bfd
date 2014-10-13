@@ -32,6 +32,20 @@ class ParcelUnitTest(OdaApiTestCase):
             ('push', 0x4014f0, '.plt',  'ff35faea2000'),
         )
 
+        # after the split
+        after_double_data = (
+            ('sub',  0x4014d0, '.init', '4883ec08'),
+            ('call', 0x4014d4, '.init', 'e883040000'),
+            ('',     0x4014d9, '.init', 'e8'),
+            ('',     0x4014da, '.init', '0512'),
+            ('',     0x4014dc, '.init', '00'),
+            ('',     0x4014dd, '.init', '00'),
+            ('call', 0x4014de, '.init', 'e87db10000'),
+            ('add',  0x4014e3, '.init', '4883c408'),
+            ('ret',  0x4014e7, '.init', 'c3'),
+            ('push', 0x4014f0, '.plt',  'ff35faea2000'),
+        )
+
         response = self.client.get('/odaweb/api/displayunits/',
                                    { 'revision': 0,
                                      'short_name': 'mkdir',

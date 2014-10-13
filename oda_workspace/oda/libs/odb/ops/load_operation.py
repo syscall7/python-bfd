@@ -96,7 +96,7 @@ class Loader(object):
 
     def load_strings(self):
         for s in self.analyzer.get_loadable_sections().sections:
-            print('Section %s, base 0x%08x, size 0x%08x' % (s.name, s.vma, s.size))
+            #print('Section %s, base 0x%08x, size 0x%08x' % (s.name, s.vma, s.size))
             for m in re.finditer("([\t\x20-\x7e]{4,})", self.analyzer.bfd.raw_data(s, s.vma, s.size)):
 
                 self.odb_file.insert_item(self.odb_file.create_item(DataString, {

@@ -27,6 +27,8 @@ var OdbFile = function(oda_master) {
 
     this.strings = [];
 
+    this.structTypes = [];
+
 
     this.load = function () {
         this.shortName = this.oda_master.short_name;
@@ -84,7 +86,14 @@ var OdbFile = function(oda_master) {
             this.strings = data;
         }.bind(this));
 
-        $.when(fq, sq, pq, symq, stringsq, dulenq, cmq).done(function (data) {
+        var structtypesq = $.get('/odaweb/api/cstructs/', {
+            short_name: this.shortName,
+            revision: this.revision
+        }).success(function(data) {
+            this.structTypes = data;
+        }.bind(this));
+
+        $.when(fq, sq, pq, symq, stringsq, dulenq, structtypesq, cmq).done(function (data) {
             this._signal('loaded', this);
         }.bind(this));
     };
@@ -207,6 +216,43 @@ var OdbFile = function(oda_master) {
                 revision: this.revision,
                 comment: comment,
                 offset: offset
+            }).success(apply);
+        } else {
+            apply();
+        }
+
+    };
+
+    this.addStructType = function (name, remote) {
+        if(typeof(remote)==='undefined') remote = false;
+
+        console.log("AddStruct", name);
+
+        var apply = function() {
+            this.structTypes[this.structTypes.length] = {
+                name: name,
+                is_packed: true
+            };
+
+            /*
+            this._signal(ODB_EVENTS.CHANGED, {
+                action: 'addStruct',
+                remote: remote,
+                data: {
+                    name: name,
+                    is_packed: true
+                }
+            });
+            */
+
+        }.bind(this);
+
+        if (!remote) {
+            $.post("/odaweb/api/cstructs/",{
+                short_name: this.shortName,
+                revision: this.revision,
+                'name' : name,
+                'is_packed' : true
             }).success(apply);
         } else {
             apply();
@@ -361,7 +407,7 @@ var OdbFile = function(oda_master) {
             });
         }.bind(this));
 
-        /*
+
         var deferred = $q.defer();
 
         $http({
@@ -376,7 +422,7 @@ var OdbFile = function(oda_master) {
         }.bind(this)).error(function(){
             deferred.reject("Use only hex characters!");
         });
-        return deferred.promise;*/
+        return deferred.promise;
     };
 
     this.callbacks = {};

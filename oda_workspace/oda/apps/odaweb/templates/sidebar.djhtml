@@ -18,6 +18,10 @@
                    title="Find Results">
                 <span class="glyphicon glyphicon-search"></span>
             </button>
+            <button class="btn nav-btn btn-default" type="button" data-panel="structtypes-display"
+                    data-toggle="tooltip" title="Struct Types">
+                <span class="glyphicon glyphicon-test-width"></span>
+            </button>
           </div>
         </div>
 
@@ -50,6 +54,15 @@
                 <div class="sidebar-content">
                     <div ng-include="'/static2/templates/find_results.html'"
                          id="results-content">
+                    </div>
+                </div>
+            </div>
+
+            <div id="structtypes-display" style="padding:5px; background-color: white;" class="item">
+                <div class="sidebar-legend">Structs</div>
+                <div class="sidebar-content">
+                    <div ng-include="'/static2/templates/struct_types.html'"
+                         id="struct-types-content">
                     </div>
                 </div>
             </div>

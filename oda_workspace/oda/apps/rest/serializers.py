@@ -45,11 +45,28 @@ class StringListField(serializers.WritableField):
     def from_native(self, obj):
         return json.loads(obj)
 
+class CStructFieldSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    #type = serializers.CharField()
+    size = serializers.IntegerField()
+
+class CStructSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    is_packed = serializers.BooleanField()
+    fields = CStructFieldSerializer(required=False, many=True)
+    object_id = serializers.IntegerField()
+
+class CStructObjectSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    addr = serializers.IntegerField()
+    struct_type = CStructSerializer()
+
 class ParcelSerializer(serializers.Serializer):
     vma_start = serializers.IntegerField()
     vma_end = serializers.IntegerField()
     lda_start = serializers.IntegerField()
     is_code = serializers.BooleanField()
+    structs = CStructObjectSerializer(required=False, many=True)
 
 class RefSerializer(serializers.Serializer):
     offset = serializers.IntegerField()
