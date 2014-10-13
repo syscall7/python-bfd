@@ -101,11 +101,37 @@ class FunctionViewSet(OdaStructureViewSet):
     structure = Function
 
     def partial_update(self,request,pk):
-        oda_master = OdaMaster.objects.get(short_name=request.DATA['short_name'], revision=request.DATA['revision'])
+        oda = OdaMaster.objects.get(short_name=request.DATA['short_name'], revision=request.DATA['revision'])
 
-        #TODO actually store function
+        error = None
+        offset = None
+        if request.DATA.get('offset'):
+            offset = int(request.DATA.get('offset'), 0)
 
-        return Response({'binary_string': 'FUNC'})
+        name = None
+        if request.DATA.get('name'):
+            name = request.DATA.get('name')
+
+        args = None
+        if request.DATA.get('args'):
+            args = request.DATA.get('args')
+
+        retval = None
+        if request.DATA.get('retval'):
+            retval = request.DATA.get('retval')
+
+        dasm = Disassembler(oda.odb_file)
+        try:
+            dasm.edit_function(offset, name, args, retval)
+            oda.save()
+        except Exception as e:
+            error = e.message
+            return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({
+                    'function': name,
+                    'error': error
+        })
 
 class SectionsViewSet(OdaStructureViewSet):
     serializer_class = SectionSerializer
@@ -149,8 +175,6 @@ class SymbolsViewSet(OdaStructureViewSet):
         func_dict = {
             func.offset: func
                 for func in self.odb_file.get_structure_list(Function)
-                    # give preference to symbols, because they are likely to have better names
-                    if func.offset not in sym_dict
         }
 
         return sym_dict.values() + func_dict.values()

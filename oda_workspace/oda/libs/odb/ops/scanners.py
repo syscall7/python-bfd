@@ -5,6 +5,7 @@ import bfd
 from oda.libs.odb.bfd.analyzers.instruction import DisplayUnit, InstructionType
 from oda.libs.odb.structures.branch import Branch
 from oda.libs.odb.structures.function import Function
+from oda.libs.odb.structures.symbol import Symbol
 from abc import ABCMeta, abstractmethod
 
 logger = logging.getLogger(__name__)
@@ -130,9 +131,14 @@ class FunctionScanner(Scanner):
                   #  self.functions[du.targetAddr].xrefs.update([du.offset])
 
     def commit(self, odb_file):
+        symbols = {sym.offset: sym for sym in odb_file.get_structure_list(Symbol)}
         for addr, f in self.functions.iteritems():
             func = odb_file.create_item(Function, f)
             odb_file.get_structure_list(Function).append(func)
+
+            # remove functions from the symbol structure list (we don't need/want them in both places)
+            if addr in symbols.keys():
+                odb_file.remove_item(symbols[addr])
 
 class BadCodeScanner(Scanner):
 

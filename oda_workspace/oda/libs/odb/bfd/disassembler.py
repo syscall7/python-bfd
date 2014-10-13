@@ -4,7 +4,7 @@ from oda.libs.odb.bfd.analyzer import analyzer_factory
 from oda.libs.odb.structures.parcel import Parcel, ParcelList
 from oda.libs.odb.ops.split_parcel_operation import SplitParcelOperation
 from oda.libs.odb.ops.active_scan_operation import ActiveScanOperation
-from oda.libs.odb.ops.create_function_operation import CreateFunctionOperation
+from oda.libs.odb.ops.create_function_operation import CreateFunctionOperation, EditFunctionOperation
 from ofd import UNKNOWN_ARCH
 
 def get_supported_archs():
@@ -81,6 +81,9 @@ class Disassembler(object):
 
     def make_function(self, vma, name, args, retval):
         self.odb_file.execute(CreateFunctionOperation(vma, name, args, retval))
+
+    def edit_function(self, vma, name, args, retval):
+        self.odb_file.execute(EditFunctionOperation(vma, name, args, retval))
 
     def analyze(self, start, lines, logical):
 
