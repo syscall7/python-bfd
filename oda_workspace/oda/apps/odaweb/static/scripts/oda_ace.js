@@ -1121,16 +1121,17 @@ var UploadFileController = function($scope, $modalInstance){
 var MonitorSandboxController = function($scope, $interval, $http, fileInfo) {
     var checking;
 
-    $http.post('/odaweb/api/sandbox', {
+    $http.post('/odaweb/api/sandbox/1/submit/', {
         short_name: fileInfo.shortName,
         revision: fileInfo.revision
     }).success(function(job){
         checking = $interval(function(){
             console.log('checking...');
 
-            $http.get('/odaweb/api/sandbox', {
+            $http.get('/odaweb/api/sandbox/1/status/', {
                 params: {
-                    job_id: job.job_id
+                    short_name: fileInfo.shortName,
+                    revision: fileInfo.revision
                 }
             }).success(function(response) {
                 $scope.job_status = response.status

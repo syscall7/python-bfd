@@ -3,69 +3,51 @@ import hashlib
 import logging
 from oda.libs.cuckoo import api
 
-from oda.apps.odaweb.models import BinaryFile, BinaryFileModel
+from oda.apps.odaweb.models import BinaryFile, BinaryFileModel, SandboxJob, SandboxServer
 from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
 
 logger = logging.getLogger(__name__)
 
-# TODO: Persist this info in the database in case we have to restart the server
-jobs = {}
+def assign_server():
+    # TODO: Assign server based on current load
+    # for now just return the first server in the database
+    return SandboxServer.objects.all()[0]
 
 def submit_job(oda_master):
-    # submit a new job to the Cuckoo server and get the job ID
-    job = CuckooJob(oda_master)
-    jobs[str(job.id)] = job
-    return job
 
-def get_job(job_id):
-    return jobs[job_id]
+    sjob = SandboxJob(server=assign_server())
 
+    logger.info('submitting cuckoo job for file %s' % oda_master.odb_file.binary.name)
+    sjob.task_id = api.submit_task(
+        sjob.server,
+        oda_master.odb_file.binary.name,
+        oda_master.odb_file.binary.file_handle())
+
+    sjob.save()
+
+    oda_master.sandbox_job = sjob
+    oda_master.save()
+
+    return CuckooJob(oda_master)
 
 class CuckooJob(object):
 
     def __init__(self, oda_master):
         self.oda_master = oda_master
 
-        # use to track whether or not we've reloaded the odb file after running the job
-        self.reloaded = False
-
         self.name = oda_master.odb_file.binary.name
 
-        self.started = datetime.datetime.now()
-        self.elapsed_seconds = 0
+        # the persistent model of this job
+        self.sjob = oda_master.sandbox_job
 
-        # TODO: Select the server instance from a set of available cuckoo servers
-        self.server = api.CuckooServer('localhost', 8090)
-
-        # submit the job
-        self.submit()
-
-        # create unique string to identify this cuckoo job
-        unique = '{time}{ip}{port}{task}'.format(
-                    time=self.started,
-                    ip=self.server.ip,
-                    port=self.server.port,
-                    task=self.task_id)
-        self.id = hashlib.sha256(unique).hexdigest()
-
-    def submit(self):
-        logger.info('submitting cuckoo job for file %s' % self.name)
-        self.task_id = api.submit_task(
-                    self.server,
-                    self.oda_master.odb_file.binary.name,
-                    self.oda_master.odb_file.binary.file_handle())
-
-        return self.task_id
+        if oda_master.sandbox_job is None:
+            raise Exception('oda_master does not have a valid sandbox job')
 
     def status(self):
 
-        status = api.get_status(self.server, self.task_id)
-
-        now = datetime.datetime.now()
-        self.elapsed_seconds = (now - self.started).total_seconds()
-        status['elapsed_time'] = str(datetime.timedelta(seconds=self.elapsed_seconds))
+        status = api.get_status(self.sjob.server, self.sjob.task_id)
 
         # if the job completed
         if status['status'] == 'reported':
@@ -74,19 +56,24 @@ class CuckooJob(object):
 
         return status
 
+    def report(self):
+        # TODO: Throw error if status != 'reported'
+        return api.get_report(self.sjob.server, self.sjob.task_id)
+
     # internal function to create a new odb_file based on runtime info from cuckoo
     def reload_odb(self):
 
-        if self.reloaded:
+        if self.sjob.reloaded:
             return
         # ensure we only do this once
-        self.reloaded = True
+        self.sjob.reloaded = True
+        self.sjob.save()
 
         logger.info('Reloading odb for job %s' % self.name)
         orig_binary_file = self.oda_master.odb_file.binary
 
         # get the procdump file
-        f = api.get_procdump(self.server, self.task_id)
+        f = api.get_procdump(self.sjob.server, self.sjob.task_id)
         f.name = self.oda_master.odb_file.binary.name
 
         binary_file = BinaryFile.create(f)

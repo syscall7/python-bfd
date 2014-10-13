@@ -452,27 +452,40 @@ class CStructsViewSet(OdaStructureViewSet):
         serializer = self.get_serializer(item, many=False)
         return Response(serializer.data)
 
-class SandboxView(APIView):
+class SandboxViewSet(viewsets.GenericViewSet):
 
-
-    def post(self, request):
+    @action()
+    def submit(self, request, pk):
         short_name = request.DATA.get('short_name')
         revision = request.DATA.get('revision')
         oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
-        odb_file = oda.odb_file
         job = cuckoo.submit_job(oda)
         return Response({
-            'job_id': job.id,
             "status": job.status()
         })
 
-    def get(self,request):
-        job_id = request.QUERY_PARAMS.get('job_id')
-        job = cuckoo.get_job(job_id)
+    @link()
+    def status(self,request, pk):
+        short_name = request.QUERY_PARAMS.get('short_name')
+        revision = request.QUERY_PARAMS.get('revision')
+        oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
+        job = cuckoo.CuckooJob(oda)
         return Response({
-            "job_id": job.id,
             "status": job.status(),
         })
+
+    @link()
+    def report(self,request, pk):
+        short_name = request.QUERY_PARAMS.get('short_name')
+        revision = request.QUERY_PARAMS.get('revision')
+        oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
+        try:
+            job = cuckoo.CuckooJob(oda)
+            response = Response(job.report())
+        except:
+            response = Response(None)
+
+        return response
 
 class ShareView(APIView):
     def post(self, request):

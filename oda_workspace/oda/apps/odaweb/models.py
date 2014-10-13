@@ -17,6 +17,19 @@ logger = logging.getLogger(__name__)
 # where to store uploaded files on the server's filesystem
 # fs = FileSystemStorage(location=settings.UPLOAD_LOCATION)
 
+class SandboxServer(models.Model):
+    ''' Represents a sandbox server instance '''
+    ip = models.CharField(max_length=255)
+    port = models.IntegerField()
+
+class SandboxJob(models.Model):
+    ''' Represents a sandbox job '''
+    server = models.ForeignKey(SandboxServer, null=True)
+    task_id = models.IntegerField()
+
+    # use to track whether or not we've reloaded the odb file after running the job
+    reloaded = models.BooleanField(default=False)
+
 class OdaMaster(models.Model):
     ''' Complete representation of a disassembled entity '''
 
@@ -28,6 +41,7 @@ class OdaMaster(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     copy = models.ForeignKey('OdaMaster', null=True)
     pickled_odb_file = models.BinaryField(blank=False)
+    sandbox_job = models.ForeignKey(SandboxJob, null=True)
 
     def __init__(self, *args, **kwargs):
 
@@ -198,8 +212,6 @@ class InstDoc(models.Model):
     mnemonic = models.TextField()
     short = models.TextField()
     long = models.TextField()
-
-
 
 class Share(models.Model):
     odaMaster = models.ForeignKey(OdaMaster, null=False)

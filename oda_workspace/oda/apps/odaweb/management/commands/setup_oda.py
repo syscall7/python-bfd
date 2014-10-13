@@ -4,7 +4,7 @@ import subprocess
 from django.core.management.base import BaseCommand, CommandError
 from oda.apps.odaweb.examples import Examples
 from django.contrib.contenttypes.models import ContentType
-from oda.apps.odaweb.models import OdaMaster, InstDoc
+from oda.apps.odaweb.models import OdaMaster, InstDoc, SandboxServer
 import oda
 from oda.libs.odb.odb_file import OdbFile, BinaryString, BinaryFile
 from oda.libs.odb.ops.add_operation import AddOperation
@@ -280,6 +280,9 @@ def load_instdocs():
 
             inst_doc.save()
 
+def load_sandbox_servers():
+    server = SandboxServer(ip='localhost', port=8090)
+    server.save()
 
 class Command(BaseCommand):
     args = '<>'
@@ -288,4 +291,5 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         load_examples()
         load_instdocs()
+        load_sandbox_servers()
         print '\nODA setup was successful!'

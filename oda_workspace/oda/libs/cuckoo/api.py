@@ -30,6 +30,11 @@ def get_status(server, task_id):
     # To check if the job is done, you'll want to check that ret_val['status'] == 'completed'.
     return response.json()['task']
 
+def get_report(server, task_id):
+    url = 'http://{ip}:{port}/tasks/report/{task_id}'.format(ip=server.ip, port=server.port, task_id=task_id)
+    response = requests.get(url)
+    return response.json()
+
 def get_procdump(server, task_id):
 
     # NOTE: This api is not available yet in stock Cuckoo and relies on our own patch.

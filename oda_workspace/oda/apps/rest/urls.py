@@ -18,6 +18,7 @@ router.register(r'options', views.OptionsViewSet, base_name="options")
 router.register(r'find', views.FindViewSet, base_name="find")
 router.register(r'cstructs', views.CStructsViewSet, base_name='cstructs')
 router.register(r'cstructfields', views.CStructFieldsViewSet, base_name='cstructfields')
+router.register(r'sandbox', views.SandboxViewSet, base_name="sandbox")
 
 #router.register(r'superchunks', views.SuperChunksViewSet, base_name="superchunks")
 
@@ -25,7 +26,6 @@ router.register(r'cstructfields', views.CStructFieldsViewSet, base_name='cstruct
 # Additionally, we include login URLs for the browseable API.
 urlpatterns = patterns('',
     url(r'^', include(router.urls)),
-    url(r'^sandbox$', views.SandboxView.as_view(), name='sandbox_api'),
     url(r'^share$', views.ShareView.as_view(), name='share_api'),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 

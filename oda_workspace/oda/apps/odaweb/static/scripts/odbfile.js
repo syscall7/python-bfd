@@ -29,6 +29,8 @@ var OdbFile = function(oda_master) {
 
     this.structTypes = [];
 
+    this.runtimeReport = null;
+
 
     this.load = function () {
         this.shortName = this.oda_master.short_name;
@@ -93,7 +95,14 @@ var OdbFile = function(oda_master) {
             this.structTypes = data;
         }.bind(this));
 
-        $.when(fq, sq, pq, symq, stringsq, dulenq, structtypesq, cmq).done(function (data) {
+        var runtimeReportQ = $.get('/odaweb/api/sandbox/1/report/', {
+            short_name: this.shortName,
+            revision: this.revision
+        }).success(function(data) {
+            this.runtimeReport = data;
+        }.bind(this));
+
+        $.when(fq, sq, pq, symq, stringsq, dulenq, structtypesq, cmq, runtimeReportQ).done(function (data) {
             this._signal('loaded', this);
         }.bind(this));
     };
