@@ -70,6 +70,10 @@ odaApplication.run(function($rootScope, addrBar, odbFile, odaSession, statusBar)
                 odbFile.updateFunction(e.data.offset, e.data.name,
                     e.data.retval, e.data.args, true);
                 statusBar.pushStatus(Handlebars.compile("{{ e.user.username }} updated a function on 0x{{hex e.addr}}")({e: e}));
+            } else if (e.action == 'createFunction') {
+                 odbFile.createFunction(e.data.offset, e.data.name,
+                    e.data.retval, e.data.args, true);
+                 statusBar.pushStatus(Handlebars.compile("{{ e.user.username }} create a function on 0x{{hex e.addr}}")({e: e}));
             }
         });
 

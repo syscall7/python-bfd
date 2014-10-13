@@ -9,6 +9,8 @@
     <title>{%  block title %}ODA - The Online Disassembler{% endblock %}</title>
     <link rel="icon" type="image/png" href="{% static 'images/oda.png' %}" />
 
+    {% compress css %}
+
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/nprogress/nprogress.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/font-awesome-4.0.3/css/font-awesome.css' %}" />
 
@@ -20,6 +22,8 @@
 
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/ui-layout/layout-default-latest.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/toastr/toastr.css' %}"/>
+
+    {% endcompress %}
 
     <link rel="stylesheet" type="text/css" href="{% static 'css/oda3.css' %}" />
 
@@ -43,6 +47,10 @@
 
     <script type="text/javascript" src="{% static 'scripts/lib/src-noconflict/ace.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/lib/handlebars-v1.3.0.js' %}" ></script>
+
+    <script type="text/javascript" src="{% static 'scripts/lib/nprogress/nprogress.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/underscore-1.3.3.js' %}"></script>
+
     <script type="text/javascript" src="{% static 'scripts/addrbar.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda_ace.js' %}" ></script>
 
@@ -78,9 +86,6 @@
 
 {% block body %}
 {% endblock %}
-
-<script type="text/javascript" src="{% static 'scripts/lib/nprogress/nprogress.js' %}" ></script>
-<script type="text/javascript" src="{% static 'scripts/lib/underscore-1.3.3.js' %}"></script>
 
 </body>
 </html>

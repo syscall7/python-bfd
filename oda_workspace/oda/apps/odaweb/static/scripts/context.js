@@ -15,9 +15,9 @@ odaApplication.run(function($rootScope, editor, odbFile){
 
         var section = odbFile.getSection(line.data.section_name);
 
-        if (section.isData()) {
+        /*if (section.isData()) {
             shortcuts.addClass('shortcut-text-disabled');
-        }
+        }*/
     });
 
     var createAction = function(f) {
