@@ -139,37 +139,38 @@ var StatusBar = function(odbFile) {
     this.setAddress = function(address) {
         $('.ace_status-indicator').html("0x" + address.toString(16));
     };
-    this.templateString = "[{{mode}}] {{status}}";
 
     var projectNameTemplate = Handlebars.compile('{{odaMaster.project_name}} : {{odaMaster.binary.arch}} ({{odaMaster.binary.size}})');
     $('.oda_status-name-box').html(projectNameTemplate({
         odaMaster: odbFile.oda_master
     }));
 
+    this.defaultTemplateString = "[{{mode}}] {{status}}";
+    this.updateTemplateString = '[{{mode}}] <span style="background-color:#00842D; color:white;">{{status}}</span>';
     var defaultStatus = 'ONLINE DISASSEMBLER 4EVER!';
     this.status = 'ONLINE DISASSEMBLER 4EVER!';
 
     var mode = 'normal';
 
-    this._setStatus = function(){
-        var template = Handlebars.compile(this.templateString);
+    this._setStatus = function(templateString){
+        var template = Handlebars.compile(templateString);
         var renderedText = template({mode:mode, status: this.status});
         $('.status-mode').html(renderedText);
     };
-    this._setStatus();
+    this._setStatus(this.defaultTemplateString);
 
 
     var timer = null;
     this.pushStatus = function(newStatus) {
         this.status = newStatus;
-        this._setStatus();
+        this._setStatus(this.updateTemplateString);
         if (timer != null) {
             clearInterval(timer);
         }
         timer = setTimeout(function(){
             timer = null;
             this.status = defaultStatus;
-            this._setStatus();
+            this._setStatus(this.defaultTemplateString);
         }.bind(this), 5000);
 
     }

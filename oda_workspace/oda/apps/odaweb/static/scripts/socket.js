@@ -2,7 +2,7 @@
 
 //Socket IO
 
-odaApplication.run(function($rootScope, addrBar, odbFile, odaSession){
+odaApplication.run(function($rootScope, addrBar, odbFile, odaSession, statusBar){
     var socket = io.connect("http://" + window.location.hostname + ":8080", {
         reconnection: false
     });
@@ -51,15 +51,19 @@ odaApplication.run(function($rootScope, addrBar, odbFile, odaSession){
 
             if (e.action == 'insertComment') {
                 odbFile.addComment(e.data.offset, e.data.comment, true)
+                statusBar.pushStatus(Handlebars.compile("{{ e.user.username }} updated a comment on 0x{{hex e.addr}}")({e: e}));
             }
             else if (e.action == 'makeData') {
                 odbFile.makeData(e.data.offset, true);
+                statusBar.pushStatus(Handlebars.compile("{{ e.user.username }} turned code into data on 0x{{hex e.addr}}")({e: e}));
             }
             else if (e.action == 'makeCode') {
                 odbFile.makeData(e.data.offset, true);
+                statusBar.pushStatus(Handlebars.compile("{{ e.user.username }} turned code into data on 0x{{hex e.addr}}")({e: e}));
             } else if (e.action  == 'updateFunction') {
                 odbFile.updateFunction(e.data.offset, e.data.name,
                     e.data.retval, e.data.args, true);
+                statusBar.pushStatus(Handlebars.compile("{{ e.user.username }} updated a function on 0x{{hex e.addr}}")({e: e}));
             }
         });
 
@@ -79,6 +83,7 @@ odaApplication.run(function($rootScope, addrBar, odbFile, odaSession){
         if (e.remote) {
             return;
         }
+        e.user = $rootScope.currentUser;
         socket.emit('odbfile.changed', e);
     });
 
