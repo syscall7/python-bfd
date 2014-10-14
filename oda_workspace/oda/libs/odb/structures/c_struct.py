@@ -58,7 +58,7 @@ class CStructField(Field):
 
     @property
     def size(self):
-        return self.cstruct.size**self.array_len
+        return self.cstruct.size*self.array_len
 
 
 class CStruct(OdaObject):

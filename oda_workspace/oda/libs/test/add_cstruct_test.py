@@ -4,7 +4,7 @@ from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.add_operation import AddOperation
 from oda.libs.odb.structures import c_struct
 from oda.libs.odb.structures.c_struct import CStruct, BuiltinField, CStructField
-from oda.libs.odb.structures.types import Uint8
+from oda.libs.odb.structures.types import BuiltInTypeFactory
 
 __author__ = 'davis'
 
@@ -17,9 +17,10 @@ class TestAddCStruct(unittest.TestCase):
             'name' : 'simpleStruct'
         })
 
-        item.append_field( BuiltinField(name='Field1',type=Uint8) )
-        item.append_field( BuiltinField(name='Field2',type=Uint8) )
-        item.append_field( BuiltinField(name='Field3',type=Uint8) )
+        builtin = BuiltInTypeFactory('Uint8')
+        item.append_field( BuiltinField(name='Field1',type=builtin) )
+        item.append_field( BuiltinField(name='Field2',type=builtin) )
+        item.append_field( BuiltinField(name='Field3',type=builtin) )
 
         self.assertEquals(3, item.size)
 
@@ -35,9 +36,10 @@ class TestAddCStruct(unittest.TestCase):
             'name' : 'simpleStruct'
         })
 
-        item.append_field( BuiltinField(name='Field1',type=Uint8) )
-        item.append_field( BuiltinField(name='Field2',type=Uint8) )
-        item.append_field( BuiltinField(name='Field3',type=Uint8) )
+        builtin = BuiltInTypeFactory('Uint8')
+        item.append_field( BuiltinField(name='Field1',type=builtin) )
+        item.append_field( BuiltinField(name='Field2',type=builtin) )
+        item.append_field( BuiltinField(name='Field3',type=builtin) )
 
         odb_file.execute(c_struct.generate_operation(AddOperation, item))
 
@@ -45,7 +47,7 @@ class TestAddCStruct(unittest.TestCase):
             'name' : 'complexStruct'
         })
 
-        item2.append_field( BuiltinField(name='Field1',type=Uint8) )
+        item2.append_field( BuiltinField(name='Field1',type=builtin) )
         item2.append_field( CStructField(name='Field3',c_struct_obj=item) )
 
         odb_file.execute(c_struct.generate_operation(AddOperation, item2))
