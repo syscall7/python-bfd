@@ -315,3 +315,49 @@
     border: 1px solid #aaa;
     border-radius: 3px;"
 }
+
+/** Hex units **/
+#hex-dump-table {
+    font-family: monospace;
+    cursor: text;
+}
+
+#hex-dump-table .row_even {
+
+}
+
+#hex-dump-table .row_odd {
+    /* background:#BEDEFF; */
+}
+
+.hex-cell-sec {
+    text-align: right;
+    color: #808080;
+}
+
+.hex-cell-addr {
+    padding: 0px 0px 0px 0px;
+}
+
+.hex-cell-byte {
+    color: #093C83;
+    padding: 0px 2px 0px 2px;
+    border: 1px;
+}
+
+.hex-cell-byte:hover {
+   background-color: #CCCCCC;
+}
+
+.hex-cell-gap {
+    padding: 0px 5px 0px 5px;
+}
+
+.hex-cell-asc {
+    color: gray;
+    padding: 0px 0px 0px 0px;
+}
+
+.hex-hovered {
+    background-color: #CCCCCC;
+}
