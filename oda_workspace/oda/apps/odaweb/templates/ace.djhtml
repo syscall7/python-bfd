@@ -35,9 +35,9 @@
         <!-- Nav tabs -->
         <ul class="nav nav-tabs oda-nav" role="tablist">
           <li class="active"><a href="#home" role="tab" data-toggle="tab">Disassembly</a></li>
+          <li><a href="#tab-hex" role="tab" data-toggle="tab">Hex</a></li>
           <li><a href="#sections" role="tab" data-toggle="tab">Sections</a></li>
           <li><a href="#tab-fileinfo" role="tab" data-toggle="tab">File Info</a></li>
-          <li><a href="#tab-hex" role="tab" data-toggle="tab">Hex</a></li>
           <li><a href="#tab-runtime" role="tab" data-toggle="tab">Runtime Report</a></li>
         </ul>
 
