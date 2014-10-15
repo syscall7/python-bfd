@@ -379,6 +379,9 @@ var OdbFile = function(oda_master) {
         func.retval = retval;
         func.args = args;
 
+        var symbols = $.grep(this.symbols, function(s) { return s.offset == offset });
+        $.each(symbols, function(i, symbol){ symbol.name = name; });
+
         var apply = function() {
             this._signal(ODB_EVENTS.CHANGED, {
                 addr: offset,
