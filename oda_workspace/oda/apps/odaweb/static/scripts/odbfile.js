@@ -2,7 +2,8 @@
 
 var ODB_EVENTS = {
     CHANGED : 'odb.changed',
-    PARCELS_RELOADED: 'odb.parcelReload'
+    PARCELS_RELOADED: 'odb.parcelReload',
+    DISPLAY_UNITS_LOADED: 'odb.displayUnitsLoaded'
 };
 var OdbFile = function(oda_master) {
 
@@ -136,7 +137,13 @@ var OdbFile = function(oda_master) {
             addr: addr,
             logical: true,
             units: numUnits
-        }).done(callback);
+        }).done(function(data){
+            this._signal(ODB_EVENTS.DISPLAY_UNITS_LOADED, {
+                duNum: addr,
+                numUnits: numUnits,
+                displayUnits: data
+            });
+        }.bind(this));
     };
 
     this.vmaToLda = function (vma, callback) {

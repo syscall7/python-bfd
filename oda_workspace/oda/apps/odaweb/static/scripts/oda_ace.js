@@ -344,6 +344,52 @@ var WindowLoader = function(renderer, odbFile) {
     this.callbacks = {};
     this.lastRowNumload;
 
+    this.onDuLoad = function(e) {
+        var data = e.displayUnits;
+        var duNum = e.duNum;
+
+        //TODO this might have changed since the load happened, should be attached to event
+        var rowNum = this.lastRowNumload;
+
+        NProgress.inc(0.4);
+        var tlines = [];
+
+        var scrollTop = this.session.getScrollTop();
+
+        var addedLines = 0;
+
+        for (var i=0; i<data.length; i++) {
+            var renderedLines = this.renderer.render($.extend({},data[i], {duNum:i+duNum}));
+            renderedLines = $.map(renderedLines, function(line) { return {row: line, data: data[i], num: i }});
+            if (renderedLines.length != 1) {
+                if (!this.lineSizes[duNum+i])
+                    addedLines += renderedLines.length - 1;
+
+                this.lineSizes[duNum + i] = renderedLines.length;
+
+                //fixup the branch lines
+                var branch = data[i].branch;
+                var branch_label = data[i].branch_label;
+
+                for (var j=0; j<renderedLines.length-1; j++) {
+                    renderedLines[j].data = $.extend({}, renderedLines[j].data, {branch:branch_label});
+                }
+            }
+
+
+            tlines = tlines.concat(renderedLines);
+
+        }
+        NProgress.done();
+        var currentWindow = new ace_document.Window(rowNum, tlines);
+        this._signal("loaded", { window: currentWindow, additionalRows: addedLines });
+       // callback(currentWindow, addedLines);
+
+        this.session.setScrollTop(scrollTop);
+    }.bind(this);
+
+    odbFile.on(ODB_EVENTS.DISPLAY_UNITS_LOADED, this.onDuLoad);
+
 
 
     this.reload = function(clear) {
@@ -361,45 +407,7 @@ var WindowLoader = function(renderer, odbFile) {
         NProgress.start();
 
         console.log("Loading Row=",rowNum, ' duNum=',duNum);
-        this.odbFile.loadDu(duNum, 400, function(data){
-            NProgress.inc(0.4);
-            var tlines = [];
-
-            var scrollTop = this.session.getScrollTop();
-
-            var addedLines = 0;
-
-            for (var i=0; i<data.length; i++) {
-                var renderedLines = this.renderer.render($.extend({},data[i], {duNum:i+duNum}));
-                renderedLines = $.map(renderedLines, function(line) { return {row: line, data: data[i], num: i }});
-                if (renderedLines.length != 1) {
-                    if (!this.lineSizes[duNum+i])
-                        addedLines += renderedLines.length - 1;
-
-                    this.lineSizes[duNum + i] = renderedLines.length;
-
-                    //fixup the branch lines
-                    var branch = data[i].branch;
-                    var branch_label = data[i].branch_label;
-
-                    for (var j=0; j<renderedLines.length-1; j++) {
-                        renderedLines[j].data = $.extend({}, renderedLines[j].data, {branch:branch_label});
-                    }
-                }
-
-
-                tlines = tlines.concat(renderedLines);
-
-            }
-            NProgress.done();
-            var currentWindow = new ace_document.Window(rowNum, tlines);
-            this._signal("loaded", { window: currentWindow, additionalRows: addedLines });
-           // callback(currentWindow, addedLines);
-
-            this.session.setScrollTop(scrollTop);
-        }.bind(this));
-
-
+        this.odbFile.loadDu(duNum, 400);
     };
 
     this.rowToDisplayUnit = function(row) {

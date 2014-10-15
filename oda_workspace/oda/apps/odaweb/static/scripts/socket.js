@@ -3,6 +3,13 @@
 //Socket IO
 
 odaApplication.run(function($rootScope, addrBar, odbFile, odaSession, statusBar){
+    var currentUser = $rootScope.currentUser;
+
+    if (currentUser == null) {
+        console.log('current user is null!');
+        return;
+    }
+
     var socket = io.connect("http://" + window.location.hostname + ":8080", {
         reconnection: false
     });
@@ -20,13 +27,6 @@ odaApplication.run(function($rootScope, addrBar, odbFile, odaSession, statusBar)
         socket.on('cursor.change', function(e){
             addrBar.updateUser(e.username, e.offset);
         });
-
-        var currentUser = $rootScope.currentUser;
-
-        if (currentUser == null) {
-            console.log('current user is null!');
-            return;
-        }
 
         socket.emit('subscribe',{
             //todo username
