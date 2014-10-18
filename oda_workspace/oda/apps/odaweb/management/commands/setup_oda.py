@@ -290,6 +290,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         load_examples()
-        load_instdocs()
+
+        # TODO: I'm commenting this out for now until we add support back in the client
+        #load_instdocs()
+
         load_sandbox_servers()
         print '\nODA setup was successful!'
