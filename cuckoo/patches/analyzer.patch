@@ -432,10 +432,9 @@ diff -ruN cuckoo/analyzer/windows/lib/api/process.py cuckoo_oda/analyzer/windows
          nf.close()
  
          log.info("Memory dump of process with pid %d completed", self.pid)
-diff -ruN cuckoo/analyzer/windows/lib/common/abstracts.py cuckoo_oda/analyzer/windows/lib/common/abstracts.py
---- cuckoo/analyzer/windows/lib/common/abstracts.py	2014-10-18 15:08:35.715923651 -0400
-+++ cuckoo_oda/analyzer/windows/lib/common/abstracts.py	2014-09-21 14:58:29.701829973 -0400
-@@ -33,8 +33,13 @@
+--- cuckoo/analyzer/windows/lib/common/abstracts.py 2014-10-18 15:08:35.715923651 -0400
++++ cuckoo_oda/analyzer/windows/lib/common/abstracts.py 2014-10-18 15:43:32.275958819 -0400
+@@ -33,6 +33,12 @@
          """Check."""
          return True
  
@@ -448,5 +447,3 @@ diff -ruN cuckoo/analyzer/windows/lib/common/abstracts.py cuckoo_oda/analyzer/wi
      def _enum_paths(self):
          """Enumerate available paths."""
          for path in self.PATHS:
-             basedir = path[0]
-             if basedir == "SystemRoot":
