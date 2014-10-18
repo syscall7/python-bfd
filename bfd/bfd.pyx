@@ -652,11 +652,17 @@ cdef class Bfd:
         self.arch = bfd_printable_arch_mach(self.archId, self.mach)
         self.target = bfd_get_target(self.abfd)
 
-        # load the static symbols
-        self._load_static_syms()
+        # do not let these errors stop us
+        try:
 
-        # load the dynamic symbols
-        self._load_dynamic_syms()
+          # load the static symbols
+          self._load_static_syms()
+
+          # load the dynamic symbols
+          self._load_dynamic_syms()
+
+        except BfdErr, e:
+          print 'Caught exception: %s, but ...continuing anyway' % e
 
         # load sections
         self._load_sections()
