@@ -662,7 +662,7 @@ cdef class Bfd:
           self._load_dynamic_syms()
 
         except BfdErr, e:
-          print 'Caught exception: %s, but ...continuing anyway' % e
+          print 'Caught exception: %s, but continuing anyway' % e
 
         # load sections
         self._load_sections()
