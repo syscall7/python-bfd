@@ -42,6 +42,9 @@ class PassiveScanOperation(Operation):
 
             the_ofd = ofd.Ofd(odb_file.get_binary())
             section = the_ofd.get_section_from_addr(parcel.vma_start)
+            if not section:
+                logger.error("Could not find section for addr 0x%08x" % parcel.vma_start)
+                continue
 
             parcel.lda_start = lda_offset
             if parcel.is_code:
