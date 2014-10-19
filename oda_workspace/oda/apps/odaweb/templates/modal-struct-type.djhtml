@@ -17,7 +17,7 @@
                         <label class="control-label">Field Name</label>
 
                         <div class="controls">
-                            <input id="set-base-address" name="base_address" type="text" placeholder="0x00000000"
+                            <input id="field-name-control" name="struct_field_name" type="text" placeholder="FieldName"
                                    class="input-small">
                         </div>
                     </div>

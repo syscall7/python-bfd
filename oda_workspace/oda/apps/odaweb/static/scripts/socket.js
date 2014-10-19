@@ -75,6 +75,15 @@ odaApplication.run(function($rootScope, addrBar, odbFile, odaSession, statusBar)
                     e.data.retval, e.data.args, true);
                  statusBar.pushStatus(Handlebars.compile("{{ e.user.username }} create a function on 0x{{hex e.addr}}")({e: e}));
             }
+            else if (e.action == 'addStruct') {
+                odbFile.addStructType(e.data.name, true);
+            }
+            else if (e.action == 'modifyStruct') {
+                odbFile.modifyStructType(e.data.structindex, e.data.fields);
+            }
+            s
+
+
         });
 
 

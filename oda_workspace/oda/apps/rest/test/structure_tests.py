@@ -188,33 +188,56 @@ class CStructsTest(OdaApiTestCase):
 
         #str(rd[0]['object_id'])
 
-        # Add a built-in type field
-        response = self.client.get('/odaweb/api/cstructs/'+ '0' + '/append_field/',
+        response = self.client.get('/odaweb/api/cstructs/'+ '0' + '/modify/',
                                    {'revision': 0,
                                     'short_name': 'mkdir',
-                                    'field_type' : 'Uint16',
-                                    'field_name' : 'my_field'},
+                                    'field_types' : [ 'Uint16', 'bar_struct_t'],
+                                    'field_names' : [ 'my_field1', 'my_field3'],
+                                    },
                                    format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Add a built-in type field
-        response = self.client.get('/odaweb/api/cstructs/'+ '1' + '/append_field/',
+        response = self.client.get('/odaweb/api/cstructs/'+ '1' + '/modify/',
                                    {'revision': 0,
                                     'short_name': 'mkdir',
-                                    'field_type' : 'Uint16',
-                                    'field_name' : 'my_inner_field'},
+                                    'fields' : [
+                                        {
+                                        'field_type' : 'Uint16',
+                                        'field_name' : 'my_field3'
+                                        }],
+                                    },
                                    format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-        # Add a field that is another struct
-        response = self.client.get('/odaweb/api/cstructs/'+ '0' + '/append_field/',
-                                   {'revision': 0,
-                                    'short_name': 'mkdir',
-                                    'field_type' : 'bar_struct_t',
-                                    'field_name' : 'my_field2'},
-                                   format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        #
+        # # Add a built-in type field
+        # response = self.client.get('/odaweb/api/cstructs/'+ '0' + '/append_field/',
+        #                            {'revision': 0,
+        #                             'short_name': 'mkdir',
+        #                             'field_type' : 'Uint16',
+        #                             'field_name' : 'my_field'},
+        #                            format='json')
+        # self.assertEqual(response.status_code, status.HTTP_200_OK)
+        #
+        # # Add a built-in type field
+        # response = self.client.get('/odaweb/api/cstructs/'+ '1' + '/append_field/',
+        #                            {'revision': 0,
+        #                             'short_name': 'mkdir',
+        #                             'field_type' : 'Uint16',
+        #                             'field_name' : 'my_inner_field'},
+        #                            format='json')
+        # self.assertEqual(response.status_code, status.HTTP_200_OK)
+        #
+        #
+        # # Add a field that is another struct
+        # response = self.client.get('/odaweb/api/cstructs/'+ '0' + '/append_field/',
+        #                            {'revision': 0,
+        #                             'short_name': 'mkdir',
+        #                             'field_type' : 'bar_struct_t',
+        #                             'field_name' : 'my_field3'},
+        #                            format='json')
+        # self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
         # Add a structure object

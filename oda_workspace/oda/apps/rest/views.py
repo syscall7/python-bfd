@@ -439,7 +439,42 @@ class CStructsViewSet(OdaStructureViewSet):
         serializer = self.get_serializer(item, many=False)
         return Response(serializer.data)
 
+    @link()
+    def modify(self, request, pk):
 
+        logger.info("Modify cstruct " + str(request))
+
+        short_name = request.QUERY_PARAMS.get('short_name')
+        revision = request.QUERY_PARAMS.get('revision')
+        field_names = request.QUERY_PARAMS.getlist('field_names')
+        field_types = request.QUERY_PARAMS.getlist('field_types')
+
+
+        oda = OdaMaster.objects.get(short_name=short_name, revision=revision)
+        struct_list = oda.odb_file.get_structure_list(CStruct)
+        item = struct_list[int(pk)]
+
+        # Delete existing fields
+        for oldfield in item.fields:
+            item.delete_field(oldfield.name)
+
+        # Add new ones
+        for i in range(len(field_names)):
+
+            # Check if the field is a built-in type
+            builtin = BuiltInTypeFactory(str(field_types[i]))
+            if ( builtin != None ):
+                item.append_field( BuiltinField(name=str(field_names[i]),type=builtin) )
+            else:
+                # Check if the field is an existing c_struct
+                for struct in struct_list:
+                    if struct.name == field_types[i]:
+                       item.append_field( CStructField(name=str(field_names[i]),c_struct_obj=struct) )
+
+        oda.save()
+
+        serializer = self.get_serializer(item, many=False)
+        return Response(serializer.data)
 
     @link()
     def append_field(self, request, pk):

@@ -31,6 +31,8 @@ var OdbFile = function(oda_master) {
 
     this.structTypes = [];
 
+    this.structFieldTypes = [];
+    
     this.runtimeReport = null;
 
 
@@ -104,7 +106,14 @@ var OdbFile = function(oda_master) {
             this.runtimeReport = data;
         }.bind(this));
 
-        $.when(fq, sq, pq, symq, stringsq, dulenq, structtypesq, cmq, runtimeReportQ).done(function (data) {
+        var structfieldtypesq = $.get('/odaweb/api/cstructfields/', {
+            short_name: this.shortName,
+            revision: this.revision
+        }).success(function(data) {
+            this.structFieldTypes = data;
+        }.bind(this));
+
+        $.when(fq, sq, pq, symq, stringsq, dulenq, structtypesq, structfieldtypesq, runtimeReportQ, cmq).done(function (data) {
             this._signal('loaded', this);
         }.bind(this));
     };
@@ -263,19 +272,21 @@ var OdbFile = function(oda_master) {
         var apply = function() {
             this.structTypes[this.structTypes.length] = {
                 name: name,
-                is_packed: true
+                is_packed: true,
+                fields : []
             };
 
-            /*
+
             this._signal(ODB_EVENTS.CHANGED, {
                 action: 'addStruct',
                 remote: remote,
                 data: {
                     name: name,
-                    is_packed: true
+                    is_packed: true,
+                    fields : []
                 }
             });
-            */
+
 
         }.bind(this);
 
@@ -285,6 +296,48 @@ var OdbFile = function(oda_master) {
                 revision: this.revision,
                 'name' : name,
                 'is_packed' : true
+            }).success(apply);
+        } else {
+            apply();
+        }
+
+    };
+
+    this.modifyStructType = function (structindex, fieldtypes, fieldnames, remote) {
+        if(typeof(remote)==='undefined') remote = false;
+
+        console.log("ModifyStruct", structindex);
+
+        var newfields = [];
+        var numFields = fieldtypes.length;
+        for (var i = 0; i < numFields; i++) {
+            newfields[i] = {
+                name: fieldnames[i],
+                type: fieldtypes[i]
+            }
+        }
+
+        var apply = function() {
+            this.structTypes[structindex].fields = newfields;
+
+            this._signal(ODB_EVENTS.CHANGED, {
+                action: 'modifyStruct',
+                remote: remote,
+                data: {
+                    structindex: structindex,
+                    fields : newfields
+                }
+            });
+
+
+        }.bind(this);
+
+        if (!remote) {
+            $.get("/odaweb/api/cstructs/" + structindex + '/modify/',{
+                short_name: this.shortName,
+                revision: this.revision,
+                'field_types' : fieldtypes,
+                'field_names' : fieldnames
             }).success(apply);
         } else {
             apply();
