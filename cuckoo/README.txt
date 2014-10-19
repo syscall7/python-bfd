@@ -67,13 +67,9 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
 
 5. Install Cuckoo dependencies
 
-  Install required Python libraries:
-
-    sudo apt-get install python-sqlalchemy python-bson
-
-  Install optional packages:
-
-    sudo apt-get install python-dpkt python-jinja2 python-magic python-pymongo python-gridfs python-libvirt python-bottle python-pefile python-chardet
+  virtualenv cuckoo_python_env
+  source cuckoo_python_env/bin/activate
+  pip install -r requirements.txt
 
 6. Install VirtualBox
 
@@ -94,9 +90,16 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
     cd ~/cuckoo_sandbox
     tar -xJf windows_xp_cuckoo_vm.tar.xz
 
-8. Add the VM image to VirtualBox
+8 (Headless) . Virtual Box Networking
+	
+    sudo VBoxManage hostonlyif create
+    VBoxManage registervm ~/cuckoo_sandbox/windows_xp_cuckoo_vm/windows_xp_cuckoo_vm.vbox
+
+8 (GUI). Add the VM image to VirtualBox
 
   Start VirtualBox and add the Windows XP VM:
+ 
+    Create a host network
 
     sudo virtualbox
     Click Machine->Add and navigate to the XP VM image.
@@ -106,11 +109,6 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
 
   Edit ~/cuckoo_sandbox/cuckoo/conf/cuckoo.conf with the following changes:
     
-    # This should be the IP address of the machine running Cuckoo
-    # NOTE: If this will not work for your network, you will have to change the
-    #       interface IP address inside the VM and make it match here.
-    ip = 192.168.1.124
-
     # set the default timeout
     default = 10
 
@@ -122,10 +120,6 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
     # Under the [cuckoo1] section
     label = windows_xp_cuckoo_vm
 
-    # NOTE: If this will not work for your network, just use the IP address of
-    #       your host machine (the one running the Cuckoo server).
-    ip = 192.168.1.126
-  
     # Our Windows XP VM has a snapshot named Snapshot1
     snapshot = Snapshot1
 
