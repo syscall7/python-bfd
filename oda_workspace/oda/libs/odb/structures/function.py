@@ -23,7 +23,7 @@ def generate_operation(op, *args):
 
 
 class Function(OdaObject):
-    def __init__(self, object_id, name, offset, sym_type, xrefs=[], retval='unknown', args='unknown'):
+    def __init__(self, object_id, name, offset, sym_type, xrefs=set([]), retval='unknown', args='unknown'):
         super(Function, self).__init__(object_id)
         self.name = name
         self.offset = offset

@@ -27,7 +27,7 @@ class CreateFunctionOperation(Operation):
             'name': self.name,
             'offset': self.vma,
             'sym_type': 't',
-            'xrefs': [],
+            'xrefs': set([]),
             'retval': self.retval,
             'args': self.args,
         })
@@ -42,7 +42,7 @@ class CreateFunctionOperation(Operation):
                 'base': 0,
                 'sym_type': 't',
                 'value': func.offset,
-                'xrefs': []
+                'xrefs': set([])
             }))
 
 class EditFunctionOperation(Operation):

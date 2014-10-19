@@ -143,7 +143,7 @@ class FunctionScanner(Scanner):
                     'base': 0,
                     'sym_type': 't',
                     'value': f['offset'],
-                    'xrefs': []
+                    'xrefs': set([])
                 }))
 
 

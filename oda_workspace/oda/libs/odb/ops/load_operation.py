@@ -52,7 +52,7 @@ class Loader(object):
                 'base': symbol.base,
                 'sym_type': symbol.type,
                 'value': symbol.value,
-                'xrefs': []
+                'xrefs': set([])
             }))
 
     def load_sections(self):
@@ -71,7 +71,7 @@ class Loader(object):
             'name': f.name,
             'offset': f.value,
             'sym_type': f.type,
-            'xrefs': [],
+            'xrefs': set([]),
             'retval': 'unknown',
             'args': 'unknown'
         }) for f in funcs]
