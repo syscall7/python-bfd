@@ -136,9 +136,16 @@ class FunctionScanner(Scanner):
             func = odb_file.create_item(Function, f)
             odb_file.get_structure_list(Function).append(func)
 
-            # remove functions from the symbol structure list (we don't need/want them in both places)
-            if addr in symbols.keys():
-                odb_file.remove_item(symbols[addr])
+            if addr not in symbols.keys():
+                odb_file.insert_item(odb_file.create_item(Symbol, {
+                    'name': f['name'],
+                    'offset': f['offset'],
+                    'base': 0,
+                    'sym_type': 't',
+                    'value': f['offset'],
+                    'xrefs': []
+                }))
+
 
 class BadCodeScanner(Scanner):
 

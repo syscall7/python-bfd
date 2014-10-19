@@ -171,13 +171,7 @@ class SymbolsViewSet(OdaStructureViewSet):
                     if (sym.type == 't' or sym.type=='T')
         }
 
-        # include functions, which we or the user identified through analysis, in the symbol listing
-        func_dict = {
-            func.offset: func
-                for func in self.odb_file.get_structure_list(Function)
-        }
-
-        return sym_dict.values() + func_dict.values()
+        return sym_dict.values()
 
 class ParcelsViewSet(OdaStructureViewSet):
     serializer_class = ParcelSerializer

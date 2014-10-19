@@ -2,6 +2,7 @@ import logging
 
 from oda.libs.odb.ops.operation import Operation
 from oda.libs.odb.structures.function import Function
+from oda.libs.odb.structures.symbol import Symbol
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,17 @@ class CreateFunctionOperation(Operation):
 
         odb_file.insert_item(func)
 
+        symbols = {sym.offset: sym for sym in odb_file.get_structure_list(Symbol)}
+        if self.vma not in symbols.keys():
+            odb_file.insert_item(odb_file.create_item(Symbol, {
+                'name': func.name,
+                'offset': func.offset,
+                'base': 0,
+                'sym_type': 't',
+                'value': func.offset,
+                'xrefs': []
+            }))
+
 class EditFunctionOperation(Operation):
 
     def __init__(self, vma, name, args, retval):
@@ -47,12 +59,15 @@ class EditFunctionOperation(Operation):
         self.object_id = odb_file.get_object_id()
 
         functions = {f.offset: f for f in odb_file.get_structure_list(Function)}
+        symbols = {sym.offset: sym for sym in odb_file.get_structure_list(Symbol)}
 
         if (self.vma in functions.keys()):
             f = functions[self.vma]
+            s = symbols[self.vma]
 
             if self.name != None:
                 f.name = self.name
+                s.name = self.name
 
             if self.args != None:
                 f.args = self.args

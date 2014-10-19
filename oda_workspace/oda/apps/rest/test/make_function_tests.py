@@ -46,7 +46,7 @@ class MakeFunctionUnitTest(OdaApiTestCase):
 
         self.assertEqual(syms[FUNC_ADDR]['name'], FUNC_NAME)
         self.assertEqual(syms[FUNC_ADDR]['offset'], FUNC_ADDR)
-        self.assertEqual(syms[FUNC_ADDR]['type'], 't')
+        self.assertEqual(syms[FUNC_ADDR]['type'].lower(), 't')
 
     def test_edit_function(self):
 
@@ -90,7 +90,7 @@ class MakeFunctionUnitTest(OdaApiTestCase):
 
         self.assertEqual(syms[FUNC_ADDR]['name'], FUNC_NAME)
         self.assertEqual(syms[FUNC_ADDR]['offset'], FUNC_ADDR)
-        self.assertEqual(syms[FUNC_ADDR]['type'], 't')
+        self.assertEqual(syms[FUNC_ADDR]['type'].lower(), 't')
 
     def test_make_function_on_data(self):
         # TODO
