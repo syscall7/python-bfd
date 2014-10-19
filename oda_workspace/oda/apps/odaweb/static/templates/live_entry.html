@@ -21,6 +21,20 @@
         </div>
     </div>
 
+    <div class="accordion" id="accordion2" style="padding-bottom:10px">
+        <button type="button" class="btn btn-small btn-danger" data-toggle="collapse" data-target="#collapseTwo">
+            Platform: <span class="platform-option">{{ oda_master.binary.arch }}</span>
+        </button>
+        <div id="collapseTwo" class="accordion-body collapse">
+            <div class="accordion-inner"
+                 ng-controller="NewOptionsViewController"
+                 style="border: 1px solid #e5e5e5; border-radius: 5px; margin-top: 10px; width:95%;padding: 10px;">
+                <div id="live-mode-platform-options-form" ng-include src="'new_options_template.html'">
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="alert alert-warning" id="hex-alert" ng-show="entryError">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
         <strong>Warning!</strong> You can only disassemble hexadecimal characters, check your inputs.

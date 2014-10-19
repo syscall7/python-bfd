@@ -19,6 +19,7 @@ router.register(r'find', views.FindViewSet, base_name="find")
 router.register(r'cstructs', views.CStructsViewSet, base_name='cstructs')
 router.register(r'cstructfields', views.CStructFieldsViewSet, base_name='cstructfields')
 router.register(r'sandbox', views.SandboxViewSet, base_name="sandbox")
+router.register(r'disassembler', views.DisassemblerViewSet, base_name="disassembler")
 
 #router.register(r'superchunks', views.SuperChunksViewSet, base_name="superchunks")
 

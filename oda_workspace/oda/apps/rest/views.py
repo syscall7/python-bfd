@@ -13,7 +13,7 @@ from oda.apps.rest.serializers import OdaMasterSerializer, SectionSerializer, St
     LabelSerializer, ParcelSerializer, CStructSerializer, CStructFieldSerializer
 from oda.libs.cuckoo import cuckoo
 from oda.libs.cuckoo.cuckoo import CuckooJob
-from oda.libs.odb.bfd.disassembler import Disassembler
+from oda.libs.odb.bfd.disassembler import Disassembler, get_supported_archs, get_supported_endians, get_platform_options2
 from oda.libs.odb.odb_file import OdbFile, BinaryString
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.add_struct_operation import AddStructOperation
@@ -515,4 +515,24 @@ class ShareView(APIView):
         return Response({
             'shareName': share.name,
             'shareUrl': reverse('connect', args=(share.name,))
+        })
+
+class DisassemblerViewSet(viewsets.GenericViewSet):
+    @link()
+    def architectures(self, request, pk):
+        return Response({
+            'architectures': get_supported_archs(),
+            'endians': [{
+                'name': x,
+                'intValue': y
+            } for x,y in get_supported_endians().items()]
+        })
+
+
+    @link()
+    def options(self, request, pk):
+        arch = 'i386:x86-64'
+        return Response({
+            'arch': arch,
+            'options': get_platform_options2(arch)
         })

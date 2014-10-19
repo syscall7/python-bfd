@@ -57,6 +57,22 @@ def get_platform_options(platform):
             #print 'DHTML',djhtmlOpts
     return djhtmlOpts
 
+def get_platform_options2(platform):
+    analyzer = analyzer_factory(platform)
+    if analyzer == None:
+        analyzer = analyzer_factory('defaultAnalyzer')
+
+    return [{
+        'name': x[0],
+        'desc': x[1],
+        'type': x[2],
+        'values': x[3]
+    } for x in analyzer.options]
+
+
+
+
+
 class Disassembler(object):
     def __init__(self, odb_file):
         self.odb_file = odb_file

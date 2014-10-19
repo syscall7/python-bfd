@@ -927,7 +927,7 @@ odaApplication.service('Docker', function(odbFile) {
     if (master.binary.liveMode) {
         this.docks.push({
             icon: 'fa-briefcase',
-            template: '/static2/templates/live_entry.html'
+            template: 'live_entry.html'
         });
         this.activeDock = this.docks[0];
     } else {
@@ -1105,7 +1105,7 @@ var ShareLiveController = function($scope, $modalInstance, $location, shareInfo)
 
     $scope.shareUrl = function() {
         return $location.protocol() + "://" + $location.host() +":" + $location.port() + shareInfo.shareUrl;
-    }
+    };
 
     $scope.ok = function () {
         $modalInstance.close();
@@ -1118,7 +1118,7 @@ var UploadFileController = function($scope, $modalInstance){
     //http://stackoverflow.com/questions/18716113/scope-issue-in-angularjs-using-angularui-bootstrap-modal
     $scope.data = {
         projectName: null
-    }
+    };
 
     $scope.ok = function () {
         $modalInstance.close({
