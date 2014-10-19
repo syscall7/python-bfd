@@ -488,7 +488,7 @@ class defaultAnalyzer(object):
             if pattern.startswith('"') and pattern.endswith('"'):
                 return pattern[1:-1]
             else:
-                return binascii.unhexlify(pattern)
+                return binascii.unhexlify(pattern.replace(' ', ''))
 
         # find the pattern in the current haystack
         def needleInHaystack(needle, haystack, baseAddr, sectionGroup, results):
