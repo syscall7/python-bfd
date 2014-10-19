@@ -492,7 +492,9 @@
             <div class="col-sm-8">
                 <select class="input-small form-control"
                         ng-model="po.selectedValue"
-                        ng-options="x for x in po.values">
+                        ng-options="x for x in po.values"
+                        ng-change="optionsUpdated()"
+                        >
                 </select>
             </div>
         </div>

@@ -24,7 +24,25 @@ odaApplication.controller('LiveEntryController', function LiveEntryController($s
     };
 
     $scope.optionsUpdated = function() {
-        console.log($scope.options);
+        console.log('optionsUpdated', $scope.options);
+
+        var computeSelected = function(platformOptions) {
+            var selected = [];
+            for (var i=0; i<platformOptions.length; i++) {
+                if (platformOptions[i].selectedValue != 'DEFAULT') {
+                    selected.push(platformOptions[i].selectedValue);
+                }
+            }
+            return selected;
+        };
+
+        var options = {
+            architecture: $scope.options.architecture,
+            base_address: $scope.options.base_address,
+            endian: $scope.options.endian,
+            selected_opts: computeSelected($scope.options.platformOptions)
+        };
+        console.log('selecteod OPTIOSN', options);
 
         odbFile.setOptions($scope.options);
     };
@@ -36,7 +54,7 @@ odaApplication.controller('LiveEntryController', function LiveEntryController($s
         $scope.endians = data.endians
     });
 
-    var updateOptions = function() {
+    var updateArchitectureOptions = function() {
         $http.get('/odaweb/api/disassembler/0/options/?arch=' + $scope.options.architecture).success(function(data){            console.log('OPTIONS', data);
             $scope.options.platformOptions = data.options;
             $.each($scope.options.platformOptions, function(i, po){
@@ -57,10 +75,11 @@ odaApplication.controller('LiveEntryController', function LiveEntryController($s
         });
     };
 
-    updateOptions()
+    updateArchitectureOptions()
 
     $scope.$watch('options.architecture', function(){
-        updateOptions();
+        $scope.optionsUpdated
     });
+
 
 });
