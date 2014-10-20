@@ -147,7 +147,8 @@
             </div>
         </div>
 
-        <div class="live-mode-platform-options-form" ng-include src="optionsTemplate()">
+        <!-- <div class="live-mode-platform-options-form" ng-include src="optionsTemplate()"> -->
+        <div ng-include src="'new_options_template.html'">
         </div>
 
     </div>

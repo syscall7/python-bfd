@@ -1224,7 +1224,7 @@ var MonitorSandboxController = function($scope, $interval, $http, fileInfo) {
 
 };
 
-var ConfigureFileController = function($scope, $modalInstance, fileData) {
+var ConfigureFileController = function($scope, $modalInstance, $http, fileData) {
 
     console.log(fileData);
 
@@ -1255,6 +1255,7 @@ var ConfigureFileController = function($scope, $modalInstance, fileData) {
     $scope.options = {
         architecture: fileData.arch
     };
+
     $scope.optionsUpdated = function() {
         console.log($scope.options);
     };
@@ -1268,6 +1269,46 @@ var ConfigureFileController = function($scope, $modalInstance, fileData) {
         }
         return enabled;
     };
+
+
+    /** Platform OPptions **/
+    $scope.optionsUpdated = function() { };
+
+    $http.get('/odaweb/api/disassembler/0/architectures/').success(function(data){
+        $scope.architectures = data.architectures
+        $scope.endians = data.endians
+    });
+
+    var updateArchitectureOptions = function() {
+        $http.get('/odaweb/api/disassembler/0/options/?arch=' + $scope.options.architecture).success(function(data){            console.log('OPTIONS', data);
+            $scope.options.platformOptions = data.options;
+            $.each($scope.options.platformOptions, function(i, po){
+                po.selectedValue = 'DEFAULT'
+            });
+        });
+    };
+    updateArchitectureOptions();
+
+    $scope.$watch('options.architecture', function(){
+        updateArchitectureOptions()
+    });
+
+
+    /** Platform Options Portion **/
+    /*$http.get('/odaweb/api/disassembler/0/architectures/').success(function(data){
+        $scope.architectures = data.architectures
+        $scope.endians = data.endians
+    });
+    var updateArchitectureOptions = function() {
+        $http.get('/odaweb/api/disassembler/0/options/?arch=' + $scope.options.architecture).success(function(data){
+            console.log('OPTIONS', data);
+            $scope.options.platformOptions = data.options;
+            $.each($scope.options.platformOptions, function(i, po){
+                po.selectedValue = 'DEFAULT'
+            });
+        });
+    };
+    updateArchitectureOptions();*/
 };
 
 var GotoAddressController = function($scope, $modalInstance, odaSession) {

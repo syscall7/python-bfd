@@ -75,7 +75,7 @@ odaApplication.controller('LiveEntryController', function LiveEntryController($s
         });
     };
 
-    updateArchitectureOptions()
+    updateArchitectureOptions();
 
     $scope.$watch('options.architecture', function(){
         updateArchitectureOptions()
