@@ -1,8 +1,12 @@
-odaApplication.controller('StructTypesController', function StructTypesController($scope, $http, $modal, odbFile, odaSession) {
+odaApplication.controller('StructTypesController', function StructTypesController($scope, $rootScope, $http, $modal, odbFile, odaSession) {
 
     $scope.structTypes = odbFile.structTypes;
     $scope.structFieldTypes = odbFile.structFieldTypes;
     $scope.obdfile = odbFile;
+
+    $scope.createStruct = function() {
+        $rootScope.$broadcast('command.makeStructType');
+    }
 
     $scope.openStructEditor = function(struct,index) {
 
