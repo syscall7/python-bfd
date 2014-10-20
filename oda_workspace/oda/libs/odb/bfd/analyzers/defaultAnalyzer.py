@@ -31,13 +31,15 @@ class Function(object):
 def parseField(section_name, addr, self, displayUnits, field, prefix, byteList):
 
     valueStr = '0x'
+    rawBytes = ''
     for i in range(field.size):
         c = byteList.pop(0)
         valueStr += "%02x" % c
+        rawBytes += "%02x" % c
     du = DisplayUnit()
     insn = prefix + '.' + field.name
     du.instStr = "<insn>%s</insn>  <span class='comment'>%s</span> <span class='raw'></span>" % (insn, valueStr)
-    du.rawBytes =  '%02x' % c
+    du.rawBytes = rawBytes
     du.isArray = False
     du.dataSize = field.size
     du.offset = addr

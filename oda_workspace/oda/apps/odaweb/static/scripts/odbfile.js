@@ -129,6 +129,15 @@ var OdbFile = function(oda_master) {
         }.bind(this));
     };
 
+    this.reloadStructFieldTypes = function() {
+        var structfieldtypesq = $.get('/odaweb/api/cstructfields/', {
+            short_name: this.shortName,
+            revision: this.revision
+        }).success(function(data) {
+            this.structFieldTypes = data;
+        }.bind(this));
+    };
+
     this.duLength = function(callback) {
         $.get('/odaweb/api/displayunits/1/size/', {
             short_name: this.shortName,
@@ -286,6 +295,8 @@ var OdbFile = function(oda_master) {
                     fields : []
                 }
             });
+
+            this.reloadStructFieldTypes();
 
 
         }.bind(this);

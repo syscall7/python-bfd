@@ -15,7 +15,17 @@ odaApplication.controller('StructTypesController', function StructTypesControlle
                 return struct;
               },
               fieldTypes: function () {
-                return $scope.structFieldTypes;
+                var typesClone = $scope.obdfile.structFieldTypes.slice(0);
+                var arrayLength = typesClone.length;
+                for (var i = 0; i < arrayLength; i++) {
+                    if (typesClone[i].name == struct.name) {
+                        // Can't reference ourself
+                        typesClone.splice(i, 1);
+                        break;
+                    }
+                }
+
+                return typesClone;
               },
               obdFile: function () {
                 return $scope.obdfile;
