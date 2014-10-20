@@ -303,6 +303,25 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="makeStructVariable.html">
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="cancel()">&times;</button>
+        <h3>Create Struct Variable</h3>
+    </div>
+    <div class="modal-body">
+        <div class="form-group">
+            <label for="name">Variable Name:</label>
+            <input type="text" class="form-control" ng-model="data.structData.name" />
+            <select class="form-control" id="struct-var-select-field-type" ng-model="data.structData.type" name="select-structvar-type">
+            <option ng-repeat="t in data.structData.types">{{t.name}}</option>
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
 
 <script type="text/ng-template" id="runtime.html">
 <div ng-controller="RuntimeDumpController">

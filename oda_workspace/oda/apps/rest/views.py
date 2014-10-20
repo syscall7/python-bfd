@@ -319,8 +319,8 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         if request.QUERY_PARAMS.get('vma'):
             vma = int(request.QUERY_PARAMS.get('vma'), 0)
 
-        struct_type = request.QUERY_PARAMS.get('struct_type')
-        variable_name = request.QUERY_PARAMS.get('variable_name')
+        struct_type = str(request.QUERY_PARAMS.get('struct_type'))
+        variable_name = str(request.QUERY_PARAMS.get('variable_name'))
 
         oda.odb_file.execute(AddStructOperation(vma,struct_type,variable_name))
 
@@ -453,8 +453,8 @@ class CStructsViewSet(OdaStructureViewSet):
 
         short_name = request.QUERY_PARAMS.get('short_name')
         revision = request.QUERY_PARAMS.get('revision')
-        field_names = request.QUERY_PARAMS.getlist('field_names')
-        field_types = request.QUERY_PARAMS.getlist('field_types')
+        field_names = request.QUERY_PARAMS.getlist('field_names[]')
+        field_types = request.QUERY_PARAMS.getlist('field_types[]')
 
 
         oda = OdaMaster.objects.get(short_name=short_name, revision=revision)

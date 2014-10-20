@@ -72,5 +72,4 @@ var StructEditorController = function($scope, $modalInstance, structure, fieldTy
     $scope.deleteField = function(index) {
         $scope.data.fields.splice(index,1);
     };
-structIndex
 };

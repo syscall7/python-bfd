@@ -32,15 +32,16 @@ def parseField(section_name, addr, self, displayUnits, field, prefix, byteList):
 
     valueStr = '0x'
     for i in range(field.size):
-        c = byteList.pop()
+        c = byteList.pop(0)
         valueStr += "%02x" % c
     du = DisplayUnit()
     insn = prefix + '.' + field.name
-    du.instStr = "<insn>%s</insn>  <span class='comment'>%s</span> <span class='raw'>; %s</span>" % (insn, valueStr, html.escape(chr(c)) if chr(c) in string.printable else ' ')
+    du.instStr = "<insn>%s</insn>  <span class='comment'>%s</span> <span class='raw'></span>" % (insn, valueStr)
     du.rawBytes =  '%02x' % c
     du.isArray = False
     du.dataSize = field.size
     du.offset = addr
+    du.section_name = section_name
     displayUnits[du.offset] = du
 
 def parseStruct(section_name, start_addr, self, displayUnits, maxLines, struct, prefix, byteList):
@@ -65,54 +66,58 @@ def parseDataParcel(section_name, start_addr, end_addr, self, displayUnits, is_d
     # Get the raw data from the file
     rawData = self.ofd.bfd.raw_data(self.ofd.bfd.sections[section_name], start_addr, dataLen)
 
-    if is_data:
-        # TODO: Organize the data in groups of one, two, four bytes etc.,
-        addr = start_addr
-        for c in map(ord, rawData):
+    # if is_data:
+    #     # TODO: Organize the data in groups of one, two, four bytes etc.,
+    #     addr = start_addr
+    #     for c in map(ord, rawData):
+    #         du = DisplayUnit()
+    #         du.offset = addr
+    #         du.section_name = section_name
+    #         du.rawBytes =  '%02x' % c
+    #         du.isArray = False
+    #         du.dataSize = 1
+    #         displayUnits[du.offset] = du
+    #         numLines += 1
+    #
+    #         addr += 1
+    #
+    #
+    # else:
+    # Undefined. Treat as single byte per line
+    addr = start_addr
+    byteList = map(ord, rawData)
+    while len(byteList) and numLines < maxLines:
+        struct_type = None
+        curStruct = None
+        for struct in structs:
+            if addr == struct.addr:
+                curStruct = struct
+                struct_type = next(tmpStructType for tmpStructType in self.struct_types if tmpStructType.name == struct.struct_type)
+                break
+
+        if struct_type != None and len(byteList) >= struct_type.size:
+            parseStruct(section_name, start_addr, self, displayUnits, maxLines, struct_type, curStruct.name, byteList)
+            addr += struct_type.size
+            numLines += len(struct_type.fields)
+            if (numLines >= maxLines):
+                break
+        else:
+            # TODO: Don't specify the css class here - it's not very classy, ha, ha
+            c = byteList.pop(0)
             du = DisplayUnit()
             du.offset = addr
             du.section_name = section_name
+            du.instStr = "<insn>db</insn>  <span class='comment'>%02xh</span> <span class='raw'>; %s</span>" % (c, html.escape(chr(c)) if chr(c) in string.printable else ' ')
             du.rawBytes =  '%02x' % c
             du.isArray = False
             du.dataSize = 1
-            displayUnits[du.offset] = du
-            numLines += 1
-
             addr += 1
+            numLines += 1
+            displayUnits[du.offset] = du
 
 
-    else:
-        # Undefined. Treat as single byte per line
-        addr = start_addr
-        byteList = map(ord, rawData)
-        while len(byteList) and numLines < maxLines:
-            if addr in structs:
-                struct_type = next(tmpStructType for tmpStructType in self.struct_types if tmpStructType.name == structs[addr].struct_type)
-
-            if addr in structs and len(byteList) >= struct_type.size:
-                curStruct = structs[addr]
-                parseStruct(section_name, start_addr, self, displayUnits, maxLines, struct_type, curStruct.name, byteList)
-                addr += struct_type.size
-                numLines += len(struct_type.fields)
-                if (numLines >= maxLines):
-                    break
-            else:
-                # TODO: Don't specify the css class here - it's not very classy, ha, ha
-                c = byteList.pop(0)
-                du = DisplayUnit()
-                du.offset = addr
-                du.section_name = section_name
-                du.instStr = "<insn>db</insn>  <span class='comment'>%02xh</span> <span class='raw'>; %s</span>" % (c, html.escape(chr(c)) if chr(c) in string.printable else ' ')
-                du.rawBytes =  '%02x' % c
-                du.isArray = False
-                du.dataSize = 1
-                addr += 1
-                numLines += 1
-                displayUnits[du.offset] = du
-
-
-            if (numLines == maxLines):
-                break
+        if (numLines == maxLines):
+            break
 
     return numLines
 

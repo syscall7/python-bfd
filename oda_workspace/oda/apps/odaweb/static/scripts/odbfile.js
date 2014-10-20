@@ -303,6 +303,42 @@ var OdbFile = function(oda_master) {
 
     };
 
+    this.addStructVariable = function (offset, name, type, remote) {
+        if(typeof(remote)==='undefined') remote = false;
+
+        console.log("AddStructVariable", name);
+
+        var apply = function() {
+
+            this._signal(ODB_EVENTS.CHANGED, {
+                action: 'addStructVariable',
+                remote: remote,
+                data: {
+                    offset: offset,
+                    name: name,
+                    type: type
+                }
+            });
+
+            this.reloadParcels();
+
+        }.bind(this);
+
+
+        if (!remote) {
+            $.get("/odaweb/api/displayunits/1/makeStruct/",{
+                short_name: this.shortName,
+                revision: this.revision,
+                'vma' : offset,
+                'struct_type': type,
+                'variable_name' : name
+            }).success(apply);
+        } else {
+            apply();
+        }
+
+    };
+
     this.modifyStructType = function (structindex, fieldtypes, fieldnames, remote) {
         if(typeof(remote)==='undefined') remote = false;
 

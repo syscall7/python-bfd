@@ -59,7 +59,7 @@ class CStructSerializer(serializers.Serializer):
 class CStructObjectSerializer(serializers.Serializer):
     name = serializers.CharField()
     addr = serializers.IntegerField()
-    struct_type = CStructSerializer()
+    struct_type = serializers.CharField()
 
 class ParcelSerializer(serializers.Serializer):
     vma_start = serializers.IntegerField()

@@ -2,7 +2,7 @@ import logging
 from oda.libs.odb.ops.operation import Operation
 from oda.libs.odb.structures.parcel import Parcel, ParcelList
 from oda.libs.odb.structures.parcel import CodeParcel, DataParcel
-from oda.libs.odb.structures.c_struct import CStructObject
+from oda.libs.odb.structures.c_struct import CStructObject, CStruct
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +31,16 @@ class AddStructOperation(Operation):
         # TODO: Throw an exception here
         assert (tgt_parcel is not None)
         assert (tgt_parcel.is_code is not True)
+
+        # Convert CStruct Name String to Cstruct Type
+        cstructs = ParcelList(odb_file.get_structure_list(CStruct))
+        tgt_cstruct = None
+        for cs in cstructs:
+            if self.struct_type == cs.name:
+                tgt_cstruct = cs
+                break
+
+        assert (tgt_cstruct is not None)
 
         struct_obj = odb_file.create_item(CStructObject, {
                 'addr': self.vma,

@@ -742,9 +742,55 @@ odaApplication.run(function($rootScope, $modal, odbFile, odaSession){
             odbFile.addStructType(scope.data.structData.name);
         });
     });
+
+    $rootScope.$on("command.makeStructVariable", function(event, data) {
+        var line= data.line;
+
+        var scope = $rootScope.$new(true);
+
+        var offset = line.data.offset;
+
+        scope.line = line;
+
+        scope.odbFile = odbFile;
+        scope.structTypes = odbFile.structTypes;
+
+        scope.data = {
+            structData: {
+                offset: offset,
+                name: 'StructVarName',
+                type: odbFile.structTypes[0].name,
+                types: odbFile.structTypes
+            }
+        };
+
+        var modalInstance = $modal.open({
+          templateUrl: 'makeStructVariable.html',
+          controller: 'MakeStructVariableController',
+          size: 'lg',
+          scope: scope
+        });
+
+        modalInstance.result.then(function(structDef){
+            console.log('create structure variable');
+            odbFile.addStructVariable(scope.data.structData.offset, scope.data.structData.name, scope.data.structData.type);
+        });
+    });
 });
 
 var MakeFunctionController = function($scope, $modalInstance) {
+
+    $scope.ok = function() {
+        $modalInstance.close($scope.data.structData);
+    };
+
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+};
+
+var MakeStructTypeController = function($scope, $modalInstance) {
 
     $scope.ok = function() {
         $modalInstance.close($scope.data.function);
@@ -756,7 +802,7 @@ var MakeFunctionController = function($scope, $modalInstance) {
     };
 };
 
-var MakeStructTypeController = function($scope, $modalInstance) {
+var MakeStructVariableController = function($scope, $modalInstance) {
 
     $scope.ok = function() {
         $modalInstance.close($scope.data.function);
