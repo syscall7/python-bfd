@@ -130,7 +130,7 @@ var OdbFile = function(oda_master) {
     };
 
     this.duLength = function(callback) {
-        $.get('/odaweb/api/displayunits/1/size', {
+        $.get('/odaweb/api/displayunits/1/size/', {
             short_name: this.shortName,
             revision: this.revision
         }).success(function (data) {
@@ -509,7 +509,7 @@ var OdbFile = function(oda_master) {
         }.bind(this));
 
 
-        var deferred = $q.defer();
+        /*var deferred = $q.defer();
 
         $http({
             method: 'PATCH',
@@ -523,7 +523,7 @@ var OdbFile = function(oda_master) {
         }.bind(this)).error(function(){
             deferred.reject("Use only hex characters!");
         });
-        return deferred.promise;
+        return deferred.promise;*/
     };
 
     this.callbacks = {};

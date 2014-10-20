@@ -44,7 +44,7 @@ odaApplication.controller('LiveEntryController', function LiveEntryController($s
         };
         console.log('selecteod OPTIOSN', options);
 
-        odbFile.setOptions($scope.options);
+        odbFile.setOptions(options);
     };
 
 
@@ -78,7 +78,7 @@ odaApplication.controller('LiveEntryController', function LiveEntryController($s
     updateArchitectureOptions()
 
     $scope.$watch('options.architecture', function(){
-        $scope.optionsUpdated
+        updateArchitectureOptions()
     });
 
 

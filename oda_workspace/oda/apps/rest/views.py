@@ -205,6 +205,7 @@ class OptionsViewSet(viewsets.GenericViewSet):
         arch = request.DATA['options[architecture]']
         base_address = request.DATA['options[base_address]']
         endian = request.DATA['options[endian]']
+        selected_opts = request.DATA.getlist('options[selected_opts][]', [])
 
         logger.info("updating...")
 
@@ -212,7 +213,8 @@ class OptionsViewSet(viewsets.GenericViewSet):
         odb_file.execute(ModifySettingsFactory.set_values({
             'architecture': arch,
             'base_address': base_address,
-            'endian': endian
+            'endian': endian,
+            'selected_opts': selected_opts
         }))
         oda_master.save()
 
@@ -566,7 +568,7 @@ class DisassemblerViewSet(viewsets.GenericViewSet):
 
     @link()
     def options(self, request, pk):
-        arch = 'i386:x86-64'
+        arch = request.QUERY_PARAMS.get('arch', 'i386:x86-64')
         return Response({
             'arch': arch,
             'options': get_platform_options2(arch)
