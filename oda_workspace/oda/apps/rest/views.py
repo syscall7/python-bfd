@@ -216,6 +216,11 @@ class OptionsViewSet(viewsets.GenericViewSet):
             'endian': endian,
             'selected_opts': selected_opts
         }))
+
+        odb_file = OdbFile(odb_file.binary)
+        odb_file.execute(LoadOperation())
+        odb_file.execute(PassiveScanOperation())
+        oda_master.odb_file = odb_file
         oda_master.save()
 
         return Response({'status': 'ok'})
