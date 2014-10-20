@@ -310,11 +310,24 @@
     </div>
     <div class="modal-body">
         <div class="form-group">
-            <label for="name">Variable Name:</label>
-            <input type="text" class="form-control" ng-model="data.structData.name" />
-            <select class="form-control" id="struct-var-select-field-type" ng-model="data.structData.type" name="select-structvar-type">
-            <option ng-repeat="t in data.structData.types">{{t.name}}</option>
-            </select>
+            <table class="table table-striped sidebar-table table-condensed" id="struct-variable-table">
+                <tbody class="scrollContent">
+                    <tr>
+                        <td class="string" style="text-align: left; width:50%">Variable Name</td>
+                        <td class="str-offset" style="text-align: left; width:50%">
+                            <input type="text" class="form-control" ng-model="data.structData.name" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="string" style="text-align: left; width:50%">Variable Type</td>
+                        <td class="string" style="text-align: left; width:50%">
+                            <select class="form-control" id="struct-var-select-field-type" ng-model="data.structData.type" name="select-structvar-type">
+                                <option ng-repeat="t in data.structData.types">{{t.name}}</option>
+                            </select>
+                        </td>
+                    </tr>
+               </tbody>
+            </table>
         </div>
     </div>
     <div class="modal-footer">

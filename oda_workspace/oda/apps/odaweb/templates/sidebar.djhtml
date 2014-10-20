@@ -20,7 +20,7 @@
             </button>
             <button class="btn nav-btn btn-default" type="button" data-panel="structtypes-display"
                     data-toggle="tooltip" title="Struct Types">
-                <span class="glyphicon glyphicon-test-width"></span>
+                <span class="glyphicon glyphicon-text-width"></span>
             </button>
           </div>
         </div>
