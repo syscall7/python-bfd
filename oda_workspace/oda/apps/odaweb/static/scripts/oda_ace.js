@@ -838,8 +838,10 @@ odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor) {
         if (odaSession != null && odbFile != null) {
             //We have to get the new size here since the number of DUs could possibly have changed
             odbFile.duLength(function (length) {
-                editor.getSession().getDocument().setLength(length);
-                odaSession.windowLoader.reload(true)
+                if ( length != 0 ) {
+                    editor.getSession().getDocument().setLength(length);
+                    odaSession.windowLoader.reload(true)
+                }
             });
 
 

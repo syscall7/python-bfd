@@ -74,10 +74,12 @@ odaApplication.controller('HexController', function HexController($scope, odbFil
             }
         }
 
-        // pad out last line to WIDTH
-        while ($scope.hexLines[idx].bytes.length < WIDTH) {
-            $scope.hexLines[idx].bytes.push('  ');
-            $scope.hexLines[idx].asc.push('  ');
+        if (idx != -1) {
+            // pad out last line to WIDTH
+            while ($scope.hexLines[idx].bytes.length < WIDTH) {
+                $scope.hexLines[idx].bytes.push('  ');
+                $scope.hexLines[idx].asc.push('  ');
+            }
         }
     };
 
@@ -85,8 +87,14 @@ odaApplication.controller('HexController', function HexController($scope, odbFil
         $scope.$apply(function(){
             var displayUnits = e.displayUnits;
             convertDisplayUnitsToHexLines(displayUnits);
-            minAddress = displayUnits[0].offset;
-            maxAddress = displayUnits[displayUnits.length-1].offset;
+            if ( displayUnits.length > 0 ) {
+                minAddress = displayUnits[0].offset;
+                maxAddress = displayUnits[displayUnits.length - 1].offset;
+            } else {
+                minAddress = 0;
+                maxAddress = 0;
+            }
+
         });
     })
 });
