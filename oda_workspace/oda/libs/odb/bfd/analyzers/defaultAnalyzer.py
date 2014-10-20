@@ -96,7 +96,7 @@ def parseDataParcel(section_name, start_addr, end_addr, self, displayUnits, is_d
                 break
 
         if struct_type != None and len(byteList) >= struct_type.size:
-            parseStruct(section_name, start_addr, self, displayUnits, maxLines, struct_type, curStruct.name, byteList)
+            parseStruct(section_name, addr, self, displayUnits, maxLines, struct_type, curStruct.name, byteList)
             addr += struct_type.size
             numLines += len(struct_type.fields)
             if (numLines >= maxLines):
