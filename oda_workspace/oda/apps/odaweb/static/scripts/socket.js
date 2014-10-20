@@ -81,7 +81,7 @@ odaApplication.run(function($rootScope, addrBar, odbFile, odaSession, statusBar)
             else if (e.action == 'modifyStruct') {
                 odbFile.modifyStructType(e.data.structindex, e.data.fields);
             }
-            s
+            
 
 
         });

@@ -536,6 +536,39 @@
     </form>
 </script>
 
+<script type="text/ng-template" id="structform.html">
+    <div  ng-controller="StructTypesController">
+        <form class="form-inline" role="form">
+            <div class="btn-group">
+                <button type="button" class="btn btn-default">Create Struct</button>
+            </div>
+            <div class="input-group">
+                <span class="input-group-addon">Filter</span>
+                <input type="text" class="form-control" placeholder="Substring" ng-model="search.string">
+            </div>
+
+        </form>
+        <div class="sidebar-scroll-container">
+            <table class="table table-striped sidebar-table table-condensed" id="structtypes-table">
+                <thead>
+                    <tr>
+                        <th class="col-sm-4" style="width:1%">Type</th>
+                    </tr>
+                </thead>
+                <tbody class="scrollContent">
+                        <tr ng-repeat="struct in structTypes | filter:search">
+                            <td class="clickable" style="text-align: left; width:100%" ng-click="openStructEditor(struct,$index)">{{ struct.name }}</td>
+                        </tr>
+                </tbody>
+            </table>
+
+            <div ng-show="!structTypes">
+                <em>No structs found in here and why not</em>
+            </div>
+        </div>
+    </div>
+</script>
+
 <script type="text/ng-template" id="openStructEditorModal.html">
     <div class="modal-header">
         <button type="button" class="close" ng-click="cancel()">&times;</button>

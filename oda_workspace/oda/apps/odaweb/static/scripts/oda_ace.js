@@ -988,7 +988,7 @@ odaApplication.service('Docker', function(odbFile) {
             template: '/static2/templates/find_results.html'
         }, {
             icon: 'fa-text-width',
-            template: '/static2/templates/struct_types.html'
+            template: 'structform.html'
         });
         this.activeDock = this.docks[1];
     }
