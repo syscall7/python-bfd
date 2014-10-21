@@ -191,6 +191,9 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
   Setup a Windows XP VM image in virtual box and configure it for Cuckoo.
   See http://cuckoo.readthedocs.org/en/latest/installation/guest/
 
+  Name the VM image windows_xp_cuckoo_vm to match the 'label' option in
+  cuckoo/virtualbox.conf.
+
 8. Configure the VM's networking options
 
   (GUI) Add the VM image to VirtualBox
@@ -240,3 +243,20 @@ LAUNCHING CODA
   sudo ./utils/api.py
 
 # In another terminal, run NodeJS
+
+KNOWN LIMITATIONS
+=================
+
+  * Setting the ENDIAN option in Live View and File Upload does not work
+  * Cannot delete structure definitions
+  * Structure definitions do not support pointer types
+  * Converting data to code does not recusively follow newly found functions
+  * Creating structure definitions can only be triggered through 
+  * The links in the Sections Tab do not navigate to the corresponding address
+  * The link to Live View does not work, but you can get to it through the
+    strcpy example
+  * Keyboard shortcuts only work if you have focus in the disassembly window
+  * File uploads are currently limited to 2.5 MB (can be changed)
+  * Downloading disassembly listing does not work
+  * Registering for an account currently throws an exception, but if you sign in
+    with the credentials given, you can still get to your account.
