@@ -9,7 +9,6 @@ ODA_INSTALL_DIR=/var/www/oda
 sudo apt-get update
 sudo apt-get upgrade -y
 
-
 install_odaweb ()
 {
 # Install subversion
@@ -81,20 +80,7 @@ mv $ODA_INSTALL_DIR/site/onlinedisassembler.conf /etc/apache2/sites-available/
 
 }
 
-
-
-
 # sudo usermod -aG www-data anthony
-
-
-
-
-
-
-
-
-
-
 
 # Setup webapp
 sudo svn co svn://svn.onlinedisassembler.com/oda/ODA/tags/v1.2.3/django webapp
@@ -102,7 +88,6 @@ sudo chown -R www-data webapp
 sudo chgrp -R www-data webapp
 # edit webapp/oda_python/settings/production.py and add the server's IP address to ALLOWED_HOSTS
 cd /var/www/oda2/webapp
-
 
 sudo vim /etc/apache2/sites-available/default
     <VirtualHost *:80>
