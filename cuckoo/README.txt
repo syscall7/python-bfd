@@ -109,7 +109,7 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
 
   Edit ~/cuckoo_sandbox/cuckoo/conf/cuckoo.conf with the following changes:
     
-    # set the default timeout
+    # Under the [timeouts] section set the default timeout
     default = 10
 
   Edit ~/cuckoo_sandbox/cuckoo/conf/virtualbox.conf with the following changes:
