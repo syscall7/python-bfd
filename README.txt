@@ -1,14 +1,18 @@
 
+--------------------------------------------------------------------------------
+CODA Prototpye Documentation
+--------------------------------------------------------------------------------
+
 DEPENDENCIES
 ============
 
-Setting up the CODA prototype requires the following:
+Setting up the CODA prototype requires the following dependencies:
 
   * Ubuntu 14.04.1 LTS
   * Apache
   * MySQL
-  * Python
-  * NodeJS
+  * Python 2.7
+  * Node.js
   * Binutils Source Code (binutils-2.24.51.tar.bz2)
   * libxml2-dev
   * libxslt1-dev
@@ -27,7 +31,29 @@ Setting up the CODA prototype requires the following:
   * cython
   * libapache2-mod-wsgi
   * libmysqlclient-dev
-
+  * The following Python modules are required for the CODA server:
+      * Cython==0.20.1
+      * Django==1.6.2
+      * MySQL-python==1.2.5
+      * argparse==1.2.1
+      * django-allauth==0.18.0
+      * django-appconf==0.6
+      * django-compressor==1.4
+      * djangorestframework==2.3.13
+      * dnspython==1.11.1
+      * nose==1.3.1
+      * oauthlib==0.6.1
+      * python-openid==2.2.5
+      * requests==2.2.1
+      * requests-oauthlib==0.4.0
+      * six==1.6.1
+      * wsgiref==0.1.2
+      * gsutil==3.42
+      * django-google-storage==0.3
+      * bidict==0.1.5
+      * ipython==2.2.0
+      * beautifulsoup4==4.3.2
+      * lxml==3.4.0
 
 INSTALLING CODA
 ===============
@@ -40,24 +66,24 @@ ODA_INSTALL_DIR=/var/www/oda
 # Build and install our custom version of the BFD library
 # NOTE: You will have to supply a version of binutils-2.24.51.tar.bz2 unless
 #       you are connected to the Internet
-cd $ODA_SRC_DIR/bfd
+cd $CODA_SRC_DIR/bfd
 sudo ./build_bfd.sh
 
 # Build the CODA BFD python module
-cd $ODA_SRC_DIR/bfd
-$ODA_INSTALL_DIR/env/bin/python setup.py install
+cd $CODA_SRC_DIR/bfd
+$CODA_INSTALL_DIR/env/bin/python setup.py install
 
 # Setup the python virtual environment
-sudo mkdir $ODA_INSTALL_DIR
-sudo virtualenv $ODA_INSTALL_DIR/env
+sudo mkdir $CODA_INSTALL_DIR
+sudo virtualenv $CODA_INSTALL_DIR/env
 
 # Copy the CODA source code to the WWW directory and install the Python requirements
-sudo mkdir $ODA_INSTALL_DIR/site
-cd $ODA_INSTALL_DIR/site/
-cp -R $ODA_SRC_DIR/oda_workspace/* .
-sudo $ODA_INSTALL_DIR/env/bin/pip install -r requirements.txt
-sudo chown -R www-data $ODA_INSTALL_DIR
-sudo chgrp -R www-data $ODA_INSTALL_DIR
+sudo mkdir $CODA_INSTALL_DIR/site
+cd $CODA_INSTALL_DIR/site/
+cp -R $CODA_SRC_DIR/oda_workspace/* .
+sudo $CODA_INSTALL_DIR/env/bin/pip install -r requirements.txt
+sudo chown -R www-data $CODA_INSTALL_DIR
+sudo chgrp -R www-data $CODA_INSTALL_DIR
 
 # Install NodeJS
 curl -sL https://deb.nodesource.com/setup | sudo bash -
@@ -71,15 +97,15 @@ sudo apt-get install mysql-server libmysqlclient-dev -y
 
 # Setup the database for CODA
 echo "create database odapython2;" | mysql --user=root --password='***REMOVED***'
-sudo $ODA_INSTALL_DIR/env/bin/python manage.py syncdb --settings=oda.settings.production
-sudo $ODA_INSTALL_DIR/env/bin/python manage.py setup_oda --settings=oda.settings.production
-sudo $ODA_INSTALL_DIR/env/bin/python manage.py setup_openid --settings=oda.settings.production -m prod
+sudo $CODA_INSTALL_DIR/env/bin/python manage.py syncdb --settings=oda.settings.production
+sudo $CODA_INSTALL_DIR/env/bin/python manage.py setup_oda --settings=oda.settings.production
+sudo $CODA_INSTALL_DIR/env/bin/python manage.py setup_openid --settings=oda.settings.production -m prod
 
 # Fixup the wsgi script to point to our install location
-perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < $ODA_INSTALL_DIR/site/oda.wsgi  > $ODA_INSTALL_DIR/site/oda.wsgi_2
-mv $ODA_INSTALL_DIR/site/oda.wsgi_2 $ODA_INSTALL_DIR/site/oda.wsgi
-perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < $ODA_INSTALL_DIR/site/apache_odaweb.site > $ODA_INSTALL_DIR/site/onlinedisassembler.conf
-mv $ODA_INSTALL_DIR/site/onlinedisassembler.conf /etc/apache2/sites-available/
+perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < $CODA_INSTALL_DIR/site/oda.wsgi  > $CODA_INSTALL_DIR/site/oda.wsgi_2
+mv $CODA_INSTALL_DIR/site/oda.wsgi_2 $CODA_INSTALL_DIR/site/oda.wsgi
+perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < $CODA_INSTALL_DIR/site/apache_odaweb.site > $CODA_INSTALL_DIR/site/onlinedisassembler.conf
+mv $CODA_INSTALL_DIR/site/onlinedisassembler.conf /etc/apache2/sites-available/
 
 # Setup the Apache VirtualHost
 Copy the following contents to /etc/apache2/sites-available/default
@@ -156,7 +182,7 @@ You'll need to download two Cuckoo repositories: a) the main Cuckoo repo, and b)
 3. Build the Cuckoo monitor DLL
 
   NOTE: You can skip this step by using ODA's pre-built version of
-        cuckoomon.dll ($ODA_SRC_DIR/cuckoo/cuckoomon.dll)
+        cuckoomon.dll ($CODA_SRC_DIR/cuckoo/cuckoomon.dll)
 
   To build from source, you'll first have to install a mingw environment:
       sudo apt-get install mingw32
@@ -243,6 +269,15 @@ LAUNCHING CODA
   sudo ./utils/api.py
 
 # In another terminal, run NodeJS
+
+USING CODA
+==============
+
+The typical workflow is to upload a file via the "File->Upload File" menu.
+Once the file has been loaded, a user can begin to markup and annotate the
+disassembly through right-click context menus as well as keyboard shortcuts.
+
+Collaboration requires signing into CODA with a username and password.
 
 KNOWN LIMITATIONS
 =================
