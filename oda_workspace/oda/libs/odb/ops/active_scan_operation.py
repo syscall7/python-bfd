@@ -111,31 +111,34 @@ class ActiveScanOperation(Operation):
 
         convert_to_code(self.vma, odb_file, analyzer, the_ofd)
 
-        # convert newly found functions to code as well
-        following_new_funcs = True
-        while following_new_funcs:
-            funcs = odb_file.get_structure_list(Function)
-            parcels = ParcelList(odb_file.get_structure_list(Parcel))
 
-            # assume we are done unless we find at least one function that is within a data parcel
-            following_new_funcs = False
-            for f in funcs:
-                p = parcels.find_parcel_by_vma(f.offset)
+        # TODO: This almost works, but there's a bug in the parcel consolidation
+        if False:
+            # convert newly found functions to code as well
+            following_new_funcs = True
+            while following_new_funcs:
+                funcs = odb_file.get_structure_list(Function)
+                parcels = ParcelList(odb_file.get_structure_list(Parcel))
 
-                if (  # if this function is at a valid address
-                      (p is not None) and
-                      # and the function is within a data parcel
-                      (not p.is_code) and
-                      # and the function looks to be valid code
-                      self._is_valid_instruction(the_ofd, analyzer, f.offset, p.vma_end)
-                ):
+                # assume we are done unless we find at least one function that is within a data parcel
+                following_new_funcs = False
+                for f in funcs:
+                    p = parcels.find_parcel_by_vma(f.offset)
 
-                    # convert this function to code
-                    convert_to_code(f.offset, odb_file, analyzer, the_ofd)
+                    if (  # if this function is at a valid address
+                          (p is not None) and
+                          # and the function is within a data parcel
+                          (not p.is_code) and
+                          # and the function looks to be valid code
+                          self._is_valid_instruction(the_ofd, analyzer, f.offset, p.vma_end)
+                    ):
 
-                    # take another pass, in case we discovered new functions to disassemble
-                    following_new_funcs = True
+                        # convert this function to code
+                        convert_to_code(f.offset, odb_file, analyzer, the_ofd)
 
-                    # break out of the for loop, but not the while
-                    break
+                        # take another pass, in case we discovered new functions to disassemble
+                        following_new_funcs = True
+
+                        # break out of the for loop, but not the while
+                        break
 
