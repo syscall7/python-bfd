@@ -63,8 +63,11 @@ def dump(path, target, arch, numLines=None, start=None, end=None):
         sec_name = '.app_text'
     elif '.data' in b.sections:
         sec_name = '.data'
-    else:
+    elif '.sec1' in b.sections:
         sec_name = '.sec1'
+    else:
+        sec_name = b.sections.keys()[0]
+
     print '\nDisassembly of %s:\n' % sec_name
     sec = b.sections[sec_name]
     (dis,nextAddr, lineCnt) = b.disassemble(sec, start, end, numLines, funcFmtAddr, funcFmtLine, {})
