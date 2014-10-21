@@ -526,6 +526,7 @@ function start(odbFile) {
     editor.getSession().setMode(new OdaMode());
     editor.getSession().setUseWorker(false);
     editor.setShowPrintMargin(false);
+    editor.setFontSize(14);
     editor.renderer.setShowGutter(true);
 
     var odaSession = new OdaSession(editor, odbFile, windowLoader);
