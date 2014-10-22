@@ -88,6 +88,8 @@ sudo chgrp -R www-data $CODA_INSTALL_DIR
 # Install NodeJS
 curl -sL https://deb.nodesource.com/setup | sudo bash -
 sudo apt-get install nodejs
+cd $CODA_SRC_DIR/oda_node
+npm install
 
 # Instal MySQL
 # Setup apache and mysql
@@ -269,6 +271,8 @@ LAUNCHING CODA
   sudo ./utils/api.py
 
 # In another terminal, run NodeJS
+  cd $CODA_SRC_DIR/oda_node
+  node socket_app.js
 
 USING CODA
 ==============
@@ -286,7 +290,8 @@ KNOWN LIMITATIONS
   * Cannot delete structure definitions
   * Structure definitions do not support pointer types
   * Converting data to code does not recusively follow newly found functions
-  * Creating structure definitions can only be triggered through 
+  * Creating structure definitions can only be triggered through a keyboard shortcut
+  * Nested structure definitions are not fully supported
   * The links in the Sections Tab do not navigate to the corresponding address
   * The link to Live View does not work, but you can get to it through the
     strcpy example
@@ -295,3 +300,18 @@ KNOWN LIMITATIONS
   * Downloading disassembly listing does not work
   * Registering for an account currently throws an exception, but if you sign in
     with the credentials given, you can still get to your account.
+
+FUTURE WORK
+===========
+
+  * IDA Integration (import/export IDB files)
+  * Python scripting interface
+  * User and group management
+    * Integrating with PKI-based authentication systems
+    * Easily share binaries between users in same group
+  * Analytics
+    * Draw from a corpus of previously reversed samples
+    * Enhance integration of runtime analysis
+    * Automatic import table reconstruction
+    * Enhance dissection of Windows executables
+    * Improve data types (i.e., strings)
