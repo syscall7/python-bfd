@@ -5,6 +5,7 @@ var ODB_EVENTS = {
     PARCELS_RELOADED: 'odb.parcelReload',
     DISPLAY_UNITS_LOADED: 'odb.displayUnitsLoaded'
 };
+
 var OdbFile = function(oda_master) {
 
     this.oda_master = oda_master;
@@ -587,5 +588,18 @@ var OdbFile = function(oda_master) {
         }
         this.callbacks[name].fire(data);
     };
+
+};
+
+OdbFile.setOptionsFor = function(shortName, revision, options) {
+    return $.ajax({
+        url: '/odaweb/api/options/'+"1"+"/",
+        type: 'PATCH',
+        data: {
+            options: options,
+            short_name: shortName,
+            revision: revision
+        }
+    });
 
 };

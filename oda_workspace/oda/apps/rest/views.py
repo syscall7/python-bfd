@@ -202,9 +202,9 @@ class OptionsViewSet(viewsets.GenericViewSet):
     def partial_update(self,request,pk):
         oda_master = OdaMaster.objects.get(short_name=request.DATA['short_name'], revision=request.DATA['revision'])
 
-        arch = request.DATA['options[architecture]']
-        base_address = request.DATA['options[base_address]']
-        endian = request.DATA['options[endian]']
+        arch = request.DATA.get('options[architecture]')
+        base_address = request.DATA.get('options[base_address]')
+        endian = request.DATA.get('options[endian]')
         selected_opts = request.DATA.getlist('options[selected_opts][]', [])
 
         logger.info("updating...")

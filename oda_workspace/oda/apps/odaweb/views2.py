@@ -757,7 +757,12 @@ def odbFileView(request, oda_master):
         'master': oda_master,
         'binary': oda_master.odb_file.get_binary(),
         'section_info': Ofd(oda_master.odb_file.get_binary()).get_loadable_sections(),
-        'saved': saved
+        'saved': saved,
+        'architectures': get_supported_archs(),
+        'endians': [{
+            'name': x,
+            'intValue': y
+        } for x, y in get_supported_endians().items()]
     }
 
     request.session['saved'] = False

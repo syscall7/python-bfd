@@ -507,6 +507,7 @@
                 <input id="set-{{ form_type }}-base-address" name="base_address"
                        ng-model="options.base_address"
                        type="text" placeholder="0x00000000"
+                       ng-change="optionsUpdated()"
                        class="input-small form-control">
             </div>
         </div>
@@ -514,9 +515,9 @@
             <label class="col-sm-4 control-label upload-form-control">Endian</label>
 
             <div class="col-sm-8">
-                <select class="input-small form-control"
+                <select class="input-small form-control" name="endian"
                         ng-model="options.endian"
-                        ng-options="e.name for e in endians">
+                        ng-options="e.name for e in endians track by e.name">
                 </select>
             </div>
         </div>
@@ -643,6 +644,10 @@
                 selected_opts: {{  binary.options.selected_opts | jsonify }}
             }
         }
+    };
+    window.system = {
+        architectures: {{  architectures | jsonify }},
+        endians: {{ endians | jsonify }}
     };
 
     {% endautoescape %}

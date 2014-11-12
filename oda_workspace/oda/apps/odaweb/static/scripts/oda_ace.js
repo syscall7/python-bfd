@@ -1227,23 +1227,47 @@ var MonitorSandboxController = function($scope, $interval, $http, fileInfo) {
 
 var ConfigureFileController = function($scope, $modalInstance, $http, fileData) {
 
-    console.log(fileData);
+    console.log('ConfigureFileController', fileData);
 
     $scope.data = {
         fileData: fileData,
         sandbox: false
-    }
+    };
 
     $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
     };
 
     $scope.ok = function () {
-        $modalInstance.close({
-            sandbox: $scope.data.sandbox,
-            shortName: fileData.short_name,
-            revision: fileData.revision
 
+        var computeSelected = function(platformOptions) {
+            var selected = [];
+            for (var i=0; i<platformOptions.length; i++) {
+                if (platformOptions[i].selectedValue != 'DEFAULT') {
+                    selected.push(platformOptions[i].selectedValue);
+                }
+            }
+            return selected;
+        };
+
+        var options = computeSelected($scope.options.platformOptions);
+        console.log('options', options);
+
+        var options = {
+            architecture: $scope.options.architecture,
+            base_address: $scope.options.base_address,
+            endian: $scope.options.endian,
+            selected_opts: computeSelected($scope.options.platformOptions)
+        };
+
+        OdbFile.setOptionsFor(fileData.short_name, fileData.revision, options)
+            .success(function(){
+            $modalInstance.close({
+                sandbox: $scope.data.sandbox,
+                shortName: fileData.short_name,
+                revision: fileData.revision
+
+            });
         });
     };
 
@@ -1254,7 +1278,8 @@ var ConfigureFileController = function($scope, $modalInstance, $http, fileData) 
     };
 
     $scope.options = {
-        architecture: fileData.arch
+        architecture: fileData.arch,
+        endian: 'DEFAULT'
     };
 
     $scope.optionsUpdated = function() {
@@ -1271,14 +1296,8 @@ var ConfigureFileController = function($scope, $modalInstance, $http, fileData) 
         return enabled;
     };
 
-
-    /** Platform OPptions **/
-    $scope.optionsUpdated = function() { };
-
-    $http.get('/odaweb/api/disassembler/0/architectures/').success(function(data){
-        $scope.architectures = data.architectures
-        $scope.endians = data.endians
-    });
+    $scope.architectures = window.system.architectures;
+    $scope.endians = window.system.endians;
 
     var updateArchitectureOptions = function() {
         $http.get('/odaweb/api/disassembler/0/options/?arch=' + $scope.options.architecture).success(function(data){            console.log('OPTIONS', data);
