@@ -112,6 +112,7 @@
           <input class="comment-text" type="text"
                  style="width:500px;"
                  ng-model="comment.text"
+                 focus-on="comment"
                  ui-keyup="{'enter':'save()'}"
           />
 
@@ -222,7 +223,7 @@
     </div>
     <div class="modal-body">
 
-        <form id="upload-form" class="form-horizontal">
+        <form class="form-horizontal">
 
 
             <div class="form-group">
@@ -230,7 +231,10 @@
                 <div class="col-sm-8">
                     <input type="text" class="form-control"
                            ng-model="data.address"
-                            placeholder="0x00000000"/>
+                            placeholder="0x00000000"
+                            id="goto-textbox"
+                            ui-keyup="{'enter':'ok()'}"
+                            focus-on="goto"/>
                 </div>
             </div>
 

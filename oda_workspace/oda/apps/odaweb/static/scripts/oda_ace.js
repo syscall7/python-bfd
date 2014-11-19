@@ -629,7 +629,7 @@ odaApplication.run(function(odbFile, addrBar){
 
 });
 
-odaApplication.run(function($rootScope, $modal, odbFile, odaSession){
+odaApplication.run(function($rootScope, $modal, odbFile, focus){
     $rootScope.$on('command.comment', function(event, line){
 
         var scope = $rootScope.$new(true);
@@ -643,9 +643,7 @@ odaApplication.run(function($rootScope, $modal, odbFile, odaSession){
           scope: scope
         });
 
-        modalInstance.opened.then(function(){
-            setTimeout(function() { $('.comment-text').focus(); }, 100);
-        });
+        focus('comment');
 
         modalInstance.result.then(function(data){
             odbFile.addComment(line.line.data.offset, data.comment);
@@ -1024,7 +1022,8 @@ odaApplication.controller('DockController', function DockController($scope, $htt
 });
 
 odaApplication.controller('NavbarController', function NavbarController($scope, $modal, $location,
-                                                                        fileUpload, AuthService, odbFile){
+                                                                        fileUpload, AuthService, odbFile,
+                                                                        focus){
     $scope.examples = window.examples;
 
     $scope.a = function() {return true;};
@@ -1055,9 +1054,12 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
           size: 'md'
         });
 
+        focus("goto");
+
         modalInstance.result.then(function(data){
             console.log(data);
         });
+
     };
 
     $scope.$on('command.goto', function(event) {
@@ -1334,6 +1336,7 @@ var ConfigureFileController = function($scope, $modalInstance, $http, fileData) 
 };
 
 var GotoAddressController = function($scope, $modalInstance, odaSession) {
+
     $scope.data = {
         address: null
     };
@@ -1477,6 +1480,26 @@ odaApplication.filter('unsafe', ['$sce', function ($sce) {
         return $sce.trustAsHtml(val);
     };
 }]);
+
+odaApplication.directive('focusOn', function() {
+   return function(scope, elem, attr) {
+      scope.$on('focusOn', function(e, name) {
+        if(name === attr.focusOn) {
+          elem[0].focus();
+        }
+      });
+   };
+});
+
+odaApplication.factory('focus', function ($rootScope, $timeout) {
+  return function(name) {
+    $timeout(function (){
+      $rootScope.$broadcast('focusOn', name);
+    }, 250);
+  }
+});
+
+
 // update popover template for binding unsafe html
 angular.module("template/popover/popover.html", []).run(["$templateCache", function ($templateCache) {
     $templateCache.put("template/popover/popover.html",
