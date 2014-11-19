@@ -265,9 +265,6 @@ class OdbFile(object):
 
         return self.binary
 
-    def options(self):
-        return self.binary_factory.get_binary().options
-
 
 class DefaultOdbSerializer(object):
     def dumps(self, odb_file):
