@@ -125,6 +125,8 @@ class BinaryFileModel(Binary):
         binary_file.base_address = options.base_address
         binary_file.save()
         self._options = binary_file.options
+        logger.info("Setting Options...")
+
 
 class BinaryFile(models.Model):
     ''' Represents a disassembled entity that was uploaded as a file '''
@@ -141,7 +143,7 @@ class BinaryFile(models.Model):
 
     @property
     def options(self):
-        return Options(self.target, self.architecture, self.base_address)
+        return Options(self.target, self.architecture, self.base_address, self.extra_options)
 
 
     def file_handle(self):

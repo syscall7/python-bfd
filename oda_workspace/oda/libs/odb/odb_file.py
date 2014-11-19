@@ -43,12 +43,12 @@ class OdaObjectFactory(object):
 
 
 class Options(object):
-    def __init__(self, target, architecture, base_address):
+    def __init__(self, target, architecture, base_address, selected_opts = []):
         self.target = target
         self.architecture = architecture
         self.base_address = base_address
         self.endian = 'DEFAULT'
-        self.selected_opts = []
+        self.selected_opts = selected_opts
 
     def get_endian(self):
         return self.endian
