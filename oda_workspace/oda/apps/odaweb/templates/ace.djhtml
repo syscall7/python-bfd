@@ -504,11 +504,13 @@
                     >Base Address</label>
 
             <div class="col-sm-8">
+                <div class="input-group">
                 <input id="set-{{ form_type }}-base-address" name="base_address"
                        ng-model="options.base_address"
                        type="text" placeholder="0x00000000"
-                       ng-change="optionsUpdated()"
                        class="input-small form-control">
+                <span class="input-group-addon"><a href="" ng-click="changeBaseAddress(options.base_address)">Apply</a></span>
+                </div>
             </div>
         </div>
         <div class="form-group">

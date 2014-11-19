@@ -157,6 +157,9 @@ var OdbFile = function(oda_master) {
             logical: true,
             units: numUnits
         }).done(function(data){
+            if (data.length == 0) {
+                throw "NO DATA RETURNED";
+            }
             this._signal(ODB_EVENTS.DISPLAY_UNITS_LOADED, {
                 duNum: addr,
                 numUnits: numUnits,
@@ -394,7 +397,7 @@ var OdbFile = function(oda_master) {
     };
 
     this.setOptions = function(options){
-        $.ajax({
+        var p = $.ajax({
             url: '/odaweb/api/options/'+this.binary.id+"/",
             type: 'PATCH',
             data: {
@@ -410,6 +413,9 @@ var OdbFile = function(oda_master) {
             });
 
         }.bind(this));
+
+
+        return p;
     };
 
     this.connectLink = function() {

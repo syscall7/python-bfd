@@ -20,10 +20,10 @@ odaApplication.controller('LiveEntryController', function LiveEntryController($s
     $scope.options = {
         architecture: $scope.oda_master.binary.options.architecture,
         endian: $scope.oda_master.binary.options.endian,
-        base_address: $scope.oda_master.binary.options.base_address
+        base_address: '0x' + $scope.oda_master.binary.options.base_address
     };
 
-    $scope.optionsUpdated = function() {
+    $scope.optionsUpdated = function(reload) {
         console.log('optionsUpdated', $scope.options);
 
         var computeSelected = function(platformOptions) {
@@ -44,18 +44,23 @@ odaApplication.controller('LiveEntryController', function LiveEntryController($s
         };
         console.log('selecteod OPTIOSN', options);
 
-        odbFile.setOptions(options);
+        var p = odbFile.setOptions(options);
+
+        if (reload) {
+            p.success(function(){
+                window.location.href = 'http://localhost:8000/oda/ace/' + odbFile.shortName + '/' + odbFile.revision;
+            });
+        }
     };
 
 
     /** Platform Options Portion **/
-    $http.get('/odaweb/api/disassembler/0/architectures/').success(function(data){
-        $scope.architectures = data.architectures
-        $scope.endians = data.endians
-    });
+    $scope.architectures = window.system.architectures;
+    $scope.endians = window.system.endians;
 
     var updateArchitectureOptions = function() {
-        $http.get('/odaweb/api/disassembler/0/options/?arch=' + $scope.options.architecture).success(function(data){            console.log('OPTIONS', data);
+        $http.get('/odaweb/api/disassembler/0/options/?arch=' + $scope.options.architecture).success(function(data){
+            console.log('OPTIONS', data);
             $scope.options.platformOptions = data.options;
             $.each($scope.options.platformOptions, function(i, po){
                 po.selectedValue = null;
@@ -73,6 +78,10 @@ odaApplication.controller('LiveEntryController', function LiveEntryController($s
                 }
             });
         });
+    };
+
+    $scope.changeBaseAddress = function(base_address) {
+        $scope.optionsUpdated(true);
     };
 
     updateArchitectureOptions();
