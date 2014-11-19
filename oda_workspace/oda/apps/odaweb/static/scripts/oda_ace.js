@@ -1290,9 +1290,11 @@ var ConfigureFileController = function($scope, $modalInstance, $http, fileData) 
     $scope.runtimeSupported = function() {
         var enabled = false;
         /* TODO: Add other targets that will run in the Windows XP VM */
+        /* Disable all targets for now until we enable support for sandboxing
         if (fileData.target == 'pei-i386') {
             enabled = true;
         }
+        */
         return enabled;
     };
 

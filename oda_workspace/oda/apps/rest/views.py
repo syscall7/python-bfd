@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, link, api_view
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.views import APIView
 from oda.apps.odaweb.models import OdaMaster, Share
 from oda.apps.odaweb.utils import id_generator
@@ -516,6 +517,9 @@ class SandboxViewSet(viewsets.GenericViewSet):
 
     @action()
     def submit(self, request, pk):
+        # disable for now
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
         short_name = request.DATA.get('short_name')
         revision = request.DATA.get('revision')
         oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
@@ -526,6 +530,9 @@ class SandboxViewSet(viewsets.GenericViewSet):
 
     @link()
     def status(self,request, pk):
+        # disable for now
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
         short_name = request.QUERY_PARAMS.get('short_name')
         revision = request.QUERY_PARAMS.get('revision')
         oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
@@ -536,6 +543,9 @@ class SandboxViewSet(viewsets.GenericViewSet):
 
     @link()
     def report(self,request, pk):
+        # disable for now
+        return Response(None)
+
         short_name = request.QUERY_PARAMS.get('short_name')
         revision = request.QUERY_PARAMS.get('revision')
         oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
