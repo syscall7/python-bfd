@@ -28,13 +28,23 @@ class Ofd(object):
         self.bfd_file_handle = binary.file_handle()
         filename = self.bfd_file_handle.name
 
+        # we manually fixup the section start address if a base address is set
+        baseAddr = self.binary.options.base_address
+        if baseAddr:
+            baseAddr = int(baseAddr, 16)
+        else:
+            baseAddr = 0
+
         # internal BFD object
         assert(binary.options.architecture != UNKNOWN_ARCH)
         self.bfd = bfd.Bfd(filename, binary.options.target, binary.options.architecture)
 
-        # process sections
         self.sections = list(self.bfd.sections.values())
         for s in self.sections:
+            # manually add in the base address, so the parcels know their real vma
+            s.vma += baseAddr
+
+            # iterate over the flags and convert them to boolean attributes
             for f in bfd.FLAGS:
                 if f.name in s.flags:
                     setattr(self, f.name, True) # i.e, section.SEC_ALLOC = True
@@ -73,12 +83,12 @@ class Ofd(object):
 
     def disassemble(self, name, options=[], start=None, stop=None, numLines=None, funcFmtLine=None, funcFmtLineArgs=None):
         sec = self.bfd.sections[name]
-        baseAddr = self.binary.options.base_address
 
-        if baseAddr:
-            baseAddr = int(baseAddr, 16)
-            start += baseAddr
-            stop += baseAddr
+        # We no longer have need for the baseAddr arg here, because we manually fixup the section addresses in the
+        # constructor above.  This change was precipitated by the fact that the parcels need to know their vma, and the
+        # the push_vma in the Parcel scanner was adding a vma that had the base address added twice.
+        baseAddr = None
+
         # determine endianness
         endian = ({'BIG': bfd.ENDIAN_BIG,
                     'LITTLE': bfd.ENDIAN_LITTLE,
