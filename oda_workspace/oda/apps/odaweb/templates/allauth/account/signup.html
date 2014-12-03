@@ -31,8 +31,28 @@
 
 
 
-        <p>{% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}
+        <p>
+            {% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}
         </p>
+
+        {% if socialaccount.providers  %}
+        <p>{% blocktrans with site.name as site_name %}Please sign in with one
+        of your existing third party accounts. Or create an account by username.{% endblocktrans %}</p>
+
+        <div class="socialaccount_ballot">
+
+          <ul class="socialaccount_providers">
+            {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+          </ul>
+
+        </div>
+
+        {% include "socialaccount/snippets/login_extra.html" %}
+
+        {% else %}
+        <p>{% blocktrans %}If you have not created an account yet, then please
+        <a href="{{ signup_url }}">sign up</a> first.{% endblocktrans %}</p>
+        {% endif %}
 
         {% csrf_token %}
 
