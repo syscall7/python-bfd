@@ -143,6 +143,9 @@ INSTALLED_APPS = (
     #django-rest-framework
     'rest_framework',
 
+    #https://github.com/kmike/django-widget-tweaks
+    'widget_tweaks',
+
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
