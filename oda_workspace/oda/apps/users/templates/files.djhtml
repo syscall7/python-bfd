@@ -26,8 +26,10 @@
 
         });
 
-        odaUserApplication.controller('FilesController', function(){
-
+        odaUserApplication.controller('FilesController', function($scope){
+            $scope.deleteFile = function() {
+                alert('here');
+            }
         });
 
         angular.bootstrap(document, ['odaUserApplication']);
@@ -76,8 +78,11 @@
                                     <small>{{ master.latest_revision }} revisions</small>
                                 {% endif %}
                             </h3>
-                            <p class="details">{{ master.creation_date|date:"SHORT_DATE_FORMAT" }} {{ master.details }}</p>
-                            <button type="button" class="btn btn-danger btn-sm">Delete <i class="fa fa-trash-o fa-1"></i></button>
+                            <p class="details">
+                                {{ master.creation_date|date:"SHORT_DATE_FORMAT" }} {{ master.details }}
+                                <button type="button" class="btn btn-danger btn-sm pull-right" ng-click="deleteFile()">Delete <i class="fa fa-trash-o fa-1"></i></button>
+                            </p>
+
                         </li>
                     {% endfor %}
                 </ul>

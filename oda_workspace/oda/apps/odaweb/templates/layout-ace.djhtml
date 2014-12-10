@@ -77,14 +77,16 @@
             authenticated: {{ user.is_authenticated | jsonify }}
         };
     </script>
+
+    {% block head %}
+    {% endblock %}
+
 <style type="text/css" media="screen">
 
 
 </style>
 </head>
 <body>
-
-<div ng-include="'/static2/templates/navbar.html'"></div>
 
 {% block body %}
 {% endblock %}

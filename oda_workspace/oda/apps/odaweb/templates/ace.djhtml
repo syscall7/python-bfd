@@ -4,6 +4,7 @@
 {% load tags %}
 
 {% block body %}
+<div ng-include="'/static2/templates/navbar.html'"></div>
 
 <div>
     <div id="slider" style="margin-top:50px; margin-bottom: 0px; margin-right: 15px; border: 0px; clear:both;">
