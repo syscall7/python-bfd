@@ -873,13 +873,15 @@ function handleSaveButton(options) {
     } */
 }
 
-$(document).ready(function(){
+function startOda() {
+
     function csrfSafeMethod(method) {
         // these HTTP methods do not require CSRF protection
         return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
     }
+
     $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
+        beforeSend: function (xhr, settings) {
             var csrftoken = $.cookie("csrftoken");
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
@@ -889,9 +891,9 @@ $(document).ready(function(){
 
     var top = parseInt($('.theeditor').css('top'));
     var bottom = parseInt($('.theeditor').css('bottom'));
-    $('#editor').height($(window).height()-top-bottom - 35 );
-    $(window).resize(function(){
-        $('#editor').height($(window).height()-top-bottom - 35 );
+    $('#editor').height($(window).height() - top - bottom - 35);
+    $(window).resize(function () {
+        $('#editor').height($(window).height() - top - bottom - 35);
     });
 
 
@@ -899,7 +901,7 @@ $(document).ready(function(){
 
     odbFile.load();
 
-    odbFile.on('loaded', function(odbFile){
+    odbFile.on('loaded', function (odbFile) {
         $('loading-spinner').hide();
         $('.theeditor').show();
 
@@ -908,8 +910,8 @@ $(document).ready(function(){
             west__size: 41,
             west__closable: false,
             west__resizable: false,
-            west__spacing_open:0,
-            west__spacing_closed:0,
+            west__spacing_open: 0,
+            west__spacing_closed: 0,
             center__childOptions: {
                 spacing_open: 2,
                 spacing_closed: 2,
@@ -929,9 +931,7 @@ $(document).ready(function(){
 
     handleSaveButton({saved: window.saved});
 
-
-
-});
+}
 
 odaApplication.filter('hex', function () {
     return function (num, len) {

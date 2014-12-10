@@ -660,8 +660,7 @@
 
 
     $(document).ready(function() {
-
-
+        startOda();
     });
 </script>
 
