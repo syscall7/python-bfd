@@ -3,7 +3,14 @@
 var ODB_EVENTS = {
     CHANGED : 'odb.changed',
     PARCELS_RELOADED: 'odb.parcelReload',
-    DISPLAY_UNITS_LOADED: 'odb.displayUnitsLoaded'
+    LIVE_ENTRY_UPDATE: 'odb.liveentryupdate',
+    DISPLAY_UNITS_LOADED: 'odb.displayUnitsLoaded',
+    ERROR : 'odb.error'
+};
+
+
+var ODB_ERRORS = {
+    LIVE_ENTRY_FAILED: 'odb.errorcode.liveentry'
 };
 
 var OdbFile = function(oda_master) {
@@ -407,7 +414,7 @@ var OdbFile = function(oda_master) {
             }
         }).success(function(data) {
             console.log(data);
-            this._signal('liveEntryText', {
+            this._signal(ODB_EVENTS.LIVE_ENTRY_UPDATE, {
                 addr: 0,
                 action: 'liveEntryChanged'
             });
@@ -556,9 +563,14 @@ var OdbFile = function(oda_master) {
                 revision: this.revision
             }
         }).success(function() {
-            this._signal('liveEntryText', {
+            this._signal(ODB_EVENTS.LIVE_ENTRY_UPDATE, {
                 addr: 0,
                 action: 'liveEntryChanged'
+            });
+        }.bind(this)).error(function(){
+            this._signal(ODB_EVENTS.ERROR, {
+                code: ODB_ERRORS.LIVE_ENTRY_FAILED,
+                message: 'Failed To Disassemble. Did you include non hexadecimal characters (0-9A-F)?'
             });
         }.bind(this));
 

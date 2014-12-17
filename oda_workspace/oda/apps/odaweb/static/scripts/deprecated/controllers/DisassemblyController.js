@@ -194,7 +194,7 @@ odaApplication.controller('DisassemblyController', function DisassemblyControlle
         odaApi.setPosition(position);
     };
 
-    $scope.$on('liveEntryText', function(event, liveEntryText) {
+    $scope.$on(ODB_EVENTS.LIVE_ENTRY_UPDATE, function(event, liveEntryText) {
         loadDisassembly();
     });
 

@@ -23,6 +23,17 @@ odaApplication.controller('LiveEntryController', function LiveEntryController($s
         base_address: '0x' + $scope.oda_master.binary.options.base_address
     };
 
+    odbFile.on(ODB_EVENTS.LIVE_ENTRY_UPDATE, function(){
+         $scope.$apply(function(){$scope.entryError = null;});
+    });
+
+    odbFile.on(ODB_EVENTS.ERROR, function(error){
+        if (error.code == ODB_ERRORS.LIVE_ENTRY_FAILED) {
+            $scope.$apply(function(){$scope.entryError = error;});
+
+        }
+    });
+
     $scope.optionsUpdated = function(reload) {
         console.log('optionsUpdated', $scope.options);
 

@@ -26,13 +26,17 @@
 
         });
 
-        odaUserApplication.controller('FilesController', function($scope){
-            $scope.deleteFile = function() {
-                alert('here');
+        odaUserApplication.controller('FilesController', function FilesController($scope, $http){
+            $scope.deleteFile = function(id) {
+                $http.delete('/odaweb/api/masters/' + id).success(function(){
+                    window.location.reload();
+                });
             }
         });
 
-        angular.bootstrap(document, ['odaUserApplication']);
+        angular.element(document).ready(function() {
+            angular.bootstrap(document, ['odaUserApplication']);
+        });
     </script>
 
 {% endblock %}
@@ -80,8 +84,10 @@
                             </h3>
                             <p class="details">
                                 {{ master.creation_date|date:"SHORT_DATE_FORMAT" }} {{ master.details }}
-                                <button type="button" class="btn btn-danger btn-sm pull-right" ng-click="deleteFile()">Delete <i class="fa fa-trash-o fa-1"></i></button>
                             </p>
+                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteFile({{ master.id }})" >
+                                Delete <i class="fa fa-trash-o fa-1"></i>
+                            </button>
 
                         </li>
                     {% endfor %}

@@ -831,7 +831,7 @@ var CommentController = function($scope, $modalInstance) {
 };
 
 odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor) {
-    odbFile.on('liveEntryText', function (event, liveEntryText) {
+    odbFile.on(ODB_EVENTS.LIVE_ENTRY_UPDATE, function (event, liveEntryText) {
         //var odaSession = oda_util.getOdaSession();
         //var odbFile = oda_util.getOdbFile();
         if (odaSession != null && odbFile != null) {
