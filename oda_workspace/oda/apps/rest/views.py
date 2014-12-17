@@ -463,7 +463,7 @@ class CStructsViewSet(OdaStructureViewSet):
         item = struct_list[int(pk)]
 
         # Delete existing fields
-        for oldfield in item.fields:
+        for oldfield in item.fields[:]:
             item.delete_field(oldfield.name)
 
         # Add new ones
