@@ -20,8 +20,12 @@ odaApplication.controller('LiveEntryController', function LiveEntryController($s
     $scope.options = {
         architecture: $scope.oda_master.binary.options.architecture,
         endian: $scope.oda_master.binary.options.endian,
-        base_address: '0x' + $scope.oda_master.binary.options.base_address
+        base_address: "" + $scope.oda_master.binary.options.base_address
     };
+
+    if ($scope.options.base_address.lastIndexOf('0x', 0) !== 0) {
+        $scope.options.base_address = '0x' + $scope.options.base_address;
+    }
 
     odbFile.on(ODB_EVENTS.LIVE_ENTRY_UPDATE, function(){
          $scope.$apply(function(){$scope.entryError = null;});
