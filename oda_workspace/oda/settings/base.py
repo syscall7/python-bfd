@@ -165,6 +165,8 @@ def skip_suspicious_operations(record):
         exc_value = record.exc_info[1]
         if isinstance(exc_value, SuspiciousOperation):
             return False
+    elif record.name == 'django.security.DisallowedHost':
+        return False
     return True
 
 # Purpose is to block the annoying emails we get when someone aborts a post by closing the browser, etc.
@@ -247,6 +249,12 @@ LOGGING = {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
+        },
+        'django.security': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
         }
+
     }
 }
