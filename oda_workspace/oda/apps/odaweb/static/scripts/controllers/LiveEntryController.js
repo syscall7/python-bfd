@@ -63,7 +63,7 @@ odaApplication.controller('LiveEntryController', function LiveEntryController($s
 
         if (reload) {
             p.success(function(){
-                window.location.href = 'http://localhost:8000/oda/ace/' + odbFile.shortName + '/' + odbFile.revision;
+                window.location.href = '/oda/ace/' + odbFile.shortName + '/' + odbFile.revision;
             });
         }
     };
