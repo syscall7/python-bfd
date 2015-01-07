@@ -700,7 +700,11 @@ def owned_files(request):
 
 
 def download_text_listing(request):
-    oda_master = get_session(request)
+    short_name = request.GET['short_name'] # oda_master.odb_file.get_binary().options.architecture
+    revision = request.get['revision']
+
+    oda_master = OdaMaster.objects.get(short_name=short_name, revision=revision)
+
     dasm = Disassembler(oda_master.binary)
     response = HttpResponse(dasm.get_text_listing(), content_type='text')
     response['Content-Disposition'] = 'attachment; filename="%s"' % oda_master.project_name
