@@ -107,6 +107,7 @@ def parseDataParcel(section_name, start_addr, end_addr, self, displayUnits, is_d
             # TODO: Don't specify the css class here - it's not very classy, ha, ha
             c = byteList.pop(0)
             du = DisplayUnit()
+            du.isCode = False
             du.offset = addr
             du.section_name = section_name
             du.instStr = "<insn>db</insn>  <span class='comment'>%02xh</span> <span class='raw'>; %s</span>" % (c, html.escape(chr(c)) if chr(c) in string.printable else ' ')
@@ -129,6 +130,7 @@ def create_branch(instr):
 def parseInstruction(addr, rawData, instr, abfd, self, displayUnits, section_name):
 
     du = DisplayUnit()
+    du.isCode = True
 
     # Separate out the address
     du.offset = addr
@@ -222,6 +224,7 @@ def parseFunctionsOnly(addr, rawData, instr, abfd, self, parcel):
         du.opcode = matchObj.group(1)
         du.instType = self.getInstructionType(du.opcode)
         du.operands = matchObj.group(2)
+        du.isCode = True
 
         self.computeTargetAddr(du)
 

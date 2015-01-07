@@ -46,3 +46,4 @@ class DisplayUnit(object):
         self.callType = None
         self.targetAddr = 0
         self.labelName = 'abc'
+        self.isCode = True

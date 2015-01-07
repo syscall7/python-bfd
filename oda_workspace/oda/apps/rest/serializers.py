@@ -87,7 +87,7 @@ class DisplayUnitSerializer(serializers.Serializer):
     isBranch = serializers.BooleanField()
     isFunction = serializers.BooleanField()
     labelName = serializers.CharField()
-
+    isCode = serializers.BooleanField()
 
 class SectionFlagSerializer(serializers.Serializer):
     abbrev = serializers.CharField()
