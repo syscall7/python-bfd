@@ -700,8 +700,9 @@ def owned_files(request):
 
 
 def download_text_listing(request):
+    #/odaweb/_download?short_name=strcpy_x86&revision=0
     short_name = request.GET['short_name'] # oda_master.odb_file.get_binary().options.architecture
-    revision = request.get['revision']
+    revision = request.GET['revision']
 
     oda_master = OdaMaster.objects.get(short_name=short_name, revision=revision)
 
