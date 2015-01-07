@@ -1,40 +1,5 @@
 {% load staticfiles %}
 
 <div id="modal-whats-oda" class="modal hide fade">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h3>What's ODA?</h3>
-    </div>
-    <div class="modal-body">
-        <img src="{% static 'images/oda.png' %}" style="float:left"/>
-        <b>ODA</b> stands for <b>O</b>nline <b>D</b>is<b>A</b>ssembler.  <b>ODA</b> is a general purpose machine code disassembler
-        that supports a myriad of machine architectures.  Built on the shoulders of libbfd and libopcodes (part of
-        binutils), <b>ODA</b> allows you to explore an executable by dissecting its sections, strings,
-        symbols, raw hex, and machine level instructions.
 
-        <p><p>You can use it for a variety of purposes such as:
-
-        <ul>
-            <li>Malware analysis</li>
-            <li>Vulnerability research</li>
-            <li>Visualizing the control flow of a group of instructions</li>
-            <li>Disassembling a few bytes of an exception handler that is going off into the weeds</li>
-            <li>Reversing the first few bytes of a Master Boot Record (MBR) that may be corrupt</li>
-            <li>Debugging an embedded systems device driver</li>
-            <li>Satisying your own intellectual curiosity (Does there exist some sequence of bytes that disassembles to the same logical operation for two separate platforms?)</li>
-        </ul>
-
-        <p><p>See the <a href="http://blog.onlinedisassembler.com/blog/?p=44">tutorial</a> for an overview of <b>ODA</b>'s features.
-
-        <p><p><b>ODA</b> is a BETA release that is limited by the resource constraints of the server on which it is
-        hosted and the spare time of its creators.  If you find <b>ODA</b> useful, have a feature request, or want to
-        comment in any way, please <a href="mailto:admin@onlinedisassembler.com">drop us a line!</a>
-
-    <h4>Supported Architectures</h4>
-    {% for a in supported_archs %}{{a}}<br>{% endfor %}
-
-    </div>
-    <div class="modal-footer">
-        <a href="#" class="btn btn-primary" data-dismiss="modal">Close</a>
-    </div>
 </div>

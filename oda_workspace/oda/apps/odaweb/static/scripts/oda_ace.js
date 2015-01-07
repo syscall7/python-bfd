@@ -1147,7 +1147,31 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
     $scope.createAccount = function() {
         window.location = "/accounts/signup"
     };
+
+    $scope.about = function() {
+        var modalInstance = $modal.open({
+          templateUrl: 'about.html',
+          size: 'lg'
+        });
+    };
+
+    $scope.whatsOda = function() {
+        var modalInstance = $modal.open({
+          templateUrl: 'whats-oda.html',
+          controller: 'WhatsOdaController',
+          size: 'lg'
+        });
+    };
 });
+
+var WhatsOdaController = function($scope, $modalInstance) {
+    $scope.data = {
+        architectures: window.system.architectures
+    };
+    $scope.close = function () {
+        $modalInstance.close();
+    };
+};
 
 var ShareLiveController = function($scope, $modalInstance, $location, shareInfo) {
     console.log("share info ", shareInfo);

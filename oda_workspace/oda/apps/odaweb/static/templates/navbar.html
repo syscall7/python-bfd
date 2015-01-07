@@ -27,13 +27,13 @@
        <li class="dropdown">
             <a class="dropdown-toggle" href="#" id="menu-item-file">File<b class="caret"></b></a>
             <ul class="dropdown-menu">
-                <li><a id="open-btn" href="_upload" data-toggle="modal" ng-click="openFile()">
+                <li><a id="open-btn" ng-click="openFile()">
                     <i class="glyphicon glyphicon-upload"></i>&nbsp;Upload File...</a>
                 </li>
-                <li><a id="download-btn" href="/odaweb/_download" data-toggle="modal">
+                <!--<li><a id="download-btn" href="/odaweb/_download" data-toggle="modal">
                     <i class="glyphicon glyphicon-download"></i>&nbsp;Download Disassembly</a>
-                </li>
-                <li><a href="/odaweb">
+                </li>-->
+                <li><a href="/oda/ace/strcpy_x86">
                     <i class="glyphicon glyphicon-play-circle"></i> Live Mode</a>
                 </li>
                 <!--<li class="dropdown-submenu"><a href="#" tab-index="-1"><i class="icon-file"></i>&nbsp;New</a>
@@ -87,10 +87,10 @@
        <li class="dropdown">
             <a class="dropdown-toggle" href="#">Help<b class="caret"></b></a>
             <ul class="dropdown-menu">
-                <li><a id='whats-oda-btn' href="#" data-toggle="modal">What's ODA?</a></li>
+                <li><a ng-click="whatsOda()">What's ODA?</a></li>
                 <li><a id='tutorial-btn' href="http://blog.onlinedisassembler.com/blog/?p=44">Tutorial</a></li>
                 <li class="divider"></li>
-                <li><a id='about-oda-btn' href="#" data-toggle="modal">About</a></li>
+                <li><a ng-click="about()">About</a></li>
             </ul>
         </li>
 

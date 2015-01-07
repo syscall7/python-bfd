@@ -2,7 +2,7 @@ odaApplication.controller('SectionsController', function SectionsController($sco
 
     $scope.sections = odbFile.sections;
 
-    var labels = ['label-success', 'label-warning', 'label-important', 'label-info', 'label-inverse'];
+    var labels = ['label-success', 'label-warning', 'label-info', 'label-inverse'];
     var label_index = 0;
     var flagLabelMap = [];
 
@@ -16,6 +16,7 @@ odaApplication.controller('SectionsController', function SectionsController($sco
 
         label = flagLabelMap[flag];
 
+        console.log("logging up ", flag, label);
         return label;
     }
 

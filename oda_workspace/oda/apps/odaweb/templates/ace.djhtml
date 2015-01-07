@@ -578,6 +578,64 @@
     </div>
 </script>
 
+<script type="text/ng-template" id="about.html">
+    <div class="modal-header">
+        <!--<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>-->
+        <h3>About ODA</h3>
+    </div>
+    <div class="modal-body">
+        {% endverbatim %}<img src="{% static 'images/oda.png' %}" style="float:left"/>{% verbatim %}
+        Version 0.2.0, Released 21 May 2013
+
+        <p><p><b>ODA</b> is the creation of Anthony DeRosa, Tom Keeley, and Bill Davis
+
+    </div>
+    <div class="modal-footer">
+       <!-- <a href="#" class="btn btn-primary" data-dismiss="modal">Close</a> -->
+    </div>
+</script>
+
+<script type="text/ng-template" id="whats-oda.html">
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="close()" aria-hidden="true">&times;</button>
+        <h3>What's ODA?</h3>
+    </div>
+    <div class="modal-body">
+        {% endverbatim %}<img src="{% static 'images/oda.png' %}" style="float:left"/>{% verbatim %}
+        <b>ODA</b> stands for <b>O</b>nline <b>D</b>is<b>A</b>ssembler.  <b>ODA</b> is a general purpose machine code disassembler
+        that supports a myriad of machine architectures.  Built on the shoulders of libbfd and libopcodes (part of
+        binutils), <b>ODA</b> allows you to explore an executable by dissecting its sections, strings,
+        symbols, raw hex, and machine level instructions.
+
+        <p><p>You can use it for a variety of purposes such as:
+
+        <ul>
+            <li>Malware analysis</li>
+            <li>Vulnerability research</li>
+            <li>Visualizing the control flow of a group of instructions</li>
+            <li>Disassembling a few bytes of an exception handler that is going off into the weeds</li>
+            <li>Reversing the first few bytes of a Master Boot Record (MBR) that may be corrupt</li>
+            <li>Debugging an embedded systems device driver</li>
+            <li>Satisying your own intellectual curiosity (Does there exist some sequence of bytes that disassembles to the same logical operation for two separate platforms?)</li>
+        </ul>
+
+        <p><p>See the <a href="http://blog.onlinedisassembler.com/blog/?p=44">tutorial</a> for an overview of <b>ODA</b>'s features.
+
+        <p><p><b>ODA</b> is a BETA release that is limited by the resource constraints of the server on which it is
+        hosted and the spare time of its creators.  If you find <b>ODA</b> useful, have a feature request, or want to
+        comment in any way, please <a href="mailto:admin@onlinedisassembler.com">drop us a line!</a>
+
+    <h4>Supported Architectures</h4>
+    <ul style="height:200px;overflow: scroll;">
+        <li ng-repeat="arch in data.architectures track by $index">{{ arch }}</li>
+    </ul>
+
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn btn-primary" ng-click="close()">Close</a>
+    </div>
+</script>
+
 <script type="text/ng-template" id="openStructEditorModal.html">
     <div class="modal-header">
         <button type="button" class="close" ng-click="cancel()">&times;</button>
