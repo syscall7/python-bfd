@@ -1,7 +1,7 @@
 from rest_framework import status
 from oda_api_tests import OdaApiTestCase
 
-class ParcelUnitTest(OdaApiTestCase):
+class MakeDataUnitTest(OdaApiTestCase):
     urls = 'oda.urls'
 
     def test_simple_make_data(self):
@@ -83,8 +83,10 @@ class ParcelUnitTest(OdaApiTestCase):
         self.assertIsNotNone(rd)
 
         for expected, actual in zip(after_split, rd):
+            isCode = expected[0] != ''
             self.assertEquals(expected[0], actual['opcode'])
             self.assertEquals(expected[1], actual['offset'])
             self.assertEquals(expected[2], actual['section_name'])
             self.assertEquals(expected[3], actual['rawBytes'])
+            self.assertEquals(isCode, actual['isCode'])
 

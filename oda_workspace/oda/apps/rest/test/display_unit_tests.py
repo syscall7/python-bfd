@@ -62,6 +62,7 @@ class DisplayUnitTest(OdaApiTestCase):
                 self.assertEqual(expected[4], actual['rawBytes'], msg)
                 self.assertEqual(expected[5], actual['opcode'], msg)
                 self.assertEqual(expected[6], actual['operands'].strip(), msg)
+                self.assertEqual(True, actual['isCode'], msg)
                 # actual['instStr']
 
     def test_display_units_mkdir_code(self):

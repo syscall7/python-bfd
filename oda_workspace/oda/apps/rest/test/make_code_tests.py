@@ -122,10 +122,12 @@ class MakeCodeUnitTest(OdaApiTestCase):
 
             # verify they are what we expect
             for expected, actual in zip(expected_instrs, rd):
+                isCode = expected[0] != ''
                 self.assertEquals(expected[0], actual['opcode'])
                 self.assertEquals(expected[1], actual['offset'])
                 self.assertEquals(expected[2], actual['section_name'])
                 self.assertEquals(expected[3], actual['rawBytes'])
+                self.assertEquals(isCode, actual['isCode'])
 
         def get_and_verify_parcels(expected_parcels):
             # get the parcels before converting to code
