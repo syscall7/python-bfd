@@ -153,6 +153,26 @@
     background-color:#C8DEFF;
 }
 
+.file-info-table {
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 14px;
+    color: dimgrey;
+}
+
+.file-info-label {
+    vertical-align: top;
+    color: #093C83;
+}
+
+.file-info-group
+{
+    border:1px solid #ddd; /*#BDBEDF;*/
+    padding: 10px 10px 10px 10px;
+    border-radius: 4px;
+}
+
+
 .clickable {
     color: #0088CC;
     text-decoration: none;

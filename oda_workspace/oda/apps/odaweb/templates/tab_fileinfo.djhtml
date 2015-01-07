@@ -1,17 +1,19 @@
 <div class="container">
+<div class="row">&nbsp;</div>
+<div class="row">&nbsp;</div>
 <div class="row">
-    <div class="span9 group">
-        <table class="table-file-props">
+    <div class="span9 file-info-group">
+        <table class="file-info-table">
             <tr>
-                <td class="prop-label">Project:</td>
+                <td class="file-info-label">Project:</td>
                 <td>{{ project_name }}</td>
             </tr>
             <tr>
-                <td class="prop-label">File:</td>
+                <td class="file-info-label">File:</td>
                 <td>{{ binary.name }}</td>
             </tr>
             <tr>
-                <td class="prop-label">Format:</td>
+                <td class="file-info-label">Format:</td>
                 <td>
                     {% for desc in binary.desc %}
                         {% if forloop.first %}
@@ -29,15 +31,15 @@
                 </td>
             </tr>
             <tr>
-                <td class="prop-label">Size:</td>
+                <td class="file-info-label">Size:</td>
                 <td>{{ binary.size|filesizeformat }}</td>
             </tr>
             <tr>
-                <td class="prop-label">MD5:</td>
+                <td class="file-info-label">MD5:</td>
                 <td>{{ binary.md5 }}</td>
             </tr>
             <tr>
-                <td class="prop-label">SHA-1:</td>
+                <td class="file-info-label">SHA-1:</td>
                 <td>{{ binary.sha1 }}</td>
             </tr>
         </table>
@@ -52,10 +54,10 @@ data-content="Lookup in the <a href='http://www.team-cymru.org/Services/MHR/'>Ma
 -->
 <div class="row">
 
-    <div class="span3 group">
-        <table class="table-file-props">
+    <div class="span3 file-info-group">
+        <table class="file-info-table">
             <tr><td id="known-malware"
-                    class="prop-label"
+                    class="file-info-label"
                     data-placement="right"
                     data-title="Malware Lookup"
                     data-html="true"
@@ -65,7 +67,7 @@ data-content="Lookup in the <a href='http://www.team-cymru.org/Services/MHR/'>Ma
                 Known Malware: {{ malware|yesno }}
             </td></tr>
             <tr><td id="known-benign"
-                    class="prop-label"
+                    class="file-info-label"
                     data-placement="right"
                     data-title="Benign Lookup"
                     data-html="true"
@@ -78,22 +80,22 @@ data-content="Lookup in the <a href='http://www.team-cymru.org/Services/MHR/'>Ma
     </div>
 
     <!--
-    <div class="span6 group">
-        <table class="table-file-props">
+    <div class="span6 file-info-group">
+        <table class="file-info-table">
             <tr>
-                <td class="prop-label">Dependencies:</td>
+                <td class="file-info-label">Dependencies:</td>
                 <td></td>
             </tr>
             <tr>
-                <td class="prop-label">Number of Imports:</td>
+                <td class="file-info-label">Number of Imports:</td>
                 <td></td>
             </tr>
             <tr>
-                <td class="prop-label">Number of Exports:</td>
+                <td class="file-info-label">Number of Exports:</td>
                 <td></td>
             </tr>
             <tr>
-                <td class="prop-label">Debug Present:</td>
+                <td class="file-info-label">Debug Present:</td>
                 <td></td>
             </tr>
         <br>
