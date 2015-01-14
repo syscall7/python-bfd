@@ -129,6 +129,11 @@ class Disassembler(object):
         sorted_du.sort(key=lambda x: x.offset, reverse=False)
         return sorted_du
 
+    def get_text_listing(self):
+        architecture = self.odb_file.get_binary().options.architecture
+        analyzer = analyzer_factory(architecture)
+        return analyzer.get_text_listing(self.odb_file)
+
     @staticmethod
     def guess_bfd_arch(filename):
         ''' Returns our best guess at target (file format) and architecture '''

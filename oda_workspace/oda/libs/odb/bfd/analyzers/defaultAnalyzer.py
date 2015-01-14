@@ -419,6 +419,28 @@ class defaultAnalyzer(object):
 
         logger.debug("Analyze: SECOND PASS COMPLETE")
 
+    def get_text_listing(self, odb_file):
+
+        def funcFmtLine(addr, rawData, instr, abfd, sec_name):
+            ret = ''
+            if abfd.syms_by_addr.has_key(addr):
+                ret += '\n%s:0%08x <%s>:\n' % (sec_name, addr, abfd.syms_by_addr[addr].name)
+            if abfd.bpc > 1 and abfd.endian is bfd.ENDIAN_LITTLE:
+                bytes = ''.join(['%02x ' % i for i in reversed(rawData)])
+            else:
+                bytes = ''.join(['%02x ' % i for i in rawData])
+
+            ret += '%s:%08x %-32s %s\n' % (sec_name, addr, bytes, instr)
+            return ret
+
+        ofd = Ofd(odb_file.get_binary())
+        text = ''
+        for sec in ofd.get_code_sections().sections:
+            (output, _, _) = ofd.disassemble(sec.name, funcFmtLine=funcFmtLine, funcFmtLineArgs={ 'sec_name': sec.name})
+            text += output
+
+        return text
+
     def addBranchLinesAndLabels(self, dunits, branches):
 
         blf = branch.BranchLineHtmlFormatter(branches)
