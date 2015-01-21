@@ -1041,7 +1041,7 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
 
         modalInstance.result.then(function(data){
             console.log('ok', data);
-            fileUpload.uploadFileToUrl(data.uploadFile, data.project_name, '/odaweb/_upload').success(function(data){
+            fileUpload.uploadFileToUrl(data.uploadFile, data.projectName, '/odaweb/_upload').success(function(data){
                 $scope.configureFile(data);
             });
         });
