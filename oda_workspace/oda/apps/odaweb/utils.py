@@ -12,6 +12,12 @@ def sha1_hash(fh):
     fh.seek(0)
     return s.hexdigest()
 
+def sha1_hash_contents(data):
+    s = sha1()
+    s.update(data)
+    return s.hexdigest()
+
+
 import string
 import random
 def id_generator(size=8, chars=string.ascii_lowercase + string.digits + string.ascii_uppercase):

@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 
 from oda.libs.odb.odb_file import DefaultOdbSerializer, Options, Binary
-from utils import sha1_hash
+from utils import sha1_hash, sha1_hash_contents
 
 
 logger = logging.getLogger(__name__)
@@ -177,10 +177,21 @@ class BinaryFile(models.Model):
     def size(self):
         return self.filesize
 
+    def create_from_byte_array(filename, path,  data):
+        u = BinaryFile()
+        u.filename = filename
+        u.hash = sha1_hash_contents(data)
+
+        u.the_file = path
+        u.filesize = len(data)
+
+        return u
+
     def create(f):
         u = BinaryFile()
         u.filename = f.name
         u.hash = sha1_hash(f)
+
         f.name = u.hash
 
         u.the_file = File(f)
@@ -206,6 +217,7 @@ class BinaryFile(models.Model):
             f.done()
         return line.split(', ')
 
+    create_from_byte_array = staticmethod(create_from_byte_array)
     create = staticmethod(create)
 
 class InstDoc(models.Model):
