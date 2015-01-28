@@ -744,9 +744,14 @@ def ace(request, disassembly_id, version=0):
     if not disassembly_id:
         disassembly_id = 'mkdir'
 
-
-
-    to_copy_oda_master = OdaMaster.objects.get(short_name=disassembly_id, revision=version)
+    try:
+        to_copy_oda_master = OdaMaster.objects.get(short_name=disassembly_id, revision=version)
+    except OdaMaster.DoesNotExist:
+        context = {
+            'short_name': disassembly_id,
+            'revision': version
+            }
+        return render(request, 'not_found.djhtml', context)
 
     oda_master = make_copy(to_copy_oda_master, request.user)
 
