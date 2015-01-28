@@ -292,11 +292,16 @@ var Renderer = function(odbFile) {
     };
 
     this.renderTargetRef = function(du) {
-        var label = "0x" + du.targetRef.offset.toString(16);
+        var label = du.targetRef.offset.toString(16);
         if (odbFile.functions[du.targetRef.offset]) {
              //+ '[<a href="" class="xref-location">0x' + intToHex(du.targetRef.offset) + '</a>]'
             label =  '<a href="" data-addr="' + du.targetRef.offset + '" class="xref-location">' + odbFile.functions[du.targetRef.offset].name + "</a>";
+        } else if (odbFile.labels[du.targetRef.offset]) {
+            label =  '<a href="" data-addr="' + du.targetRef.offset + '" class="xref-location">' + odbFile.labels[du.targetRef.offset].name + "</a>";
+        } else {
+            label =  '<a href="" data-addr="' + du.targetRef.offset + '" class="xref-location">loc_' + label + "</a>";
         }
+
         return label;
     };
 

@@ -21,6 +21,8 @@ var OdbFile = function(oda_master) {
 
     this.functions = [];
 
+    this.labels = [];
+
     this.sections = [];
 
     this.parcels = [];
@@ -53,6 +55,15 @@ var OdbFile = function(oda_master) {
         }).success(function (data) {
             for (var i = 0; i < data.length; i++) {
                 this.functions[data[i].offset] = data[i];
+            }
+        }.bind(this));
+
+        var lq = $.get('/odaweb/api/labels/', {
+            short_name: this.shortName,
+            revision: this.revision
+        }).success(function (data) {
+            for (var i = 0; i < data.length; i++) {
+                this.labels[data[i].offset] = data[i];
             }
         }.bind(this));
 
@@ -121,7 +132,7 @@ var OdbFile = function(oda_master) {
             this.structFieldTypes = data;
         }.bind(this));
 
-        $.when(fq, sq, pq, symq, stringsq, dulenq, structtypesq, structfieldtypesq, runtimeReportQ, cmq).done(function (data) {
+        $.when(fq, lq, sq, pq, symq, stringsq, dulenq, structtypesq, structfieldtypesq, runtimeReportQ, cmq).done(function (data) {
             this._signal('loaded', this);
         }.bind(this));
     };
