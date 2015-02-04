@@ -27,6 +27,10 @@ odaApplication.controller('SectionsController', function SectionsController($sco
     };
 
     $scope.setPosition = function(position) {
+        // give focus to the disassembly tab
+        $('#oda-tabs a[href="#tab-disassembly"]').tab('show');
+
+        // move into position
         odaSession.moveToOffset(position);
     }
 });

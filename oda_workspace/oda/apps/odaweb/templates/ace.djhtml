@@ -34,8 +34,8 @@
 
     <div class="ui-layout-center">
         <!-- Nav tabs -->
-        <ul class="nav nav-tabs oda-nav" role="tablist">
-          <li class="active"><a href="#home" role="tab" data-toggle="tab">Disassembly</a></li>
+        <ul class="nav nav-tabs oda-nav" id="oda-tabs" role="tablist">
+          <li class="active"><a href="#tab-disassembly" role="tab" data-toggle="tab">Disassembly</a></li>
           <li><a href="#tab-hex" role="tab" data-toggle="tab">Hex</a></li>
           <li><a href="#sections" role="tab" data-toggle="tab">Sections</a></li>
           <li><a href="#tab-fileinfo" role="tab" data-toggle="tab">File Info</a></li>
@@ -44,7 +44,7 @@
 
         <!-- Tab panes -->
         <div class="tab-content">
-          <div class="tab-pane active" id="home">
+          <div class="tab-pane active" id="tab-disassembly">
               <div id="editor"></div>
           </div>
           <div class="tab-pane" id="sections">
