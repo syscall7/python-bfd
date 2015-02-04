@@ -11,9 +11,9 @@ from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
 
 
-def migrate():
+def migrate(db_url = "mysql://root:password@localhost/odapython2"):
 
-    engine = create_engine("mysql://root:password@localhost/odapython2", pool_recycle=3600)
+    engine = create_engine(db_url, pool_recycle=3600)
     conn = engine.connect()
 
     connection = GSConnection('GOOGVILB3OU772HKZS7J', 'rqXIOK8TSSPP4XJ991edCsgIf+3eT/NFE/VJf5ZN')

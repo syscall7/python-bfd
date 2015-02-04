@@ -34,7 +34,7 @@ sudo $ODA_INSTALL_DIR/env/bin/pip install -r requirements.txt
 mkdir ~/bfd_python
 cd ~/bfd_python
 svn co svn://svn.onlinedisassembler.com/oda/ODA/trunk/bfd --username davis --password ***REMOVED*** .
-$ODA_INSTALL_DIR/env/bin/python setup.py install
+sudo $ODA_INSTALL_DIR/env/bin/python setup.py install
 
 sudo chown -R www-data $ODA_INSTALL_DIR
 sudo chgrp -R www-data $ODA_INSTALL_DIR
@@ -60,7 +60,7 @@ configure_database()
 {
 # Create database
 echo "create database odapython2;" | mysql --user=root --password='***REMOVED***'
-
+cd $ODA_INSTALL_DIR/site/
 sudo $ODA_INSTALL_DIR/env/bin/python manage.py syncdb --settings=oda.settings.production
 sudo $ODA_INSTALL_DIR/env/bin/python manage.py setup_oda --settings=oda.settings.production
 sudo $ODA_INSTALL_DIR/env/bin/python manage.py setup_openid --settings=oda.settings.production -m prod
@@ -70,59 +70,18 @@ sudo $ODA_INSTALL_DIR/env/bin/python manage.py setup_openid --settings=oda.setti
 fixup_wsgi()
 {
 
-perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < $ODA_INSTALL_DIR/site/oda.wsgi  > $ODA_INSTALL_DIR/site/oda.wsgi_2
-mv $ODA_INSTALL_DIR/site/oda.wsgi_2 $ODA_INSTALL_DIR/site/oda.wsgi
+perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < $ODA_INSTALL_DIR/site/oda.wsgi  > /tmp/oda.wsgi_2
+sudo mv /tmp/oda.wsgi_2 $ODA_INSTALL_DIR/site/oda.wsgi
 
-perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < $ODA_INSTALL_DIR/site/apache_odaweb.site > $ODA_INSTALL_DIR/site/onlinedisassembler.conf
-mv $ODA_INSTALL_DIR/site/onlinedisassembler.conf /etc/apache2/sites-available/
+perl -p -i -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < $ODA_INSTALL_DIR/site/apache_odaweb.site >/tmp/onlinedisassembler.conf
+sudo mv /tmp/onlinedisassembler.conf /etc/apache2/sites-available/
 
 #need to a2ensite
+sudo a2ensite onlinedisassembler
+sudo service apache2 reload
 
 }
 
-# sudo usermod -aG www-data anthony
-
-# Setup webapp
-sudo svn co svn://svn.onlinedisassembler.com/oda/ODA/tags/v1.2.3/django webapp
-sudo chown -R www-data webapp
-sudo chgrp -R www-data webapp
-# edit webapp/oda_python/settings/production.py and add the server's IP address to ALLOWED_HOSTS
-cd /var/www/oda2/webapp
-
-sudo vim /etc/apache2/sites-available/default
-    <VirtualHost *:80>
-            ServerAdmin admin@onlinedisassembler.com
-
-            Alias /static/ /var/www/oda2/webapp/odaweb/static/
-            Alias /static2/ /var/www/oda2/webapp/odaweb/static/
-            WSGIScriptAlias / /var/www/oda2/webapp/oda.wsgi
-
-            # AVD 4/9/13 - hard limit for file upload size
-            LimitRequestBody 7097152
-
-            ErrorLog ${APACHE_LOG_DIR}/error.log
-
-            # Possible values include: debug, info, notice, warn, error, crit,
-            # alert, emerg.
-            LogLevel warn
-
-            CustomLog ${APACHE_LOG_DIR}/access.log combined
-    </VirtualHost>
-
-sudo mkdir -p /var/oda/uploads
-sudo mkdir -p /var/oda/cache
-
-sudo chown -R www-data /var/oda
-sudo chgrp -R www-data /var/oda
-
-sudo chown -R www-data /var/www/oda2
-sudo chgrp -R www-data /var/www/oda2
-
-sudo chown www-data /tmp/oda.log
-sudo chgrp www-data /tmp/oda.log
-
-sudo a2ensite default
-sudo service apache2 reload
 
 
 
