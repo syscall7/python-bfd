@@ -109,8 +109,8 @@ def migrate(db_url = "mysql://root:password@localhost/odapython2"):
                 print("  new hash: %s" % binary_file.hash)
 
 class Command(BaseCommand):
-    args = '<>'
+    args = '<url>'
     help = 'Setup ODA'
 
     def handle(self, *args, **options):
-        migrate()
+        migrate(args[0])
