@@ -126,7 +126,7 @@ def migrate(db_url = "mysql://root:password@localhost/odapython2"):
 
             cached_value = odb_file_cache.get(row.hash)
             if cached_value is not None:
-                print ("Using Cached Value: %s: %s" % row.hash, row.short_name)
+                print ("Using Cached Value: %s: %s" % (row.hash, row.short_name))
                 cached_value.binary = binary_file
                 oda_master.odb_file = cached_value
                 oda_master.save()
