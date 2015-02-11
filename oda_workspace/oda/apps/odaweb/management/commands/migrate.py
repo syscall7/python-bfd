@@ -54,9 +54,11 @@ def migrate(db_url = "mysql://root:password@localhost/odapython2"):
 
     query = session.query(oda_masters, binaries, oda_options).join(binaries).join(oda_options).filter(oda_masters.c.content_type_id == 19)
 
-    import os
-    if not os.path.exists('uploads'):
-        os.makedirs('uploads')
+    #import os
+    #if not os.path.exists('uploads'):
+    #    os.makedirs('uploads')
+
+    skipped_ids = [ 'ETFIPt' ]
 
     for row in query:
         file_object = bucket.get_key('uploads/' + row.hash)
@@ -68,6 +70,10 @@ def migrate(db_url = "mysql://root:password@localhost/odapython2"):
             print("  Architecture %s, target: %s" % (row.architecture, row.target))
 
             print("  file: %s" % (str(file_object)))
+
+            if row.short_name in skipped_ids:
+                print('Skipping %s' % (row.short_name))
+                continue
 
 
             existing_master = OdaMaster.objects.filter(short_name=row.short_name).first()
