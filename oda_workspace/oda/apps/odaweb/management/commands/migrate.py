@@ -86,13 +86,16 @@ def migrate(db_url = "mysql://root:password@localhost/odapython2"):
 
     odb_file_cache = LRUCache(500)
 
+    number_processed = 0
     for row in query:
         file_object = bucket.get_key('uploads/' + row.hash)
 
         if file_object:
-            print("Project Name: %s, ipAddress: %s, short_name: %s, creation_date: %s, the_file: %s" % (
-                row.project_name, row.ipAddress, row.short_name, row.creation_date, row.the_file
+            print("%s: Project Name: %s, ipAddress: %s, short_name: %s, creation_date: %s, the_file: %s" % (
+                str(number_processed), row.project_name, row.ipAddress, row.short_name, row.creation_date, row.the_file
             ))
+            number_processed += 1
+
             print("  Architecture %s, target: %s" % (row.architecture, row.target))
 
             print("  file: %s" % (str(file_object)))
