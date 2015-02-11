@@ -82,7 +82,7 @@ def migrate(db_url = "mysql://root:password@localhost/odapython2"):
     #if not os.path.exists('uploads'):
     #    os.makedirs('uploads')
 
-    skipped_ids = [ 'ETFIPt' ]
+    skipped_ids = [ 'ETFIPt', '175.214.127.239' ]
 
     odb_file_cache = LRUCache(500)
 
@@ -106,7 +106,7 @@ def migrate(db_url = "mysql://root:password@localhost/odapython2"):
 
             print("  file: %s" % (str(file_object)))
 
-            if row.short_name in skipped_ids:
+            if row.short_name in skipped_ids or row.ipAddress in skipped_ids:
                 print('Skipping %s' % (row.short_name))
                 continue
 
