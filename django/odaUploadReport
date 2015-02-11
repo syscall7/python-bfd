@@ -41,11 +41,11 @@ RECEIVERS = [
 template = """
 <html>
 <head>
-<title>ODA Upload Report {{ date }}</title>
+<title>ODA Upload Report <b>NEW</b> {{ date }}</title>
 <link rel="stylesheet" type="text/css" href="http://www.onlinedisassembler.com/static2/css/oda2.css" />
 </head>
 <body>
-<h3>{{ date }}</h3>
+<h3>NEW server (www2): {{ date }}</h3>
 
 Total File Uploads: {{ total_uploads }}<br>
 Total Bytes Uploaded: {{ total_bytes|filesizeformat }}<br>
@@ -159,7 +159,16 @@ print msg
 # Send the message via our own SMTP server, but don't include the
 # envelope header.
 s = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
-s.login('avderos', 'TimSGpword7&')
+s.login('avderos', 'waPupkQLKN3ZI')
 s.sendmail(SENDER, RECEIVERS, msg.as_string())
 s.quit()
 
+
+# delete files in the cache directory
+for f in os.listdir(UPLOAD_DIR):
+    path = os.path.join(UPLOAD_DIR, f)
+    try:
+        if os.path.isfile(path):
+            os.unlink(path)
+    except Exception, e:
+        print e
