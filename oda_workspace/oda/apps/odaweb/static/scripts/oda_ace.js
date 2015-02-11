@@ -1026,7 +1026,7 @@ odaApplication.controller('DockController', function DockController($scope, $htt
 
 });
 
-odaApplication.controller('NavbarController', function NavbarController($scope, $modal, $location,
+odaApplication.controller('NavbarController', function NavbarController($scope, Docker, $modal, $location,
                                                                         fileUpload, AuthService, odbFile,
                                                                         focus){
     $scope.examples = window.examples;
@@ -1065,6 +1065,10 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
             console.log(data);
         });
 
+    };
+
+    $scope.findSequence = function() {
+        Docker.select(Docker.docks[2]);
     };
 
     $scope.$on('command.goto', function(event) {
