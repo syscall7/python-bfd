@@ -88,6 +88,12 @@ def migrate(db_url = "mysql://root:password@localhost/odapython2"):
 
     number_processed = 0
     for row in query:
+
+        existing_master = OdaMaster.objects.filter(short_name=row.short_name).first()
+        if existing_master:
+            print("Master Exists %s" % (row.short_name))
+            continue
+
         file_object = bucket.get_key('uploads/' + row.hash)
 
         if file_object:
@@ -102,11 +108,6 @@ def migrate(db_url = "mysql://root:password@localhost/odapython2"):
 
             if row.short_name in skipped_ids:
                 print('Skipping %s' % (row.short_name))
-                continue
-
-            existing_master = OdaMaster.objects.filter(short_name=row.short_name).first()
-            if existing_master:
-                print("Master Exists %s" % (row.short_name))
                 continue
 
             oda_master = OdaMaster(short_name=row.short_name, project_name=row.project_name,
