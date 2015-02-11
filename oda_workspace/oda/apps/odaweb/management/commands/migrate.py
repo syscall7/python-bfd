@@ -1,3 +1,4 @@
+import traceback
 from django.core.management.base import BaseCommand
 
 from sqlalchemy import create_engine
@@ -10,8 +11,31 @@ from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
 
+import collections
+
+class LRUCache:
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.cache = collections.OrderedDict()
+
+    def get(self, key):
+        try:
+            value = self.cache.pop(key)
+            self.cache[key] = value
+            return value
+        except KeyError:
+            return None
+
+    def set(self, key, value):
+        try:
+            self.cache.pop(key)
+        except KeyError:
+            if len(self.cache) >= self.capacity:
+                self.cache.popitem(last=False)
+        self.cache[key] = value
 
 def migrate(db_url = "mysql://root:password@localhost/odapython2"):
+    print("Connecting: %s" % db_url)
 
     engine = create_engine(db_url, pool_recycle=3600)
     conn = engine.connect()
@@ -60,6 +84,8 @@ def migrate(db_url = "mysql://root:password@localhost/odapython2"):
 
     skipped_ids = [ 'ETFIPt' ]
 
+    odb_file_cache = LRUCache(500)
+
     for row in query:
         file_object = bucket.get_key('uploads/' + row.hash)
 
@@ -74,7 +100,6 @@ def migrate(db_url = "mysql://root:password@localhost/odapython2"):
             if row.short_name in skipped_ids:
                 print('Skipping %s' % (row.short_name))
                 continue
-
 
             existing_master = OdaMaster.objects.filter(short_name=row.short_name).first()
             if existing_master:
@@ -95,15 +120,24 @@ def migrate(db_url = "mysql://root:password@localhost/odapython2"):
             binary_file.architecture = row.architecture
             binary_file.save()
 
-            try:
-                odb_file = OdbFile(BinaryFileModel(binary_file.id))
-                odb_file.execute(LoadOperation())
-                odb_file.execute(PassiveScanOperation())
-
-                oda_master.odb_file = odb_file
+            cached_value = odb_file_cache.get(row.hash)
+            if cached_value is not None:
+                print ("Using Cached Value: %s: %s" % row.hash, row.short_name)
+                cached_value.binary = binary_file
+                oda_master.odb_file = cached_value
                 oda_master.save()
-            except:
-                print("Error")
+            else:
+                try:
+                    odb_file = OdbFile(BinaryFileModel(binary_file.id))
+                    odb_file.execute(LoadOperation())
+                    odb_file.execute(PassiveScanOperation())
+
+                    oda_master.odb_file = odb_file
+                    odb_file_cache.set(row.hash, odb_file)
+                    oda_master.save()
+                except:
+                    traceback.print_exc()
+                    print("Error")
 
 
                 print("  new hash: %s" % binary_file.hash)
