@@ -115,14 +115,20 @@
     /** End status bar **/
 
     /** Tab Modifications **/
+
     .oda-nav > li > a {
-        padding: 1px 15px;
+        /* padding: 1px 15px; */
+        line-height: 1;
     }
     .oda-nav {
+        /*
         background-color: #def;
         border-bottom: 2px solid #888;
+        */
+        margin-bottom: 10px;
+        margin-top: 10px;
+        margin-left: 10px;
     }
-
 
     .navbar-brand {
         background: url('/static2/images/oda.png') no-repeat center;
@@ -130,24 +136,28 @@
         width: 70px;
     }
 
+.sections-table
+{
+    margin-left: 20px;
+}
 
-.blue-white-table td, .blue-white-table th
+.sections-table td, .sections-table th
 {
     padding:3px 10px 3px 10px;
 }
 
-.blue-white-table th
+.sections-table th
 {
     background-color:#92C1F0;
     color:#000000;
 }
 
-.blue-white-table tr.even td
+.sections-table tr.even td
 {
     color:#000000;
 }
 
-.blue-white-table tr.odd td
+.sections-table tr.odd td
 {
     color:#000000;
     background-color:#C8DEFF;

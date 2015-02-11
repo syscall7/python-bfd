@@ -317,23 +317,23 @@ dislineerr {
     font-family: monospace;
 }
 
-.blue-white-table td, .blue-white-table th
+.sections-table td, .sections-table th
 {
     padding:3px 10px 3px 10px;
 }
 
-.blue-white-table th
+.sections-table th
 {
     background-color:#92C1F0;
     color:#000000;
 }
 
-.blue-white-table tr.even td
+.sections-table tr.even td
 {
     color:#000000;
 }
 
-.blue-white-table tr.odd td
+.sections-table tr.odd td
 {
     color:#000000;
     background-color:#C8DEFF;

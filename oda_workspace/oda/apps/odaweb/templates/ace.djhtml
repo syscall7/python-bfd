@@ -33,7 +33,7 @@
 
     <div class="ui-layout-center">
         <!-- Nav tabs -->
-        <ul class="nav nav-tabs oda-nav" id="oda-tabs" role="tablist">
+        <ul class="nav nav-pills oda-nav" id="oda-tabs" role="tablist">
           <li class="active"><a href="#tab-disassembly" role="tab" data-toggle="tab">Disassembly</a></li>
           <li><a href="#tab-hex" role="tab" data-toggle="tab">Hex</a></li>
           <li><a href="#sections" role="tab" data-toggle="tab">Sections</a></li>
@@ -59,8 +59,6 @@
               <div ng-include src="'runtime.html'"></div>
           </div>
         </div>
-
-
     </div>
 
 </div>

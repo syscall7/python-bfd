@@ -931,7 +931,6 @@ function startOda() {
         });
 
         start(odbFile);
-
     });
 
     handleSaveButton({saved: window.saved});
