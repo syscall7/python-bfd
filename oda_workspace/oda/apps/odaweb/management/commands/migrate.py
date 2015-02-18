@@ -1,3 +1,4 @@
+from sets import Set
 import traceback
 from django.core.management.base import BaseCommand
 
@@ -149,6 +150,9 @@ class Migrator(object):
 
         skipped_ids = [ 'ETFIPt', '175.214.127.239' ]
 
+        f = open('bad_files.log')
+        bad_short_names = Set(f.read().splitlines())
+        f.close()
 
         for row in query:
 
@@ -162,10 +166,12 @@ class Migrator(object):
                 print('Skipping %s' % (row.short_name))
                 continue
 
+            if (row.short_name in bad_short_names):
+                continue
+
             f = open('bad_files.log', 'a')
             f.write("%s\n" % (row.short_name))
             f.close()
-
 
             self.migrate_row(row)
 
