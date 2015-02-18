@@ -121,6 +121,9 @@ class Migrator(object):
                 except bfd.BfdFileFormatException as e:
                     traceback.print_exc()
                     print("Error")
+                except AssertionError as e:
+                    traceback.print_exc()
+                    print("Error")
 
 
                 print("  new hash: %s" % binary_file.hash)
