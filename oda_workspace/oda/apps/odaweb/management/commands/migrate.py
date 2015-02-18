@@ -152,8 +152,8 @@ class Migrator(object):
 
         number_processed = 0
         for row in query:
-            existing_master = OdaMaster.objects.filter(short_name=row.short_name).first()
-            if existing_master:
+            existing = OdaMaster.objects.filter(short_name=row.short_name).count()
+            if existing > 0:
                 print("Master Exists %s" % (row.short_name))
                 continue
 
