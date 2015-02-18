@@ -150,8 +150,9 @@ class Migrator(object):
         skipped_ids = [ 'ETFIPt', '175.214.127.239' ]
 
 
-        number_processed = 0
         for row in query:
+
+
             existing = OdaMaster.objects.filter(short_name=row.short_name).count()
             if existing > 0:
                 print("Master Exists %s" % (row.short_name))
@@ -161,7 +162,22 @@ class Migrator(object):
                 print('Skipping %s' % (row.short_name))
                 continue
 
+            f = open('bad_files.log', 'a')
+            f.write("%s\n" % (row.short_name))
+            f.close()
+
+
             self.migrate_row(row)
+
+            f = open('bad_files.log')
+            lines = f.readlines()
+            lines = lines[:-1]
+            f.close()
+
+            f = open('bad_files.log', 'w+')
+            f.writelines(lines)
+            f.close()
+
 
 
 
