@@ -151,7 +151,7 @@ class Migrator(object):
         skipped_ids = [ 'ETFIPt', '175.214.127.239' ]
 
         f = open('bad_files.log')
-        bad_short_names = Set(f.read().splitlines())
+        bad_files = Set(f.read().splitlines())
         f.close()
 
         for row in query:
@@ -166,11 +166,11 @@ class Migrator(object):
                 print('Skipping %s' % (row.short_name))
                 continue
 
-            if (row.short_name in bad_short_names):
+            if (row.the_file in bad_files):
                 continue
 
             f = open('bad_files.log', 'a')
-            f.write("%s\n" % (row.short_name))
+            f.write("%s\n" % (row.the_file))
             f.close()
 
             self.migrate_row(row)
