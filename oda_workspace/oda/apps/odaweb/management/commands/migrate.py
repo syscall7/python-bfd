@@ -34,81 +34,58 @@ class LRUCache:
                 self.cache.popitem(last=False)
         self.cache[key] = value
 
-def migrate(db_url = "mysql://root:password@localhost/odapython2"):
-    print("Connecting: %s" % db_url)
-
-    engine = create_engine(db_url, pool_recycle=3600)
-    conn = engine.connect()
-
-    connection = GSConnection('GOOGVILB3OU772HKZS7J', 'rqXIOK8TSSPP4XJ991edCsgIf+3eT/NFE/VJf5ZN')
-    bucket = connection.get_bucket('oda', validate=True)
-
-    metadata = MetaData()
+metadata = MetaData()
 
 
-    oda_masters = Table('odaweb_odamaster', metadata,
-                         Column('id', Integer, primary_key=True),
-                         Column('project_name', String),
-                         Column('short_name', String),
-                         Column('content_type_id', Integer),
-                         Column('object_id', None, ForeignKey('odaweb_binaryfile.id')),
-                         Column('creation_date', Date),
-                         Column('ipAddress', String))
-
-
-    binaries = Table('odaweb_binaryfile', metadata,
+oda_masters = Table('odaweb_odamaster', metadata,
                      Column('id', Integer, primary_key=True),
-                     Column('the_file', String),
-                     Column('filename', String),
-                     Column('options_id', None, ForeignKey('odaweb_odaoptions.id')),
-                     Column('hash', String))
+                     Column('project_name', String),
+                     Column('short_name', String),
+                     Column('content_type_id', Integer),
+                     Column('object_id', None, ForeignKey('odaweb_binaryfile.id')),
+                     Column('creation_date', Date),
+                     Column('ipAddress', String))
 
-    oda_options = Table('odaweb_odaoptions', metadata,
-                        Column('id', Integer, primary_key=True),
-                        Column('target', String),
-                        Column('architecture', String))
 
-    Session = sessionmaker()
-    Session.configure(bind=engine)  # once engine is available
-    session = Session()
+binaries = Table('odaweb_binaryfile', metadata,
+                 Column('id', Integer, primary_key=True),
+                 Column('the_file', String),
+                 Column('filename', String),
+                 Column('options_id', None, ForeignKey('odaweb_odaoptions.id')),
+                 Column('hash', String))
 
-    #s = select([oda_masters, binaries]).select_from(oda_masters.join(binaries)).where(oda_masters.c.content_type_id == 19)
-    #result = conn.execute(s)
-    #row = result.fetchone()
+oda_options = Table('odaweb_odaoptions', metadata,
+                    Column('id', Integer, primary_key=True),
+                    Column('target', String),
+                    Column('architecture', String))
 
-    query = session.query(oda_masters, binaries, oda_options).join(binaries).join(oda_options).filter(oda_masters.c.content_type_id == 19)
+content_types = Table('django_content_type', metadata,
+    Column('id', Integer, primary_key=True),
+    Column('model', String),
+    Column('name', String))
 
-    #import os
-    #if not os.path.exists('uploads'):
-    #    os.makedirs('uploads')
+class Migrator(object):
+    def __init__(self):
+        connection = GSConnection('GOOGVILB3OU772HKZS7J', 'rqXIOK8TSSPP4XJ991edCsgIf+3eT/NFE/VJf5ZN')
+        self.bucket = connection.get_bucket('oda', validate=True)
 
-    skipped_ids = [ 'ETFIPt', '175.214.127.239' ]
+        self.number_processed = 0
 
-    odb_file_cache = LRUCache(500)
+        self.odb_file_cache = LRUCache(500)
 
-    number_processed = 0
-    for row in query:
+    def migrate_row(self, row):
 
-        existing_master = OdaMaster.objects.filter(short_name=row.short_name).first()
-        if existing_master:
-            print("Master Exists %s" % (row.short_name))
-            continue
-
-        file_object = bucket.get_key('uploads/' + row.hash)
+        file_object = self.bucket.get_key('uploads/' + row.hash)
 
         if file_object:
             print("%s: Project Name: %s, ipAddress: %s, short_name: %s, creation_date: %s, the_file: %s" % (
-                str(number_processed), row.project_name, row.ipAddress, row.short_name, row.creation_date, row.the_file
+                str(self.number_processed), row.project_name, row.ipAddress, row.short_name, row.creation_date, row.the_file
             ))
-            number_processed += 1
+            self.number_processed += 1
 
             print("  Architecture %s, target: %s" % (row.architecture, row.target))
 
             print("  file: %s" % (str(file_object)))
-
-            if row.short_name in skipped_ids or row.ipAddress in skipped_ids:
-                print('Skipping %s' % (row.short_name))
-                continue
 
             oda_master = OdaMaster(short_name=row.short_name, project_name=row.project_name,
                                    ipAddress=row.ipAddress)
@@ -124,7 +101,7 @@ def migrate(db_url = "mysql://root:password@localhost/odapython2"):
             binary_file.architecture = row.architecture
             binary_file.save()
 
-            cached_value = odb_file_cache.get(row.hash)
+            cached_value = self.odb_file_cache.get(row.hash)
             if cached_value is not None:
                 print ("Using Cached Value: %s: %s" % (row.hash, row.short_name))
                 cached_value.binary = binary_file
@@ -137,7 +114,7 @@ def migrate(db_url = "mysql://root:password@localhost/odapython2"):
                     odb_file.execute(PassiveScanOperation())
 
                     oda_master.odb_file = odb_file
-                    odb_file_cache.set(row.hash, odb_file)
+                    self.odb_file_cache.set(row.hash, odb_file)
                     oda_master.save()
                 except:
                     traceback.print_exc()
@@ -146,9 +123,51 @@ def migrate(db_url = "mysql://root:password@localhost/odapython2"):
 
                 print("  new hash: %s" % binary_file.hash)
 
+    def migrate(self, db_url = "mysql://root:password@localhost/odapython2"):
+        print("Connecting: %s" % db_url)
+
+        engine = create_engine(db_url, pool_recycle=3600)
+        conn = engine.connect()
+
+        Session = sessionmaker()
+        Session.configure(bind=engine)  # once engine is available
+        session = Session()
+
+        #s = select([oda_masters, binaries]).select_from(oda_masters.join(binaries)).where(oda_masters.c.content_type_id == 19)
+        #result = conn.execute(s)
+        #row = result.fetchone()
+
+
+        content_id = session.query(content_types).filter(content_types.c.model == 'binaryfile').first().id
+
+
+        query = session.query(oda_masters, binaries, oda_options).join(binaries).join(oda_options).filter(oda_masters.c.content_type_id == content_id)
+
+        #import os
+        #if not os.path.exists('uploads'):
+        #    os.makedirs('uploads')
+
+        skipped_ids = [ 'ETFIPt', '175.214.127.239' ]
+
+
+        number_processed = 0
+        for row in query:
+            existing_master = OdaMaster.objects.filter(short_name=row.short_name).first()
+            if existing_master:
+                print("Master Exists %s" % (row.short_name))
+                continue
+
+            if row.short_name in skipped_ids or row.ipAddress in skipped_ids:
+                print('Skipping %s' % (row.short_name))
+                continue
+
+            self.migrate_row(row)
+
+
+
 class Command(BaseCommand):
     args = '<url>'
     help = 'Setup ODA'
 
     def handle(self, *args, **options):
-        migrate(args[0])
+        Migrator().migrate(args[0])
