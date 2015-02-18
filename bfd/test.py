@@ -97,7 +97,8 @@ def main():
     target_archs = bfd.guess_target_arch(exe)
     print 'guessed targets: %s' % target_archs
 
-    dump(exe, 'lime', 'i386', numLines=numLines)
+    #dump(exe, target_archs[0][0], target_archs[0][1], numLines = numLines)
+    dump(exe, 'binary', 'i386', numLines = numLines)
 
 if __name__ == '__main__':
     main()

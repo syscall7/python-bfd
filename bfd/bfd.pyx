@@ -2,11 +2,30 @@
 import tempfile
 import sys
 
+from libc.setjmp cimport *
+from libc.signal cimport *
+
 if sys.version_info < (2, 7):
     from ordereddict import OrderedDict
 else:
     from collections import OrderedDict
     
+# the global context we use to restore state after catching a signal
+# NOTE: We must save context with setjmp for each entry point into this module
+#       in order to recover and raise an exception.
+cdef jmp_buf ctx
+
+# our signal handler
+cdef handler(int signum):
+    global ctx
+    print "caught signal %d" % signum
+
+    # restore the last saved context
+    longjmp(ctx, 1)
+
+# Set our signal handler
+signal(SIGSEGV, <sighandler_t> handler)
+signal(SIGABRT, <sighandler_t> handler)
     
 # ------------------------------------------------------------------------------
 # PROTOTYPES
@@ -265,6 +284,9 @@ class BfdFileFormatException(BfdErr):
     pass
 
 class BfdHaltDisassembly(Exception):
+    pass
+
+class BfdSegFault(Exception):
     pass
 
 # ------------------------------------------------------------------------------
@@ -601,12 +623,15 @@ cdef class Bfd:
     cdef public object bpc
     cdef public object endian
 
-
     def __cinit__(self, path, object target = None, object machine = None):
 
         cdef char **matching
         cdef bfd_arch_info_type* inf
         cdef char* tgt
+        global ctx
+
+        if setjmp(ctx) != 0:
+            raise BfdSegFault('Something very bad happened in the Bfd constructor!')
     
         # a dictionary of Symbols indexed by name
         self.syms_by_name = {}
@@ -615,7 +640,7 @@ cdef class Bfd:
 
         if target:
             tgt = target
-            print 'target is %s' % tgt
+            print 'PyBfd: target is %s' % tgt
         else:
             tgt = NULL
 
@@ -702,6 +727,7 @@ cdef class Bfd:
             raise BfdErr('Failed to malloc static syms')
 
         num = bfd_canonicalize_symtab(self.abfd, syms)
+
         self._add_syms(syms, num, False)
         free(syms)
 
@@ -735,6 +761,10 @@ cdef class Bfd:
         cdef Section sec = section
         cdef char* buf
         cdef bytes raw
+        global ctx
+
+        if setjmp(ctx) != 0:
+            raise BfdSegFault('Something very bad happened while trying to grab raw_data!')
 
         bufSize = size
         buf = <char*> malloc(bufSize)
@@ -767,6 +797,7 @@ cdef class Bfd:
            returns a tuple containing (1. the disassembly text, 2. the next address at which disassembly should continue, 3. number of lines returned)
         '''
 
+        global ctx
         cdef disassemble_info disasm_info
         cdef disassembler_ftype disassemble_fn
         cdef bufSize
@@ -777,6 +808,9 @@ cdef class Bfd:
         cdef bfd_target* xvec_new
         cdef bfd_target* xvec_orig
 
+        if setjmp(ctx) != 0:
+            raise BfdSegFault('Something very bad happened while trying to disassemble!')
+
         # this assignment is necessary to translate between C and Cython
         sec = section
 
@@ -785,6 +819,10 @@ cdef class Bfd:
             sec_vma += baseAddr
         else:
             baseAddr = 0
+
+        # uncomment this to test our segmentation fault handler
+        #cdef bfd_byte* test = NULL 
+        #test[0] = 2
 
         # make sure right away that we can disassemble this bfd
         disassemble_fn = <disassembler_ftype> disassembler(self.abfd)
@@ -997,5 +1035,4 @@ def profile(funcFmtAddr, funcFmtLine, funcFmtLineArgs):
     print 'starting profiler'
     cProfile.runctx(profile_code, globals(), locals())
     print 'done profiling'
-
 
