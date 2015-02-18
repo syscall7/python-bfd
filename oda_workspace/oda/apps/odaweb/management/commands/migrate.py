@@ -105,7 +105,7 @@ class Migrator(object):
             cached_value = self.odb_file_cache.get(row.hash)
             if cached_value is not None:
                 print ("Using Cached Value: %s: %s" % (row.hash, row.short_name))
-                cached_value.binary = binary_file
+                cached_value.binary = BinaryFileModel(binary_file.id)
                 oda_master.odb_file = cached_value
                 oda_master.save()
             else:
