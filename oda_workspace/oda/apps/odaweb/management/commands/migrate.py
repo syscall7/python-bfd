@@ -91,7 +91,7 @@ class Migrator(object):
             oda_master = OdaMaster(short_name=row.short_name, project_name=row.project_name,
                                    ipAddress=row.ipAddress)
             the_file = file_object.read()
-            binary_file = BinaryFile.create_from_byte_array(row.filename, row.the_file, the_file)
+            binary_file = BinaryFile.create_from_byte_array('uploads/' + row.hash, row.the_file, the_file)
 
             the_filename = "/var/oda/uploads/%s" % (row.hash)
             f = open(the_filename, 'w+')
