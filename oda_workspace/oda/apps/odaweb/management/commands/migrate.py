@@ -109,17 +109,17 @@ class Migrator(object):
                 oda_master.odb_file = cached_value
                 oda_master.save()
             else:
-                try:
-                    odb_file = OdbFile(BinaryFileModel(binary_file.id))
-                    odb_file.execute(LoadOperation())
-                    odb_file.execute(PassiveScanOperation())
+              #  try:
+                odb_file = OdbFile(BinaryFileModel(binary_file.id))
+                odb_file.execute(LoadOperation())
+                odb_file.execute(PassiveScanOperation())
 
-                    oda_master.odb_file = odb_file
-                    self.odb_file_cache.set(row.hash, odb_file)
-                    oda_master.save()
-                except:
-                    traceback.print_exc()
-                    print("Error")
+                oda_master.odb_file = odb_file
+                self.odb_file_cache.set(row.hash, odb_file)
+                oda_master.save()
+               # except:
+               #     traceback.print_exc()
+               #     print("Error")
 
 
                 print("  new hash: %s" % binary_file.hash)
