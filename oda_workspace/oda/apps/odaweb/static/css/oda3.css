@@ -391,3 +391,11 @@
 .hex-hovered {
     background-color: #CCCCCC;
 }
+
+/* style for the title in the sidebar panel */
+.oda-sidebar-title {
+    font-size: 16px;
+    font-weight: bold;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 10px;
+}
