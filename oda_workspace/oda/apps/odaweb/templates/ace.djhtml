@@ -521,7 +521,9 @@
             <div class="col-sm-8">
                 <select class="input-small form-control" name="endian"
                         ng-model="options.endian"
-                        ng-options="e.name for e in endians track by e.name">
+                        ng-options="e.name for e in endians track by e.name"
+                        ng-change="optionsUpdated()"
+                        >
                 </select>
             </div>
         </div>
@@ -577,19 +579,21 @@
 </script>
 
 <script type="text/ng-template" id="about.html">
-    <div class="modal-header">
-        <!--<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>-->
-        <h3>About ODA</h3>
-    </div>
-    <div class="modal-body">
-        {% endverbatim %}<img src="{% static 'images/oda.png' %}" style="float:left"/>{% verbatim %}
-        Version TBD-r$LastChangedRevision$, Released on $LastChangedDate$
-
-        <p><p><b>ODA</b> is the creation of Anthony DeRosa, Tom Keeley, and Bill Davis
-
-    </div>
-    <div class="modal-footer">
-       <!-- <a href="#" class="btn btn-primary" data-dismiss="modal">Close</a> -->
+    <div  ng-controller="AboutController">
+        <div class="modal-header">
+            <!--<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>-->
+            <h3>About ODA</h3>
+        </div>
+        <div class="modal-body">
+            {% endverbatim %}<img src="{% static 'images/oda.png' %}" style="float:left"/>{% verbatim %}
+            <b>ODA</b> is the creation of Anthony DeRosa, Tom Keeley, and Bill Davis
+            <p></p>
+            Version: {{release_version}}<br>
+            Release Date: {{release_date}}
+        </div>
+        <div class="modal-footer">
+           <!-- <a href="#" class="btn btn-primary" data-dismiss="modal">Close</a> -->
+        </div>
     </div>
 </script>
 

@@ -206,7 +206,7 @@ class OptionsViewSet(viewsets.GenericViewSet):
 
         arch = request.DATA.get('options[architecture]')
         base_address = request.DATA.get('options[base_address]')
-        endian = request.DATA.get('options[endian]')
+        endian = request.DATA.get('options[endian][name]')
         selected_opts = request.DATA.getlist('options[selected_opts][]', [])
 
         logger.info("updating...")
