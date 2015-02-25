@@ -7,8 +7,9 @@ from django.db import models
 from django.core.files import File
 from django.contrib.auth.models import User
 from django.conf import settings
+from oda.libs.odb.binaries import Options, Binary
 
-from oda.libs.odb.odb_file import DefaultOdbSerializer, Options, Binary
+from oda.libs.odb.odb_file import DefaultOdbSerializer
 from utils import sha1_hash, sha1_hash_contents
 
 
@@ -30,67 +31,30 @@ class SandboxJob(models.Model):
     # use to track whether or not we've reloaded the odb file after running the job
     reloaded = models.BooleanField(default=False)
 
-class OdaMaster(models.Model):
-    ''' Complete representation of a disassembled entity '''
+class OdbFileLoader(object):
+    def load_odb_file(self, oda_master):
+        logger.info("load_odb_file odb_master:%s" % (oda_master.id))
+        return DefaultOdbSerializer().load(oda_master.odb_file_storage.pickled_odb_file)
 
-    ipAddress = models.CharField(max_length=64, default='')
-    project_name = models.CharField(max_length=64, default='')
-    short_name = models.CharField(max_length=12, db_index=True)
-    revision = models.IntegerField(default=0)
-    owner = models.ForeignKey(User, null=True)
-    creation_date = models.DateTimeField(auto_now_add=True)
-    copy = models.ForeignKey('OdaMaster', null=True)
-    pickled_odb_file = models.BinaryField(blank=False)
-    sandbox_job = models.ForeignKey(SandboxJob, null=True)
+    def store_odb_file(self, oda_master, odb_file):
+        logger.info("store_odb_file odb_master:%s %s" % (oda_master.id, type(odb_file.binary)))
 
-    def __init__(self, *args, **kwargs):
 
-        # if we are specifying the odb_file at construction time
-        if 'odb_file' in kwargs:
-            # first convert an odb_file to its pickled representation
-            self._odb_file = kwargs.pop('odb_file', None)
-            pickled_odb_file = DefaultOdbSerializer().dumps(self._odb_file)
-            kwargs['pickled_odb_file'] = pickled_odb_file
+        odb_file_storage = oda_master.odb_file_storage
+        if odb_file_storage is None:
+            odb_file_storage = OdbFileStorage()
 
-        super(OdaMaster, self).__init__(*args, **kwargs)
+        odb_file_storage.pickled_odb_file = DefaultOdbSerializer().dumps(odb_file)
 
-        # load the unpickled form
-        self._odb_file = DefaultOdbSerializer().load(self.pickled_odb_file)
+        if isinstance(odb_file.binary, BinaryFileModel):
+            logger.info("uses binary_file_id: %d" % (odb_file.binary.binary_file_id))
+            odb_file_storage.binary_file_id = odb_file.binary.binary_file_id
 
-    @property
-    def object_id(self):
-        return 0
+        odb_file_storage.save()
+        oda_master.odb_file_storage = odb_file_storage
+        oda_master.save()
 
-    @property
-    def content_id(self):
-        return 0
-
-    def file_handle(self):
-        return self.content_object.file_handle()
-
-    def next_revision(self):
-        revisions = map(lambda m: m.revision, OdaMaster.objects.filter(short_name=self.short_name))
-        return max(revisions) + 1
-
-    def latest_revision(self):
-        revisions = map(lambda m: m.revision, OdaMaster.objects.filter(short_name=self.short_name))
-        return max(revisions)
-
-    def details(self):
-        return self.odb_file.get_options().target + " " + self.odb_file.get_options().architecture
-
-    @property
-    def odb_file(self):
-        return self._odb_file
-
-    @odb_file.setter
-    def odb_file(self, val):
-        self._odb_file = val
-
-    def save(self, *args, **kwargs):
-        # repickle the odb_file
-        self.pickled_odb_file= DefaultOdbSerializer().dumps(self._odb_file)
-        super(OdaMaster, self).save(*args, **kwargs) # Call the "real" save() method.
+odb_file_system = OdbFileLoader()
 
 # this is where we'll cache the GoogleStorage files locally
 LOCAL_CACHE_DIR=os.path.join(settings.MEDIA_ROOT, 'cache')
@@ -219,6 +183,57 @@ class BinaryFile(models.Model):
 
     create_from_byte_array = staticmethod(create_from_byte_array)
     create = staticmethod(create)
+
+class OdbFileStorage(models.Model):
+    binary_file = models.ForeignKey(BinaryFile, null=True)
+    pickled_odb_file = models.BinaryField(blank=False)
+
+class OdaMaster(models.Model):
+    ''' Complete representation of a disassembled entity '''
+
+    ipAddress = models.CharField(max_length=64, default='')
+    project_name = models.CharField(max_length=64, default='')
+    short_name = models.CharField(max_length=12, db_index=True)
+    revision = models.IntegerField(default=0)
+    owner = models.ForeignKey(User, null=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+    copy = models.ForeignKey('OdaMaster', null=True)
+
+    sandbox_job = models.ForeignKey(SandboxJob, null=True)
+
+    odb_file_storage = models.ForeignKey(OdbFileStorage, null=True)
+
+    @property
+    def object_id(self):
+        return 0
+
+    @property
+    def content_id(self):
+        return 0
+
+    @property
+    def odb_file(self):
+        return odb_file_system.load_odb_file(self)
+
+    @odb_file.setter
+    def odb_file(self, val):
+        odb_file_system.store_odb_file(self, val)
+
+
+    def file_handle(self):
+        return self.content_object.file_handle()
+
+    def next_revision(self):
+        revisions = map(lambda m: m.revision, OdaMaster.objects.filter(short_name=self.short_name))
+        return max(revisions) + 1
+
+    def latest_revision(self):
+        revisions = map(lambda m: m.revision, OdaMaster.objects.filter(short_name=self.short_name))
+        return max(revisions)
+
+    def details(self):
+        return self.odb_file.get_options().target + " " + self.odb_file.get_options().architecture
+
 
 class InstDoc(models.Model):
     ''' Help for an assembly instruction '''

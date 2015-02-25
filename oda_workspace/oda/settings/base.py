@@ -240,11 +240,11 @@ LOGGING = {
             'propagate': True
         },
         # uncomment this if the database queries are too verbose
-        #'django.db.backends': {
-        #    'handlers': ['null'],  # Quiet by default!
-        #    'propagate': False,
-        #    'level':'DEBUG',
-        #},
+        'django.db.backends': {
+            'handlers': ['null'],  # Quiet by default!
+            'propagate': False,
+            'level':'DEBUG',
+        },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',

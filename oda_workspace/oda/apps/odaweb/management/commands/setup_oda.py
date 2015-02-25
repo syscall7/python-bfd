@@ -6,7 +6,8 @@ from oda.apps.odaweb.examples import Examples
 from django.contrib.contenttypes.models import ContentType
 from oda.apps.odaweb.models import OdaMaster, InstDoc, SandboxServer
 import oda
-from oda.libs.odb.odb_file import OdbFile, BinaryString, BinaryFile
+from oda.libs.odb.binaries import BinaryString, BinaryFile
+from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.add_operation import AddOperation
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
@@ -58,9 +59,10 @@ def load_examples():
                 odb_file.execute(structures.label.generate_operation(AddOperation, item))
                 print "Saving label %s To %s" % (str(item), str(odb_file))
 
-        oda_master = OdaMaster(short_name=short_name, project_name=example['project_name'],
-                               odb_file=odb_file)
+        oda_master = OdaMaster(short_name=short_name, project_name=example['project_name'])
         oda_master.save()
+        from oda.apps.odaweb.models import odb_file_system
+        odb_file_system.store_odb_file(oda_master, odb_file)
 
 
 # ------------------------------------------------------------------------------

@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseServerError
 from django.utils import simplejson
 
-from oda.apps.odaweb.models import OdaMaster, InstDoc, BinaryFile, BinaryFileModel, Share
+from oda.apps.odaweb.models import OdaMaster, InstDoc, BinaryFile, BinaryFileModel, Share, odb_file_system
 from oda.libs.odb.bfd.disassembler import  get_supported_archs, get_supported_endians, get_platform_options, \
     Disassembler
 #from disassembler import Disassembler, get_supported_archs, \
@@ -101,9 +101,11 @@ def create_session(request, to_copy_id, to_copy_version):
         to_copy_version = 0
 
     oda_master = OdaMaster.objects.get(short_name=to_copy_id, revision=to_copy_version)
+    odb_file = oda_master.odb_file
     oda_master.id = None
     oda_master.short_name = id_generator()
     oda_master.save()
+    odb_file_system.store_odb_file(oda_master, odb_file )
     request.session["disassembly_token"] = {
         'id': oda_master.short_name,
         'version': oda_master.revision

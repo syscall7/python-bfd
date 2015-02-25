@@ -16,8 +16,10 @@ import sys
 if __name__ == '__main__':
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "oda.settings.development")
     from django.test.utils import setup_test_environment
+    from django.test.runner import setup_databases
     setup_test_environment()
-    #setup_databases()
+    setup_databases(1, False)
+
 
 
     sys.exit(

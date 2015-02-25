@@ -10,10 +10,10 @@ DATABASES = {
         #'NAME': '/var/www/oda/odaweb.db',                      # Or path to database file if using sqlite3.
         #'NAME': 'odaweb.db',                      # Or path to database file if using sqlite3.
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'odapython2'    ,
+        'NAME': 'odapython3'    ,
         'USER': 'root',                      # Not used with sqlite3.
-        'PASSWORD': '***REMOVED***',                  # Not used with sqlite3.
-        'HOST': '173.194.245.8',         # Set to empty string for localhost. Not used with sqlite3.
+        'PASSWORD': 'password',                  # Not used with sqlite3.
+        'HOST': 'localhost',         # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
@@ -36,4 +36,4 @@ STATIC_ROOT = '/var/www/oda/site/oda/apps/odaweb/static/'
 DEFAULT_FILE_STORAGE = 'django-google-storage.storage.GoogleStorage'
 os.environ.get('ODA_GOOGLE_STORAGE_ACCESS_KEY_ID')
 os.environ.get('ODA_GOOGLE_STORAGE_SECRET_ACCESS_KEY')
-GS_STORAGE_BUCKET_NAME='test16332'
+os.environ.get('ODA_GOOGLE_STORAGE_BUCKET_NAME', 'oda')

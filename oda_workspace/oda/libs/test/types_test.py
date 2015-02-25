@@ -6,7 +6,6 @@ from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.active_scan_operation import ActiveScanOperation
 from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
 from oda.libs.odb.structures.parcel import Parcel, ParcelList
-from oda.libs.odb.odb_file import BinaryFile
 from oda.libs.odb.structures.types import *
 
 class TestTypes(unittest.TestCase):

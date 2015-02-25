@@ -15,7 +15,8 @@ from oda.apps.rest.serializers import OdaMasterSerializer, SectionSerializer, St
 from oda.libs.cuckoo import cuckoo
 from oda.libs.cuckoo.cuckoo import CuckooJob
 from oda.libs.odb.bfd.disassembler import Disassembler, get_supported_archs, get_supported_endians, get_platform_options2
-from oda.libs.odb.odb_file import OdbFile, BinaryString
+from oda.libs.odb.odb_file import OdbFile
+from oda.libs.odb.binaries import BinaryString
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.add_struct_operation import AddStructOperation
 from oda.libs.odb.ops.modify_settings import ModifySettingsFactory

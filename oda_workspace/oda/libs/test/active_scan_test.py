@@ -1,12 +1,12 @@
 import os
 import unittest
+from oda.libs.odb.binaries import BinaryFile
 
 from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.active_scan_operation import ActiveScanOperation
 from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
 from oda.libs.odb.structures.parcel import Parcel, ParcelList
-from oda.libs.odb.odb_file import BinaryFile
 
 class TestActiveScanOperation(unittest.TestCase):
 

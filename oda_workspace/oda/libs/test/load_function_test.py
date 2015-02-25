@@ -1,5 +1,6 @@
 import os
 import unittest
+from oda.libs.odb.binaries import BinaryFile, BinaryString
 
 from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.load_operation import LoadOperation
@@ -10,7 +11,6 @@ from oda.libs.odb.structures.function import Function
 from oda.libs.odb.structures.parcel import Parcel
 from oda.libs.odb.structures.section import Section
 from oda.libs.odb.structures.symbol import Symbol
-from oda.libs.odb.odb_file import BinaryFile, BinaryString
 
 class TestLoadOperation(unittest.TestCase):
 
