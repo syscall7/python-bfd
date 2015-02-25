@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, Date
 
 from boto.gs.connection import GSConnection
-from oda.apps.odaweb.models import OdaMaster, BinaryFileModel, BinaryFile
+from oda.apps.odaweb.models import OdaMaster, BinaryFileModel, BinaryFile, OdbFileStorage
 from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
@@ -92,7 +92,17 @@ class Migrator(object):
             oda_master = OdaMaster(short_name=row.short_name, project_name=row.project_name,
                                    ipAddress=row.ipAddress)
             the_file = file_object.read()
-            binary_file = BinaryFile.create_from_byte_array('uploads/' + row.hash, row.the_file, the_file)
+            binary_file = BinaryFile(the_file=row.the_file, hash=row.hash, filename=row.filename,
+                                     target=row.target, architecture=row.architecture, filesize=0)
+            #binary_file = BinaryFile.create_from_byte_array('uploads/' + row.hash, row.the_file, the_file)
+            odb_file_storage = OdbFileStorage(binary_file=binary_file)
+            odb_file_storage.save()
+            binary_file.save()
+            oda_master.odb_file_storage = odb_file_storage
+            oda_master.save()
+
+
+            return
 
             the_filename = "/var/oda/uploads/%s" % (row.hash)
             f = open(the_filename, 'w+')
