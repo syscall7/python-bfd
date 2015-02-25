@@ -583,7 +583,7 @@
     </div>
     <div class="modal-body">
         {% endverbatim %}<img src="{% static 'images/oda.png' %}" style="float:left"/>{% verbatim %}
-        Version 0.2.0, Released 21 May 2013
+        Version TBD-r$LastChangedRevision$, Released on $LastChangedDate$
 
         <p><p><b>ODA</b> is the creation of Anthony DeRosa, Tom Keeley, and Bill Davis
 
