@@ -1,5 +1,6 @@
 import traceback
 import bfd
+import sys
 from django.core.management.base import BaseCommand
 from django.db.utils import ProgrammingError
 
@@ -14,6 +15,8 @@ from oda.apps.odaweb.models import OdaMaster, BinaryFileModel, BinaryFile, OdbFi
 from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
+from django.db.utils import IntegrityError
+from django.contrib.auth.models import User
 
 import collections
 
@@ -47,6 +50,7 @@ oda_masters = Table('odaweb_odamaster', metadata,
                      Column('short_name', String),
                      Column('content_type_id', Integer),
                      Column('object_id', None, ForeignKey('odaweb_binaryfile.id')),
+                     Column('owner_id', Integer),
                      Column('creation_date', Date),
                      Column('ipAddress', String))
 
@@ -67,6 +71,7 @@ oda_masters2 = Table('odaweb_odamaster', metadata2,
                      Column('content_type_id', Integer),
                      Column('object_id', None, ForeignKey('odaweb_binarystring.id')),
                      Column('creation_date', Date),
+                     Column('owner_id', Integer),
                      Column('ipAddress', String))
 strings = Table('odaweb_binarystring', metadata2,
                 Column('id', String, primary_key=True),
@@ -107,7 +112,7 @@ class Migrator(object):
         #print("  file: %s" % (str(file_object)))
 
         oda_master = OdaMaster(short_name=row.short_name, project_name=row.project_name,
-                               ipAddress=row.ipAddress)
+                               ipAddress=row.ipAddress, owner_id=row.owner_id)
         #the_file = file_object.read()
         options = BinaryOptions(architecture=row.architecture, target=row.target, extra_options=row.extra_options)
         options.save()
@@ -120,8 +125,12 @@ class Migrator(object):
         odb_file_storage.save()
 
         oda_master.odb_file_storage = odb_file_storage
-        oda_master.save()
 
+        try:
+            oda_master.save()
+        except IntegrityError:
+            print '\nERROR: You need to run the ODA migrate_users.sh script first'
+            sys.exit(1)
 
         return
 
@@ -143,6 +152,9 @@ class Migrator(object):
         content_id = session.query(content_types).filter(content_types.c.model == 'binaryfile').first().id
         query = session.query(oda_masters, binaries, oda_options).join(binaries).join(oda_options).filter(oda_masters.c.content_type_id == content_id).limit(10000)
 
+        if User.objects.count() == 0:
+            print '\nERROR: No users found.  You need to run the ODA migrate_users.sh script first'
+            sys.exit(1)
 
         for row in query:
             existing = OdaMaster.objects.filter(short_name=row.short_name).count()
