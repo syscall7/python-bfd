@@ -7217,7 +7217,7 @@ position: relative;\
 overflow: hidden;\
 font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;\
 font-size: 12px;\
-line-height: normal;\
+line-height: 14px;\
 direction: ltr;\
 }\
 .ace_scroller {\
