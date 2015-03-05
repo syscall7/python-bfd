@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 #
 
 migrate()
@@ -23,13 +23,14 @@ migrate()
     # the migration is finished.
     #
     ssh -f -o ExitOnForwardFailure=yes -L 1234:localhost:3306 sleep 10
-    python manage.py migrate 'mysql://root:password@127.0.0.1:1234/odapython2'
+    python manage.py migrate 'mysql://root:***REMOVED***@127.0.0.1:1234/odapython2'
 
 }
 
+export PATH=/var/www/oda/env/bin:$PATH
 
 # clear out the database if it exists
-mysql --user=root --password=password << HERE_DOC
+mysql --user=root --password='***REMOVED***' << HERE_DOC
 DROP DATABASE IF EXISTS odapython3;
 CREATE DATABASE odapython3;
 HERE_DOC
