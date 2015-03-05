@@ -152,10 +152,6 @@ class Migrator(object):
         content_id = session.query(content_types).filter(content_types.c.model == 'binaryfile').first().id
         query = session.query(oda_masters, binaries, oda_options).join(binaries).join(oda_options).filter(oda_masters.c.content_type_id == content_id).limit(10000)
 
-        if User.objects.count() == 0:
-            print '\nERROR: No users found.  You need to run the ODA migrate_users.sh script first'
-            sys.exit(1)
-
         for row in query:
             existing = OdaMaster.objects.filter(short_name=row.short_name).count()
             if existing > 0:
@@ -190,7 +186,7 @@ class Migrator(object):
 
             print("string-%d: (%s) (Architecture %s) (target: %s) " % (number_processed, row.short_name, row.architecture, row.target))
             oda_master = OdaMaster(short_name=row.short_name, project_name=row.project_name,
-                               ipAddress=row.ipAddress)
+                                    ipAddress=row.ipAddress, owner_id=row.owner_id)
 
             options = BinaryOptions(architecture=row.architecture, target=row.target, extra_options=row.extra_options)
             options.save()
@@ -203,7 +199,11 @@ class Migrator(object):
             odb_file_storage.save()
 
             oda_master.odb_file_storage = odb_file_storage
-            oda_master.save()
+            try:
+                oda_master.save()
+            except IntegrityError:
+                print '\nERROR: You need to run the ODA migrate_users.sh script first'
+                sys.exit(1)
             number_processed += 1
 
 
@@ -257,6 +257,10 @@ class Command(BaseCommand):
     help = 'Setup ODA'
 
     def handle(self, *args, **options):
+
+        if User.objects.count() == 0:
+            print '\nERROR: No users found.  You need to run the ODA migrate_users.sh script first'
+            sys.exit(1)
 
         Migrator().migrate_binary_files(args[0])
         Migrator().migrate_binary_strings(args[0])
