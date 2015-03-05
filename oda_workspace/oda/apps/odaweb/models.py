@@ -161,6 +161,7 @@ class BinaryFile(models.Model):
     filename = models.CharField(max_length=255)
     filesize = models.IntegerField()
     hash = models.CharField(max_length=128)
+    created_at = models.DateTimeField(auto_now_add=True)
     local_path = None
 
     binary_options = models.OneToOneField(BinaryOptions, null=True)
