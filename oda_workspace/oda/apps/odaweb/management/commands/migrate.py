@@ -1,12 +1,14 @@
 import traceback
 import bfd
 from django.core.management.base import BaseCommand
+from django.db.utils import ProgrammingError
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, Date
 
 from boto.gs.connection import GSConnection
+import sys
 from oda.apps.odaweb.models import OdaMaster, BinaryFileModel, BinaryFile, OdbFileStorage, BinaryOptions, \
     BinaryStringStorage
 from oda.libs.odb.odb_file import OdbFile
@@ -139,7 +141,7 @@ class Migrator(object):
 
         session = self.create_session(db_url)
         content_id = session.query(content_types).filter(content_types.c.model == 'binaryfile').first().id
-        query = session.query(oda_masters, binaries, oda_options).join(binaries).join(oda_options).filter(oda_masters.c.content_type_id == content_id).limit(100)
+        query = session.query(oda_masters, binaries, oda_options).join(binaries).join(oda_options).filter(oda_masters.c.content_type_id == content_id).limit(10000)
 
 
         for row in query:
@@ -147,19 +149,21 @@ class Migrator(object):
             if existing > 0:
                 print("Master Exists %s" % (row.short_name))
                 continue
-
-            self.migrate_row(row)
+            try:
+                self.migrate_row(row)
+            except ProgrammingError as e:
+                print("Error %s" % e.message)
 
     def migrate_binary_strings(self, db_url = "mysql://root:password@localhost/odapython2"):
         session = self.create_session(db_url)
         content_id = session.query(content_types).filter(content_types.c.model == 'binarystring').first().id
-        query = session.query(oda_masters2, strings, oda_options2).join(strings).join(oda_options2).filter(oda_masters2.c.content_type_id == content_id).limit(100)
+        query = session.query(oda_masters2, strings, oda_options2).join(strings).join(oda_options2).filter(oda_masters2.c.content_type_id == content_id).limit(10000)
 
 
         number_processed = 0
         number_skipped = 0
 
-        string_cache = LRUCache(500)
+        #string_cache = LRUCache(500)
 
         for row in query:
             existing = OdaMaster.objects.filter(short_name=row.short_name).count()
@@ -179,15 +183,8 @@ class Migrator(object):
             options = BinaryOptions(architecture=row.architecture, target=row.target, extra_options=row.extra_options)
             options.save()
 
-            binary_string = string_cache.get(row.binary_string)
-            if binary_string is None:
+            binary_string = BinaryStringStorage(binary_string=row.binary_string, binary_options=options)
 
-                binary_string = BinaryStringStorage(binary_string=row.binary_string, binary_options=options)
-                binary_string.save()
-
-                string_cache.set(row.binary_string, binary_string)
-            else:
-                print("   using cached binary_string %s" % (row.binary_string))
 
 
             odb_file_storage = OdbFileStorage(binary_string=binary_string)
