@@ -8,9 +8,8 @@ from django.db import models
 from django.core.files import File
 from django.contrib.auth.models import User
 from django.conf import settings
-from jsonfield import JSONField
-from oda.libs.odb.binaries import Options, Binary
 
+from oda.libs.odb.binaries import Options, Binary, BinaryString
 from oda.libs.odb.odb_file import DefaultOdbSerializer, OdbFile
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
@@ -40,13 +39,20 @@ class OdbFileLoader(object):
         logger.info("load_odb_file odb_master:%s" % (oda_master.id))
         if oda_master.odb_file_storage.pickled_odb_file is None:
             logger.info("Migrating data for %s" % (oda_master.id))
+            if oda_master.odb_file_storage.binary_file:
+                binary_file = oda_master.odb_file_storage.binary_file
+                odb_file = OdbFile(BinaryFileModel(binary_file.id))
+                odb_file.execute(LoadOperation())
+                odb_file.execute(PassiveScanOperation())
 
-            binary_file = oda_master.odb_file_storage.binary_file
-            odb_file = OdbFile(BinaryFileModel(binary_file.id))
-            odb_file.execute(LoadOperation())
-            odb_file.execute(PassiveScanOperation())
+                self.store_odb_file(oda_master, odb_file)
+            elif oda_master.odb_file_storage.binary_string:
+                binary_string = oda_master.odb_file_storage.binary_string
+                odb_file = OdbFile(BinaryString(binary_string.binary_string, binary_string.binary_options.architecture))
+                odb_file.execute(LoadOperation())
+                odb_file.execute(PassiveScanOperation())
 
-            self.store_odb_file(oda_master, odb_file)
+                self.store_odb_file(oda_master, odb_file)
 
             return odb_file
 
@@ -143,6 +149,10 @@ class BinaryOptions(models.Model):
         o = self.get_options_map()
         o["endian"] = endian
         self.extra_options = json.dumps(o)
+
+class BinaryStringStorage(models.Model):
+    binary_string = models.TextField()
+    binary_options = models.OneToOneField(BinaryOptions, null=False)
 
 
 class BinaryFile(models.Model):
@@ -241,7 +251,8 @@ class BinaryFile(models.Model):
 
 class OdbFileStorage(models.Model):
     binary_file = models.ForeignKey(BinaryFile, null=True)
-    binary_string_description = JSONField()
+    binary_string = models.ForeignKey(BinaryStringStorage, null=True)
+
     pickled_odb_file = models.BinaryField(null=True, blank=False)
 
 class OdaMaster(models.Model):

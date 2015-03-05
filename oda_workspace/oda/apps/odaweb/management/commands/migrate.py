@@ -1,4 +1,3 @@
-from sets import Set
 import traceback
 import bfd
 from django.core.management.base import BaseCommand
@@ -8,7 +7,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, Date
 
 from boto.gs.connection import GSConnection
-from oda.apps.odaweb.models import OdaMaster, BinaryFileModel, BinaryFile, OdbFileStorage, BinaryOptions
+from oda.apps.odaweb.models import OdaMaster, BinaryFileModel, BinaryFile, OdbFileStorage, BinaryOptions, \
+    BinaryStringStorage
 from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
@@ -37,7 +37,7 @@ class LRUCache:
         self.cache[key] = value
 
 metadata = MetaData()
-
+metadata2 = MetaData()
 
 oda_masters = Table('odaweb_odamaster', metadata,
                      Column('id', Integer, primary_key=True),
@@ -49,6 +49,8 @@ oda_masters = Table('odaweb_odamaster', metadata,
                      Column('ipAddress', String))
 
 
+
+
 binaries = Table('odaweb_binaryfile', metadata,
                  Column('id', Integer, primary_key=True),
                  Column('the_file', String),
@@ -56,10 +58,23 @@ binaries = Table('odaweb_binaryfile', metadata,
                  Column('options_id', None, ForeignKey('odaweb_odaoptions.id')),
                  Column('hash', String))
 
-strings = Table('odaweb_binarystring', metadata,
+oda_masters2 = Table('odaweb_odamaster', metadata2,
+                     Column('id', Integer, primary_key=True),
+                     Column('project_name', String),
+                     Column('short_name', String),
+                     Column('content_type_id', Integer),
+                     Column('object_id', None, ForeignKey('odaweb_binarystring.id')),
+                     Column('creation_date', Date),
+                     Column('ipAddress', String))
+strings = Table('odaweb_binarystring', metadata2,
                 Column('id', String, primary_key=True),
                 Column('options_id', None, ForeignKey('odaweb_odaoptions.id')),
                 Column('binary_string', String))
+oda_options2 = Table('odaweb_odaoptions', metadata2,
+                    Column('id', Integer, primary_key=True),
+                    Column('target', String),
+                    Column('architecture', String),
+                    Column('extra_options', String))
 
 oda_options = Table('odaweb_odaoptions', metadata,
                     Column('id', Integer, primary_key=True),
@@ -85,7 +100,7 @@ class Migrator(object):
 
         self.number_processed += 1
 
-        print("%d: (%s) (Architecture %s) (target: %s) " % (self.number_processed, row.short_name, row.architecture, row.target))
+        print("file-%d: (%s) (Architecture %s) (target: %s) " % (self.number_processed, row.short_name, row.architecture, row.target))
 
         #print("  file: %s" % (str(file_object)))
 
@@ -109,7 +124,7 @@ class Migrator(object):
         return
 
 
-    def create_query(self, db_url, type="binaryfile"):
+    def create_session(self, db_url):
         print("Connecting: %s" % db_url)
 
         engine = create_engine(db_url, pool_recycle=3600)
@@ -118,15 +133,14 @@ class Migrator(object):
         Session.configure(bind=engine)  # once engine is available
         session = Session()
 
-        content_id = session.query(content_types).filter(content_types.c.model == type).first().id
-
-        query = session.query(oda_masters, binaries, oda_options).join(binaries).join(oda_options).filter(oda_masters.c.content_type_id == content_id)
-
-        return query
+        return session
 
     def migrate_binary_files(self, db_url = "mysql://root:password@localhost/odapython2"):
 
-        query = self.create_query(db_url, 'binaryfile')
+        session = self.create_session(db_url)
+        content_id = session.query(content_types).filter(content_types.c.model == 'binaryfile').first().id
+        query = session.query(oda_masters, binaries, oda_options).join(binaries).join(oda_options).filter(oda_masters.c.content_type_id == content_id).limit(100)
+
 
         for row in query:
             existing = OdaMaster.objects.filter(short_name=row.short_name).count()
@@ -137,7 +151,12 @@ class Migrator(object):
             self.migrate_row(row)
 
     def migrate_binary_strings(self, db_url = "mysql://root:password@localhost/odapython2"):
-        query = self.create_query(db_url, 'binaryfile')
+        session = self.create_session(db_url)
+        content_id = session.query(content_types).filter(content_types.c.model == 'binarystring').first().id
+        query = session.query(oda_masters2, strings, oda_options2).join(strings).join(oda_options2).filter(oda_masters2.c.content_type_id == content_id).limit(100)
+
+
+        number_processed = 0
 
         for row in query:
             existing = OdaMaster.objects.filter(short_name=row.short_name).count()
@@ -145,7 +164,22 @@ class Migrator(object):
                 print("Master Exists %s" % (row.short_name))
                 continue
 
-            self.migrate_row(row)
+            print("string-%d: (%s) (Architecture %s) (target: %s) " % (number_processed, row.short_name, row.architecture, row.target))
+            oda_master = OdaMaster(short_name=row.short_name, project_name=row.project_name,
+                               ipAddress=row.ipAddress)
+
+            options = BinaryOptions(architecture=row.architecture, target=row.target, extra_options=row.extra_options)
+            options.save()
+
+            binary_string = BinaryStringStorage(binary_string=row.binary_string, binary_options=options)
+            binary_string.save()
+
+            odb_file_storage = OdbFileStorage(binary_string=binary_string)
+            odb_file_storage.save()
+
+            oda_master.odb_file_storage = odb_file_storage
+            oda_master.save()
+            number_processed += 1
 
 
     def unused(self, row):
@@ -198,4 +232,6 @@ class Command(BaseCommand):
     help = 'Setup ODA'
 
     def handle(self, *args, **options):
+
         Migrator().migrate_binary_files(args[0])
+        Migrator().migrate_binary_strings(args[0])
