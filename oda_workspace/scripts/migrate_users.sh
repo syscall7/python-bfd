@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# NOTE: Run this *before* running './manage syncdb'
+# NOTE: Run this *before* running 'python manage.py migrate ...'
 # 
 # The purpose of this script is to extract the user accounts from the database
 # on www.onlinedisassembler.com and insert them into the new database on the new
