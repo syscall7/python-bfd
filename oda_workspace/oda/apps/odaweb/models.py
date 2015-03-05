@@ -133,10 +133,13 @@ class BinaryFile(models.Model):
 
         # if we haven't written the file locally yet
         if not self.local_path:
+
             self.local_path = os.path.join(LOCAL_CACHE_DIR, self.hash)
 
             # if the file does not exist locally
             if not os.path.exists(self.local_path):
+
+                logger.info("Writing %s %s " % (self.hash, self.local_path))
 
                 # write it out
                 with open(self.local_path, 'wb') as f:
