@@ -77,32 +77,35 @@ class Migrator(object):
 
     def migrate_row(self, row):
 
+        self.number_processed += 1
+
+        print("%d: (%s) (Architecture %s) (target: %s) " % (self.number_processed, row.short_name, row.architecture, row.target))
+
+        #print("  file: %s" % (str(file_object)))
+
+        oda_master = OdaMaster(short_name=row.short_name, project_name=row.project_name,
+                               ipAddress=row.ipAddress)
+        #the_file = file_object.read()
+        binary_file = BinaryFile(the_file=row.the_file, hash=row.hash, filename=row.filename,
+                                 target=row.target, architecture=row.architecture, filesize=0)
+        binary_file.save()
+        #binary_file = BinaryFile.create_from_byte_array('uploads/' + row.hash, row.the_file, the_file)
+        odb_file_storage = OdbFileStorage(binary_file=binary_file)
+        odb_file_storage.save()
+
+        oda_master.odb_file_storage = odb_file_storage
+        oda_master.save()
+
+
+        return
+
         file_object = self.bucket.get_key('uploads/' + row.hash)
 
         if file_object:
             print("%s: Project Name: %s, ipAddress: %s, short_name: %s, creation_date: %s, the_file: %s" % (
                 str(self.number_processed), row.project_name, row.ipAddress, row.short_name, row.creation_date, row.the_file
             ))
-            self.number_processed += 1
 
-            print("  Architecture %s, target: %s" % (row.architecture, row.target))
-
-            print("  file: %s" % (str(file_object)))
-
-            oda_master = OdaMaster(short_name=row.short_name, project_name=row.project_name,
-                                   ipAddress=row.ipAddress)
-            the_file = file_object.read()
-            binary_file = BinaryFile(the_file=row.the_file, hash=row.hash, filename=row.filename,
-                                     target=row.target, architecture=row.architecture, filesize=0)
-            #binary_file = BinaryFile.create_from_byte_array('uploads/' + row.hash, row.the_file, the_file)
-            odb_file_storage = OdbFileStorage(binary_file=binary_file)
-            odb_file_storage.save()
-            binary_file.save()
-            oda_master.odb_file_storage = odb_file_storage
-            oda_master.save()
-
-
-            return
 
             the_filename = "/var/oda/uploads/%s" % (row.hash)
             f = open(the_filename, 'w+')

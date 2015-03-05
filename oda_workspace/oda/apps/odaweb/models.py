@@ -9,7 +9,9 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from oda.libs.odb.binaries import Options, Binary
 
-from oda.libs.odb.odb_file import DefaultOdbSerializer
+from oda.libs.odb.odb_file import DefaultOdbSerializer, OdbFile
+from oda.libs.odb.ops.load_operation import LoadOperation
+from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
 from utils import sha1_hash, sha1_hash_contents
 
 
@@ -34,6 +36,18 @@ class SandboxJob(models.Model):
 class OdbFileLoader(object):
     def load_odb_file(self, oda_master):
         logger.info("load_odb_file odb_master:%s" % (oda_master.id))
+        if oda_master.odb_file_storage.pickled_odb_file is None:
+            logger.info("Migrating data for %s" % (oda_master.id))
+
+            binary_file = oda_master.odb_file_storage.binary_file
+            odb_file = OdbFile(BinaryFileModel(binary_file.id))
+            odb_file.execute(LoadOperation())
+            odb_file.execute(PassiveScanOperation())
+
+            self.store_odb_file(oda_master, odb_file)
+
+            return odb_file
+
         return DefaultOdbSerializer().load(oda_master.odb_file_storage.pickled_odb_file)
 
     def store_odb_file(self, oda_master, odb_file):
@@ -186,7 +200,7 @@ class BinaryFile(models.Model):
 
 class OdbFileStorage(models.Model):
     binary_file = models.ForeignKey(BinaryFile, null=True)
-    pickled_odb_file = models.BinaryField(blank=False)
+    pickled_odb_file = models.BinaryField(null=True, blank=False)
 
 class OdaMaster(models.Model):
     ''' Complete representation of a disassembled entity '''

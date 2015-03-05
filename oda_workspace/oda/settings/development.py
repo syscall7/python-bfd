@@ -37,6 +37,13 @@ ALLOWED_HOSTS = (
 STATIC_ROOT = ''
 
 # For development, use the local file system instead of GoogleStorage
-DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+# DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+# File storage settings
+# NOTE: In order for GoogleStorage to work, you have to add the IP address of the server that will be accessing Google
+#       Storage to the Google access key referenced below.  This is doen via the GoogleStorage console.
+DEFAULT_FILE_STORAGE = 'django-google-storage.storage.GoogleStorage'
+os.environ.get('ODA_GOOGLE_STORAGE_ACCESS_KEY_ID')
+os.environ.get('ODA_GOOGLE_STORAGE_SECRET_ACCESS_KEY')
+os.environ.get('ODA_GOOGLE_STORAGE_BUCKET_NAME', 'oda')
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
