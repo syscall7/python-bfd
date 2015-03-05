@@ -12,7 +12,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'odapython3'    ,
         'USER': 'root',                      # Not used with sqlite3.
-        'PASSWORD': 'password',                  # Not used with sqlite3.
+        'PASSWORD': '***REMOVED***',                  # Not used with sqlite3.
         'HOST': 'localhost',         # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
@@ -21,7 +21,8 @@ DATABASES = {
 ALLOWED_HOSTS = (
     'onlinedisassembler.com',
     'www.onlinedisassembler.com',
-    '.onlinedisassembler.com'
+    '.onlinedisassembler.com',
+    '146.148.90.46',
 )
 
 # Absolute path to the directory static files should be collected to.
