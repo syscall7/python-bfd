@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey, Date
 
 from boto.gs.connection import GSConnection
-from oda.apps.odaweb.models import OdaMaster, BinaryFileModel, BinaryFile, OdbFileStorage
+from oda.apps.odaweb.models import OdaMaster, BinaryFileModel, BinaryFile, OdbFileStorage, BinaryOptions
 from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
@@ -56,10 +56,16 @@ binaries = Table('odaweb_binaryfile', metadata,
                  Column('options_id', None, ForeignKey('odaweb_odaoptions.id')),
                  Column('hash', String))
 
+strings = Table('odaweb_binarystring', metadata,
+                Column('id', String, primary_key=True),
+                Column('options_id', None, ForeignKey('odaweb_odaoptions.id')),
+                Column('binary_string', String))
+
 oda_options = Table('odaweb_odaoptions', metadata,
                     Column('id', Integer, primary_key=True),
                     Column('target', String),
-                    Column('architecture', String))
+                    Column('architecture', String),
+                    Column('extra_options', String))
 
 content_types = Table('django_content_type', metadata,
     Column('id', Integer, primary_key=True),
@@ -86,8 +92,11 @@ class Migrator(object):
         oda_master = OdaMaster(short_name=row.short_name, project_name=row.project_name,
                                ipAddress=row.ipAddress)
         #the_file = file_object.read()
+        options = BinaryOptions(architecture=row.architecture, target=row.target, extra_options=row.extra_options)
+        options.save()
+
         binary_file = BinaryFile(the_file=row.the_file, hash=row.hash, filename=row.filename,
-                                 target=row.target, architecture=row.architecture, filesize=0)
+                                 filesize=0, binary_options=options)
         binary_file.save()
         #binary_file = BinaryFile.create_from_byte_array('uploads/' + row.hash, row.the_file, the_file)
         odb_file_storage = OdbFileStorage(binary_file=binary_file)
@@ -99,6 +108,48 @@ class Migrator(object):
 
         return
 
+
+    def create_query(self, db_url, type="binaryfile"):
+        print("Connecting: %s" % db_url)
+
+        engine = create_engine(db_url, pool_recycle=3600)
+
+        Session = sessionmaker()
+        Session.configure(bind=engine)  # once engine is available
+        session = Session()
+
+        content_id = session.query(content_types).filter(content_types.c.model == type).first().id
+
+        query = session.query(oda_masters, binaries, oda_options).join(binaries).join(oda_options).filter(oda_masters.c.content_type_id == content_id)
+
+        return query
+
+    def migrate_binary_files(self, db_url = "mysql://root:password@localhost/odapython2"):
+
+        query = self.create_query(db_url, 'binaryfile')
+
+        for row in query:
+            existing = OdaMaster.objects.filter(short_name=row.short_name).count()
+            if existing > 0:
+                print("Master Exists %s" % (row.short_name))
+                continue
+
+            self.migrate_row(row)
+
+    def migrate_binary_strings(self, db_url = "mysql://root:password@localhost/odapython2"):
+        query = self.create_query(db_url, 'binaryfile')
+
+        for row in query:
+            existing = OdaMaster.objects.filter(short_name=row.short_name).count()
+            if existing > 0:
+                print("Master Exists %s" % (row.short_name))
+                continue
+
+            self.migrate_row(row)
+
+
+    def unused(self, row):
+        binary_file = []
         file_object = self.bucket.get_key('uploads/' + row.hash)
 
         if file_object:
@@ -141,72 +192,10 @@ class Migrator(object):
 
                 print("  new hash: %s" % binary_file.hash)
 
-    def migrate(self, db_url = "mysql://root:password@localhost/odapython2"):
-        print("Connecting: %s" % db_url)
-
-        engine = create_engine(db_url, pool_recycle=3600)
-        conn = engine.connect()
-
-        Session = sessionmaker()
-        Session.configure(bind=engine)  # once engine is available
-        session = Session()
-
-        #s = select([oda_masters, binaries]).select_from(oda_masters.join(binaries)).where(oda_masters.c.content_type_id == 19)
-        #result = conn.execute(s)
-        #row = result.fetchone()
-
-
-        content_id = session.query(content_types).filter(content_types.c.model == 'binaryfile').first().id
-
-
-        query = session.query(oda_masters, binaries, oda_options).join(binaries).join(oda_options).filter(oda_masters.c.content_type_id == content_id)
-
-        #import os
-        #if not os.path.exists('uploads'):
-        #    os.makedirs('uploads')
-
-        skipped_ids = [ 'ETFIPt', '175.214.127.239' ]
-
-        f = open('bad_files.log')
-        bad_files = Set(f.read().splitlines())
-        f.close()
-
-        for row in query:
-
-
-            existing = OdaMaster.objects.filter(short_name=row.short_name).count()
-            if existing > 0:
-                print("Master Exists %s" % (row.short_name))
-                continue
-
-            if row.short_name in skipped_ids or row.ipAddress in skipped_ids:
-                print('Skipping %s' % (row.short_name))
-                continue
-
-            if (row.the_file in bad_files):
-                continue
-
-            f = open('bad_files.log', 'a')
-            f.write("%s\n" % (row.the_file))
-            f.close()
-
-            self.migrate_row(row)
-
-            f = open('bad_files.log')
-            lines = f.readlines()
-            lines = lines[:-1]
-            f.close()
-
-            f = open('bad_files.log', 'w+')
-            f.writelines(lines)
-            f.close()
-
-
-
 
 class Command(BaseCommand):
     args = '<url>'
     help = 'Setup ODA'
 
     def handle(self, *args, **options):
-        Migrator().migrate(args[0])
+        Migrator().migrate_binary_files(args[0])

@@ -500,14 +500,14 @@ def upload(request):
         }
 
         arch, target = Disassembler.guess_bfd_arch(binary_file.file_handle().name)
-        binary_file.architecture = arch
-        binary_file.target = target
-        binary_file.save()
+        binary_file.binary_options.architecture = arch
+        binary_file.binary_options.target = target
+        binary_file.binary_options.save()
 
         odb_file = OdbFile(BinaryFileModel(binary_file.id))
 
         if arch != 'UNKNOWN!':
-            odb_file.execute(LoadOperation())
+            odb_file.execute(LoadOperation())`
             odb_file.execute(PassiveScanOperation())
 
         #todo this should not be saved until after user has committed options

@@ -1,3 +1,4 @@
+import json
 import os.path
 import commands
 import logging
@@ -7,6 +8,7 @@ from django.db import models
 from django.core.files import File
 from django.contrib.auth.models import User
 from django.conf import settings
+from jsonfield import JSONField
 from oda.libs.odb.binaries import Options, Binary
 
 from oda.libs.odb.odb_file import DefaultOdbSerializer, OdbFile
@@ -51,6 +53,7 @@ class OdbFileLoader(object):
         return DefaultOdbSerializer().load(oda_master.odb_file_storage.pickled_odb_file)
 
     def store_odb_file(self, oda_master, odb_file):
+
         logger.info("store_odb_file odb_master:%s %s" % (oda_master.id, type(odb_file.binary)))
 
 
@@ -105,6 +108,42 @@ class BinaryFileModel(Binary):
         self._options = binary_file.options
         logger.info("Setting Options...")
 
+class BinaryOptions(models.Model):
+    ''' Options that specify how the associated Binary is to be treated '''
+    target = models.CharField(max_length=128)
+    architecture = models.CharField(max_length=128)
+    extra_options = models.CharField(max_length=256, default='{"flags" : [] }')
+    base_address = models.CharField(max_length=18)
+
+    def get_options_map(self):
+        return json.loads(self.extra_options)
+
+    def get_extra_options(self):
+        return self.get_options_map()["flags"]
+
+    def set_extra_options(self, options):
+        o = self.get_options_map()
+        o["flags"] = options
+        self.extra_options = json.dumps(o)
+
+    def reset_extra_options(self):
+        self.extra_options = '{ "flags" : [] }'
+
+    def get_endian(self):
+        options = self.get_extra_options()
+        endian = 'DEFAULT'
+        if 'LITTLE' in options:
+            endian = 'LITTLE'
+        elif 'BIG' in options:
+            endian = 'BIG'
+
+        return endian
+
+    def set_endian(self, endian):
+        o = self.get_options_map()
+        o["endian"] = endian
+        self.extra_options = json.dumps(o)
+
 
 class BinaryFile(models.Model):
     ''' Represents a disassembled entity that was uploaded as a file '''
@@ -114,14 +153,12 @@ class BinaryFile(models.Model):
     hash = models.CharField(max_length=128)
     local_path = None
 
-    target = models.CharField(max_length=128)
-    architecture = models.CharField(max_length=128)
-    extra_options = models.CharField(max_length=256, default='{"flags" : [] }')
-    base_address = models.CharField(max_length=18)
+    binary_options = models.OneToOneField(BinaryOptions, null=True)
 
     @property
     def options(self):
-        return Options(self.target, self.architecture, self.base_address, self.extra_options)
+        return Options(self.binary_options.target, self.binary_options.architecture,
+                       self.binary_options.base_address, self.binary_options.extra_options)
 
 
     def file_handle(self):
@@ -179,8 +216,9 @@ class BinaryFile(models.Model):
         u.the_file.open('rb')
         u.filesize = u.the_file.size
 
-        u.target = ''
-        u.architecture = ''
+        binary_options = BinaryOptions()
+        binary_options.save()
+        u.binary_options = binary_options
 
         return u
 
@@ -203,6 +241,7 @@ class BinaryFile(models.Model):
 
 class OdbFileStorage(models.Model):
     binary_file = models.ForeignKey(BinaryFile, null=True)
+    binary_string_description = JSONField()
     pickled_odb_file = models.BinaryField(null=True, blank=False)
 
 class OdaMaster(models.Model):
