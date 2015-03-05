@@ -1,33 +1,48 @@
-#!/bin/bash -e
+#!/bin/bash -x
 #
+# This script assumes the following:
+#   1. sudo privileges to run as the www-data user
+#   2. ssh keys are setup to access the ODA servers
 
-migrate()
+# bail on first error
+set -e
+
+PYTHON=/var/www/oda/env/bin/python 
+SETTINGS='DJANGO_SETTINGS_MODULE=oda.settings.production'
+
+#
+# migrate the user accounts
+#
+migrate_users()
 {
-    SERVER=$1
+   SERVER=$1
 
-    #
-    # Step 1: migrate the user accounts
-    #
-    USER_ACCOUNT_TABLES='auth_user account_emailconfirmation account_emailaddress socialaccount_socialaccount socialaccount_socialapp socialaccount_socialapp_sites socialaccount_socialtoken'
+   USER_ACCOUNT_TABLES='auth_user account_emailconfirmation account_emailaddress socialaccount_socialaccount socialaccount_socialapp socialaccount_socialapp_sites socialaccount_socialtoken'
 
     # extract tables
-    ssh $SERVER mysqldump --password=password --user=root odapython2  $USER_ACCOUNT_TABLES> user_tables.sql
+    ssh $SERVER mysqldump --password=password --user=root odapython2  $USER_ACCOUNT_TABLES> /tmp/user_tables.sql
 
     # import them on this server
-    mysql --password=password --user=root -D odapython3 < user_tables.sql
-
-    #
-    # Step 2: migrate the odamasters
-    # NOTE: The 'sleep 10' here happens on the remote side, but since SSH won't
-    # close itself until all connections are closed, the tunnel stays up until
-    # the migration is finished.
-    #
-    ssh -f -o ExitOnForwardFailure=yes -L 1234:localhost:3306 sleep 10
-    python manage.py migrate 'mysql://root:***REMOVED***@127.0.0.1:1234/odapython2'
+    mysql --password='***REMOVED***' --user=root -D odapython3 < /tmp/user_tables.sql
 
 }
 
-export PATH=/var/www/oda/env/bin:$PATH
+#
+# migrate the odamasters
+#
+migrate_odamasters()
+{
+    SERVER=$1
+
+    # NOTE: The 'sleep 10' here happens on the remote side, but since SSH won't
+    # close itself until all connections are closed, the tunnel stays up until
+    # the migration is finished.
+    PORT=`shuf -i 1024-65535 -n 1`
+    ssh $SERVER -4 -f -o ExitOnForwardFailure=yes -L $PORT:localhost:3306 sleep 10
+    sudo $SETTINGS -u www-data $PYTHON manage.py migrate 'mysql://root:password@127.0.0.1:'$PORT'/odapython2'
+
+}
+
 
 # clear out the database if it exists
 mysql --user=root --password='***REMOVED***' << HERE_DOC
@@ -35,18 +50,21 @@ DROP DATABASE IF EXISTS odapython3;
 CREATE DATABASE odapython3;
 HERE_DOC
 
+# migrate users from the old server (we only migrate from www.onlinedisassembler.com)
+migrate_users www.onlinedisassembler.com
+
 # sync database
-python manage.py syncdb 
+sudo $SETTINGS -u www-data $PYTHON manage.py syncdb 
 
 # setup oda database
-python manage.py setup_oda 
+sudo $SETTINGS -u www-data $PYTHON manage.py setup_oda 
 
 # setup open_id
-python manage.py setup_openid -m prod
+sudo $SETTINGS -u www-data $PYTHON manage.py setup_openid -m prod
 
 # migrate from old servers
-migrate www.onlinedisassembler.com
-migrate www2.onlinedisassembler.com
+migrate_odamasters www.onlinedisassembler.com
+migrate_odamasters www2.onlinedisassembler.com
 
 
 
