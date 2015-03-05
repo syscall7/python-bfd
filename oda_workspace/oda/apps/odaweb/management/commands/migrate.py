@@ -157,6 +157,7 @@ class Migrator(object):
 
 
         number_processed = 0
+        number_skipped = 0
 
         string_cache = LRUCache(500)
 
@@ -167,7 +168,8 @@ class Migrator(object):
                 continue
 
             if row.binary_string == '5531D289E58B4508568B750C538D58FF0FB60C16884C130183C20184C975F15B5E5DC3':
-                print("Skipping strcpy")
+                print("%d skipping strcpy" % number_skipped)
+                number_skipped += 1
                 continue
 
             print("string-%d: (%s) (Architecture %s) (target: %s) " % (number_processed, row.short_name, row.architecture, row.target))
