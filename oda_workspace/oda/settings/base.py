@@ -227,7 +227,7 @@ LOGGING = {
             'class': 'logging.handlers.RotatingFileHandler',
             'level': 'INFO',
             'formatter': 'simple',
-            'filename': '/tmp/oda.log',
+            'filename': '/var/www/oda/oda.log',
             'mode': 'a',
             'maxBytes': 10485760,
             'backupCount': 5,

@@ -36,6 +36,9 @@ cd ~/bfd_python
 svn co svn://svn.onlinedisassembler.com/oda/ODA/trunk/bfd --username davis --password ***REMOVED*** .
 sudo $ODA_INSTALL_DIR/env/bin/python setup.py install
 
+# create the log file (must match the log handle file entry in settings/base.py)
+touch $ODA_INSTALL_DIR/oda.log
+
 sudo chown -R www-data $ODA_INSTALL_DIR
 sudo chgrp -R www-data $ODA_INSTALL_DIR
 
