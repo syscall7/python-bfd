@@ -23,7 +23,7 @@ migrate_users()
    USER_ACCOUNT_TABLES='auth_user account_emailconfirmation account_emailaddress socialaccount_socialaccount socialaccount_socialapp socialaccount_socialapp_sites socialaccount_socialtoken'
 
     # extract tables
-    ssh $SERVER mysqldump --password=$REMOTE_MYSQL_PW --user=root odapython2  $USER_ACCOUNT_TABLES> /tmp/user_tables.sql
+    ssh $SERVER -o StrictHostKeyChecking=no mysqldump --password=$REMOTE_MYSQL_PW --user=root odapython2  $USER_ACCOUNT_TABLES > /tmp/user_tables.sql
 
     # import them on this server
     mysql --password=$LOCAL_MYSQL_PW --user=root -D odapython3 < /tmp/user_tables.sql
@@ -41,7 +41,7 @@ migrate_odamasters()
     # close itself until all connections are closed, the tunnel stays up until
     # the migration is finished.
     PORT=`shuf -i 1024-65535 -n 1`
-    ssh $SERVER -4 -f -o ExitOnForwardFailure=yes -L $PORT:localhost:3306 sleep 10
+    ssh $SERVER -4 -f -o StrictHostKeyChecking=no -o ExitOnForwardFailure=yes -L $PORT:localhost:3306 sleep 10
     sudo $SETTINGS -u www-data $PYTHON manage.py migrate 'mysql://root:'$REMOTE_MYSQL_PW'@127.0.0.1:'$PORT'/odapython2'
 
 }
