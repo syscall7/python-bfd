@@ -158,10 +158,16 @@ class Migrator(object):
 
         number_processed = 0
 
+        string_cache = LRUCache(500)
+
         for row in query:
             existing = OdaMaster.objects.filter(short_name=row.short_name).count()
             if existing > 0:
                 print("Master Exists %s" % (row.short_name))
+                continue
+
+            if row.binary_string == '5531D289E58B4508568B750C538D58FF0FB60C16884C130183C20184C975F15B5E5DC3':
+                print("Skipping strcpy")
                 continue
 
             print("string-%d: (%s) (Architecture %s) (target: %s) " % (number_processed, row.short_name, row.architecture, row.target))
@@ -171,8 +177,16 @@ class Migrator(object):
             options = BinaryOptions(architecture=row.architecture, target=row.target, extra_options=row.extra_options)
             options.save()
 
-            binary_string = BinaryStringStorage(binary_string=row.binary_string, binary_options=options)
-            binary_string.save()
+            binary_string = string_cache.get(row.binary_string)
+            if binary_string is None:
+
+                binary_string = BinaryStringStorage(binary_string=row.binary_string, binary_options=options)
+                binary_string.save()
+
+                string_cache.set(row.binary_string, binary_string)
+            else:
+                print("   using cached binary_string %s" % (row.binary_string))
+
 
             odb_file_storage = OdbFileStorage(binary_string=binary_string)
             odb_file_storage.save()
