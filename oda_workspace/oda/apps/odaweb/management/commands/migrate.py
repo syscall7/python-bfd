@@ -150,7 +150,7 @@ class Migrator(object):
 
         session = self.create_session(db_url)
         content_id = session.query(content_types).filter(content_types.c.model == 'binaryfile').first().id
-        query = session.query(oda_masters, binaries, oda_options).join(binaries).join(oda_options).filter(oda_masters.c.content_type_id == content_id).limit(10000)
+        query = session.query(oda_masters, binaries, oda_options).join(binaries).join(oda_options).filter(oda_masters.c.content_type_id == content_id)
 
         for row in query:
             existing = OdaMaster.objects.filter(short_name=row.short_name).count()
@@ -165,7 +165,7 @@ class Migrator(object):
     def migrate_binary_strings(self, db_url = "mysql://root:password@localhost/odapython2"):
         session = self.create_session(db_url)
         content_id = session.query(content_types).filter(content_types.c.model == 'binarystring').first().id
-        query = session.query(oda_masters2, strings, oda_options2).join(strings).join(oda_options2).filter(oda_masters2.c.content_type_id == content_id).limit(10000)
+        query = session.query(oda_masters2, strings, oda_options2).join(strings).join(oda_options2).filter(oda_masters2.c.content_type_id == content_id)
 
 
         number_processed = 0
