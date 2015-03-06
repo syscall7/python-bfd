@@ -1033,7 +1033,7 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
     $scope.a = function() {return true;};
 
     $scope.loadExample = function(example) {
-        window.location = "/oda/ace/" + example.short_name;
+        window.location = "/odaweb/" + example.short_name;
     };
 
     $scope.openFile = function() {
@@ -1137,7 +1137,7 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
                 monitorSandbox(data.shortName, data.revision);
             } else {
                 console.log(data, fileData);
-                window.location = "/oda/ace/" + fileData.short_name;
+                window.location = "/odaweb/" + fileData.short_name;
             }
         });
     };
@@ -1254,7 +1254,7 @@ var MonitorSandboxController = function($scope, $interval, $http, fileInfo) {
     }
 
     $scope.continue = function () {
-        window.location = "/oda/ace/" + fileInfo.shortName;
+        window.location = "/odaweb/" + fileInfo.shortName;
     };
 
 };
