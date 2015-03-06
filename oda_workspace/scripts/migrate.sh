@@ -2,7 +2,13 @@
 #
 # This script assumes the following:
 #   1. sudo privileges to run as the www-data user
+#	add the following line to /etc/sudoers:
+#		anthony ALL=(ALL:ALL) NOPASSWD: ALL
 #   2. ssh keys are setup to access the ODA servers
+#
+# Usage:
+#   cd /var/www/oda/site
+#   ./scripts/migrate.sh
 
 # bail on first error
 set -e
