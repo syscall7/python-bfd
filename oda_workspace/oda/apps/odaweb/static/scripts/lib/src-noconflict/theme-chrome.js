@@ -125,10 +125,10 @@ margin: -1px 0 0 -1px;\
 border: 1px solid rgb(192, 192, 192);\
 }\
 .ace-chrome .ace_marker-layer .ace_active-line {\
-background: rgba(0, 0, 0, 0.07);\
+background: rgba(255, 252, 137, 0.5);\
 }\
 .ace-chrome .ace_gutter-active-line {\
-background-color : #dcdcdc;\
+background: rgba(255, 252, 137, 0.5);\
 }\
 .ace-chrome .ace_marker-layer .ace_selected-word {\
 background: rgb(250, 250, 255);\

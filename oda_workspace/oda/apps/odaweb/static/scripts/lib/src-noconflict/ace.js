@@ -16174,10 +16174,10 @@ margin: -1px 0 0 -1px;\
 border: 1px solid rgb(192, 192, 192);\
 }\
 .ace-tm .ace_marker-layer .ace_active-line {\
-background: rgba(0, 0, 0, 0.07);\
+background: rgba(255, 252, 137, 0.5);\
 }\
 .ace-tm .ace_gutter-active-line {\
-background-color : #dcdcdc;\
+background-color : #FFFC89;\
 }\
 .ace-tm .ace_marker-layer .ace_selected-word {\
 background: rgb(250, 250, 255);\
