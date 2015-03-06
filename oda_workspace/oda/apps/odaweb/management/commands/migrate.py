@@ -192,7 +192,7 @@ class Migrator(object):
             options.save()
 
             binary_string = BinaryStringStorage(binary_string=row.binary_string, binary_options=options)
-
+            binary_string.save()
 
 
             odb_file_storage = OdbFileStorage(binary_string=binary_string)
