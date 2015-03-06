@@ -75,7 +75,6 @@ class OdbFileLoader(object):
 
         odb_file_storage.save()
         oda_master.odb_file_storage = odb_file_storage
-        oda_master.save()
 
 odb_file_system = OdbFileLoader()
 
@@ -271,6 +270,11 @@ class OdaMaster(models.Model):
 
     odb_file_storage = models.ForeignKey(OdbFileStorage, null=True)
 
+    def __init__(self, *args, **kwargs):
+        super(OdaMaster, self).__init__(*args, **kwargs)
+
+        self._odb_file = odb_file_system.load_odb_file(self)
+
     @property
     def object_id(self):
         return 0
@@ -281,11 +285,11 @@ class OdaMaster(models.Model):
 
     @property
     def odb_file(self):
-        return odb_file_system.load_odb_file(self)
+        return self._odb_file
 
     @odb_file.setter
     def odb_file(self, val):
-        odb_file_system.store_odb_file(self, val)
+        self._odb_file = val
 
 
     def file_handle(self):
@@ -301,6 +305,11 @@ class OdaMaster(models.Model):
 
     def details(self):
         return self.odb_file.get_options().target + " " + self.odb_file.get_options().architecture
+
+    def save(self, *args, **kwargs):
+        odb_file_system.store_odb_file(self, self._odb_file)
+
+        super(OdaMaster, self).save(*args, **kwargs) # Call the "real" save() method.
 
 
 class InstDoc(models.Model):
