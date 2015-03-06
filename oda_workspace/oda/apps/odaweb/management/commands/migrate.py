@@ -61,6 +61,7 @@ binaries = Table('odaweb_binaryfile', metadata,
                  Column('id', Integer, primary_key=True),
                  Column('the_file', String),
                  Column('filename', String),
+                 Column('filesize', Integer),
                  Column('options_id', None, ForeignKey('odaweb_odaoptions.id')),
                  Column('hash', String))
 
@@ -118,7 +119,7 @@ class Migrator(object):
         options.save()
 
         binary_file = BinaryFile(the_file=row.the_file, hash=row.hash, filename=row.filename,
-                                 filesize=0, binary_options=options)
+                                 filesize=row.filesize, binary_options=options)
         binary_file.save()
         #binary_file = BinaryFile.create_from_byte_array('uploads/' + row.hash, row.the_file, the_file)
         odb_file_storage = OdbFileStorage(binary_file=binary_file)
