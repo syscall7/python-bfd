@@ -16177,7 +16177,7 @@ border: 1px solid rgb(192, 192, 192);\
 background: rgba(255, 252, 137, 0.5);\
 }\
 .ace-tm .ace_gutter-active-line {\
-background-color : #FFFC89;\
+background: rgba(255, 252, 137, 0.5);\
 }\
 .ace-tm .ace_marker-layer .ace_selected-word {\
 background: rgb(250, 250, 255);\
