@@ -311,7 +311,8 @@ class OdaMaster(models.Model):
         return self.odb_file.get_options().target + " " + self.odb_file.get_options().architecture
 
     def save(self, *args, **kwargs):
-        odb_file_system.store_odb_file(self, self._odb_file)
+        if self._odb_file:
+            odb_file_system.store_odb_file(self, self._odb_file)
 
         super(OdaMaster, self).save(*args, **kwargs) # Call the "real" save() method.
 
