@@ -723,6 +723,9 @@ def make_copy(oda_master, user):
     oda_master.copy = OdaMaster.objects.get(id=oda_master.id)
     oda_master.id = None
 
+    oda_master.odb_file_storage.id = None
+    oda_master.odb_file_storage.save()
+
     if user_owns:
         #todo can't plus one here, need to get max revison and then plus 1, otherwise might overwrite
         oda_master.revision += 1
