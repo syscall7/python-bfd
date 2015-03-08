@@ -33,6 +33,10 @@
         color: #093C83;
     }
 
+    .comment {
+        color: #009933;
+    }
+
     .function-return {
         font-style: italic;
     }

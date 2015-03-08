@@ -38,7 +38,7 @@ def parseField(section_name, addr, self, displayUnits, field, prefix, byteList):
         rawBytes += "%02x" % c
     du = DisplayUnit()
     insn = prefix + '.' + field.name
-    du.instStr = "<insn>%s</insn>  <span class='comment'>%s</span> <span class='raw'></span>" % (insn, valueStr)
+    du.instStr = "<insn>%s</insn>  <span class='raw'>%s</span>" % (insn, valueStr)
     du.rawBytes = rawBytes
     du.isArray = False
     du.dataSize = field.size
@@ -110,7 +110,9 @@ def parseDataParcel(section_name, start_addr, end_addr, self, displayUnits, is_d
             du.isCode = False
             du.offset = addr
             du.section_name = section_name
-            du.instStr = "<insn>db</insn>  <span class='comment'>%02xh</span> <span class='raw'>; %s</span>" % (c, html.escape(chr(c)) if chr(c) in string.printable else ' ')
+            du.instStr = "<insn>db</insn>  <span class='raw'>%02xh</span>" % c
+            if chr(c) in string.printable:
+                du.instStr += " <span class='comment'>; %s</span>" % html.escape(chr(c))
             du.rawBytes =  '%02x' % c
             du.isArray = False
             du.dataSize = 1

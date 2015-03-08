@@ -99,7 +99,7 @@ class DisplayUnitTest(OdaApiTestCase):
         self.assertEquals(rd[0]['isBranch'], False)
         self.assertEquals(rd[0]['isFunction'], False)
         self.assertEquals(rd[0]['section_name'], '.interp')
-        self.assertEquals(rd[0]['instStr'], "<insn>db</insn>  <span class='comment'>2fh</span> <span class='raw'>; /</span>")
+        self.assertEquals(rd[0]['instStr'], "<insn>db</insn>  <span class='raw'>2fh</span> <span class='comment'>; /</span>")
 
     def test_display_units_mkdir_logical_data_and_code(self):
         response = self.client.get('/odaweb/api/displayunits/',
@@ -121,7 +121,7 @@ class DisplayUnitTest(OdaApiTestCase):
         self.assertEquals(rd[0]['isBranch'], False)
         self.assertEquals(rd[0]['isFunction'], False)
         self.assertEquals(rd[0]['section_name'], '.interp')
-        self.assertEquals(rd[0]['instStr'], "<insn>db</insn>  <span class='comment'>6ch</span> <span class='raw'>; l</span>")
+        self.assertEquals(rd[0]['instStr'], "<insn>db</insn>  <span class='raw'>6ch</span> <span class='comment'>; l</span>")
 
         # next data section
         self.assertEquals(rd[18]['opcode'], '')
@@ -131,7 +131,7 @@ class DisplayUnitTest(OdaApiTestCase):
         self.assertEquals(rd[18]['isBranch'], False)
         self.assertEquals(rd[18]['isFunction'], False)
         self.assertEquals(rd[18]['section_name'], '.note.ABI-tag')
-        self.assertEquals(rd[18]['instStr'], "<insn>db</insn>  <span class='comment'>04h</span> <span class='raw'>;  </span>")
+        self.assertEquals(rd[18]['instStr'], "<insn>db</insn>  <span class='raw'>04h</span>")
 
         # the last entry should be the first instruction of the first code section
         self.assertEquals(rd[-1]['opcode'], 'sub')
