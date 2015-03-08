@@ -37,6 +37,10 @@ class SandboxJob(models.Model):
 class OdbFileLoader(object):
     def load_odb_file(self, oda_master):
         logger.info("load_odb_file odb_master:%s" % (oda_master.id))
+
+        if oda_master.odb_file_storage is None:
+            return None;
+
         if oda_master.odb_file_storage.pickled_odb_file is None:
             logger.info("Migrating data for %s" % (oda_master.id))
             if oda_master.odb_file_storage.binary_file:

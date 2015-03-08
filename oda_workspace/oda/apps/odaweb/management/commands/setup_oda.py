@@ -60,9 +60,8 @@ def load_examples():
                 print "Saving label %s To %s" % (str(item), str(odb_file))
 
         oda_master = OdaMaster(short_name=short_name, project_name=example['project_name'])
+        oda_master.odb_file = odb_file
         oda_master.save()
-        from oda.apps.odaweb.models import odb_file_system
-        odb_file_system.store_odb_file(oda_master, odb_file)
 
 
 # ------------------------------------------------------------------------------
