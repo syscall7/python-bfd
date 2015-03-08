@@ -56,7 +56,7 @@ function Location(posX, vma, style) {
 /* ------------------------------------------------------------------ *
  *                             C L A S S
  * ------------------------------------------------------------------ */
-function AddressNavBar(canvasId, sections, parcels) {
+function AddressNavBar(canvasId, sects, parcels) {
 
     /* -------------------------------------------------------------- *
      *              P R I V A T E   P R O P E R T I E S
@@ -68,9 +68,11 @@ function AddressNavBar(canvasId, sections, parcels) {
     var ARROW_YOFFSET;
     var ARROW_HEIGHT;
     var ARROW_WIDTH;
+    var ARROW_BOX_WIDTH;
 
     var BAR_WIDTH;
     var BAR_YOFFSET;
+    var BAR_XOFFSET;
     var BAR_HEIGHT;
 
     var TEXT_YOFFSET;
@@ -100,7 +102,7 @@ function AddressNavBar(canvasId, sections, parcels) {
     var canvas = c.get(0);
     var ctx = canvas.getContext('2d');
 
-    var sections;
+    var sections = sects;
     var sumAddrRanges;
 
     var dragging = false;
@@ -112,11 +114,11 @@ function AddressNavBar(canvasId, sections, parcels) {
     // the number of collaborating users
     var numUsers = 0;
 
-    setSections(sections);
-    setParcels(parcels);
-
     // force an initial drawing
     resize();
+
+    setSections(sects);
+    setParcels(parcels);
 
     /* -------------------------------------------------------------- *
      *              P R I V A T E   M E T H O D S
@@ -171,7 +173,7 @@ function AddressNavBar(canvasId, sections, parcels) {
             var secPosX = sections[i].posX;
 
             // if we're clearly in a section
-            if (posX < (secPosX + secWidth)) {
+            if ( (posX >= secPosX) && (posX < (secPosX + secWidth)) ) {
                 var addr = Math.floor(sections[i].vma + ((posX - secPosX) / secWidth)*sections[i].size);
                 return addr;
             // else, if we're in the dead space between sections
@@ -361,8 +363,7 @@ function AddressNavBar(canvasId, sections, parcels) {
         // calculate canvas and object dimensions (for when window is resized)
         CANVAS_WIDTH = $(container).width() // use width of parent
         ARROW_WIDTH = 10;
-        BAR_WIDTH = CANVAS_WIDTH;
-        TEXT_WIDTH = BAR_WIDTH;
+        ARROW_BOX_WIDTH = 20; // the width of the yellow box
 
         UID_YOFFSET = 0;
         UID_FONT_SIZE = 15;
@@ -373,12 +374,16 @@ function AddressNavBar(canvasId, sections, parcels) {
 
         BAR_YOFFSET = ARROW_YOFFSET + ARROW_HEIGHT;
         BAR_HEIGHT = 17;
+        BAR_XOFFSET = ARROW_BOX_WIDTH/2;
 
         TEXT_YOFFSET = BAR_YOFFSET + BAR_HEIGHT;
         TEXT_FONT_SIZE = 15;
         TEXT_HEIGHT = TEXT_FONT_SIZE + 4;  // if we don't have a gap here, characters like "_" don't appear
 
         CANVAS_HEIGHT = TEXT_YOFFSET + TEXT_HEIGHT;
+
+        BAR_WIDTH = CANVAS_WIDTH - BAR_XOFFSET;
+        TEXT_WIDTH = BAR_WIDTH;
 
         // set canvas height and width
         c.attr('width', CANVAS_WIDTH);
@@ -399,7 +404,7 @@ function AddressNavBar(canvasId, sections, parcels) {
 
         // helper function to draw the sections
         function drawSections() {
-            var x = 0;
+            var x = BAR_XOFFSET;
 
             // make a second pass to assign widths to each section
             for (var i = 0; i < sections.length; i++) {
@@ -524,8 +529,6 @@ function AddressNavBar(canvasId, sections, parcels) {
 
         // helper function to draw a position indicator at the given location using the given coloring
         function drawArrow(arrow) {
-            var ARROW_BOX_WIDTH = 20;
-
             var x = arrow.posX;
             var opacityFactor = arrow.style.a;
 
@@ -636,13 +639,15 @@ function AddressNavBar(canvasId, sections, parcels) {
         sections = s;
         sumAddrRanges = _.reduce(sections, function(memo, section) {return memo+section.size}, 0);
 
-        if ((sections != undefined) && (curArrow.vma == undefined)) {
-            curArrow.vma = _.min(sections, function(section){ return section.vma; }).vma;
-            roamArrow.vma = curArrow.vma;
-        }
-
         calcRuntSectionSizes();
         draw();
+
+        // if this is the first time we are setting up curArrow.vma and we have valid sections
+        if ((sections != undefined) && (curArrow.vma == undefined)) {
+            var minAddr = _.min(sections, function(section){ return section.vma; }).vma;
+            roamArrow.vma = minAddr;
+            setAddress(minAddr);
+        }
     }
     this.setSections = setSections;
 

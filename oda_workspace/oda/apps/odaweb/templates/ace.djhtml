@@ -7,7 +7,7 @@
 <div ng-include="'/static2/templates/navbar.html'"></div>
 
 <div>
-    <div id="slider" style="margin-top:50px; margin-bottom: 0px; margin-right: 15px; border: 0px; clear:both;">
+    <div id="slider" style="margin-top:50px; margin-bottom: 0px; margin-left: 10px; margin-right: 10px; border: 0px; clear:both;">
         <canvas id="addr-bar-canvas">You need to upgrade your browser or enable javascript to view this site!</canvas>
     </div>
 </div>

@@ -319,7 +319,7 @@ var Renderer = function(odbFile) {
 
     this.renderComment = function(du) {
         if (odbFile.comments[du.offset]) {
-            return '<span class="comment">   ; ' + odbFile.comments[du.offset].comment + '</span>';
+            return '<span class="comment"> ; ' + odbFile.comments[du.offset].comment + '</span>';
         }
         return '';
     };
