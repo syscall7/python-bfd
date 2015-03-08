@@ -744,7 +744,7 @@ def connect(request, share_name):
 def ace(request, disassembly_id, version=0):
 
     if not disassembly_id:
-        disassembly_id = 'mkdir'
+        disassembly_id = 'strcpy_x86'
 
     try:
         to_copy_oda_master = OdaMaster.objects.get(short_name=disassembly_id, revision=version)
