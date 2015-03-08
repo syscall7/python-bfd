@@ -1051,6 +1051,10 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
         });
     };
 
+    $scope.downloadDisassembly = function() {
+        window.location = '/odaweb/_download?short_name=' + odbFile.shortName + '&revision=' + odbFile.revision;
+    };
+
     $scope.goToAddressPrompt = function() {
         var modalInstance = $modal.open({
           templateUrl: 'gotoAddressModal.html',
