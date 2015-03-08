@@ -109,10 +109,11 @@ class BinaryFileModel(Binary):
     @options.setter
     def options(self, options):
         binary_file = BinaryFile.objects.get(id=self.binary_file_id)
-        binary_file.target = options.target
-        binary_file.architecture = options.architecture
-        binary_file.extra_options = options.get_extra_options()
-        binary_file.base_address = options.base_address
+        binary_file.binary_options.target = options.target
+        binary_file.binary_options.architecture = options.architecture
+        binary_file.binary_options.extra_options = options.get_extra_options()
+        binary_file.binary_options.base_address = options.base_address
+        binary_file.binary_options.save()
         binary_file.save()
         self._options = binary_file.options
         logger.info("Setting Options...")
