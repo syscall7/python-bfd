@@ -184,7 +184,7 @@
         <h3>Open File</h3>
     </div>
     <div class="modal-body">
-        <form id="upload-form" class="form-horizontal"
+        <form ng-show="!loading" id="upload-form" class="form-horizontal"
               enctype="multipart/form-data"
               action="_upload" method="post">
 
@@ -209,6 +209,10 @@
                 </div>
             </div>
         </form>
+
+        <div ng-show="loading">
+             <img src="/static2/images/oda.gif" /> Loading ...
+        </div>
     </div>
     <div class="modal-footer">
         <button class="btn btn-primary" ng-click="ok()">OK</button>

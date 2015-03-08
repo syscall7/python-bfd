@@ -1045,9 +1045,9 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
 
         modalInstance.result.then(function(data){
             console.log('ok', data);
-            fileUpload.uploadFileToUrl(data.uploadFile, data.projectName, '/odaweb/_upload').success(function(data){
-                $scope.configureFile(data);
-            });
+
+            $scope.configureFile(data);
+
         });
     };
 
@@ -1200,7 +1200,7 @@ var ShareLiveController = function($scope, $modalInstance, $location, shareInfo)
 
 };
 
-var UploadFileController = function($scope, $modalInstance){
+var UploadFileController = function($scope, $modalInstance, fileUpload){
 
     //http://stackoverflow.com/questions/18716113/scope-issue-in-angularjs-using-angularui-bootstrap-modal
     $scope.data = {
@@ -1208,10 +1208,16 @@ var UploadFileController = function($scope, $modalInstance){
     };
 
     $scope.ok = function () {
-        $modalInstance.close({
+        $scope.loading = true;
+
+        fileUpload.uploadFileToUrl( $scope.uploadFile, $scope.data.projectName, '/odaweb/_upload').success(function(data){
+            $modalInstance.close(data);
+        });
+
+        /* $modalInstance.close({
             projectName: $scope.data.projectName,
             uploadFile: $scope.uploadFile
-        });
+        }); */
     };
 
     $scope.cancel = function () {
