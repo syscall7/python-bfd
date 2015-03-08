@@ -710,7 +710,7 @@ def download_text_listing(request):
 
     dasm = Disassembler(oda_master.odb_file)
     response = HttpResponse(dasm.get_text_listing(), content_type='text')
-    response['Content-Disposition'] = 'attachment; filename="%s"' % oda_master.project_name
+    response['Content-Disposition'] = 'attachment; filename="%s.txt"' % oda_master.project_name
     return response
 
 
