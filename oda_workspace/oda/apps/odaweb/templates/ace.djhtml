@@ -67,7 +67,7 @@
 
 <div class="ui-layout-east">Outer East</div>
 
-<div class="ui-layout-west plunker-paneselector blue" ng-controller="DockMenuController">
+<div class="ui-layout-west oda-paneselector blue" ng-controller="DockMenuController">
     <ul>
         <li ng-repeat="dock in Docker.docks"
             ng-class="{active:isActive(dock)}"

@@ -1,3 +1,4 @@
+import collections
 from hashlib import sha1
 
 

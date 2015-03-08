@@ -200,7 +200,7 @@
 
 /* panes */
 
-    .plunker-paneselector .pulse-info a i {
+    .oda-paneselector .pulse-info a i {
   -webkit-animation-name: pulse-info;
   -webkit-animation-duration: 2s;
   -webkit-animation-iteration-count: infinite;
@@ -212,24 +212,24 @@
   -moz-animation-timing-function: ease-in-out;
   -moz-animation-direction: alternate;
 }
-.plunker-paneselector {
+.oda-paneselector {
   background: whiteSmoke;
   text-align: center;
   overflow: visible;
 }
-.plunker-paneselector ul {
+.oda-paneselector ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-.plunker-paneselector ul li {
+.oda-paneselector ul li {
   text-align: center;
   font-size: 16px;
   position: relative;
   margin: 0;
   padding: 0;
 }
-.plunker-paneselector ul li a {
+.oda-paneselector ul li a {
   display: inline-block;
   width: 40px;
   height: 40px;
@@ -240,16 +240,16 @@
   font-size: 20px;
   padding: 0;
 }
-.plunker-paneselector ul li:hover a {
+.oda-paneselector ul li:hover a {
   color: #005580;
   background-color: #EEE;
 }
-.plunker-paneselector ul li.active a {
+.oda-paneselector ul li.active a {
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
   background-color: #005ce6;
   color: white;
 }
-.plunker-paneselector ul li {
+.oda-paneselector ul li {
     cursor: pointer;
 }
 

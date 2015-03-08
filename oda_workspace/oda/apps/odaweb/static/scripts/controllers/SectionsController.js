@@ -16,7 +16,7 @@ odaApplication.controller('SectionsController', function SectionsController($sco
 
         label = flagLabelMap[flag];
 
-        console.log("logging up ", flag, label);
+        //console.log("logging up ", flag, label);
         return label;
     }
 
