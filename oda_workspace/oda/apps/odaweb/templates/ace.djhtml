@@ -469,7 +469,7 @@
     </div>
 
     <div class="accordion" id="accordion3" style="padding-bottom:10px">
-        <button type="button" class="btn btn-small btn-danger" data-toggle="collapse" data-target="#collapseThree">
+        <button ng-click="resizeTextArea()" type="button" class="btn btn-small btn-danger" data-toggle="collapse" data-target="#collapseThree">
             Platform: <span class="platform-option">{{ options.architecture }}</span>
         </button>
         <div id="collapseThree" class="accordion-body collapse">
@@ -487,7 +487,7 @@
     </div>
 
     <textarea class="sidebar-scroll-container-text form-control" id="hex"
-              style="width:95%; margin-bottom: 5px; height:300px;"
+              style="width:95%; margin-bottom: 5px; height:99%;"
               data-bind="value: hex"
               ng-change="liveEntryChange()"
               ng-model="liveEntryText"></textarea>

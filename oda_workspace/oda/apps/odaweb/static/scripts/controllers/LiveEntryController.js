@@ -2,6 +2,16 @@ odaApplication.controller('LiveEntryController', function LiveEntryController($s
 
     $scope.oda_master = odbFile.oda_master;
 
+    $scope.resizeTextArea = function() {
+        textAreaHeight = $(window).height() - $('#hex').offset().top - $('#statusBar').height() - 20;
+        $('#hex').css('height',textAreaHeight + 'px');
+    };
+    $scope.resizeTextArea();
+
+    $(window).resize(function(){
+        $scope.resizeTextArea();
+    });
+
     $scope.liveEntryText = odbFile.binary.text;
 
     var updateText = _.debounce(function() {
