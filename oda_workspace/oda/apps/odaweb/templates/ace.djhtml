@@ -470,7 +470,7 @@
 
     <div class="accordion" id="accordion3" style="padding-bottom:10px">
         <button type="button" class="btn btn-small btn-danger" data-toggle="collapse" data-target="#collapseThree">
-            Platform: <span class="platform-option">{{ oda_master.binary.arch }}</span>
+            Platform: <span class="platform-option">{{ options.architecture }}</span>
         </button>
         <div id="collapseThree" class="accordion-body collapse">
             <div class="accordion-inner"
