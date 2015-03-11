@@ -67,6 +67,7 @@
 
 <div class="ui-layout-east">Outer East</div>
 
+{%  if not binary.is_live_mode %}
 <div class="ui-layout-west oda-paneselector blue" ng-controller="DockMenuController">
     <ul>
         <li ng-repeat="dock in Docker.docks"
@@ -76,6 +77,7 @@
         </li>
     </ul>
 </div>
+{% endif %}
 
 </div>
 <div id="statusbar-container">
