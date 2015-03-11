@@ -458,7 +458,7 @@ def instdoc(request):
 #    return HttpResponse(simplejson.dumps({'strings' : strings })  , mimetype='application/json')
 
 class UploadFileForm(forms.Form):
-    MAX_UPLOAD_SIZE_KB = 2500
+    MAX_UPLOAD_SIZE_KB = 256
     filedata = forms.FileField()
     project_name = forms.CharField(max_length=64)
 
@@ -477,13 +477,19 @@ def upload(request):
     html = ''
     id = ''
     msg = ''
+    status = 200
     if form.is_valid():
 
         project_name = form.cleaned_data['project_name']
         #options = OdaOptions(target='', architecture='')
         #options.save()
 
-        binary_file = BinaryFile.create(request.FILES['filedata'])
+        filedata = form.cleaned_data['filedata']
+
+        if (filedata.size > 128 * 1024):
+            return HttpResponse(json.dumps("Error Uploading, too big"), status=413, mimetype='application/json')
+
+        binary_file = BinaryFile.create(filedata)
         binary_file.save()
 
         oda_master = OdaMaster(short_name=id_generator(), project_name=project_name,
@@ -526,11 +532,12 @@ def upload(request):
 
 
     else:
+        status= 413
         data = {
-            'error': 'Invalid File'
+            'error': "Invalid File, maximum size is %d kb" % UploadFileForm.MAX_UPLOAD_SIZE_KB
         }
 
-    return HttpResponse(json.dumps(data), mimetype='application/json')
+    return HttpResponse(json.dumps(data), mimetype='application/json', status=status)
 
 def refresh_hex(request):
     oda_master = get_session(request)

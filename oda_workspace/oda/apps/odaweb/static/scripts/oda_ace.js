@@ -1210,8 +1210,12 @@ var UploadFileController = function($scope, $modalInstance, fileUpload){
     $scope.ok = function () {
         $scope.loading = true;
 
-        fileUpload.uploadFileToUrl( $scope.uploadFile, $scope.data.projectName, '/odaweb/_upload').success(function(data){
+        fileUpload.uploadFileToUrl( $scope.uploadFile, $scope.data.projectName, '/odaweb/_upload')
+            .success(function(data){
             $modalInstance.close(data);
+        }).error(function(data){
+            $scope.loading = false;
+            $scope.error = data.error;
         });
 
         /* $modalInstance.close({
