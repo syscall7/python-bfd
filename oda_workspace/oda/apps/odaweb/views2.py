@@ -486,9 +486,6 @@ def upload(request):
 
         filedata = form.cleaned_data['filedata']
 
-        if (filedata.size > 128 * 1024):
-            return HttpResponse(json.dumps("Error Uploading, too big"), status=413, mimetype='application/json')
-
         binary_file = BinaryFile.create(filedata)
         binary_file.save()
 
