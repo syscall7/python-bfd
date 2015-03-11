@@ -5,6 +5,8 @@ Examples = (
         'data': '55 31 D2 89 E5 8B 45 08 56 8B 75 0C 53 8D 58 FF 0F B6 0C 16 88 4C 13 01 83 C2 01 84 C9 75 F1 5B 5E 5D C3 ',
         'options': {'target': "binary", 'architecture': "i386"},
         'comments': (
+            (0x00, "press the ';' button to make a comment"),
+            (0x01, "you can also click the right mouse button to get a context menu"),
             (0x09, 'char* src = arg[1]'),
             (0x0d, 'char* dst = arg[0]'),
             (0x10, 'char c = src[i]'),
