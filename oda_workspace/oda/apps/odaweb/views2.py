@@ -472,12 +472,10 @@ class UploadFileForm(forms.Form):
 
 def upload(request):
     form = UploadFileForm(request.POST, request.FILES)
-    arch = ''
-    target = ''
-    html = ''
-    id = ''
-    msg = ''
     status = 200
+    filename = 'unknown'
+    if 'filedata' in request.FILES:
+        filename = request.FILES['filedata'].name
     if form.is_valid():
 
         project_name = form.cleaned_data['project_name']
@@ -525,13 +523,10 @@ def upload(request):
             'target': target,
             'file_format': binary_file.desc()
         }
-
-
-
     else:
         status= 413
         data = {
-            'error': "Invalid File, maximum size is %d kb" % UploadFileForm.MAX_UPLOAD_SIZE_KB
+            'error': 'Invalid File "%s", maximum size is %d kb' % (filename, UploadFileForm.MAX_UPLOAD_SIZE_KB)
         }
 
     return HttpResponse(json.dumps(data), mimetype='application/json', status=status)
