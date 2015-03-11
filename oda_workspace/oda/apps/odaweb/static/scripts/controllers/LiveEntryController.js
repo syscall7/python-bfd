@@ -8,11 +8,20 @@ odaApplication.controller('LiveEntryController', function LiveEntryController($s
     };
     $scope.resizeTextArea();
 
-    $(window).resize(function(){
+    angular.element(document).ready(function () {
+
+        /* attach a resize handler */
+        $(window).resize(function(){
+            $scope.resizeTextArea();
+        });
+
+        /* run the resize function now that the document is ready */
         $scope.resizeTextArea();
     });
 
     $scope.liveEntryText = odbFile.binary.text;
+
+
 
     var updateText = _.debounce(function() {
         odbFile.setLiveEntryText($scope.liveEntryText);
