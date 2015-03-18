@@ -1214,8 +1214,13 @@ var UploadFileController = function($scope, $modalInstance, fileUpload){
             .success(function(data){
             $modalInstance.close(data);
         }).error(function(data){
+            // default error message
+            var err_msg = 'There was a problem with the upload.  Maximum upload size is 256KB.';
+            if (data.error) {
+                err_msg = data.error;
+            }
             $scope.loading = false;
-            $scope.error = data.error;
+            $scope.error = err_msg;
         });
 
         /* $modalInstance.close({
