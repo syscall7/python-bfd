@@ -426,7 +426,7 @@ class defaultAnalyzer(object):
         def funcFmtLine(addr, rawData, instr, abfd, sec_name):
             ret = ''
             if abfd.syms_by_addr.has_key(addr):
-                ret += '\n%s:0%08x <%s>:\n' % (sec_name, addr, abfd.syms_by_addr[addr].name)
+                ret += '\n%s:%08x <%s>:\n' % (sec_name, addr, abfd.syms_by_addr[addr].name)
             if abfd.bpc > 1 and abfd.endian is bfd.ENDIAN_LITTLE:
                 bytes = ''.join(['%02x ' % i for i in reversed(rawData)])
             else:
