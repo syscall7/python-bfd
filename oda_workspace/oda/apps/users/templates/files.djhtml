@@ -60,7 +60,7 @@
                     <li><a href="/">ODA</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="../navbar/">{{ user.username }}</a></li>
+                    <li><a href="/user/files">{{ user.username }}</a></li>
                 </ul>
             </div>
             <!--/.nav-collapse -->
