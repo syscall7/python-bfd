@@ -45,6 +45,10 @@ class Command(BaseCommand):
                 'name': 'twitter',
                 'client_id': os.environ.get('ODA_OPENID_TWITTER_CLIENT_ID'),
                 'secret': os.environ.get('ODA_OPENID_TWITTER_SECRET')
+            },{
+                'name': 'github',
+                'client_id': os.environ.get('ODA_OPENID_GITHUB_CLIENT_ID'),
+                'secret': os.environ.get('ODA_OPENID_GITHUB_SECRET')
             }
             ]
         else:
