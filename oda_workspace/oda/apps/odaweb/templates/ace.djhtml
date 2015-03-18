@@ -214,7 +214,11 @@
         </form>
 
         <div ng-show="loading">
-             <img src="/static2/images/oda.gif" /> Loading ...
+            <div style="width:106px; height:94px; display:inline-block">
+                <img src="/static2/images/oda.png" style="position:absolute; z-image:0;"/>
+                <img src="/static2/images/oda.gif" style="position:absolute; z-image:1;"/>
+            </div>
+            Loading ...
         </div>
 
     </div>
