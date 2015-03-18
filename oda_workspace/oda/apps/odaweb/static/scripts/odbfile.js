@@ -214,7 +214,7 @@ var OdbFile = function(oda_master) {
         }.bind(this);
 
         if (!remote) {
-            $.get('/odaweb/api/displayunits/1/makeData', {
+            $.get('/odaweb/api/displayunits/1/makeData/', {
                 short_name: this.shortName,
                 revision: this.revision,
                 vma: vma

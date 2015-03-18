@@ -552,8 +552,14 @@ function start(odbFile) {
 
 
     odbFile.on(ODB_EVENTS.CHANGED, function(e){
-        console.log("odbFile.on('odbfile.changed')", e);
-        windowLoader.reload();
+        console.log("odbFile.on('ODB_EVENTS.CHANGED')", e);
+        odbFile.duLength(function (length) {
+            if ( length != 0 ) {
+                editor.getSession().getDocument().setLength(length);
+                windowLoader.reload(true);
+            }
+        });
+
     });
 
     editor.addEventListener('dblclick', function(e, editor){
