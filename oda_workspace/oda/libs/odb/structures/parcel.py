@@ -154,9 +154,16 @@ class Parcel(OdaObject):
             lda_adjust = other.num_ldas
             to_adjust = self
 
+        # store adjusted lda_bidict in its own bidict
+        to_adjust_new_lda_bidict = bidict({})
+
         for lda, vma in to_adjust.lda_bidict.items():
             to_adjust.lda_bidict.pop(lda)
-            to_adjust.lda_bidict[lda+lda_adjust] = vma
+
+            # we have to create a new bidict so we don't modify items we haven't visited yet
+            to_adjust_new_lda_bidict[lda+lda_adjust] = vma
+
+        to_adjust.lda_bidict = to_adjust_new_lda_bidict
 
         for lda, vma in other.lda_bidict.items():
             self.lda_bidict[lda] = vma
