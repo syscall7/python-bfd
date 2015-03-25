@@ -4,6 +4,42 @@ from oda_api_tests import OdaApiTestCase
 class MakeCodeUnitTest(OdaApiTestCase):
     urls = 'oda.urls'
 
+    def test_size(self):
+
+        def get_size():
+            response = self.client.get('/odaweb/api/displayunits/1/size/',
+                                       { 'revision': 0,
+                                         'short_name': 'strcpy_x86'},
+                                       format='json')
+            return response.data
+
+        # verify initial size
+        self.assertEquals(17, get_size())
+
+        # make data at fourth instruction
+        response = self.client.get('/odaweb/api/displayunits/1/makeData/',
+                                   { 'revision': 0,
+                                     'short_name': 'strcpy_x86',
+                                     'vma': 5},
+                                   format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['error'], None)
+
+        # verify size
+        self.assertEquals(19, get_size())
+
+        # convert back to code
+        response = self.client.get('/odaweb/api/displayunits/1/makeCode/',
+                                   { 'revision': 0,
+                                     'short_name': 'strcpy_x86',
+                                     'vma': 5},
+                                   format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['error'], None)
+
+        # verify size
+        self.assertEquals(17, get_size())
+
     def test_make_bad_code(self):
 
         # attempt to make code at an address with an invalid opcode
@@ -128,6 +164,8 @@ class MakeCodeUnitTest(OdaApiTestCase):
                 self.assertEquals(expected[2], actual['section_name'])
                 self.assertEquals(expected[3], actual['rawBytes'])
                 self.assertEquals(isCode, actual['isCode'])
+
+
 
         def get_and_verify_parcels(expected_parcels):
             # get the parcels before converting to code
