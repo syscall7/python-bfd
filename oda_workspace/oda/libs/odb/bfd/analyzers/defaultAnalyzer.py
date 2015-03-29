@@ -209,8 +209,8 @@ def parseInstruction(addr, rawData, instr, abfd, self, displayUnits, section_nam
                 du.instStr = "<disline addr=%x><dislineerr>     %s</dislineerr></disline>" % (du.offset,du.instStr)
 
 
-        du.section_name = section_name
-        displayUnits[du.offset] = du
+    du.section_name = section_name
+    displayUnits[du.offset] = du
 
 def parseFunctionsOnly(addr, rawData, instr, abfd, self, parcel):
     ''' Disassembly line parser optimized for finding functions '''
