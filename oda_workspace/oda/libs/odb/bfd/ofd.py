@@ -119,24 +119,14 @@ class Ofd(object):
         return syms
 
     def is_code_section(self, sec):
-
-        # treat all sections as code for targets without code sections
-        if self.bfd.target in TARGETS_WITHOUT_CODE_SECTIONS:
-            return True
-        else:
-            return self.section_has_flags(sec, ['SEC_CODE'])
+        return self.section_has_flags(sec, ['SEC_CODE'])
 
     def get_code_sections(self):
 
         def filter_sec_code(sec):
             return set(['SEC_CODE']).issubset([f.name for f in sec.flags])
 
-        # treat all sections as code for targets without code sections
-        if self.bfd.target in TARGETS_WITHOUT_CODE_SECTIONS:
-            code_sections = self.sections
-        # else, only get the code sections
-        else:
-            code_sections = filter(filter_sec_code, self.sections)
+        code_sections = filter(filter_sec_code, self.sections)
 
         section_info = SectionInfo(code_sections)
 

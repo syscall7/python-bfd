@@ -13,9 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 class LoadOperation(Operation):
-    def __init__(self):
+    def __init__(self, treatAllAsCode=True):
         super(LoadOperation, self).__init__()
 
+        self.treatAllAsCode = treatAllAsCode
         self.object_id = -1
 
     def operate(self, odb_file):
@@ -24,15 +25,16 @@ class LoadOperation(Operation):
 
         analyzer = ofd.Ofd(odb_file.get_binary())
 
-        loader = Loader(odb_file, analyzer)
+        loader = Loader(odb_file, analyzer, self.treatAllAsCode)
 
         loader.load()
 
 
 class Loader(object):
-    def __init__(self, odb_file, analyzer):
+    def __init__(self, odb_file, analyzer, treatAllAsCode):
         self.odb_file = odb_file
         self.analyzer = analyzer
+        self.treatAllAsCode = treatAllAsCode
 
     def load(self):
         self.load_symbols()
@@ -83,7 +85,7 @@ class Loader(object):
         for sec in self.analyzer.get_loadable_sections().sections:
             is_code = self.analyzer.is_code_section(sec)
 
-            if is_code:
+            if is_code or self.treatAllAsCode:
                 class_type = CodeParcel
             else:
                 class_type = DataParcel

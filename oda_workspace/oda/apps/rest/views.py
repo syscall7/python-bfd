@@ -220,7 +220,9 @@ class OptionsViewSet(viewsets.GenericViewSet):
         }))
 
         odb_file = OdbFile(odb_file.binary)
-        odb_file.execute(LoadOperation())
+
+        # do not treat all sections as code for raw binary uploads, instead let user interactively disassemble
+        odb_file.execute(LoadOperation(treatAllAsCode=False))
         odb_file.execute(PassiveScanOperation())
         oda_master.odb_file = odb_file
         oda_master.save()

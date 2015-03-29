@@ -111,7 +111,6 @@ class ActiveScanOperation(Operation):
 
         convert_to_code(self.vma, odb_file, analyzer, the_ofd)
 
-
         # convert newly found functions to code as well
         following_new_funcs = True
         while following_new_funcs:
