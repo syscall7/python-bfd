@@ -8,15 +8,15 @@ from oda.libs.odb.structures.parcel import CodeParcel, DataParcel
 from oda.libs.odb.structures.symbol import Symbol
 from oda.libs.odb.structures.function import Function
 from oda.libs.odb.structures.data_string import DataString
+from oda.libs.odb.binaries import BinaryString
 
 logger = logging.getLogger(__name__)
 
 
 class LoadOperation(Operation):
-    def __init__(self, treatAllAsCode=True):
+    def __init__(self):
         super(LoadOperation, self).__init__()
 
-        self.treatAllAsCode = treatAllAsCode
         self.object_id = -1
 
     def operate(self, odb_file):
@@ -25,16 +25,21 @@ class LoadOperation(Operation):
 
         analyzer = ofd.Ofd(odb_file.get_binary())
 
-        loader = Loader(odb_file, analyzer, self.treatAllAsCode)
+        loader = Loader(odb_file, analyzer)
 
         loader.load()
 
 
 class Loader(object):
-    def __init__(self, odb_file, analyzer, treatAllAsCode):
+    def __init__(self, odb_file, analyzer):
         self.odb_file = odb_file
         self.analyzer = analyzer
-        self.treatAllAsCode = treatAllAsCode
+
+        # we treat ".data" as a code section for live mode
+        if type(odb_file.binary) == BinaryString:
+            self.treatAllAsCode = True
+        else:
+            self.treatAllAsCode = False
 
     def load(self):
         self.load_symbols()
