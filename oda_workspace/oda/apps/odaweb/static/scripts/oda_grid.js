@@ -1,0 +1,189 @@
+var branchFormatter = function (row, cell, value, columnDef, dataContext) {
+    return '<div>' + value + "</div>";
+};
+
+var offsetFormatter = function (row, cell, value, columnDef, dataContext) {
+    var hex = ("000000000000000" + value.toString(16)).substr(-8);
+    return ":" + hex;
+};
+
+var instStrFormatter = function (row, cell, value, columnDef, dataContext) {
+    return value;
+};
+
+function InstructionTableNavigationHandler(instructionTable) {
+
+    $('#editor').on('click', '.xref-location', function (event) {
+        var offset = $(this).data('addr');
+        instructionTable.gotoAddress(offset);
+    });
+
+}
+
+$(function () {
+
+    $('#editor').on('focus', '.function-params', function(event){
+        console.log('focus', event);
+    });
+
+    $('#editor').on('blur', '.function-params', function(){
+        console.log('function blur', $(this).data('function-addr'), $(this).data('function-field'));
+    });
+
+});
+
+function InstructionTable(odbFile) {
+
+    var columns = [
+        //{id: "num", name: "#", field: "index", width: 80},
+        {
+            id: "branch",
+            name: "branch",
+            formatter: branchFormatter,
+            field: "branch",
+            width: 120,
+            cssClass: 'cell-branch'
+        },
+        {
+            id: "section_name", name: "section_name", field: "section_name",
+            cssClass: 'cell-section', width: 140
+        },
+        {
+            id: "offset", name: "offset", field: "offset", cssClass: 'cell-offset',
+            width: 80, formatter: offsetFormatter
+        },
+        {id: "rawBytes", name: "rawBytes", field: "rawBytes", cssClass: 'cell-rawbytes', width: 160},
+
+        {id: "instStr", name: "instStr", field: "instStr", width: 600, formatter: instStrFormatter},
+        // {id: "opcode", name: "opcode", field: "opcode", width: 60},
+        // {id: "operands", name: "operands", field: "operands", width: 200}
+    ];
+
+    var options = {
+        rowHeight: 14,
+        editable: false,
+        enableAddRow: false,
+        enableCellNavigation: true,
+        enableColumnReorder: false
+    };
+
+    var loader = new Slick.Data.RemoteModel(odbFile);
+    var grid = new Slick.Grid("#editor", loader.data, columns, options);
+
+    $(".slick-header-columns").css("height", "0px")
+    grid.resizeCanvas();
+
+    //var selectionModel = new Slick.RowSelectionModel();
+    //grid.setSelectionModel(selectionModel);
+
+    this.onViewportChanged = new Slick.Event();
+
+    var that = this;
+
+    grid.onViewportChanged.subscribe(function (e, args) {
+        var vp = grid.getViewport();
+        loader.ensureData(vp.top, vp.bottom);
+
+        //grid.setActiveCell(vp.top+5, 0);
+
+        that.onViewportChanged.notify(vp);
+
+    });
+
+    loader.onDataCleared.subscribe(function (e, args) {
+        grid.invalidateAllRows();
+        console.log('onDataCleared');
+    });
+
+    grid.onKeyDown.subscribe(function (e, args) {
+        if ($(e.target).hasClass('function-params')) {
+            console.log('grid,keyDown', e, args);
+
+            if (e.keyCode == 13) {
+                $(e.target).blur();
+            }
+
+            e.stopPropagation();
+        }
+    });
+
+    loader.onDataLoaded.subscribe(function (e, args) {
+        for (var i = args.from; i < args.to; i++) {
+            grid.invalidateRow(i);
+        }
+
+        grid.updateRowCount();
+        grid.render();
+    });
+
+    // load the first page
+    grid.onViewportChanged.notify();
+
+    this.onDataLoaded = loader.onDataLoaded;
+
+    this.onDataLoading = loader.onDataLoading;
+
+    this.getOdbFile = function () {
+        return odbFile;
+    };
+
+    this.gotoAddress = function (address) {
+
+        odbFile.vmaToLda(address, function (line) {
+            console.log('GOTO ADDRESS', '0x' + address.toString(16), address, line);
+            var renderedRange = grid.getRenderedRange();
+
+            for (var i = renderedRange.top; i < renderedRange.bottom; i++) {
+                var item = grid.getDataItem(i);
+                if (item) {
+                    if (item.offset == address) {
+                        grid.setActiveCell(i, 0);
+                        return;
+                    }
+                }
+            }
+
+            grid.setActiveCell(parseInt(line), 0);
+            loader.clear();
+            grid.scrollRowToTop(Math.max(0, (parseInt(line)-5)));
+
+        });
+
+    };
+
+    return this;
+}
+
+function CreateInstructionTable(odbFile) {
+
+    var instructionTable = new InstructionTable(odbFile);
+
+    var navHandler = new InstructionTableNavigationHandler(instructionTable);
+
+    return instructionTable;
+
+    /*var indicators = new Array();
+
+    instructionTable.onDataLoading.subscribe(function (e, args) {
+        if (indicators.length == 0) {
+            loadingIndicator = $("<span class='loading-indicator'><label>Buffering...</label></span>").appendTo(document.body);
+            var $g = $("#myGrid");
+
+            loadingIndicator
+                .css("position", "absolute")
+                .css("top", $g.position().top + $g.height() - loadingIndicator.height() / 2)
+                .css("left", $g.position().left + $g.width() / 2 - loadingIndicator.width() / 2);
+
+            loadingIndicator.show();
+            indicators.push(loadingIndicator);
+        }
+        else
+            indicators.push(null);
+    });
+
+    instructionTable.onDataLoaded.subscribe(function (e, args) {
+        var i = indicators.pop();
+        if (i != null)
+            i.fadeOut();
+    });*/
+};

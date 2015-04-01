@@ -504,50 +504,30 @@ var odaApplication = angular
 });
 
 function start(odbFile) {
-    var editor;
 
-    var renderer = new Renderer(odbFile);
-    var windowLoader = new WindowLoader(renderer, odbFile);
+    var editor = CreateInstructionTable(odbFile);
 
     var addrBar = new AddressNavBar('#addr-bar-canvas', odbFile.sections, odbFile.parcels);
 
     addrBar.onChange(function(address) {
-        odbFile.vmaToLda(address, function(ldu){
-            editor.moveCursorToPosition({
-                row:windowLoader.displayUnitToRow(ldu),column:0
-            });
-            editor.clearSelection();
-        });
+        editor.gotoAddress(address);
         console.log('My change handler: ' + address.toString(16));
     });
 
-    var doc = new ace_document.OnlineDocument(odbFile.displayUnitsLength, windowLoader);
 
-    doc.setLoadingString("..");
-    editor = ace.edit("editor", doc);
-    editor.setTheme("ace/theme/chrome");
-    editor.setLineRenderer(lineRenderer);
-    editor.getSession().setMode("ace/mode/javascript");
-    editor.getSession().setMode(new OdaMode());
-    editor.getSession().setUseWorker(false);
-    editor.setShowPrintMargin(false);
-    editor.setFontSize(14);
-    editor.renderer.setShowGutter(true);
-
-    var odaSession = new OdaSession(editor, odbFile, windowLoader);
 
     var statusBar = new StatusBar(odbFile);
 
-    windowLoader.session = editor.getSession();
-    editor.getSession().gutterRenderer = new OdaGutterRenderer(odaSession);
+    editor.onViewportChanged.subscribe(function (e, args) {
+        console.log("ODA_ACE VIEWPORT CHANGED", e, args);
+    });
 
-
-    odaSession.on('cursor.change', function(e) {
+    /*odaSession.on('cursor.change', function(e) {
         var offset = e.offset;
         console.log("CURSOR CHANGE", offset);
         addrBar.setAddress(offset);
         statusBar.setAddress(offset);
-    })
+    })*/
 
 
 
@@ -567,7 +547,7 @@ function start(odbFile) {
 
     });
 
-    editor.addEventListener('dblclick', function(e, editor){
+    /*editor.addEventListener('dblclick', function(e, editor){
         //console.log("dblclick");
         var cursor = editor.selection.getCursor();
         e.preventDefault();
@@ -591,17 +571,17 @@ function start(odbFile) {
 
 
         return "null";
-    });
+    });*/
 
     odaApplication.value('odbFile', odbFile);
     odaApplication.value('editor', editor);
-    odaApplication.value('odaSession', odaSession);
+    odaApplication.value('odaSession', null);
     odaApplication.value('addrBar', addrBar);
     odaApplication.value('statusBar', statusBar);
 
     //Keyboard Handling
     odaApplication.run(function($rootScope){
-        editor.setKeyboardHandler(function(data, hashId, key, keyCode, e) {
+       /* editor.setKeyboardHandler(function(data, hashId, key, keyCode, e) {
             // ignore command keys (shift, ctrl etc.)
             if (hashId !== 0 && (!key || keyCode == -1))
                 return null;
@@ -624,7 +604,7 @@ function start(odbFile) {
                 }
 
             };
-        });
+        });*/
     });
 
     angular.bootstrap(document, ['odaApp']);
@@ -907,9 +887,9 @@ function startOda() {
 
     var top = parseInt($('.theeditor').css('top'));
     var bottom = parseInt($('.theeditor').css('bottom'));
-    $('#editor').height($(window).height() - top - bottom - 35);
+    $('#editor').height($(window).height() - top - bottom - 65);
     $(window).resize(function () {
-        $('#editor').height($(window).height() - top - bottom - 35);
+        $('#editor').height($(window).height() - top - bottom - 65);
     });
 
 
@@ -1397,7 +1377,7 @@ var ConfigureFileController = function($scope, $modalInstance, $http, fileData) 
     updateArchitectureOptions();*/
 };
 
-var GotoAddressController = function($scope, $modalInstance, odaSession) {
+var GotoAddressController = function($scope, $modalInstance, editor) {
 
     $scope.data = {
         address: null
@@ -1410,7 +1390,7 @@ var GotoAddressController = function($scope, $modalInstance, odaSession) {
     $scope.ok = function () {
         var position = parseInt($scope.data.address.substring(2),16);
         console.log('set position', position);
-        odaSession.moveToOffset(position);
+        editor.gotoAddress(position);
         $modalInstance.close({address: $scope.data.address});
     };
 
