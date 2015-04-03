@@ -631,10 +631,10 @@ odaApplication.run(function(odbFile, addrBar){
 
 });
 
-odaApplication.run(function($rootScope, $modal, odbFile, focus){
+odaApplication.run(function($rootScope, $modal, odbFile, editor){
     $rootScope.$on('command.comment', function(event, line){
-
-        var scope = $rootScope.$new(true);
+        editor.focusActive('.comment');
+        /*var scope = $rootScope.$new(true);
         scope.line = line;
 
         console.log("LINE", line);
@@ -649,7 +649,7 @@ odaApplication.run(function($rootScope, $modal, odbFile, focus){
 
         modalInstance.result.then(function(data){
             odbFile.addComment(line.line.data.offset, data.comment);
-        });
+        });*/
 
     });
 

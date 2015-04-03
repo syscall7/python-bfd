@@ -8,12 +8,14 @@ odaApplication.run(function($rootScope, editor, odbFile){
         var shortcuts = menu.find('.shortcut-text');
         shortcuts.removeClass('shortcut-text-disabled')
 
+        /*
         var session = editor.getSession();
 
         var cursor = session.getSelection().getCursor();
         var line = session.getDocument().getLineData(cursor.row);
 
         var section = odbFile.getSection(line.data.section_name);
+        */
 
         /*if (section.isData()) {
             shortcuts.addClass('shortcut-text-disabled');

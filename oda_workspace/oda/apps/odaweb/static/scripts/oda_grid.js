@@ -18,6 +18,8 @@ function InstructionTableNavigationHandler(instructionTable) {
         instructionTable.gotoAddress(offset);
     });
 
+
+
 }
 
 function InstallFunctionHandlers(odbFile) {
@@ -44,6 +46,11 @@ function InstallFunctionHandlers(odbFile) {
 
     });
 
+    $('#editor').on('blur', '.comment', function(){
+        var offset = parseInt($(this).data('addr'));
+        var comment = $(this).text();
+        odbFile.addComment(offset, comment);
+    });
 };
 
 function InstructionTable(odbFile) {
@@ -111,7 +118,7 @@ function InstructionTable(odbFile) {
     });
 
     grid.onKeyDown.subscribe(function (e, args) {
-        if ($(e.target).hasClass('function-params')) {
+        if ($(e.target).hasClass('oda-editable')) {
             console.log('grid,keyDown', e, args);
 
             if (e.keyCode == 13) {
@@ -163,6 +170,11 @@ function InstructionTable(odbFile) {
             this.activeAddressChanged.notify({offset:activeRowData.offset});
         }
     }.bind(this));
+
+    this.focusActive = function(selector) {
+        console.log(selector);
+        $('#editor .active').find(selector).focus();
+    };
 
 
     this.gotoAddress = function (address) {

@@ -40,11 +40,17 @@ $(document).ready(function(){
             '<span class="instruction">; =============== F U N C T I O N ====================================</span>');
 
         this.functionTemplate2 = Handlebars.compile(
-            '<span class="function-params function-return" data-function-addr="{{offset}}" data-function-field="retval" contenteditable="true">{{retval}}</span> ' +
-            '<span class="function-params function-name "  data-function-addr="{{offset}}" data-function-field="name"  contenteditable="true">{{name}}</span> ' +
-            '<span class="function-params function-args"   data-function-addr="{{offset}}" data-function-field="params" contenteditable="true">({{args}})</span> ');
+            '<span class="oda-editable function-params function-return" data-function-addr="{{offset}}" data-function-field="retval" contenteditable="true">{{retval}}</span> ' +
+            '<span class="oda-editable function-params function-name "  data-function-addr="{{offset}}" data-function-field="name"  contenteditable="true">{{name}}</span> ' +
+            '<span class="oda-editable function-params function-args"   data-function-addr="{{offset}}" data-function-field="params" contenteditable="true">({{args}})</span> ');
 
         this.labelTemplate = Handlebars.compile("{{{ pad '' 5}}} loc_{{ hex offset }}:");
+
+        this.commentTemplate = Handlebars.compile('<span style="padding-left: 50px"><span contenteditable="true" data-addr={{offset}}" ' +
+        'class="oda-editable comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span>');
+
+        this.commentTemplate2 = Handlebars.compile('<span style="padding-left: 50px">;<span contenteditable="true" data-addr={{offset}}" ' +
+        'class="oda-editable comment">{{comment}}</span></span>');
 
         this.renderFunction = function(du, func) {
             //console.log('renderFunction', func);
@@ -110,6 +116,13 @@ $(document).ready(function(){
                     rowCounter += targetRender.length;
                 }
                 else {
+                    var comment = odbFile.comments[instr.offset];
+                    var renderedComment = this.commentTemplate({offset: instr.offset});
+                    if (comment) {
+                        console.log("comment", comment);
+                        renderedComment = this.commentTemplate2({offset: instr.offset, comment: comment.comment})
+                    }
+                    instr.instStr += renderedComment;
                     data[rowCounter] = instr;
                     rowCounter += 1;
                 }
