@@ -519,7 +519,13 @@ function start(odbFile) {
     var statusBar = new StatusBar(odbFile);
 
     editor.onViewportChanged.subscribe(function (e, args) {
-        console.log("ODA_ACE VIEWPORT CHANGED", e, args);
+        //console.log("ODA_ACE VIEWPORT CHANGED", e, args);
+    });
+
+    editor.activeAddressChanged.subscribe(function(e, args) {
+        //console.log("activeAddressChanged", e, args);
+        addrBar.setAddress(args.offset);
+        statusBar.setAddress(args.offset);
     });
 
     /*odaSession.on('cursor.change', function(e) {

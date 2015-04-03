@@ -114,7 +114,17 @@ function InstructionTable(odbFile) {
 
         grid.updateRowCount();
         grid.render();
-    });
+
+        var activeCell = grid.getActiveCell();
+        if (activeCell == null) {
+            grid.setActiveCell(0,0);
+        }
+        var activeRowData = grid.getDataItem(grid.getActiveCell().row);
+        if (activeRowData != null) {
+            this.activeAddressChanged.notify({offset:activeRowData.offset});
+        }
+
+    }.bind(this));
 
     // load the first page
     grid.onViewportChanged.notify();
@@ -127,10 +137,40 @@ function InstructionTable(odbFile) {
         return odbFile;
     };
 
+    this.activeAddressChanged = new Slick.Event();
+
+    var activeAddress = null;
+
+    grid.onActiveCellChanged.subscribe(function(e, args) {
+        var activeRowData = grid.getDataItem(args.row);
+        //console.log("ACTIVE CELL CHANGED", activeRowData, e, args);
+        if (activeRowData != null) {
+            this.activeAddressChanged.notify({offset:activeRowData.offset});
+        }
+    }.bind(this));
+
+
     this.gotoAddress = function (address) {
 
+        if (activeAddress == address) {
+            return;
+        }
+
+        activeAddress = address;
+
         odbFile.vmaToLda(address, function (line) {
+
+            this.activeAddressChanged.notify({offset:activeAddress});
+
             console.log('GOTO ADDRESS', '0x' + address.toString(16), address, line);
+
+            var activeCell = grid.getActiveCell();
+            if (activeCell != null && grid.getDataItem(activeCell.row) != null) {
+                var activeRowData = grid.getDataItem(activeCell.row);
+                console.log("activeRowData", activeRowData);
+
+            }
+
             var renderedRange = grid.getRenderedRange();
 
             for (var i = renderedRange.top; i < renderedRange.bottom; i++) {
@@ -147,7 +187,7 @@ function InstructionTable(odbFile) {
             loader.clear();
             grid.scrollRowToTop(Math.max(0, (parseInt(line)-5)));
 
-        });
+        }.bind(this));
 
     };
 
