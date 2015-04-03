@@ -29,6 +29,9 @@ $(document).ready(function(){
             return function(instStr) {
                 var cloned = cloneDu(du);
                 cloned.instStr = instStr;
+
+                cloned.branch = '';
+
                 if (instStr == "") {
                     cloned.rawBytes = "";
                 }
