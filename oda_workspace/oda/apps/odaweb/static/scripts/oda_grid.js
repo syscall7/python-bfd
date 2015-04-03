@@ -20,19 +20,34 @@ function InstructionTableNavigationHandler(instructionTable) {
 
 }
 
-$(function () {
+function InstallFunctionHandlers(odbFile) {
 
     $('#editor').on('focus', '.function-params', function(event){
         console.log('focus', event);
     });
 
     $('#editor').on('blur', '.function-params', function(){
-        console.log('function blur', $(this).data('function-addr'), $(this).data('function-field'));
+        var offset = parseInt($(this).data('function-addr'));
+        var func = odbFile.functions[offset];
+        var value = $(this).text();
+        var modifiedField = $(this).data('function-field');
+
+        if (modifiedField == 'name') {
+            func.name = value;
+        } else if (modifiedField == 'retval') {
+            func.retval = value;
+        } else if (modifiedField == 'args') {
+            func.args = value;
+        }
+
+        odbFile.updateFunction(func.offset, func.name, func.retval, func.args);
+
     });
 
-});
+};
 
 function InstructionTable(odbFile) {
+    InstallFunctionHandlers(odbFile);
 
     var columns = [
         //{id: "num", name: "#", field: "index", width: 80},

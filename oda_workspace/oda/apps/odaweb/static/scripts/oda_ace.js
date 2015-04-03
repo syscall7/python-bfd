@@ -547,7 +547,7 @@ function start(odbFile) {
                 }
             });
         } else {
-            windowLoader.reload();
+           // windowLoader.reload();
         }
 
 
