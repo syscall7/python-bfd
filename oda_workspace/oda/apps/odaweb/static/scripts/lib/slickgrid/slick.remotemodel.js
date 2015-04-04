@@ -222,12 +222,14 @@ $(document).ready(function(){
 
             console.log(" Math.abs(startRow - last)",  first, last, startRow);
 
+            var retval = null;
+
             if (inLoadedRange(startRow)) {
 
                 var offset = data[last - 1].offset;
                 console.log('append: ', offset.toString(16));
 
-                $.get('/odaweb/api/displayunits/', {
+                retval = $.get('/odaweb/api/displayunits/', {
                     short_name: odbFile.shortName,
                     revision: odbFile.revision,
                     addr: offset,
@@ -244,7 +246,7 @@ $(document).ready(function(){
                     need to adjust the start
                 */
                 console.log("append-beginning: THIS NEEDS TO BE FIXED UP");
-                $.ajax("http://localhost:8080/instructions", {
+                retval = $.ajax("http://localhost:8080/instructions", {
                     cache: true,
                     data: {start: startRow, num: numRows}
                 }).success(onSuccess)
@@ -254,7 +256,7 @@ $(document).ready(function(){
             } else {
                 clear();
                 console.log("getting", startRow, numRows);
-                $.get('/odaweb/api/displayunits/', {
+                retval = $.get('/odaweb/api/displayunits/', {
                     short_name: odbFile.shortName,
                     revision: odbFile.revision,
                     addr: startRow,
@@ -268,6 +270,8 @@ $(document).ready(function(){
             }
 
             onDataLoading.notify();
+
+            return retval;
         }
 
         var ensureData = _.debounce(ajaxEnsureData, 250);
@@ -348,13 +352,6 @@ $(document).ready(function(){
             ensureData(from, to);
         }
 
-
-        function setSearch(str) {
-            searchstr = str;
-            clear();
-        }
-
-
         init();
 
         return {
@@ -365,8 +362,8 @@ $(document).ready(function(){
             "clear": clear,
             "isDataLoaded": isDataLoaded,
             "ensureData": ensureData,
+            "ensureDataImmediately": ajaxEnsureData,
             "reloadData": reloadData,
-            "setSearch": setSearch,
 
             // events
             "onDataLoading": onDataLoading,
