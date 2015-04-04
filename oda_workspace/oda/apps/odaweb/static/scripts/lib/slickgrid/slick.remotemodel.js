@@ -49,10 +49,10 @@ $(document).ready(function(){
 
         this.labelTemplate = Handlebars.compile("{{{ pad '' 5}}} loc_{{ hex offset }}:");
 
-        this.commentTemplate = Handlebars.compile('<span style="padding-left: 50px"><span contenteditable="true" data-addr={{offset}}" ' +
+        this.commentTemplate = Handlebars.compile('<span><span contenteditable="true" data-addr={{offset}}" ' +
         'class="oda-editable comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span>');
 
-        this.commentTemplate2 = Handlebars.compile('<span style="padding-left: 50px">;<span contenteditable="true" data-addr={{offset}}" ' +
+        this.commentTemplate2 = Handlebars.compile('<span>;<span contenteditable="true" data-addr={{offset}}" ' +
         'class="oda-editable comment">{{comment}}</span></span>');
 
         this.renderFunction = function(du, func) {
@@ -125,7 +125,7 @@ $(document).ready(function(){
                         console.log("comment", comment);
                         renderedComment = this.commentTemplate2({offset: instr.offset, comment: comment.comment})
                     }
-                    instr.instStr += renderedComment;
+                    instr.instStr = '<table><tr><td style="width:300px;">' + instr.instStr + '</td><td>' + renderedComment + '</td></tr></table>';
                     data[rowCounter] = instr;
                     rowCounter += 1;
                 }

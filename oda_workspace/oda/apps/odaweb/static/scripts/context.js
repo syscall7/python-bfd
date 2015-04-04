@@ -29,12 +29,15 @@ odaApplication.run(function($rootScope, editor, odbFile){
                 //diasbled?
                 return;
             }
-            var session = editor.getSession();
+
+            var activeRowData = editor.getActiveRowData();
+
+            /*var session = editor.getSession();
 
             var cursor = session.getSelection().getCursor();
-            var line = session.getDocument().getLineData(cursor.row);
+            var line = session.getDocument().getLineData(cursor.row);*/
 
-            f(line);
+            f(activeRowData);
         };
     };
 

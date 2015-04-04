@@ -539,16 +539,16 @@ function start(odbFile) {
 
     odbFile.on(ODB_EVENTS.CHANGED, function(e){
         console.log("odbFile.on('ODB_EVENTS.CHANGED')", e);
-        if (odbFile.oda_master.binary.liveMode) {
+        /*if (odbFile.oda_master.binary.liveMode) {
             odbFile.duLength(function (length) {
                 if ( length != 0 ) {
-                    editor.getSession().getDocument().setLength(length);
-                    windowLoader.reload(true);
+                    //editor.getSession().getDocument().setLength(length);
+                    //windowLoader.reload(true);
                 }
             });
         } else {
            // windowLoader.reload();
-        }
+        }*/
 
 
     });

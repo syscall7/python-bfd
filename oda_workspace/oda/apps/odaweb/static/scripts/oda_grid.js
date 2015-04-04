@@ -155,6 +155,15 @@ function InstructionTable(odbFile) {
 
     this.onDataLoading = loader.onDataLoading;
 
+    this.getActiveRowData = function() {
+        var activeCell = grid.getActiveCell();
+        if (activeCell != null && grid.getDataItem(activeCell.row) != null) {
+            var activeRowData = grid.getDataItem(activeCell.row);
+            console.log("activeRowData", activeRowData);
+
+        }
+    }
+
     this.getOdbFile = function () {
         return odbFile;
     };
@@ -190,13 +199,6 @@ function InstructionTable(odbFile) {
             this.activeAddressChanged.notify({offset:activeAddress});
 
             console.log('GOTO ADDRESS', '0x' + address.toString(16), address, line);
-
-            var activeCell = grid.getActiveCell();
-            if (activeCell != null && grid.getDataItem(activeCell.row) != null) {
-                var activeRowData = grid.getDataItem(activeCell.row);
-                console.log("activeRowData", activeRowData);
-
-            }
 
             var renderedRange = grid.getRenderedRange();
 
