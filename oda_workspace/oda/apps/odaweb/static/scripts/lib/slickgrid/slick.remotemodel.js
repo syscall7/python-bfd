@@ -208,7 +208,7 @@ $(document).ready(function(){
         }
 
         function ajaxEnsureData(from, to) {
-            //console.log('ensuredata', from, to);
+            console.log('ensuredata', from, to);
 
             if (isProcessing || isDataLoaded(Math.max(0,from - 75), to + 125)) {
                 return;
@@ -221,6 +221,7 @@ $(document).ready(function(){
             var pivot = (from >= 150 ? 150 : from);
 
             console.log(" Math.abs(startRow - last)",  first, last, startRow);
+
             if (inLoadedRange(startRow)) {
 
                 var offset = data[last - 1].offset;

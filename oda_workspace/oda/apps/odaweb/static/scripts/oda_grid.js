@@ -113,8 +113,13 @@ function InstructionTable(odbFile) {
     });
 
     loader.onDataCleared.subscribe(function (e, args) {
-        grid.invalidateAllRows();
         console.log('onDataCleared');
+
+        var vp = grid.getViewport();
+        loader.ensureData(vp.top, vp.bottom);
+
+        grid.invalidateAllRows();
+
     });
 
     grid.onKeyDown.subscribe(function (e, args) {
@@ -155,14 +160,19 @@ function InstructionTable(odbFile) {
 
     this.onDataLoading = loader.onDataLoading;
 
+    this.reload = function() {
+        loader.clear();
+    };
+
     this.getActiveRowData = function() {
         var activeCell = grid.getActiveCell();
         if (activeCell != null && grid.getDataItem(activeCell.row) != null) {
             var activeRowData = grid.getDataItem(activeCell.row);
             console.log("activeRowData", activeRowData);
-
+            return activeRowData;
         }
-    }
+        return null;
+    };
 
     this.getOdbFile = function () {
         return odbFile;

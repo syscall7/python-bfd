@@ -539,6 +539,7 @@ function start(odbFile) {
 
     odbFile.on(ODB_EVENTS.CHANGED, function(e){
         console.log("odbFile.on('ODB_EVENTS.CHANGED')", e);
+        editor.reload();
         /*if (odbFile.oda_master.binary.liveMode) {
             odbFile.duLength(function (length) {
                 if ( length != 0 ) {
@@ -654,17 +655,14 @@ odaApplication.run(function($rootScope, $modal, odbFile, editor){
     });
 
     $rootScope.$on('command.dataToCode', function(event,data){
-        var line = data.line;
 
-        odbFile.makeCode(line.data.offset);
+        odbFile.makeCode(data.offset);
 
     });
 
 
     $rootScope.$on('command.codeToData', function(event,data){
-        var line = data.line;
-
-        odbFile.makeData(line.data.offset);
+        odbFile.makeData(data.offset);
     });
 
 

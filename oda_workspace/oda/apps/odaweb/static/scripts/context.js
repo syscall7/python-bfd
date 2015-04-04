@@ -56,19 +56,19 @@ odaApplication.run(function($rootScope, editor, odbFile){
 		]},*/
         {
             text: '<span class="shortcut-text">Comment</span><span class="shortcut-key">;</span>',
-            action: createAction(function (line) { $rootScope.$broadcast('command.comment', { line: line }); })
+            action: createAction(function (data) { $rootScope.$broadcast('command.comment', data); })
         },
         {
             text: '<span class="shortcut-text">Code -> Data</span><span class="shortcut-key">c</span>',
-            action: createAction(function (line) { $rootScope.$broadcast('command.codeToData', { line: line }); })
+            action: createAction(function (data) { $rootScope.$broadcast('command.codeToData', data); })
         },
         {
             text: '<span class="shortcut-text">Data -> Code</span><span class="shortcut-key">d</span>',
-            action: createAction(function (line) { $rootScope.$broadcast('command.dataToCode', { line: line }); })
+            action: createAction(function (data) { $rootScope.$broadcast('command.dataToCode', data); })
         },
         {
             text: '<span class="shortcut-text">Create/Edit Function</span>',
-            action: createAction(function (line) { $rootScope.$broadcast('command.makeFunction', { line: line }); })
+            action: createAction(function (data) { $rootScope.$broadcast('command.makeFunction', data); })
         }
         /*,
         {divider: true}
