@@ -23,6 +23,9 @@
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/ui-layout/layout-default-latest.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/toastr/toastr.css' %}"/>
 
+    <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/slickgrid/slick.grid.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/slickgrid/examples.css' %}"/>
+
     {% endcompress %}
 
     <link rel="stylesheet" type="text/css" href="{% static 'css/oda3.css' %}" />
@@ -54,6 +57,13 @@
     <script type="text/javascript" src="{% static 'scripts/addrbar.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda_ace.js' %}" ></script>
 
+    <script type="text/javascript" src="{% static 'scripts/lib/slickgrid/jquery.event.drag-2.2.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/slickgrid/slick.core.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/slickgrid/slick.grid.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/slickgrid/slick.remotemodel.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/oda_grid.js' %}" ></script>
+
+
     <script type="text/javascript" src="{% static 'scripts/odbfile.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/context.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/shortcuts.js' %}"></script>
@@ -84,7 +94,74 @@
 
 <style type="text/css" media="screen">
 
+        .slick-row.active .slick-cell {
+            background-color: #FFB;
+        }
 
+        .cell-story {
+            white-space: normal !important;
+            line-height: 19px !important;
+        }
+
+        .loading-indicator {
+            display: inline-block;
+            padding: 12px;
+            background: white;
+            -opacity: 0.5;
+            color: black;
+            font-weight: bold;
+            z-index: 9999;
+            border: 1px solid red;
+            -moz-border-radius: 10px;
+            -webkit-border-radius: 10px;
+            -moz-box-shadow: 0 0 5px red;
+            -webkit-box-shadow: 0px 0px 5px red;
+            -text-shadow: 1px 1px 1px white;
+        }
+
+        .slick-row {
+            position: absolute;
+            background: white;
+            border: 0px;
+            line-height: 14px;
+        }
+
+        .loading-indicator label {
+            padding-left: 20px;
+            background: url('../images/ajax-loader-small.gif') no-repeat center left;
+        }
+
+        .cell-branch {
+            text-align: right;
+            background-color: #ebebeb;
+            color: #093C83
+        }
+
+        .cell-section {
+            text-align: right;
+            padding-right: 0px;
+        }
+
+        .cell-offset {
+            padding-left: 0px;
+        }
+
+        .cell-rawbytes {
+            color: gray;
+        }
+
+        .xref-location {
+            /* http://stackoverflow.com/questions/20376008/how-to-underline-text-and-change-mouse-cursor-to-pointer-in-ace-editor */
+            /* border-bottom: 1px solid black; */
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .live-input {
+            border: none;
+            font-family: "Monaco", "Menlo", "Ubuntu Mono", "Consolas", "source-code-pro", monospace;
+            font-size: 14px;
+        }
 </style>
 </head>
 <body>

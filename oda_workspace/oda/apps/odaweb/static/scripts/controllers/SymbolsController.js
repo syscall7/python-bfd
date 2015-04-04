@@ -1,4 +1,4 @@
-odaApplication.controller('SymbolsController', function SymbolsController($scope, $http, $window, odbFile, odaSession) {
+odaApplication.controller('SymbolsController', function SymbolsController($scope, $http, $window, odbFile, editor) {
 
     $scope.symbols = odbFile.symbols;
 
@@ -16,6 +16,6 @@ odaApplication.controller('SymbolsController', function SymbolsController($scope
 
     $scope.setPosition = function(position) {
         console.log('set position', position);
-        odaSession.moveToOffset(position);
+        editor.gotoAddress(position);
     };
 });

@@ -1,4 +1,4 @@
-odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor){
+odaApplication.run(function($rootScope, Docker, odbFile, editor){
 
     //http://dmauro.github.io/Keypress/
     var listener = new window.keypress.Listener($('#editor')[0]);
@@ -11,37 +11,19 @@ odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor){
     });
 
     listener.simple_combo(';', function(){
-        var session = editor.getSession();
-
-        var cursor = session.getSelection().getCursor();
-        var line = session.getDocument().getLineData(cursor.row);
-
-
-        $rootScope.$broadcast('command.comment', {
-            line: line
-        });
+         $rootScope.$broadcast('command.comment');
     });
 
     listener.simple_combo('c', function(){
-        var session = editor.getSession();
+        var activeRowData = editor.getActiveRowData();
 
-        var cursor = session.getSelection().getCursor();
-        var line = session.getDocument().getLineData(cursor.row);
-
-        $rootScope.$broadcast('command.dataToCode', {
-            line: line
-        });
+        $rootScope.$broadcast('command.dataToCode', activeRowData);
     });
 
     listener.simple_combo('d', function(){
-        var session = editor.getSession();
+        var activeRowData = editor.getActiveRowData();
 
-        var cursor = session.getSelection().getCursor();
-        var line = session.getDocument().getLineData(cursor.row);
-
-        $rootScope.$broadcast('command.codeToData', {
-            line: line
-        });
+        $rootScope.$broadcast('command.codeToData', activeRowData);
     });
 
     listener.simple_combo("ctrl u", function(){
