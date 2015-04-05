@@ -30,11 +30,13 @@
 
     .cell-branch {
         color: #093C83;
+        background-color: #ebebeb;
         font-family:DejaVuSansMono;
         text-align: right;
-        width:49px;
-        display:inline-block;
-        overflow: hidden;
+
+        /*width:49px; */
+        /*display:inline-block;
+        overflow: hidden;*/
     }
 
     .raw {

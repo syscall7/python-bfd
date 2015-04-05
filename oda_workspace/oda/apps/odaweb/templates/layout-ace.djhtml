@@ -131,12 +131,6 @@
             background: url('../images/ajax-loader-small.gif') no-repeat center left;
         }
 
-        .cell-branch {
-            text-align: right;
-            background-color: #ebebeb;
-            color: #093C83
-        }
-
         .cell-section {
             text-align: right;
             padding-right: 0px;

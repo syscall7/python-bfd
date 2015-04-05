@@ -92,7 +92,7 @@ function InstructionTable(odbFile) {
     var loader = new Slick.Data.RemoteModel(odbFile);
     var grid = new Slick.Grid("#editor", loader.data, columns, options);
 
-    $(".slick-header-columns").css("height", "0px")
+    $(".slick-header-columns").css("height", "0px");
     grid.resizeCanvas();
 
     //var selectionModel = new Slick.RowSelectionModel();
