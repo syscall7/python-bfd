@@ -30,7 +30,7 @@ $(document).ready(function(){
                 var cloned = cloneDu(du);
                 cloned.instStr = instStr;
 
-                cloned.branch = '';
+                //cloned.branch = '';
 
                 if (instStr == "") {
                     cloned.rawBytes = "";
@@ -38,6 +38,21 @@ $(document).ready(function(){
                 return cloned;
             };
         }
+
+        function createDuFactoryWithBranch(du, branch) {
+            return function(instStr, branchToUse) {
+                var duFactory = createDuFactory(du);
+                var cloned = duFactory(instStr);
+                if (branchToUse) {
+                    cloned.branch = branchToUse;
+                } else {
+                    cloned.branch = branch;
+                }
+
+                return cloned;
+            };
+        }
+
 
         this.functionTemplate1 = Handlebars.compile(
             '<span class="instruction">; =============== F U N C T I O N ====================================</span>');
@@ -75,9 +90,9 @@ $(document).ready(function(){
 
         this.renderBranch = function(du) {
             //console.log('renderBranch');
-            var createDu = createDuFactory(du);
+            var createDu = createDuFactoryWithBranch(du, du.branch_label);
 
-            return [createDu(""), createDu(this.labelTemplate(du)), createDu(du.instStr)]
+            return [createDu(""), createDu(this.labelTemplate(du)), createDu(du.instStr, du.branch)]
         };
 
         this.renderTarget = function(du) {
@@ -99,12 +114,13 @@ $(document).ready(function(){
 
             var data = [];
 
+
             for (var i = 0; i < dus.length; i++) {
                 var instr = dus[i];
 
                if (odbFile.functions[instr.offset]) {
                     var funcLines = this.renderFunction(instr, odbFile.functions[instr.offset]);
-                    data.push.apply(data, funcLines)
+                    data.push.apply(data, funcLines);
                     rowCounter += funcLines.length;
                 }
 
@@ -113,7 +129,7 @@ $(document).ready(function(){
                     data.push.apply(data, branchDus);
                     rowCounter += branchDus.length;
                 }
-                if (instr.targetRef) {
+                else if (instr.targetRef) {
                     var targetRender = this.renderTarget(instr);
                     data.push.apply(data, targetRender);
                     rowCounter += targetRender.length;
@@ -122,7 +138,7 @@ $(document).ready(function(){
                     var comment = odbFile.comments[instr.offset];
                     var renderedComment = this.commentTemplate({offset: instr.offset});
                     if (comment) {
-                        console.log("comment", comment);
+           //             console.log("comment", comment);
                         renderedComment = this.commentTemplate2({offset: instr.offset, comment: comment.comment})
                     }
                     instr.instStr = '<table><tr><td style="width:300px;">' + instr.instStr + '</td><td>' + renderedComment + '</td></tr></table>';
