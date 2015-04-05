@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 
 from django.test import TestCase
 from rest_framework import status
-from oda_api_tests import OdaApiTestCase
+from test_oda_api import OdaApiTestCase
 
 class LabelUnitTest(OdaApiTestCase):
     urls = 'oda.urls'

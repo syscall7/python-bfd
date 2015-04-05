@@ -6,7 +6,7 @@ Replace this with more appropriate tests for your application.
 """
 import os
 
-from oda.apps.rest.test.oda_api_tests import OdaApiTestCase
+from oda.apps.rest.test.test_oda_api import OdaApiTestCase
 
 cwd = os.path.dirname(os.path.realpath(__file__))
 
@@ -17,10 +17,10 @@ class IndexTest(OdaApiTestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertTrue('master' in response.context)
-        self.assertTrue('supported_archs' in response.context)
+        self.assertTrue('examples' in response.context)
 
     def test_mkdir(self):
-        response = self.client.get('/odaweb/mkdir/')
+        response = self.client.get('/odaweb/mkdir')
 
         self.assertEqual(response.status_code, 200)
 
