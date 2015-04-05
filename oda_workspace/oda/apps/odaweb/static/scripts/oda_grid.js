@@ -1,5 +1,5 @@
 var branchFormatter = function (row, cell, value, columnDef, dataContext) {
-    return '<div>' + value + "</div>";
+    return value;
 };
 
 var offsetFormatter = function (row, cell, value, columnDef, dataContext) {
