@@ -404,3 +404,9 @@
     border-bottom: 2px solid #ddd;
     margin-bottom: 10px;
 }
+
+/* force to white background instead of alternating shades */
+.slick-row.even,
+.slick-row.odd {
+    background: white;
+}
