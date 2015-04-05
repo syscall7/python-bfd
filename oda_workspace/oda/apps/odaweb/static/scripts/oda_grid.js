@@ -115,9 +115,6 @@ function InstructionTable(odbFile) {
     loader.onDataCleared.subscribe(function (e, args) {
         console.log('onDataCleared');
 
-        var vp = grid.getViewport();
-        loader.ensureData(vp.top, vp.bottom);
-
         grid.invalidateAllRows();
 
     });
@@ -162,6 +159,10 @@ function InstructionTable(odbFile) {
 
     this.reload = function() {
         loader.clear();
+
+        var vp = grid.getViewport();
+        loader.ensureData(vp.top, vp.bottom);
+
     };
 
     this.getActiveRowData = function() {
