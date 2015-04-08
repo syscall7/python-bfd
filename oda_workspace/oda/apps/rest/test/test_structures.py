@@ -198,8 +198,8 @@ class CStructsTest(OdaApiTestCase):
         response = self.client.get('/odaweb/api/cstructs/'+ '0' + '/modify/',
                                    {'revision': 0,
                                     'short_name': 'mkdir',
-                                    'field_types' : [ 'Uint16', 'bar_struct_t'],
-                                    'field_names' : [ 'my_field1', 'my_field3'],
+                                    'field_types[]' : [ 'Uint16', 'bar_struct_t'],
+                                    'field_names[]' : [ 'my_field1', 'my_field3'],
                                     },
                                    format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -207,8 +207,8 @@ class CStructsTest(OdaApiTestCase):
         response = self.client.get('/odaweb/api/cstructs/'+ '1' + '/modify/',
                                    {'revision': 0,
                                     'short_name': 'mkdir',
-                                    'field_types' : [ 'Uint16'],
-                                    'field_names' : [ 'my_field3'],
+                                    'field_types[]' : [ 'Uint16'],
+                                    'field_names[]' : [ 'my_field3'],
                                     },
                                    format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
