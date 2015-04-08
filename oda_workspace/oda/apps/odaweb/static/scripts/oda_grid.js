@@ -82,7 +82,7 @@ function InstructionTable(odbFile) {
     ];
 
     var options = {
-        rowHeight: 14,
+        rowHeight: 15,
         editable: false,
         enableAddRow: false,
         enableCellNavigation: true,

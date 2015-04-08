@@ -123,7 +123,7 @@
             position: absolute;
             background: white;
             border: 0px;
-            line-height: 14px;
+            line-height: 15px;
         }
 
         .loading-indicator label {
@@ -150,6 +150,13 @@
             font-weight: bold;
             cursor: pointer;
             padding-left: 8px;
+            color: #08c;
+        }
+        .xref-location:hover {
+            /* http://stackoverflow.com/questions/20376008/how-to-underline-text-and-change-mouse-cursor-to-pointer-in-ace-editor */
+            /* border-bottom: 1px solid black; */
+            color:#005580;
+            text-decoration: underline;
         }
 
         .live-input {
