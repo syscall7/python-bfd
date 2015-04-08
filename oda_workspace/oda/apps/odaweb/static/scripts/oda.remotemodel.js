@@ -180,7 +180,7 @@ $(document).ready(function(){
     function RemoteModel(odbFile) {
 
         // private
-        var PAGESIZE = 400; // if this is too big, API will generate 400 errors
+        var PAGESIZE = 500; // if this is too big, API will generate 400 errors
         var data = {length: 0};
         var searchstr = "apple";
 
@@ -233,7 +233,7 @@ $(document).ready(function(){
         }
 
         function ajaxEnsureData(from, to, forceReload) {
-            var NUM_UNITS_BEFORE = 250;
+            var NUM_UNITS_BEFORE = 200;
 
             console.log('ensuredata', from, to, forceReload);
 
@@ -243,8 +243,10 @@ $(document).ready(function(){
             }
 
             if (isProcessing) {
-                if (!forceReload && isDataLoaded(Math.max(0,from - 75), to + 125) )
-                    return;
+                return;
+            }
+            if (!forceReload && isDataLoaded(Math.max(0,from - 75), to + 125) ) {
+                return;
             }
 
             isProcessing = true;
