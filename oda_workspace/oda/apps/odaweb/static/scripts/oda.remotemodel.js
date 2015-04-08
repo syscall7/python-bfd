@@ -203,6 +203,7 @@ $(document).ready(function(){
         }
 
         function clear() {
+            console.log("CLEAR");
             for (var key in data) {
                 delete data[key];
             }
@@ -223,18 +224,26 @@ $(document).ready(function(){
             return false;
         }
 
-        function ajaxEnsureData(from, to) {
-            console.log('ensuredata', from, to);
+        function ajaxEnsureData(from, to, forceReload) {
+            var NUM_UNITS_BEFORE = 250;
 
-            if (isProcessing || isDataLoaded(Math.max(0,from - 75), to + 125)) {
-                return;
+            console.log('ensuredata', from, to, forceReload);
+
+            if (forceReload) {
+                first = null;
+                last = null;
+            }
+
+            if (isProcessing) {
+                if (!forceReload && isDataLoaded(Math.max(0,from - 75), to + 125) )
+                    return;
             }
 
             isProcessing = true;
             console.log('ajaxEnsureData', from, to);
-            var startRow = Math.max(0, from - 150 );
+            var startRow = Math.max(0, from - NUM_UNITS_BEFORE );
             var numRows = PAGESIZE;
-            var pivot = (from >= 150 ? 150 : from);
+            var pivot = (from >= NUM_UNITS_BEFORE ? NUM_UNITS_BEFORE : from);
 
             console.log(" Math.abs(startRow - last)",  first, last, startRow);
 
@@ -255,22 +264,26 @@ $(document).ready(function(){
                         onError(fromPage)
                     }).then(function(){isProcessing=false;});
 
-            } else if (inLoadedRange(startRow + numRows)) {
-                /*TODO: This needs to be adjusted by start - (additional lines)
-                    the problem is that after we've rendered the lines it may have
-                    accidentally rewritten some lines after the range, we means we
-                    need to adjust the start
-                */
+            }/* else if (inLoadedRange(startRow + numRows)) {
+                ///TODO: This needs to be adjusted by start - (additional lines)
+                //    the problem is that after we've rendered the lines it may have
+                //    accidentally rewritten some lines after the range, we means we
+                //    need to adjust the start
+
                 console.log("append-beginning: THIS NEEDS TO BE FIXED UP");
-                retval = $.ajax("http://localhost:8080/instructions", {
-                    cache: true,
-                    data: {start: startRow, num: numRows}
-                }).success(onSuccess)
-                    .error(function () {
+                retval = $.get('/odaweb/api/displayunits/', {
+                    short_name: odbFile.shortName,
+                    revision:  odbFile.revision,
+                    addr: startRow,
+                    logical: true,
+                    units: numRows
+                }).success(function(data) {
+                    onSuccess(data, startRow, pivot);
+                }).error(function () {
                         onError(fromPage)
                     }).then(function(){isProcessing=false;});
-            } else {
-                clear();
+            } */ else {
+
                 console.log("getting", startRow, numRows);
                 retval = $.get('/odaweb/api/displayunits/', {
                     short_name: odbFile.shortName,
@@ -279,6 +292,7 @@ $(document).ready(function(){
                     logical: true,
                     units: numRows
                 }).success(function(data) {
+                    clear();
                     onSuccess(data, startRow, pivot);
                 }).error(function () {
                         onError(fromPage)
@@ -299,6 +313,8 @@ $(document).ready(function(){
             alert("error loading page " + fromPage);
         }
 
+        var lastFrom = null;
+
         function onSuccess(resp, start, pivot) {
             console.log("Start: " + start + " Pivot:" + pivot);
 
@@ -306,6 +322,8 @@ $(document).ready(function(){
             var afterBlock = resp.slice(pivot);
 
             var from = start + pivot;
+
+            lastFrom = from;
 
             data.length = 30000; //Math.min(parseInt(resp.hits)); // limitation of the API
 
@@ -373,6 +391,8 @@ $(document).ready(function(){
         return {
             // properties
             "data": data,
+
+            "getLastFrom": function() { return lastFrom; },
 
             // methods
             "clear": clear,

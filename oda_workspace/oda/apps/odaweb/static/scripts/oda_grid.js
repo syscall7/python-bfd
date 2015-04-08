@@ -158,10 +158,12 @@ function InstructionTable(odbFile) {
     this.onDataLoading = loader.onDataLoading;
 
     this.reload = function() {
-        loader.clear();
+        var lastFrom = loader.getLastFrom();
+        //loader.clear();
 
         var vp = grid.getViewport();
-        loader.ensureData(vp.top, vp.bottom);
+        var top = lastFrom != null ? lastFrom : vp.top;
+        loader.ensureData(top, vp.bottom, true);
 
     };
 
