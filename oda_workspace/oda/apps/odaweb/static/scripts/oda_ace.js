@@ -393,7 +393,7 @@ var WindowLoader = function(renderer, odbFile) {
         this.session.setScrollTop(scrollTop);
     }.bind(this);
 
-    odbFile.on(ODB_EVENTS.DISPLAY_UNITS_LOADED, this.onDuLoad);
+    //odbFile.on(ODB_EVENTS.DISPLAY_UNITS_LOADED, this.onDuLoad);
 
 
 

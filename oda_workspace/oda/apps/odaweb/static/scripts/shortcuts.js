@@ -1,7 +1,7 @@
 odaApplication.run(function($rootScope, Docker, odbFile, editor){
 
     //http://dmauro.github.io/Keypress/
-    var listener = new window.keypress.Listener($('#editor')[0]);
+    var listener = new window.keypress.Listener($('body')[0]);
 
 
     listener.simple_combo("ctrl g", function() {

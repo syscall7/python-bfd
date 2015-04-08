@@ -254,12 +254,7 @@ $(document).ready(function(){
                 var offset = data[last - 1].offset;
                 console.log('append: ', offset.toString(16));
 
-                retval = $.get('/odaweb/api/displayunits/', {
-                    short_name: odbFile.shortName,
-                    revision: odbFile.revision,
-                    addr: offset,
-                    units: numRows
-                }).success(onSuccessAppend)
+                retval = odbFile.loadDu(offset, numRows, false).success(onSuccessAppend)
                     .error(function () {
                         onError(fromPage)
                     }).then(function(){isProcessing=false;});
@@ -285,13 +280,7 @@ $(document).ready(function(){
             } */ else {
 
                 console.log("getting", startRow, numRows);
-                retval = $.get('/odaweb/api/displayunits/', {
-                    short_name: odbFile.shortName,
-                    revision: odbFile.revision,
-                    addr: startRow,
-                    logical: true,
-                    units: numRows
-                }).success(function(data) {
+                retval = odbFile.loadDu(startRow, numRows, true).success(function(data) {
                     clear();
                     onSuccess(data, startRow, pivot);
                 }).error(function () {

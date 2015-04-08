@@ -167,14 +167,17 @@ var OdbFile = function(oda_master) {
         }.bind(this));
     };
 
-    this.loadDu = function (addr, numUnits, callback) {
-        $.get('/odaweb/api/displayunits/', {
+    this.loadDu = function (addr, numUnits, logical) {
+        var args = {
             short_name: this.shortName,
             revision: this.revision,
             addr: addr,
-            logical: true,
             units: numUnits
-        }).done(function(data){
+        };
+        if (logical) {
+            args.logical = true;
+        }
+        return $.get('/odaweb/api/displayunits/', args).done(function(data){
             if (data.length == 0) {
                 throw "NO DATA RETURNED";
             }
