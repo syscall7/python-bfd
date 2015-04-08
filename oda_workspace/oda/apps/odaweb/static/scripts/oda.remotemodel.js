@@ -324,7 +324,8 @@ $(document).ready(function(){
 
             lastFrom = from;
 
-            data.length = 30000; //Math.min(parseInt(resp.hits)); // limitation of the API
+            console.log("displayUnitsLength",odbFile.displayUnitsLength);
+            data.length = Math.max(350, odbFile.displayUnitsLength); //Math.min(parseInt(resp.hits)); // limitation of the API
 
             var renderedRows = renderer.render(afterBlock);
             renderer.indexRows(renderedRows, from);
