@@ -66,7 +66,7 @@ $(document).ready(function(){
             '<span class="oda-editable function-params function-name "  data-function-addr="{{offset}}" data-function-field="name"  contenteditable="true">{{name}}</span> ' +
             '(<span class="oda-editable function-params function-args"   data-function-addr="{{offset}}" data-function-field="args" contenteditable="true">{{args}}</span>)');
 
-        this.labelTemplate = Handlebars.compile('<div class="oda-editable" contenteditable="true" style="margin-left:-40px">loc_{{ hex offset }}</div>:');
+        this.labelTemplate = Handlebars.compile('<div style="margin-left:-40px"><span class="oda-editable" contenteditable="true">loc_{{ hex offset }}</span>:</div>');
 
         this.commentTemplate = Handlebars.compile('<span><span contenteditable="true" data-addr={{offset}}" ' +
         'class="oda-editable comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span>');
