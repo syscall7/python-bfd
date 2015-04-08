@@ -149,12 +149,17 @@
             /* border-bottom: 1px solid black; */
             font-weight: bold;
             cursor: pointer;
+            padding-left: 8px;
         }
 
         .live-input {
             border: none;
             font-family: "Monaco", "Menlo", "Ubuntu Mono", "Consolas", "source-code-pro", monospace;
             font-size: 14px;
+        }
+
+        .insn {
+            color: #093c83;
         }
 </style>
 </head>

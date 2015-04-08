@@ -145,7 +145,7 @@ $(document).ready(function(){
            //             console.log("comment", comment);
                         renderedComment = this.commentTemplate2({offset: instr.offset, comment: comment.comment})
                     }
-                    instr.instStr = '<table><tr><td style="width:300px;">' + instr.instStr + '</td><td>' + renderedComment + '</td></tr></table>';
+                    instr.instStr = '<table><tr><td class="insn" style="width:300px;">' + instr.instStr + '</td><td>' + renderedComment + '</td></tr></table>';
                     data[rowCounter] = instr;
                     rowCounter += 1;
                 }
