@@ -66,7 +66,7 @@ $(document).ready(function(){
             '<span class="oda-editable function-params function-name "  data-function-addr="{{offset}}" data-function-field="name"  contenteditable="true">{{name}}</span> ' +
             '<span class="oda-editable function-params function-args"   data-function-addr="{{offset}}" data-function-field="params" contenteditable="true">({{args}})</span> ');
 
-        this.labelTemplate = Handlebars.compile("{{{ pad '' 5}}} loc_{{ hex offset }}:");
+        this.labelTemplate = Handlebars.compile("loc_{{ hex offset }}:");
 
         this.commentTemplate = Handlebars.compile('<span><span contenteditable="true" data-addr={{offset}}" ' +
         'class="oda-editable comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span>');
@@ -98,7 +98,7 @@ $(document).ready(function(){
 
             return [
                 createDu("", {rawBytes:''}),
-                createDu('<div style="margin-left:-80px">' + this.labelTemplate(du) + '</div>', {rawBytes:''}),
+                createDu('<div style="margin-left:-40px">' + this.labelTemplate(du) + '</div>', {rawBytes:''}),
                 createDu(du.instStr, {branch:du.branch})
             ]
         };
