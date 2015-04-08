@@ -990,7 +990,7 @@ odaApplication.service('Docker', function(odbFile) {
             icon: 'fa-text-width',
             template: 'structform.html'
         });
-        this.activeDock = this.docks[1];
+        this.activeDock = this.docks[0];
     }
 
     /*this.docks.push({
