@@ -26,27 +26,31 @@ $(document).ready(function(){
         }
 
         function createDuFactory(du) {
-            return function(instStr) {
+            return function(instStr, rawBytes) {
                 var cloned = cloneDu(du);
                 cloned.instStr = instStr;
 
                 //cloned.branch = '';
 
-                if (instStr == "") {
-                    cloned.rawBytes = "";
+                if (rawBytes !== undefined) {
+                    cloned.rawBytes = rawBytes;
                 }
                 return cloned;
             };
         }
 
         function createDuFactoryWithBranch(du, branch) {
-            return function(instStr, branchToUse) {
+            return function(instStr, args) {
                 var duFactory = createDuFactory(du);
                 var cloned = duFactory(instStr);
-                if (branchToUse) {
-                    cloned.branch = branchToUse;
+                if (args.branch) {
+                    cloned.branch = args.branch;
                 } else {
                     cloned.branch = branch;
+                }
+
+                if (args.rawBytes !== undefined) {
+                    cloned.rawBytes = args.rawBytes
                 }
 
                 return cloned;
@@ -75,16 +79,16 @@ $(document).ready(function(){
             var createDu = createDuFactory(du);
 
             var theLines = [
-                createDu(""),
-                createDu(this.functionTemplate1(du))
+                createDu("", ''),
+                createDu(this.functionTemplate1(du), '')
             ];
             for (var i=0;i<du.crossRef.length; i++) {
                 theLines.push(createDu('; CODE XREF:<span href="" class="xref-location" data-addr="' +
-                    du.crossRef[i].offset + '">0x' + intToHex(du.crossRef[i].offset) + '</span>'));
+                    du.crossRef[i].offset + '">0x' + intToHex(du.crossRef[i].offset) + '</span>', ''));
             }
-            theLines.push(createDu(""));
-            theLines.push(createDu(this.functionTemplate2($.extend({}, du, func))));
-            theLines.push(createDu(""));
+            theLines.push(createDu("",''));
+            theLines.push(createDu(this.functionTemplate2($.extend({}, du, func)), ''));
+            theLines.push(createDu("", ''));
             return theLines;
         };
 
@@ -92,7 +96,7 @@ $(document).ready(function(){
             //console.log('renderBranch');
             var createDu = createDuFactoryWithBranch(du, du.branch_label);
 
-            return [createDu(""), createDu(this.labelTemplate(du)), createDu(du.instStr, du.branch)]
+            return [createDu("", {rawBytes:''}), createDu(this.labelTemplate(du), {rawBytes:''}), createDu(du.instStr, {branch:du.branch})]
         };
 
         this.renderTarget = function(du) {
