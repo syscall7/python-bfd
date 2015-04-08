@@ -96,7 +96,11 @@ $(document).ready(function(){
             //console.log('renderBranch');
             var createDu = createDuFactoryWithBranch(du, du.branch_label);
 
-            return [createDu("", {rawBytes:''}), createDu(this.labelTemplate(du), {rawBytes:''}), createDu(du.instStr, {branch:du.branch})]
+            return [
+                createDu("", {rawBytes:''}),
+                createDu('<div style="margin-left:-80px">' + this.labelTemplate(du) + '</div>', {rawBytes:''}),
+                createDu(du.instStr, {branch:du.branch})
+            ]
         };
 
         this.renderTarget = function(du) {
