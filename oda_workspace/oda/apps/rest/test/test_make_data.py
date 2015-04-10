@@ -4,6 +4,18 @@ from test_oda_api import OdaApiTestCase
 class MakeDataUnitTest(OdaApiTestCase):
     urls = 'oda.urls'
 
+    def test_make_data_on_data(self):
+        # make data on data, should fail
+        response = self.client.get('/odaweb/api/displayunits/1/makeData/',
+                                   { 'revision': 0,
+                                     'short_name': 'mkdir',
+                                     'vma': 0x4002cd},
+                                   format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # this should fail
+        self.assertNotEqual(response.data['error'], None)
+
     def test_simple_make_data(self):
 
         # before the split

@@ -90,9 +90,17 @@ class Disassembler(object):
         return parcels.lda_to_vma(lda)
 
     def make_data(self, vma):
+        parcels = ParcelList(self.odb_file.get_structure_list(Parcel))
+        p = parcels.find_parcel_by_vma(vma)
+        if not p.is_code:
+            raise Exception("Cannot make data on non-code parcel")
         self.odb_file.execute(SplitParcelOperation(vma))
 
     def make_code(self, vma):
+        parcels = ParcelList(self.odb_file.get_structure_list(Parcel))
+        p = parcels.find_parcel_by_vma(vma)
+        if p.is_code:
+            raise Exception("Cannot make code on a code parcel")
         self.odb_file.execute(ActiveScanOperation(vma))
 
     def make_function(self, vma, name, args, retval):

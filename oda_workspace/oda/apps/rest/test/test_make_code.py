@@ -53,6 +53,18 @@ class MakeCodeUnitTest(OdaApiTestCase):
         # we *should* get an error message
         self.assertNotEqual(response.data['error'], None)
 
+    def test_make_code_on_code(self):
+        # attempt to make code at an address that is already code
+        response = self.client.get('/odaweb/api/displayunits/1/makeCode/',
+                                   { 'revision': 0,
+                                     'short_name': 'mkdir',
+                                     'vma': 0x4002cd},
+                                   format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # we *should* get an error message
+        self.assertNotEqual(response.data['error'], None)
+
     def test_simple_make_code(self):
 
         # before making_data
