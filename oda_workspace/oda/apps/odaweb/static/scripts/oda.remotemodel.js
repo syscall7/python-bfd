@@ -67,6 +67,7 @@ $(document).ready(function(){
             '(<span class="oda-editable function-params function-args"   data-function-addr="{{offset}}" data-function-field="args" contenteditable="true">{{args}}</span>)');
 
         this.labelTemplate = Handlebars.compile('<div style="margin-left:-40px"><span class="oda-editable" contenteditable="true">loc_{{ hex offset }}</span>:</div>');
+        this.labelTemplate2 = Handlebars.compile('<div style="margin-left:-40px"><span class="oda-editable" contenteditable="true">{{label}}</span>:</div>');
 
         this.commentTemplate = Handlebars.compile('<span><span contenteditable="true" data-addr={{offset}}" ' +
         'class="oda-editable comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span>');
@@ -96,11 +97,18 @@ $(document).ready(function(){
             //console.log('renderBranch');
             var createDu = createDuFactoryWithBranch(du, du.branch_label);
 
-            return [
-                createDu("", {rawBytes:''}),
-                createDu(this.labelTemplate(du), {rawBytes:''}),
-                createDu(du.instStr, {branch:du.branch})
-            ]
+            var lines = [
+                createDu("", {rawBytes:''})
+            ];
+
+            if (odbFile.labels[du.offset]) {
+                lines.push(createDu(this.labelTemplate2(odbFile.labels[du.offset]), {rawBytes: ''}));
+            } else {
+               lines.push(createDu(this.labelTemplate(du), {rawBytes: ''}));
+            }
+
+            lines.push(createDu(du.instStr, {branch:du.branch}));
+            return lines;
         };
 
         this.renderTarget = function(du) {
@@ -111,7 +119,7 @@ $(document).ready(function(){
             if (odbFile.functions[du.targetRef.offset]) {
                     label =  '<span href="" data-addr="' + du.targetRef.offset + '" class="xref-location">' + odbFile.functions[du.targetRef.offset].name + "</span>";
             } else if (odbFile.labels[du.targetRef.offset]) {
-                label =  '<span href="" data-addr="' + du.targetRef.offset + '" class="xref-location">' + odbFile.labels[du.targetRef.offset].name + "</span>";
+                label =  '<span href="" data-addr="' + du.targetRef.offset + '" class="xref-location">' + odbFile.labels[du.targetRef.offset].label + "</span>";
             }
 
             return [createDu(du.instStr + label)]
