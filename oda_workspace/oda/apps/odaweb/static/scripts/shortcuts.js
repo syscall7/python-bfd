@@ -3,6 +3,13 @@ odaApplication.run(function($rootScope, Docker, odbFile, editor){
     //http://dmauro.github.io/Keypress/
     var listener = new window.keypress.Listener($('body')[0]);
 
+    $(document)
+        .on( "focus", 'input[type=text]', function() { listener.stop_listening(); })
+        .on( "blur", 'input[type=text]', function() { listener.listen(); });
+    $(document)
+        .on( "focus", 'textarea', function() { listener.stop_listening(); })
+        .on( "blur", 'textarea', function() { listener.listen(); });
+
 
     listener.simple_combo("ctrl g", function() {
         console.log("You pressed ctrl g");
@@ -16,11 +23,12 @@ odaApplication.run(function($rootScope, Docker, odbFile, editor){
 
     listener.register_combo({
         keys: 'c',
-        is_exclusive: true
-    }, function(){
-        var activeRowData = editor.getActiveRowData();
+        is_solitary: true,
+        on_keyup: function (e) {
+            var activeRowData = editor.getActiveRowData();
 
-        $rootScope.$broadcast('command.dataToCode', activeRowData);
+            $rootScope.$broadcast('command.dataToCode', activeRowData);
+        }
     });
 
     listener.simple_combo('d', function(){

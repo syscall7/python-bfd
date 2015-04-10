@@ -30,7 +30,7 @@ odaApplication.controller('LiveEntryController', function LiveEntryController($s
         }).catch(function(ex ){
             $scope.entryError = ex;
         }); */
-    }, 1000);
+    }, 350);
 
     $scope.liveEntryChange = function() {
         updateText();
