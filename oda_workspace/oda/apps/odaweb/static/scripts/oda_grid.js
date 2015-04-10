@@ -76,7 +76,7 @@ function InstructionTable(odbFile) {
         },
         {id: "rawBytes", name: "rawBytes", field: "rawBytes", cssClass: 'cell-rawbytes', width: 160},
 
-        {id: "instStr", name: "instStr", field: "instStr", width: 600, formatter: instStrFormatter},
+        {id: "instStr", name: "instStr", field: "instStr", width: 800, formatter: instStrFormatter},
         // {id: "opcode", name: "opcode", field: "opcode", width: 60},
         // {id: "operands", name: "operands", field: "operands", width: 200}
     ];
