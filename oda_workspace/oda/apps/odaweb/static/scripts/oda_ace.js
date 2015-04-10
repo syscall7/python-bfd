@@ -1051,8 +1051,9 @@ odaApplication.controller('NavbarController', function NavbarController($scope, 
 
         focus("goto");
 
-        modalInstance.result.then(function(data){
+        modalInstance.result.finally(function(data){
             console.log(data);
+            $("#goto-textbox").blur();
         });
 
     };

@@ -41,7 +41,7 @@
     <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.26/angular-route.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/angular-1.2.26/angular-sanitize.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/ui-utils-0.1.1/ui-utils.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/lib/ui-bootstrap-tpls-0.11.0.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/ui-bootstrap-tpls-0.12.1.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/socket.io-1.0.6.js' %}"></script>
 
     <script type="text/javascript" src="{% static 'scripts/lib/toastr/toastr.js' %}"></script>
