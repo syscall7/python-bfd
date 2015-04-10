@@ -1,4 +1,4 @@
-odaApplication.controller('SectionsController', function SectionsController($scope, $http, $window, odbFile, odaSession) {
+odaApplication.controller('SectionsController', function SectionsController($scope, $http, $window, odbFile, editor) {
 
     $scope.sections = odbFile.sections;
 
@@ -31,7 +31,7 @@ odaApplication.controller('SectionsController', function SectionsController($sco
         $('#oda-tabs a[href="#tab-disassembly"]').tab('show');
 
         // move into position
-        odaSession.moveToOffset(position);
+        editor.gotoAddress(position);
     }
 });
 
