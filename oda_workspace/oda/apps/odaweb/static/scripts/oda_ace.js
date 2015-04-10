@@ -830,20 +830,12 @@ var CommentController = function($scope, $modalInstance) {
 
 };
 
-odaApplication.run(function($rootScope, Docker, odbFile, odaSession, editor) {
+odaApplication.run(function($rootScope, Docker, odbFile, editor) {
     odbFile.on(ODB_EVENTS.LIVE_ENTRY_UPDATE, function (event, liveEntryText) {
         //var odaSession = oda_util.getOdaSession();
         //var odbFile = oda_util.getOdbFile();
-        if (odaSession != null && odbFile != null) {
-            //We have to get the new size here since the number of DUs could possibly have changed
-            odbFile.duLength(function (length) {
-                if ( length != 0 ) {
-                    editor.getSession().getDocument().setLength(length);
-                    odaSession.windowLoader.reload(true)
-                }
-            });
-
-
+        if (editor != null && odbFile != null) {
+             editor.reload();
         }
     });
 });

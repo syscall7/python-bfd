@@ -14,7 +14,10 @@ odaApplication.run(function($rootScope, Docker, odbFile, editor){
          $rootScope.$broadcast('command.comment');
     });
 
-    listener.simple_combo('c', function(){
+    listener.register_combo({
+        keys: 'c',
+        is_exclusive: true
+    }, function(){
         var activeRowData = editor.getActiveRowData();
 
         $rootScope.$broadcast('command.dataToCode', activeRowData);
@@ -22,8 +25,9 @@ odaApplication.run(function($rootScope, Docker, odbFile, editor){
 
     listener.simple_combo('d', function(){
         var activeRowData = editor.getActiveRowData();
-
-        $rootScope.$broadcast('command.codeToData', activeRowData);
+        if (activeRowData != null) {
+            $rootScope.$broadcast('command.codeToData', activeRowData);
+        }
     });
 
     listener.simple_combo("ctrl u", function(){
@@ -34,7 +38,10 @@ odaApplication.run(function($rootScope, Docker, odbFile, editor){
         $rootScope.$broadcast('command.makeStructType');
     });
 
-    listener.simple_combo('v', function(){
+    listener.simple_combo({
+        keys: 'v',
+        is_exclusive: true
+    }, function(){
         var session = editor.getSession();
 
         var cursor = session.getSelection().getCursor();
