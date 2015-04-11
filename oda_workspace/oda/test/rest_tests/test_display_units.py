@@ -1,5 +1,7 @@
 from rest_framework import status
-from test_oda_api import OdaApiTestCase
+
+from oda.test.rest_tests.test_oda_api import OdaApiTestCase
+
 
 class DisplayUnitTest(OdaApiTestCase):
     urls = 'oda.urls'

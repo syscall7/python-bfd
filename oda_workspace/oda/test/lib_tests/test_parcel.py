@@ -278,7 +278,7 @@ class TestParcels(unittest.TestCase):
         cwd = os.path.dirname(os.path.realpath(__file__))
 
         odb_file = OdbFile(BinaryFile(os.path.join(cwd,
-                    'data/code_split_single_instruction/split_parcel_single'), 'elf64-x86-64', 'i386:x86-64'))
+                                                   'data/code_split_single_instruction/split_parcel_single'), 'elf64-x86-64', 'i386:x86-64'))
         odb_file.execute(LoadOperation())
         odb_file.execute(PassiveScanOperation())
 

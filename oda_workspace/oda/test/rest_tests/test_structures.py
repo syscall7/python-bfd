@@ -4,11 +4,11 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
-from django.core.urlresolvers import reverse
 
-from django.test import TestCase
 from rest_framework import status
-from test_oda_api import OdaApiTestCase
+
+from oda.test.rest_tests.test_oda_api import OdaApiTestCase
+
 
 class LabelUnitTest(OdaApiTestCase):
     urls = 'oda.urls'

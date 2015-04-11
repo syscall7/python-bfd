@@ -6,7 +6,7 @@ Replace this with more appropriate tests for your application.
 """
 import os
 
-from oda.apps.rest.test.test_oda_api import OdaApiTestCase
+from oda.test.rest_tests.test_oda_api import OdaApiTestCase
 
 cwd = os.path.dirname(os.path.realpath(__file__))
 
@@ -27,7 +27,7 @@ class IndexTest(OdaApiTestCase):
         self.assertEqual(response.context['binary'].name, 'mkdir')
 
     def test_upload_elf(self):
-        f = open(os.path.join(cwd, 'examples/mkdir'))
+        f = open(os.path.join(cwd, '../apps/odaweb/examples/mkdir'))
         response = self.client.post('/odaweb/_upload', {
             'project_name': 'test',
             'filedata': f
@@ -37,7 +37,7 @@ class IndexTest(OdaApiTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_rando_binary(self):
-        f = open(os.path.join(cwd, 'examples/ls.bin.x86-64'))
+        f = open(os.path.join(cwd, '../apps/odaweb/examples/ls.bin.x86-64'))
         response = self.client.post('/odaweb/_upload', {
             'project_name': 'test',
             'filedata': f
