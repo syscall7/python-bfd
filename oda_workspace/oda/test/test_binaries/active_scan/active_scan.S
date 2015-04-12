@@ -10,11 +10,11 @@
 
 .section .data
 
-.fill 16, 1, 0xff
-
-loc_1:
+_start:
+main:
+loc_0:
     push %ebp
-    call loc_2
+    call loc_1
     pop %ebp
     ret
 
@@ -28,11 +28,9 @@ loc_3:
 
 .fill 16, 1, 0xff
 
-_start:
-main:
-loc_0:
+loc_1:
     push %ebp
-    call loc_1
+    call loc_2
     pop %ebp
     ret
 
