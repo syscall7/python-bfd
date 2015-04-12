@@ -10,6 +10,7 @@ from oda.libs.odb.structures.parcel import Parcel, ParcelList
 
 class TestActiveScanOperation(unittest.TestCase):
 
+    # this is a simple data->code conversion at address 0x4002ce that creates 3 instructions in the .gnu.hash section
     def test_basic_active_scan(self):
         cwd = os.path.dirname(os.path.realpath(__file__))
 
@@ -112,3 +113,48 @@ class TestActiveScanOperation(unittest.TestCase):
         self.assertEquals(0x4002e0, parcels_after.lda_to_vma(dynsym_lda_before-4))
         self.assertEquals(0x400a18, parcels_after.lda_to_vma(dynstr_lda_before-4))
 
+    # this is a more complex data->code conversion that follows call instructions to discover new code regions
+    def test_follow_calls_i386(self):
+
+        cwd = os.path.dirname(os.path.realpath(__file__))
+
+        odb_file = OdbFile(BinaryFile(os.path.join(cwd,
+                   '../test_binaries/active_scan_follow_calls/active_scan_follow_calls.bin'), 'binary', 'i386'))
+
+        odb_file.execute(LoadOperation())
+        odb_file.execute(PassiveScanOperation())
+
+        parcels_before = ParcelList(odb_file.get_structure_list(Parcel))
+
+        # number of parcels before the split
+        self.assertEquals(1, len(parcels_before))
+
+        # execute the active scan operation
+        odb_file.execute(ActiveScanOperation(0x0))
+
+        # number of parcels after the split
+        parcels_after = ParcelList(odb_file.get_structure_list(Parcel))
+        self.assertEquals(11, len(parcels_after))
+
+    # this is a more complex data->code conversion that follows jmp instructions to discover new code regions
+    def failing_test_follow_jmps_i386(self):
+
+        cwd = os.path.dirname(os.path.realpath(__file__))
+
+        odb_file = OdbFile(BinaryFile(os.path.join(cwd,
+                   '../test_binaries/active_scan_follow_jmps/active_scan_follow_jmps.bin'), 'binary', 'i386'))
+
+        odb_file.execute(LoadOperation())
+        odb_file.execute(PassiveScanOperation())
+
+        parcels_before = ParcelList(odb_file.get_structure_list(Parcel))
+
+        # number of parcels before the split
+        self.assertEquals(1, len(parcels_before))
+
+        # execute the active scan operation
+        odb_file.execute(ActiveScanOperation(0x0))
+
+        # number of parcels after the split
+        parcels_after = ParcelList(odb_file.get_structure_list(Parcel))
+        self.assertEquals(11, len(parcels_after))
