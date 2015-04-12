@@ -1,5 +1,4 @@
 import os
-import unittest
 from oda.libs.odb.binaries import BinaryFile, BinaryString
 
 from oda.libs.odb.odb_file import OdbFile
@@ -11,13 +10,12 @@ from oda.libs.odb.structures.function import Function
 from oda.libs.odb.structures.parcel import Parcel
 from oda.libs.odb.structures.section import Section
 from oda.libs.odb.structures.symbol import Symbol
+from oda.test.oda_test_case import OdaLibTestCase
 
-class TestLoadOperation(unittest.TestCase):
+class TestLoadOperation(OdaLibTestCase):
 
     def test_basic_loader(self):
-        cwd = os.path.dirname(os.path.realpath(__file__))
-
-        odb_file = OdbFile(BinaryFile(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64'))
+        odb_file = OdbFile(BinaryFile(self.get_test_bin_path('ls'), 'elf64-x86-64', 'i386:x86-64'))
         odb_file.execute(LoadOperation())
 
         self.assertEquals(26, len(odb_file.get_structure_list(Section)))
@@ -35,9 +33,7 @@ class TestLoadOperation(unittest.TestCase):
         self.assertEquals(1, len([s for s in odb_file.get_structure_list(DataString) if s.value == 'error initializing month strings']))
 
     def test_basic_binary_loader(self):
-        cwd = os.path.dirname(os.path.realpath(__file__))
-
-        odb_file = OdbFile(BinaryFile(os.path.join(cwd, 'data/ls.bin.x86-64'), 'binary', 'i386:x86-64'))
+        odb_file = OdbFile(BinaryFile(self.get_test_bin_path('ls.bin.x86-64'), 'binary', 'i386:x86-64'))
         odb_file.execute(LoadOperation())
 
         self.assertEquals(1, len(odb_file.get_structure_list(Section)))
@@ -71,17 +67,11 @@ class TestLoadOperation(unittest.TestCase):
         self.assertEqual('da39a3ee5e6b4b0d3255bfef95601890afd80709', odb_file.get_binary().sha1())
 
     def test_desc(self):
-
-        cwd = os.path.dirname(os.path.realpath(__file__))
-
-        odb_file = OdbFile(BinaryFile(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64'))
-
+        odb_file = OdbFile(BinaryFile(self.get_test_bin_path('ls'), 'elf64-x86-64', 'i386:x86-64'))
         self.assertEqual(7, len(odb_file.get_binary().desc()))
 
     def test_size(self):
-        cwd = os.path.dirname(os.path.realpath(__file__))
-
-        odb_file = OdbFile(BinaryFile(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64'))
+        odb_file = OdbFile(BinaryFile(self.get_test_bin_path('ls'), 'elf64-x86-64', 'i386:x86-64'))
         self.assertEqual(114032, odb_file.get_binary().size)
 
         s = '01 20 40 E2 02 20 61 E0 01 30 D1 E4 00 00 53 E3 02 30 C1 E7 FB FF FF 1A 1E FF 2F E1'

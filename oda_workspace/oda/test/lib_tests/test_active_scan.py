@@ -1,5 +1,4 @@
 import os
-import unittest
 from oda.libs.odb.binaries import BinaryFile
 
 from oda.libs.odb.odb_file import OdbFile
@@ -7,15 +6,15 @@ from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.active_scan_operation import ActiveScanOperation
 from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
 from oda.libs.odb.structures.parcel import Parcel, ParcelList
+from oda.test.oda_test_case import OdaLibTestCase
 
-class TestActiveScanOperation(unittest.TestCase):
+class TestActiveScanOperation(OdaLibTestCase):
 
     # this is a simple data->code conversion at address 0x4002ce that creates 3 instructions in the .gnu.hash section
     def test_basic_active_scan(self):
-        cwd = os.path.dirname(os.path.realpath(__file__))
 
         # we load this ELF as a raw binary, because it has an invalid opcode fairly early on
-        odb_file = OdbFile(BinaryFile(os.path.join(cwd, 'data/mkdir'), 'elf64-x86-64', 'i386:x86-64'))
+        odb_file = OdbFile(BinaryFile(self.get_test_bin_path('mkdir'), 'elf64-x86-64', 'i386:x86-64'))
         odb_file.execute(LoadOperation())
         odb_file.execute(PassiveScanOperation())
 
@@ -116,10 +115,8 @@ class TestActiveScanOperation(unittest.TestCase):
     # this is a more complex data->code conversion that follows call instructions to discover new code regions
     def test_follow_calls_i386(self):
 
-        cwd = os.path.dirname(os.path.realpath(__file__))
-
-        odb_file = OdbFile(BinaryFile(os.path.join(cwd,
-                   '../test_binaries/active_scan_follow_calls/active_scan_follow_calls.bin'), 'binary', 'i386'))
+        odb_file = OdbFile(BinaryFile(
+            self.get_test_bin_path('active_scan_follow_calls/active_scan_follow_calls.bin'), 'binary', 'i386'))
 
         odb_file.execute(LoadOperation())
         odb_file.execute(PassiveScanOperation())
@@ -139,10 +136,8 @@ class TestActiveScanOperation(unittest.TestCase):
     # this is a more complex data->code conversion that follows jmp instructions to discover new code regions
     def failing_test_follow_jmps_i386(self):
 
-        cwd = os.path.dirname(os.path.realpath(__file__))
-
-        odb_file = OdbFile(BinaryFile(os.path.join(cwd,
-                   '../test_binaries/active_scan_follow_jmps/active_scan_follow_jmps.bin'), 'binary', 'i386'))
+        odb_file = OdbFile(BinaryFile(
+            self.get_test_bin_path('active_scan_follow_jmps/active_scan_follow_jmps.bin'), 'binary', 'i386'))
 
         odb_file.execute(LoadOperation())
         odb_file.execute(PassiveScanOperation())

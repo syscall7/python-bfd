@@ -1,14 +1,10 @@
-import unittest
-
 from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.add_operation import AddOperation
 from oda.libs.odb.structures import comment
 from oda.libs.odb.structures.comment import Comment
+from oda.test.oda_test_case import OdaLibTestCase
 
-
-__author__ = 'davis'
-
-class TestAddFunction(unittest.TestCase):
+class TestAddFunction(OdaLibTestCase):
     def test_add(self):
 
         odb_file = OdbFile()

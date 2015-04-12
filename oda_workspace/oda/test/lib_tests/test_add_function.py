@@ -1,13 +1,11 @@
-import unittest
-
 from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.add_operation import AddOperation
 from oda.libs.odb.ops.operation import ValidationError
 from oda.libs.odb.structures import function
 from oda.libs.odb.structures.function import Function
+from oda.test.oda_test_case import OdaLibTestCase
 
-
-class TestAddFunction(unittest.TestCase):
+class TestAddFunction(OdaLibTestCase):
     def test_add(self):
         odb_file = OdbFile()
 
@@ -100,7 +98,3 @@ class TestAddFunction(unittest.TestCase):
 
     def invert_not_last_fails(self):
         pass
-
-
-if __name__ == "__main__":
-    unittest.main()

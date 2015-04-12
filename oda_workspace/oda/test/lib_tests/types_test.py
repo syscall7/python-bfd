@@ -1,14 +1,7 @@
-import os
-import unittest
-
-from oda.libs.odb.odb_file import OdbFile
-from oda.libs.odb.ops.load_operation import LoadOperation
-from oda.libs.odb.ops.active_scan_operation import ActiveScanOperation
-from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
-from oda.libs.odb.structures.parcel import Parcel, ParcelList
 from oda.libs.odb.structures.types import *
+from oda.test.oda_test_case import OdaLibTestCase
 
-class TestTypes(unittest.TestCase):
+class TestTypes(OdaLibTestCase):
 
     def test_builtin_types(self):
         bytes = '\x01\x23\x45\x67\x89\xab\xcd\xef'

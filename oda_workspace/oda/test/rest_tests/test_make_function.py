@@ -1,6 +1,6 @@
 from rest_framework import status
 
-from oda.test.rest_tests.test_oda_api import OdaApiTestCase
+from oda.test.oda_test_case import OdaApiTestCase
 
 
 class MakeFunctionUnitTest(OdaApiTestCase):

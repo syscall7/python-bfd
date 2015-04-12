@@ -1,24 +1,17 @@
 import os
-import unittest
 from oda.libs.odb.binaries import BinaryFile
 
 from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.split_parcel_operation import SplitParcelOperation
 from oda.libs.odb.ops.passive_scan_operation import PassiveScanOperation
-from oda.libs.odb.structures.branch import Branch
-from oda.libs.odb.structures.data_string import DataString
-from oda.libs.odb.structures.function import Function
 from oda.libs.odb.structures.parcel import Parcel, ParcelList, DataParcel, CodeParcel
-from oda.libs.odb.structures.section import Section
-from oda.libs.odb.structures.symbol import Symbol
+from oda.test.oda_test_case import OdaLibTestCase
 
-class TestParcels(unittest.TestCase):
+class TestParcels(OdaLibTestCase):
 
     def test_split_to_data_basic(self):
-        cwd = os.path.dirname(os.path.realpath(__file__))
-
-        odb_file = OdbFile(BinaryFile(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64'))
+        odb_file = OdbFile(BinaryFile(self.get_test_bin_path('ls'), 'elf64-x86-64', 'i386:x86-64'))
         odb_file.execute(LoadOperation())
         odb_file.execute(PassiveScanOperation())
 
@@ -107,9 +100,7 @@ class TestParcels(unittest.TestCase):
         self.assertEquals(0x412bec, parcels_after.lda_to_vma(fini_lda_before+4))
 
     def test_split_to_data_at_start_of_parcel(self):
-        cwd = os.path.dirname(os.path.realpath(__file__))
-
-        odb_file = OdbFile(BinaryFile(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64'))
+        odb_file = OdbFile(BinaryFile(self.get_test_bin_path('ls'), 'elf64-x86-64', 'i386:x86-64'))
         odb_file.execute(LoadOperation())
         odb_file.execute(PassiveScanOperation())
 
@@ -180,9 +171,7 @@ class TestParcels(unittest.TestCase):
         self.assertEquals(0x412bf4, parcels_after.lda_to_vma(fini_lda_before+5))
 
     def test_split_to_data_at_end_of_parcel(self):
-        cwd = os.path.dirname(os.path.realpath(__file__))
-
-        odb_file = OdbFile(BinaryFile(os.path.join(cwd, 'data/ls'), 'elf64-x86-64', 'i386:x86-64'))
+        odb_file = OdbFile(BinaryFile(self.get_test_bin_path('ls'), 'elf64-x86-64', 'i386:x86-64'))
         odb_file.execute(LoadOperation())
         odb_file.execute(PassiveScanOperation())
 
@@ -275,10 +264,8 @@ class TestParcels(unittest.TestCase):
         self.assertEquals(0x4029c0, parcels_after.lda_to_vma(text_lda_before+4))
 
     def test_split_to_data_single_inst_in_parcel(self):
-        cwd = os.path.dirname(os.path.realpath(__file__))
-
-        odb_file = OdbFile(BinaryFile(os.path.join(cwd,
-                                                   'data/code_split_single_instruction/split_parcel_single'), 'elf64-x86-64', 'i386:x86-64'))
+        odb_file = OdbFile(BinaryFile(
+            self.get_test_bin_path('code_split_single_instruction/split_parcel_single'), 'elf64-x86-64', 'i386:x86-64'))
         odb_file.execute(LoadOperation())
         odb_file.execute(PassiveScanOperation())
 

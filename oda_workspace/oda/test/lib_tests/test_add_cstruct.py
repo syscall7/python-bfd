@@ -1,14 +1,11 @@
-import unittest
-
 from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.add_operation import AddOperation
 from oda.libs.odb.structures import c_struct
 from oda.libs.odb.structures.c_struct import CStruct, BuiltinField, CStructField
 from oda.libs.odb.structures.types import BuiltInTypeFactory
+from oda.test.oda_test_case import OdaLibTestCase
 
-__author__ = 'davis'
-
-class TestAddCStruct(unittest.TestCase):
+class TestAddCStruct(OdaLibTestCase):
     def test_add(self):
 
         odb_file = OdbFile()

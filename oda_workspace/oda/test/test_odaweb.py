@@ -6,7 +6,7 @@ Replace this with more appropriate tests for your application.
 """
 import os
 
-from oda.test.rest_tests.test_oda_api import OdaApiTestCase
+from oda.test.oda_test_case import OdaApiTestCase
 
 cwd = os.path.dirname(os.path.realpath(__file__))
 

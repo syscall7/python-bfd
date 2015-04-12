@@ -1,14 +1,11 @@
-import unittest
 from oda.libs.odb.bfd.ofd import Ofd
 from oda.libs.odb.binaries import BinaryString
 from oda.libs.odb.odb_file import OdbFile
 from oda.libs.odb.ops.load_operation import LoadOperation
 from oda.libs.odb.ops.modify_settings import ModifySettingsFactory
+from oda.test.oda_test_case import OdaLibTestCase
 
-
-__author__ = 'davis'
-
-class TestSettings(unittest.TestCase):
+class TestSettings(OdaLibTestCase):
 
     def test_load_and_get(self):
 
