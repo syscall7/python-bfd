@@ -89,7 +89,59 @@ function InstructionTable(odbFile) {
         enableColumnReorder: false
     };
 
-    var loader = new Slick.Data.RemoteModel(odbFile);
+    var loader;
+
+    function gotoAddressRemote(address) {
+
+        if (activeAddress == address) {
+            return;
+        }
+
+        activeAddress = address;
+
+        odbFile.vmaToLda(address, function (line) {
+
+            this.activeAddressChanged.notify({offset:activeAddress});
+
+            console.log('GOTO ADDRESS', '0x' + address.toString(16), address, line);
+
+            var renderedRange = grid.getRenderedRange();
+
+            for (var i = renderedRange.top; i < renderedRange.bottom; i++) {
+                var item = grid.getDataItem(i);
+                if (item) {
+                    if (item.offset == address) {
+                        grid.setActiveCell(i, 0);
+                        return;
+                    }
+                }
+            }
+
+            grid.setActiveCell(parseInt(line), 0);
+            loader.clear();
+            grid.scrollRowToTop(Math.max(0, (parseInt(line)-5)));
+
+        }.bind(this));
+    }
+
+    function gotoAddressLocal(address) {
+        for (var i=0; i<grid.getData().length; i++) {
+            var rowOffset = grid.getDataItem(i).offset;
+            if (rowOffset == address) {
+                grid.setActiveCell(i, 0);
+                grid.scrollRowToTop(Math.max(0, (i-5)));
+            }
+        }
+
+    }
+
+    if (odbFile.displayUnitsLength < 500) {
+        loader = new Slick.Data.LocalModel(odbFile);
+        this.gotoAddress = gotoAddressLocal;
+    } else {
+        loader = new Slick.Data.RemoteModel(odbFile);
+        this.gotoAddress = gotoAddressRemote;
+    }
     var grid = new Slick.Grid("#editor", loader.data, columns, options);
 
     $(".slick-header-columns").css("height", "0px");
@@ -158,6 +210,7 @@ function InstructionTable(odbFile) {
     this.onDataLoading = loader.onDataLoading;
 
     this.reload = function() {
+        console.log('reload');
         var lastFrom = loader.getLastFrom();
         //loader.clear();
 
@@ -202,41 +255,6 @@ function InstructionTable(odbFile) {
         var cell = grid.getCellFromEvent(event);
         grid.setActiveCell(cell.row, 0);
         return cell;
-    };
-
-
-    this.gotoAddress = function (address) {
-
-        if (activeAddress == address) {
-            return;
-        }
-
-        activeAddress = address;
-
-        odbFile.vmaToLda(address, function (line) {
-
-            this.activeAddressChanged.notify({offset:activeAddress});
-
-            console.log('GOTO ADDRESS', '0x' + address.toString(16), address, line);
-
-            var renderedRange = grid.getRenderedRange();
-
-            for (var i = renderedRange.top; i < renderedRange.bottom; i++) {
-                var item = grid.getDataItem(i);
-                if (item) {
-                    if (item.offset == address) {
-                        grid.setActiveCell(i, 0);
-                        return;
-                    }
-                }
-            }
-
-            grid.setActiveCell(parseInt(line), 0);
-            loader.clear();
-            grid.scrollRowToTop(Math.max(0, (parseInt(line)-5)));
-
-        }.bind(this));
-
     };
 
     return this;
