@@ -127,9 +127,10 @@ function InstructionTable(odbFile) {
     function gotoAddressLocal(address) {
         for (var i=0; i<grid.getData().length; i++) {
             var rowOffset = grid.getDataItem(i).offset;
-            if (rowOffset == address) {
+            if (rowOffset >= address) {
                 grid.setActiveCell(i, 0);
                 grid.scrollRowToTop(Math.max(0, (i-5)));
+                break;
             }
         }
 
