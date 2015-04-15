@@ -104,7 +104,7 @@ var context = context || (function () {
 			e.preventDefault();
 			e.stopPropagation();
 
-            showEvent.fire($menu);
+            showEvent.fire($menu, e);
 			
 			$('.dropdown-context:not(.dropdown-context-sub)').hide();
 			

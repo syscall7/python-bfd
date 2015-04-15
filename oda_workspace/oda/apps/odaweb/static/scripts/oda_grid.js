@@ -198,6 +198,12 @@ function InstructionTable(odbFile) {
         $('#editor .active').find(selector).focus();
     };
 
+    this.setActiveCellFromEvent = function(event) {
+        var cell = grid.getCellFromEvent(event);
+        grid.setActiveCell(cell.row, 0);
+        return cell;
+    };
+
 
     this.gotoAddress = function (address) {
 

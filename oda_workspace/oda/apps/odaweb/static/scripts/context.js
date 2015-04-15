@@ -2,8 +2,8 @@ odaApplication.run(function($rootScope, editor, odbFile){
     //http://lab.jakiestfu.com/contextjs/
     context.init({preventDoubleContext: false});
 
-    context.show.add(function(menu){
-        console.log(menu)
+    context.show.add(function(menu, e){
+        console.log("context-show", editor.setActiveCellFromEvent(e)); ;
 
         var shortcuts = menu.find('.shortcut-text');
         shortcuts.removeClass('shortcut-text-disabled')
@@ -25,6 +25,7 @@ odaApplication.run(function($rootScope, editor, odbFile){
     var createAction = function(f) {
 
         return function(e) {
+
             if ($(e.target).hasClass('shortcut-text-disabled')) {
                 //diasbled?
                 return;
