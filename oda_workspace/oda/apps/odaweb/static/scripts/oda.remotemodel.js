@@ -107,7 +107,7 @@ $(document).ready(function(){
                lines.push(createDu(this.labelTemplate(du), {rawBytes: ''}));
             }
 
-            lines.push(createDu(du.instStr, {branch:du.branch}));
+            lines.push(createDu(this.createInstStr(du), {branch:du.branch}));
             return lines;
         };
 
@@ -122,7 +122,20 @@ $(document).ready(function(){
                 label =  '<span href="" data-addr="' + du.targetRef.offset + '" class="xref-location">' + odbFile.labels[du.targetRef.offset].label + "</span>";
             }
 
-            return [createDu(du.instStr + label)]
+            return [createDu(this.createInstStr(du,label))]
+        };
+
+        this.createInstStr = function(instr, label) {
+            if (label === undefined) {
+                label = '';
+            }
+            var comment = odbFile.comments[instr.offset];
+            var renderedComment = this.commentTemplate({offset: instr.offset});
+            if (comment) {
+   //             console.log("comment", comment);
+                renderedComment = this.commentTemplate2({offset: instr.offset, comment: comment.comment})
+            }
+            return '<table><tr><td class="insn" style="width:300px;">' + instr.instStr + label + '</td><td>' + renderedComment + '</td></tr></table>';
         };
 
         this.render = function(dus) {
@@ -151,13 +164,7 @@ $(document).ready(function(){
                     rowCounter += targetRender.length;
                 }
                 else {
-                    var comment = odbFile.comments[instr.offset];
-                    var renderedComment = this.commentTemplate({offset: instr.offset});
-                    if (comment) {
-           //             console.log("comment", comment);
-                        renderedComment = this.commentTemplate2({offset: instr.offset, comment: comment.comment})
-                    }
-                    instr.instStr = '<table><tr><td class="insn" style="width:300px;">' + instr.instStr + '</td><td>' + renderedComment + '</td></tr></table>';
+                    instr.instStr = this.createInstStr(instr);
                     data[rowCounter] = instr;
                     rowCounter += 1;
                 }
