@@ -113,8 +113,8 @@ $(document).ready(function(){
 
         this.renderTarget = function(du) {
             var createDu = createDuFactory(du);
-
-            var label = '<span href="" data-addr="' + du.targetRef.offset + '" class="xref-location"> loc_' + du.targetRef.offset.toString(16) + '</span>';
+            var labelTemplate = Handlebars.compile('<span href="" data-addr="{{ offset }}" class="xref-location"> loc_{{hex offset}} </span>');
+            var label = labelTemplate(du.targetRef);
 
             if (odbFile.functions[du.targetRef.offset]) {
                     label =  '<span href="" data-addr="' + du.targetRef.offset + '" class="xref-location">' + odbFile.functions[du.targetRef.offset].name + "</span>";
