@@ -667,14 +667,12 @@ odaApplication.run(function($rootScope, $modal, odbFile, editor){
 
 
     $rootScope.$on("command.makeFunction", function(event, data) {
-        var line= data.line;
 
         var scope = $rootScope.$new(true);
 
-        var offset = line.data.offset;
+        var offset = data.offset
         var hex = intToHex(offset);
 
-        scope.line = line;
         scope.odbFile = odbFile;
 
         var existingFunc = odbFile.functions[offset];
@@ -686,7 +684,7 @@ odaApplication.run(function($rootScope, $modal, odbFile, editor){
                 args: 'unknown'
             }
         };
-        scope.data.offsetHex = hex
+        scope.data.offsetHex = hex;
         scope.data.modify = (existingFunc != null);
 
         if(existingFunc != null) {
