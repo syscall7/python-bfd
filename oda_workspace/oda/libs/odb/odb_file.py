@@ -70,8 +70,7 @@ class OdbFile(object):
         return self._items[class_type.__name__]
 
     def get_arch(self):
-        #TODO Durp
-        return 'i386'
+        return self.binary.options.architecture
 
     def execute(self, operation):
 
