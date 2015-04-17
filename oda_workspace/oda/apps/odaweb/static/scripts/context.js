@@ -60,11 +60,11 @@ odaApplication.run(function($rootScope, editor, odbFile){
             action: createAction(function (data) { $rootScope.$broadcast('command.comment', data); })
         },
         {
-            text: '<span class="shortcut-text">Code -> Data</span><span class="shortcut-key">c</span>',
+            text: '<span class="shortcut-text">Code -> Data</span><span class="shortcut-key">d</span>',
             action: createAction(function (data) { $rootScope.$broadcast('command.codeToData', data); })
         },
         {
-            text: '<span class="shortcut-text">Data -> Code</span><span class="shortcut-key">d</span>',
+            text: '<span class="shortcut-text">Data -> Code</span><span class="shortcut-key">c</span>',
             action: createAction(function (data) { $rootScope.$broadcast('command.dataToCode', data); })
         },
         {
