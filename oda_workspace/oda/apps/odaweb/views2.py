@@ -507,10 +507,6 @@ def upload(request):
 
         odb_file = OdbFile(BinaryFileModel(binary_file.id))
 
-        if arch != 'UNKNOWN!':
-            odb_file.execute(LoadOperation())
-            odb_file.execute(PassiveScanOperation())
-
         #todo this should not be saved until after user has committed options
         oda_master.odb_file = odb_file
 
