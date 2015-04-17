@@ -24,6 +24,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/toastr/toastr.css' %}"/>
 
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/slickgrid/slick.grid.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/slickgrid/slick-default-theme.css' %}"/>z
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/slickgrid/examples.css' %}"/>
 
     {% endcompress %}
