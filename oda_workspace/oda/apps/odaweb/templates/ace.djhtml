@@ -185,7 +185,7 @@
         <h3>Open File</h3>
     </div>
     <div class="modal-body">
-        <form ng-show="!loading" id="upload-form" class="form-horizontal"
+        <form  name="uploadForm" ng-show="!loading" id="upload-form" class="form-horizontal"
               enctype="multipart/form-data"
               action="_upload" method="post">
 
@@ -200,7 +200,7 @@
                 <div class="col-sm-8">
                     <input type="text" class="form-control"
                            ng-model="data.projectName"
-                            placeholder="Project Name"/>
+                            placeholder="Project Name" required/>
                 </div>
             </div>
 
@@ -208,7 +208,7 @@
                 <label for="filename" class="col-sm-4 control-label">File</label>
                 <div class="col-sm-8">
                     <!--<input id="filename" type="text" class="input-medium disabled" name="filename" readonly>-->
-                    <input class="form-control" type="file" id="file" file-model="uploadFile">
+                    <input class="form-control" type="file" id="file" file-model="uploadFile" required>
                 </div>
             </div>
         </form>
@@ -223,7 +223,7 @@
 
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-primary" ng-disabled="uploadForm.$invalid" ng-click="ok()">OK</button>
         <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
     </div>
 </script>
