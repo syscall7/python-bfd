@@ -655,18 +655,27 @@ odaApplication.run(function($rootScope, $modal, odbFile, editor){
     });
 
     $rootScope.$on('command.dataToCode', function(event,data){
+        if (data.isCode) {
+            return;
+        }
 
         odbFile.makeCode(data.offset);
-
     });
 
 
-    $rootScope.$on('command.codeToData', function(event,data){
+    $rootScope.$on('command.codeToData', function(event, data){
+        if (!data.isCode) {
+            return;
+        }
+
         odbFile.makeData(data.offset);
     });
 
 
     $rootScope.$on("command.makeFunction", function(event, data) {
+        if (!data.isCode) {
+            return;
+        }
 
         var scope = $rootScope.$new(true);
 

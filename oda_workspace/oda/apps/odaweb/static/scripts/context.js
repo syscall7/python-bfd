@@ -3,10 +3,27 @@ odaApplication.run(function($rootScope, editor, odbFile){
     context.init({preventDoubleContext: false});
 
     context.show.add(function(menu, e){
-        console.log("context-show", editor.setActiveCellFromEvent(e)); ;
+        editor.setActiveCellFromEvent(e);
+        var rowData = editor.getActiveRowData();
+
+
+
+        if (rowData == null) {
+            return;
+        }
+
+        var isCode = rowData.isCode;
+
+        console.log("context-show", rowData);
 
         var shortcuts = menu.find('.shortcut-text');
-        shortcuts.removeClass('shortcut-text-disabled')
+        shortcuts.removeClass('shortcut-text-disabled');
+
+        if (isCode) {
+            $('.data-only').addClass('shortcut-text-disabled');
+        } else {
+            $('.code-only').addClass('shortcut-text-disabled');
+        }
 
         /*
         var session = editor.getSession();
@@ -60,15 +77,15 @@ odaApplication.run(function($rootScope, editor, odbFile){
             action: createAction(function (data) { $rootScope.$broadcast('command.comment', data); })
         },
         {
-            text: '<span class="shortcut-text">Code -> Data</span><span class="shortcut-key">d</span>',
+            text: '<span class="shortcut-text code-only">Code -> Data</span><span class="shortcut-key">d</span>',
             action: createAction(function (data) { $rootScope.$broadcast('command.codeToData', data); })
         },
         {
-            text: '<span class="shortcut-text">Data -> Code</span><span class="shortcut-key">c</span>',
+            text: '<span class="shortcut-text data-only">Data -> Code</span><span class="shortcut-key">c</span>',
             action: createAction(function (data) { $rootScope.$broadcast('command.dataToCode', data); })
         },
         {
-            text: '<span class="shortcut-text">Create/Edit Function</span>',
+            text: '<span class="shortcut-text code-only">Create/Edit Function</span>',
             action: createAction(function (data) { $rootScope.$broadcast('command.makeFunction', data); })
         }
         /*,
