@@ -1193,6 +1193,12 @@ var UploadFileController = function($scope, $modalInstance, fileUpload){
         projectName: null
     };
 
+    $scope.$watch('uploadFile', function() {
+        if ($scope.uploadFile && $scope.data.projectName == null) {
+            $scope.data.projectName = $scope.uploadFile.name;
+        }
+    });
+
     $scope.ok = function () {
         $scope.loading = true;
 
