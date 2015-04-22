@@ -1208,6 +1208,8 @@ var UploadFileController = function($scope, $modalInstance, fileUpload){
         }
     });
 
+
+
     $scope.ok = function () {
         $scope.loading = true;
 
@@ -1283,6 +1285,8 @@ var ConfigureFileController = function($scope, $modalInstance, $http, fileData) 
 
     console.log('ConfigureFileController', fileData);
 
+    $scope.loading = false;
+
     $scope.data = {
         fileData: fileData,
         sandbox: false
@@ -1293,6 +1297,8 @@ var ConfigureFileController = function($scope, $modalInstance, $http, fileData) 
     };
 
     $scope.ok = function () {
+
+        $scope.loading = true;
 
         var computeSelected = function(platformOptions) {
             var selected = [];

@@ -155,8 +155,16 @@
 
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">OK</button>
-        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+        <div ng-show="loading">
+            <div style="width:106px; height:94px; padding-left:700px;">
+                <img src="/static2/images/oda.png" style="position:absolute; z-image:0;"/>
+                <img src="/static2/images/oda.gif" style="position:absolute; z-image:1;"/>
+            </div>
+        </div>
+        <div ng-hide="loading">
+            <button class="btn btn-primary" ng-disabled="loading" ng-click="ok()">OK</button>
+            <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+        </div>
     </div>
 </script>
 
@@ -226,7 +234,7 @@
 
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" ng-disabled="uploadForm.$invalid" ng-click="ok()">OK</button>
+        <button class="btn btn-primary" ng-disabled="uploadForm.$invalid || loading" ng-click="ok()">OK</button>
         <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
     </div>
 </script>
