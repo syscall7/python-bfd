@@ -1,5 +1,6 @@
 import logging
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseNotAllowed
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, link, api_view
@@ -189,9 +190,13 @@ class BinaryStringViewSet(viewsets.GenericViewSet):
 
         previous_odb = oda_master.odb_file
 
-        odb_file = OdbFile(BinaryString(request.DATA['binary_string'], previous_odb.get_binary().options.architecture))
-        odb_file.execute(LoadOperation())
-        odb_file.execute(PassiveScanOperation())
+        try:
+            odb_file = OdbFile(BinaryString(request.DATA['binary_string'], previous_odb.get_binary().options.architecture))
+            odb_file.execute(LoadOperation())
+            odb_file.execute(PassiveScanOperation())
+        except (TypeError, UnicodeDecodeError):
+            return HttpResponseNotAllowed('Invalid hex digits')
+
         oda_master.odb_file = odb_file
         oda_master.save()
 
