@@ -3,6 +3,9 @@
 //Socket IO
 
 odaApplication.run(function($rootScope, addrBar, odbFile, odaSession, statusBar){
+    return;
+
+
     var currentUser = $rootScope.currentUser;
 
     if (currentUser == null) {
