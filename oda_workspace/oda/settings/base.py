@@ -129,6 +129,12 @@ ACCOUNT_SIGNUP_FORM_CLASS='oda.apps.users.allauth.SignupForm'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 
+# Email Settings
+EMAIL_HOST='smtp.sendgrid.net'
+EMAIL_PORT=2525
+os.environ.get('ODA_EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD='waPupkQLKN3ZI'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 INSTALLED_APPS = (
     'django.contrib.auth',
