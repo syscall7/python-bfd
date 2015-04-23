@@ -194,7 +194,7 @@ class BinaryStringViewSet(viewsets.GenericViewSet):
             odb_file = OdbFile(BinaryString(request.DATA['binary_string'], previous_odb.get_binary().options.architecture))
             odb_file.execute(LoadOperation())
             odb_file.execute(PassiveScanOperation())
-        except (TypeError, UnicodeDecodeError):
+        except (TypeError, UnicodeDecodeError, UnicodeEncodeError):
             return HttpResponseNotAllowed('Invalid hex digits')
 
         oda_master.odb_file = odb_file
