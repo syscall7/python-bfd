@@ -3,7 +3,7 @@
 # Description: Generate a report of what was uploaded in a given day
 # Date: 22 April 2015
 # -----------------------------------------------------------------------------
-from oda.apps.odaweb.models import OdaMaster
+from oda.apps.odaweb.models import OdaMaster, BinaryFileModel
 from django.core.management.base import BaseCommand
 import os
 from datetime import date, timedelta
@@ -11,6 +11,7 @@ from subprocess import Popen, PIPE
 import hashlib
 from django.contrib.auth.models import User
 import MySQLdb
+import traceback
 
 # import smtplib for the actual sending function
 import smtplib
@@ -45,11 +46,14 @@ template = """
 <body>
 <h3>{{ date }}</h3>
 
-Total File Uploads: {{ total_uploads }}<br>
+New OdaMasters: {{ total_masters }}<br>
+New File Uploads: {{ total_binary_files }}<br>
+New Binary Strings: {{ total_binary_strings }}<br>
 Total Bytes Uploaded: {{ total_bytes|filesizeformat }}<br>
 Unique Files: {{ unique_files }}<br>
 Unique IPs: {{ unique_ips }}<br>
 Unique User Accounts: {{ unique_users }}<br>
+New User Accounts: {{ new_users }}<br>
 <br>
 
 <div style="border:3px solid #6B7C70; border-radius: 6px; float:left">
@@ -91,6 +95,13 @@ def generate_report(day):
     unique_md5s = []
     total_bytes = 0
     uploads = []
+
+    total_binary_files = 0
+    total_binary_strings = 0
+
+    unique_binary_files = 0
+    unique_binary_strings = 0
+
     Upload = namedtuple('Upload', 'date shortname filename ip desc size md5')
 
     # fetch all the new oda masters from today
@@ -100,28 +111,38 @@ def generate_report(day):
 
     for m in oda_masters:
 
-        filename = m.odb_file.binary.name()
-        desc = m.odb_file.binary.desc()[0:48]
-        size = m.odb_file.binary.size()
-        total_bytes += size
-        md5 = m.odb_file.binary.md5()
-        if md5 not in unique_md5s:
-            unique_md5s.append(md5)
-        md5 = "%s...%s" % (md5[0:6], md5[-6:])
+        if type(m.odb_file.binary) == BinaryFileModel:
+            filename = m.odb_file.binary.name
 
-        timestamp = m.creation_date.strftime('%I:%M:%S %p')
+            desc = ''
+            size = 0
+            md5 = 123
 
-        if m.ipAddress not in unique_ips:
-            unique_ips.append(m.ipAddress)
+            #desc = m.odb_file.binary.desc()[0:48]
+            #size = m.odb_file.binary.size()
+            #total_bytes += size
+            #md5 = m.odb_file.binary.md5()
+            #if md5 not in unique_md5s:
+            #    unique_md5s.append(md5)
+            #md5 = "%s...%s" % (md5[0:6], md5[-6:])
 
-        u = Upload(timestamp, m.short_name, filename, m.ipAddress, desc=desc, size=size, md5=md5)
-        uploads.append(u)
+            timestamp = m.creation_date.strftime('%I:%M:%S %p')
+
+            if m.ipAddress not in unique_ips:
+                unique_ips.append(m.ipAddress)
+
+            u = Upload(timestamp, m.short_name, filename, m.ipAddress, desc=desc, size=size, md5=md5)
+            uploads.append(u)
+        else:
+            total_binary_strings += 1
 
     t = Template(template)
     c = Context({
+        'total_masters': len(oda_masters),
+        'total_binary_files': len(uploads),
+        'total_binary_strings': total_binary_strings,
         'uploads': uploads,
         'date': day.strftime('%A, %B %d, %Y'),
-        'total_uploads': len(oda_masters),
         'total_bytes': total_bytes,
         'unique_files': len(unique_md5s),
         'unique_ips': len(unique_ips),
@@ -139,9 +160,6 @@ def email(day, report):
     msg['From'] = SENDER
     msg['To'] =''.join(['%s, ' % i for i in RECEIVERS])
 
-    print report
-    return
-
     # Send the message via our own SMTP server, but don't include the
     # envelope header.
     s = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
@@ -155,6 +173,14 @@ class Command(BaseCommand):
     help = 'Example: ./migrate.py report_activity'
 
     def handle(self, *args, **options):
-        yesterday=date.today() - timedelta(1)
-        report = generate_report(yesterday)
-        email(yesterday, report)
+        # run the report for yesterday's date
+        day=date.today() - timedelta(1)
+    
+        # try to run the report
+        try:
+            report = generate_report(day)
+        except:
+            report = '<pre>%s</pre>' % traceback.format_exc()
+
+        # email the report or the caught exception
+        email(day, report)

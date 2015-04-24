@@ -22,7 +22,7 @@ ALLOWED_HOSTS = (
     'onlinedisassembler.com',
     'www.onlinedisassembler.com',
     '.onlinedisassembler.com',
-    '146.148.90.46',
+    '23.236.58.138',
 )
 
 # Absolute path to the directory static files should be collected to.
