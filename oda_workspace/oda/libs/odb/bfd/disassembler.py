@@ -7,6 +7,15 @@ from oda.libs.odb.ops.active_scan_operation import ActiveScanOperation
 from oda.libs.odb.ops.create_function_operation import CreateFunctionOperation, EditFunctionOperation
 from ofd import UNKNOWN_ARCH
 
+from oda.libs.odb.structures.comment import Comment
+from oda.libs.odb.structures.data_string import DataString
+from oda.libs.odb.structures.branch import Branch
+from oda.libs.odb.structures.function import Function
+from oda.libs.odb.structures.parcel import Parcel
+from oda.libs.odb.structures.section import Section
+from oda.libs.odb.structures.symbol import Symbol
+from oda.libs.odb.structures.label import Label
+
 def get_supported_archs():
     '''Return a list of all architectures supported
     '''
@@ -137,10 +146,40 @@ class Disassembler(object):
         sorted_du.sort(key=lambda x: x.offset, reverse=False)
         return sorted_du
 
+    def unused_get_text_listing_via_dus(self):
+        dus = self.analyze(0, self.total_lines(), True)
+        functions = {f.offset: f for f in self.odb_file.get_structure_list(Function)}
+        labels = {l.offset:l.label for l in self.odb_file.get_structure_list(Label)}
+        listing = ''
+        # calculate the maximum width needed to fit the longest raw bytes
+        max_raw_width = reduce(lambda x, y: x if x > len(y.rawBytes) else len(y.rawBytes), dus, 0)
+        max_sec_width = reduce(lambda x, y: x if x > len(y.section_name) else len(y.section_name), dus, 0)
+        for du in dus:
+
+            if du.offset in functions.keys():
+                listing += '%s            %s ; ======================== FUNCTION =========================\n' % (' '*max_sec_width, ' '*max_raw_width)
+                listing += '%s            %s %s\n' %  (' '*max_sec_width, ' '*max_raw_width, functions[du.offset].name)
+            if du.offset in labels.keys():
+                listing += '%s:0x%08x      %s:\n' % (du.section_name.rjust(max_sec_width, ' '),
+                                                  du.offset,
+                                                  labels[du.offset])
+            target = ''
+            if du.isTargetAddrValid:
+                target = labels[du.targetAddr] if du.targetAddr in labels.keys() else '0x%08x' % du.targetAddr
+
+            listing += '%s:0x%08x %s %s %s\n' % (du.section_name.rjust(max_sec_width, ' '),
+                                              du.offset,
+                                              du.rawBytes.ljust(max_raw_width, ' '),
+                                              du.instStr,
+                                              target)
+        return listing
+
     def get_text_listing(self):
+        parcels = ParcelList(self.odb_file.get_structure_list(Parcel))
         architecture = self.odb_file.get_binary().options.architecture
         analyzer = analyzer_factory(architecture)
-        return analyzer.get_text_listing(self.odb_file)
+        return analyzer.get_text_listing(self.odb_file, parcels)
+
 
     @staticmethod
     def guess_bfd_arch(filename):

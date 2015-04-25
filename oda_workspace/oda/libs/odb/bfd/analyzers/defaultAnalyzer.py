@@ -421,9 +421,12 @@ class defaultAnalyzer(object):
 
         logger.debug("Analyze: SECOND PASS COMPLETE")
 
-    def get_text_listing(self, odb_file):
+    def get_text_listing(self, odb_file, parcels):
 
-        def funcFmtLine(addr, rawData, instr, abfd, sec_name):
+        parcels.sort()
+        MAX_SEC_NAME_WIDTH = 32
+
+        def funcFmtCode(addr, rawData, instr, abfd, sec_name):
             ret = ''
             if abfd.syms_by_addr.has_key(addr):
                 ret += '\n%s:%08x <%s>:\n' % (sec_name, addr, abfd.syms_by_addr[addr].name)
@@ -432,16 +435,35 @@ class defaultAnalyzer(object):
             else:
                 bytes = ''.join(['%02x ' % i for i in rawData])
 
-            ret += '%s:%08x %-32s %s\n' % (sec_name, addr, bytes, instr)
+            ret += '%s:%08x %-32s %s\n' % (sec_name.rjust(MAX_SEC_NAME_WIDTH, ' '), addr, bytes, instr)
             return ret
 
-        ofd = Ofd(odb_file.get_binary())
-        text = ''
-        for sec in ofd.get_code_sections().sections:
-            (output, _, _) = ofd.disassemble(sec.name, funcFmtLine=funcFmtLine, funcFmtLineArgs={ 'sec_name': sec.name})
-            text += output
+        # TODO: refactor and use parseDataParcel
+        def fmtDataParcel(p):
+            ret = ''
+            # Get the raw data from the file
+            rawData = self.ofd.bfd.raw_data(self.ofd.bfd.sections[p.sec_name], p.vma_start, p.vma_end - p.vma_start)
+            i = 0
+            for b in rawData:
+                ret += '%s:%08x %-32s %s %s\n' % (p.sec_name.rjust(MAX_SEC_NAME_WIDTH, ' '),
+                                                  p.vma_start+i,
+                                                  '%02x' % ord(b),
+                                                  '0x%02x' % ord(b),
+                                                  '\'%s\'' % b if b in string.printable else '')
+                i += 1
+            return ret
 
-        return text
+        self.ofd = Ofd(odb_file.get_binary())
+        listing = ''
+        for p in parcels:
+            if p.is_code:
+                (output, _, _) = self.ofd.disassemble(p.sec_name, start=p.vma_start, stop=p.vma_end, funcFmtLine=funcFmtCode, funcFmtLineArgs={ 'sec_name': p.sec_name})
+            else:
+                output = fmtDataParcel(p)
+
+            listing += output
+
+        return listing
 
     def addBranchLinesAndLabels(self, dunits, branches):
 
