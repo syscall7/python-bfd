@@ -704,7 +704,10 @@ def download_text_listing(request):
     oda_master = OdaMaster.objects.get(short_name=short_name, revision=revision)
 
     dasm = Disassembler(oda_master.odb_file)
-    response = HttpResponse(dasm.get_text_listing(), content_type='text')
+    text_listing = dasm.get_text_listing()
+    if 'windows' in request.META['HTTP_USER_AGENT'].lower():
+        text_listing = text_listing.replace('\n', '\r\n')
+    response = HttpResponse(text_listing, content_type='text')
     response['Content-Disposition'] = 'attachment; filename="%s.txt"' % oda_master.project_name
     return response
 
