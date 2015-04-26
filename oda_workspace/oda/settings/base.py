@@ -137,6 +137,7 @@ EMAIL_HOST_PASSWORD='waPupkQLKN3ZI'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 INSTALLED_APPS = (
+    'django.contrib.humanize',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

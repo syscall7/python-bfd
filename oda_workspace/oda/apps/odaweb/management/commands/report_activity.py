@@ -38,6 +38,7 @@ RECEIVERS = [
 
 # our template (could just as easily be stored in a separate file)
 template = """
+{% load humanize %}
 <html>
 <head>
 <title>ODA Upload Report {{ date }}</title>
@@ -46,14 +47,17 @@ template = """
 <body>
 <h3>{{ date }}</h3>
 
-New OdaMasters: {{ total_masters }}<br>
-New File Uploads: {{ total_binary_files }}<br>
-New Binary Strings: {{ total_binary_strings }}<br>
-Total Bytes Uploaded: {{ total_bytes|filesizeformat }}<br>
-Unique Files: {{ unique_files }}<br>
-Unique IPs: {{ unique_ips }}<br>
-Unique User Accounts: {{ unique_users }}<br>
-New User Accounts: {{ new_users }}<br>
+New OdaMasters: {{ num_new_masters | intcomma }}<br>
+New File Uploads: {{ num_new_binary_files | intcomma  }}<br>
+New Binary Strings: {{ num_new_binary_strings | intcomma }}<br>
+New Bytes Uploaded: {{ num_new_bytes | filesizeformat }}<br>
+New Unique Files: {{ num_new_unique_files | intcomma }}<br>
+New Unique IPs: {{ num_new_unique_ips | intcomma }}<br>
+New User Accounts: {{ num_new_users | intcomma }}<br>
+
+Total User Accounts: {{ num_total_unique_users | intcomma }}<br>
+Total Unique IPs: {{ num_total_unique_ips | intcomma }}<br>
+Total ODA Masters: {{ num_total_oda_masters | intcomma }}<br>
 <br>
 
 <div style="border:3px solid #6B7C70; border-radius: 6px; float:left">
@@ -71,7 +75,7 @@ New User Accounts: {{ new_users }}<br>
         </tr>
     </thead>
     <tbody>
-        {% for upload in uploads %}
+        {% for upload in new_binary_files %}
         <tr style="background-color:{% cycle '#B2CEBB' '#FFFFFF' %}">
             <td style="padding: 2px 15px;"><a href=http://www.onlinedisassembler.com/odaweb/{{ upload.shortname }}>{{ upload.filename }}</a></td>
             <td style="padding: 2px 15px;">{{ upload.size|filesizeformat }}</td>
@@ -91,13 +95,11 @@ New User Accounts: {{ new_users }}<br>
 
 def generate_report(day):
 
-    unique_ips = []
     unique_md5s = []
-    total_bytes = 0
-    uploads = []
+    num_new_bytes = 0
+    new_binary_files = []
 
-    total_binary_files = 0
-    total_binary_strings = 0
+    num_new_binary_strings = 0
 
     unique_binary_files = 0
     unique_binary_strings = 0
@@ -106,8 +108,6 @@ def generate_report(day):
 
     # fetch all the new oda masters from today
     oda_masters = OdaMaster.objects.filter(creation_date__startswith=day)
-    users_new = User.objects.filter(date_joined__startswith=day)
-    users_all = User.objects.all()
 
     for m in oda_masters:
 
@@ -120,7 +120,7 @@ def generate_report(day):
 
             #desc = m.odb_file.binary.desc()[0:48]
             #size = m.odb_file.binary.size()
-            #total_bytes += size
+            #num_new_bytes += size
             #md5 = m.odb_file.binary.md5()
             #if md5 not in unique_md5s:
             #    unique_md5s.append(md5)
@@ -128,26 +128,25 @@ def generate_report(day):
 
             timestamp = m.creation_date.strftime('%I:%M:%S %p')
 
-            if m.ipAddress not in unique_ips:
-                unique_ips.append(m.ipAddress)
-
             u = Upload(timestamp, m.short_name, filename, m.ipAddress, desc=desc, size=size, md5=md5)
-            uploads.append(u)
+            new_binary_files.append(u)
         else:
-            total_binary_strings += 1
+            num_new_binary_strings += 1
 
     t = Template(template)
     c = Context({
-        'total_masters': len(oda_masters),
-        'total_binary_files': len(uploads),
-        'total_binary_strings': total_binary_strings,
-        'uploads': uploads,
         'date': day.strftime('%A, %B %d, %Y'),
-        'total_bytes': total_bytes,
-        'unique_files': len(unique_md5s),
-        'unique_ips': len(unique_ips),
-        'unique_users': len(users_all),
-        'new_users': len(users_new),
+        'num_new_masters': len(oda_masters),
+        'num_new_binary_files': len(new_binary_files),
+        'num_new_users': User.objects.filter(date_joined__startswith=day).count(),
+        'num_new_binary_strings': num_new_binary_strings,
+        'new_binary_files': new_binary_files,
+        'num_new_bytes': num_new_bytes,
+        'num_new_unique_files': len(unique_md5s),
+        'num_new_unique_ips': oda_masters.values().distinct().count(),
+        'num_total_unique_users': User.objects.all().count(),
+        'num_total_unique_ips': OdaMaster.objects.all().values('ipAddress').distinct().count(),
+        'num_total_oda_masters': OdaMaster.objects.all().count(),
         })
 
     return t.render(c)
@@ -184,3 +183,4 @@ class Command(BaseCommand):
 
         # email the report or the caught exception
         email(day, report)
+
