@@ -3,27 +3,23 @@
 # Description: Generate a report of what was uploaded in a given day
 # Date: 22 April 2015
 # -----------------------------------------------------------------------------
-from oda.apps.odaweb.models import OdaMaster, BinaryFileModel
-from django.core.management.base import BaseCommand
 import os
-from datetime import date, timedelta
-from subprocess import Popen, PIPE
 import hashlib
-from django.contrib.auth.models import User
 import MySQLdb
 import traceback
-
-# import smtplib for the actual sending function
 import smtplib
 
-# import the email modules we'll need
 from email.mime.text import MIMEText
-
 from collections import namedtuple
+from datetime import date, timedelta
+from subprocess import Popen, PIPE
+
+from django.core.management.base import BaseCommand
 from django.template import Template, Context
 from django.conf import settings
-#settings.configure() # We have to do this to use django templates standalone - see
-# http://stackoverflow.com/questions/98135/how-do-i-use-django-templates-without-the-rest-of-django
+from django.contrib.auth.models import User
+
+from oda.apps.odaweb.models import OdaMaster, BinaryFileModel
 
 # pointer to upload directory
 UPLOAD_DIR = '/tmp/odaweb2/uploads'
@@ -47,13 +43,17 @@ template = """
 <body>
 <h3>{{ date }}</h3>
 
-New OdaMasters: {{ num_new_masters | intcomma }}<br>
-New File Uploads: {{ num_new_binary_files | intcomma  }}<br>
-New Binary Strings: {{ num_new_binary_strings | intcomma }}<br>
-New Bytes Uploaded: {{ num_new_bytes | filesizeformat }}<br>
-New Unique Files: {{ num_new_unique_files | intcomma }}<br>
-New Unique IPs: {{ num_new_unique_ips | intcomma }}<br>
+Day's Visitors: {{ num_days_unique_ips | intcomma }}<br>
+Day's OdaMasters: {{ num_new_masters | intcomma }}<br>
+Day's File Uploads: {{ num_new_binary_files | intcomma  }}<br>
+Day's Binary Strings: {{ num_new_binary_strings | intcomma }}<br>
+Day's Bytes Uploaded: {{ num_new_bytes | filesizeformat }}<br>
+Day's Unique Files: {{ num_new_unique_files | intcomma }}<br>
+<br>
+
+New Visitors: {{ num_new_unique_ips | intcomma }}<br>
 New User Accounts: {{ num_new_users | intcomma }}<br>
+<br>
 
 Total User Accounts: {{ num_total_unique_users | intcomma }}<br>
 Total Unique IPs: {{ num_total_unique_ips | intcomma }}<br>
@@ -132,6 +132,15 @@ def generate_report(day):
             new_binary_files.append(u)
         else:
             num_new_binary_strings += 1
+    
+    # the set of unique IP addresses not including the ones from this day
+    lifetime_unique_ips = set(OdaMaster.objects.exclude(creation_date__startswith=day).values_list('ipAddress', flat=True).distinct())
+
+    # the set of unique IP addresses from this day
+    days_unique_ips = set(OdaMaster.objects.filter(creation_date__startswith=day).values_list('ipAddress', flat=True).distinct())
+
+    # IPs never seen before today
+    num_new_unique_ips = len(lifetime_unique_ips & days_unique_ips)
 
     t = Template(template)
     c = Context({
@@ -143,7 +152,8 @@ def generate_report(day):
         'new_binary_files': new_binary_files,
         'num_new_bytes': num_new_bytes,
         'num_new_unique_files': len(unique_md5s),
-        'num_new_unique_ips': oda_masters.values().distinct().count(),
+        'num_days_unique_ips': oda_masters.values('ipAddress').distinct().count(),
+        'num_new_unique_ips': num_new_unique_ips,
         'num_total_unique_users': User.objects.all().count(),
         'num_total_unique_ips': OdaMaster.objects.all().values('ipAddress').distinct().count(),
         'num_total_oda_masters': OdaMaster.objects.all().count(),
