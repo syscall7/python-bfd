@@ -133,7 +133,7 @@ ACCOUNT_UNIQUE_EMAIL = True
 EMAIL_HOST='smtp.sendgrid.net'
 EMAIL_PORT=2525
 os.environ.get('ODA_EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD='waPupkQLKN3ZI'
+EMAIL_HOST_PASSWORD=os.environ.get('ODA_EMAIL_HOST_PASSWORD')
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 INSTALLED_APPS = (

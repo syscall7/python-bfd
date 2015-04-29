@@ -11,7 +11,7 @@ import smtplib
 
 from email.mime.text import MIMEText
 from collections import namedtuple
-from datetime import date, timedelta
+from datetime import datetime, timedelta
 from subprocess import Popen, PIPE
 
 from django.core.management.base import BaseCommand
@@ -37,7 +37,7 @@ template = """
 {% load humanize %}
 <html>
 <head>
-<title>ODA Upload Report {{ date }}</title>
+<title>ODA Upload Report - {{ startdate }} to {{ enddate }}</title>
 <link rel="stylesheet" type="text/css" href="http://www.onlinedisassembler.com/static2/css/oda2.css" />
 </head>
 <body>
@@ -93,7 +93,7 @@ Total ODA Masters: {{ num_total_oda_masters | intcomma }}<br>
 """
 
 
-def generate_report(day):
+def generate_report(start, end):
 
     unique_md5s = []
     num_new_bytes = 0
@@ -107,24 +107,20 @@ def generate_report(day):
     Upload = namedtuple('Upload', 'date shortname filename ip desc size md5')
 
     # fetch all the new oda masters from today
-    oda_masters = OdaMaster.objects.filter(creation_date__startswith=day)
+    oda_masters = OdaMaster.objects.filter(creation_date__range=[start, end])
 
     for m in oda_masters:
 
         if type(m.odb_file.binary) == BinaryFileModel:
             filename = m.odb_file.binary.name
 
-            desc = ''
-            size = 0
-            md5 = 123
-
-            #desc = m.odb_file.binary.desc()[0:48]
-            #size = m.odb_file.binary.size()
-            #num_new_bytes += size
-            #md5 = m.odb_file.binary.md5()
-            #if md5 not in unique_md5s:
-            #    unique_md5s.append(md5)
-            #md5 = "%s...%s" % (md5[0:6], md5[-6:])
+            desc = m.odb_file.binary.desc()[0:48]
+            size = m.odb_file.binary.size()
+            num_new_bytes += size
+            md5 = m.odb_file.binary.md5()
+            if md5 not in unique_md5s:
+                unique_md5s.append(md5)
+            md5 = "%s...%s" % (md5[0:6], md5[-6:])
 
             timestamp = m.creation_date.strftime('%I:%M:%S %p')
 
@@ -134,20 +130,21 @@ def generate_report(day):
             num_new_binary_strings += 1
     
     # the set of unique IP addresses not including the ones from this day
-    lifetime_unique_ips = set(OdaMaster.objects.exclude(creation_date__startswith=day).values_list('ipAddress', flat=True).distinct())
+    lifetime_unique_ips = set(OdaMaster.objects.filter(creation_date__lt=start).values_list('ipAddress', flat=True).distinct())
 
     # the set of unique IP addresses from this day
-    days_unique_ips = set(OdaMaster.objects.filter(creation_date__startswith=day).values_list('ipAddress', flat=True).distinct())
+    days_unique_ips = set(OdaMaster.objects.filter(creation_date__gte=start).values_list('ipAddress', flat=True).distinct())
 
     # IPs never seen before today
     num_new_unique_ips = len(lifetime_unique_ips & days_unique_ips)
 
     t = Template(template)
     c = Context({
-        'date': day.strftime('%A, %B %d, %Y'),
+        'startdate': start.isoformat(),
+        'enddate': end.isoformat(),
         'num_new_masters': len(oda_masters),
         'num_new_binary_files': len(new_binary_files),
-        'num_new_users': User.objects.filter(date_joined__startswith=day).count(),
+        'num_new_users': User.objects.filter(date_joined__range=[start, end]).count(),
         'num_new_binary_strings': num_new_binary_strings,
         'new_binary_files': new_binary_files,
         'num_new_bytes': num_new_bytes,
@@ -161,18 +158,18 @@ def generate_report(day):
 
     return t.render(c)
 
-def email(day, report):
+def email(start, end, report):
     # Create a text/plain message
     msg = MIMEText(report.encode('utf-8'), 'html', _charset='utf-8')
 
-    msg['Subject'] = 'ODA Upload Report %s' % day.strftime('%m/%d/%y')
+    msg['Subject'] = 'ODA Upload Report %s' % start.strftime('%m/%d/%y')
     msg['From'] = SENDER
     msg['To'] =''.join(['%s, ' % i for i in RECEIVERS])
 
     # Send the message via our own SMTP server, but don't include the
     # envelope header.
     s = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
-    s.login('avderos', 'waPupkQLKN3ZI')
+    s.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
     s.sendmail(SENDER, RECEIVERS, msg.as_string())
     s.quit()
 
@@ -183,14 +180,15 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # run the report for yesterday's date
-        day=date.today() - timedelta(1)
+        end = datetime.utcnow()
+        start = end - timedelta(hours=24)
     
         # try to run the report
         try:
-            report = generate_report(day)
+            report = generate_report(start, end)
         except:
             report = '<pre>%s</pre>' % traceback.format_exc()
 
         # email the report or the caught exception
-        email(day, report)
+        email(start, end, report)
 

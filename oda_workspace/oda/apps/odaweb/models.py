@@ -103,7 +103,7 @@ class BinaryFileModel(Binary):
 
     @property
     def size(self):
-        BinaryFile.objects.get(id=self.binary_file_id).size
+        return BinaryFile.objects.get(id=self.binary_file_id).size
 
 
     @options.setter
