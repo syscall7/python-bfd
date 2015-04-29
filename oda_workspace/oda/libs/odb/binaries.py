@@ -1,4 +1,4 @@
-from abc import abstractmethod, abstractproperty
+from abc import abstractmethod, abstractproperty, ABCMeta
 import commands
 import os
 import hashlib
@@ -26,6 +26,9 @@ class Options(object):
 
 
 class Binary(object):
+
+    __metaclass__ = ABCMeta
+
     @abstractmethod
     def file_handle(self):
         pass
