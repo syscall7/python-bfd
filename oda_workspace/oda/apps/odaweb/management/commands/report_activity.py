@@ -114,7 +114,7 @@ def generate_report(start, end):
         if type(m.odb_file.binary) == BinaryFileModel:
             filename = m.odb_file.binary.name
 
-            desc = m.odb_file.binary.desc()[0:48]
+            desc = ' '.join(m.odb_file.binary.desc())[0:48]
             size = m.odb_file.binary.size()
             num_new_bytes += size
             md5 = m.odb_file.binary.md5()
