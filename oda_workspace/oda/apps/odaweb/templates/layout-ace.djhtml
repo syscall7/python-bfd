@@ -9,6 +9,12 @@
     <title>{%  block title %}ODA - The Online Disassembler{% endblock %}</title>
     <link rel="icon" type="image/png" href="{% static 'images/oda.png' %}" />
 
+    <meta charset="utf-8">
+    <meta name="description" content="ODA is an online disassembler for a wide range of machine architectures, including: Alpha, ARM, AVR, Intel x86, Motorola 68000, MIPS, PDP-11, PowerPC, SPARC, Z80, and more!  Upload a Windows PE file, ELF, or raw binary and then view the disassembly and object file meta date such as symbols and sections.">
+    <meta name="author" content="">
+    <meta name="keywords" content="online disassembler, reversing, reverse engineering, ELF, portable executable, Windows PE, binary, program analysis, malware, shell code, Alpha, ARM, AVR, Intel x86, Motorola 68000, MIPS, PDP-11, PowerPC, SPARC, Z80" />
+
+
     {% compress css %}
 
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/nprogress/nprogress.css' %}" />
