@@ -555,7 +555,7 @@ class defaultAnalyzer(object):
                 foundAddr = baseAddr+m.start()
 
                 for s in sectionGroup:
-                    if foundAddr > s.vma and foundAddr < s.vma+s.size:
+                    if foundAddr >= s.vma and foundAddr < s.vma+s.size:
                         results[foundAddr] = s.name
                         break;
 
