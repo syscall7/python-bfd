@@ -580,11 +580,15 @@ def load_odb(request):
 
     symbols = sym_dict.values()
 
+    parcels = sorted(odb_file.get_structure_list(Parcel), key=lambda p: p.vma_start)
+
+    sections = filter(lambda s: s.is_loadable(), odb_file.get_structure_list(Section))
+
     return Response({
         'functions': [FunctionSerializer(x).data for x in odb_file.get_structure_list(Function)],
         'labels': [LabelSerializer(x).data for x in odb_file.get_structure_list(Label)],
-        'sections': [SectionSerializer(x).data for x in odb_file.get_structure_list(Section)],
-        'parcels': [ParcelSerializer(x).data for x in odb_file.get_structure_list(Parcel)],
+        'sections': [SectionSerializer(x).data for x in sections],
+        'parcels': [ParcelSerializer(x).data for x in parcels],
         'comments': [CommentSerializer(x).data for x in odb_file.get_structure_list(Comment)],
         'symbols': [SymbolSerializer(x).data for x in symbols],
         'strings': [DataStringSerializer({
