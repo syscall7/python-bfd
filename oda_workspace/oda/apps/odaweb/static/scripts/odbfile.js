@@ -2,6 +2,7 @@
 
 var ODB_EVENTS = {
     CHANGED : 'odb.changed',
+    LOADED : 'odb.loaded',
     PARCELS_RELOADED: 'odb.parcelReload',
     LIVE_ENTRY_UPDATE: 'odb.liveentryupdate',
     DISPLAY_UNITS_LOADED: 'odb.displayUnitsLoaded',
@@ -133,7 +134,7 @@ var OdbFile = function(oda_master) {
         }.bind(this));
 
         $.when(fq, lq, sq, pq, symq, stringsq, dulenq, structtypesq, structfieldtypesq, runtimeReportQ, cmq).done(function (data) {
-            this._signal('loaded', this);
+            this._signal(ODB_EVENTS.LOADED, this);
         }.bind(this));
     };
 

@@ -528,7 +528,7 @@ function startOda() {
 
     odbFile.load();
 
-    odbFile.on('loaded', function (odbFile) {
+    odbFile.on(ODB_EVENTS.LOADED, function (odbFile) {
         $('loading-spinner').hide();
         $('.theeditor').show();
 
