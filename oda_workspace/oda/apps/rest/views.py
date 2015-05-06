@@ -587,7 +587,7 @@ def load_odb(request):
     return Response({
         'functions': [FunctionSerializer(x).data for x in odb_file.get_structure_list(Function)],
         'labels': [LabelSerializer(x).data for x in odb_file.get_structure_list(Label)],
-        'sections': [SectionSerializer(x).data for x in sections],
+        'sections': SectionSerializer(sections, many=True).data,
         'parcels': [ParcelSerializer(x).data for x in parcels],
         'comments': [CommentSerializer(x).data for x in odb_file.get_structure_list(Comment)],
         'symbols': [SymbolSerializer(x).data for x in symbols],
