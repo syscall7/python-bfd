@@ -1,5 +1,0 @@
-{% load staticfiles %}
-
-<div id="modal-whats-oda" class="modal hide fade">
-
-</div>
