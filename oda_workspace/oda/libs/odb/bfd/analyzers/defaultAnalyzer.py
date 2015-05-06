@@ -545,8 +545,12 @@ class defaultAnalyzer(object):
             if pattern.startswith('"') and pattern.endswith('"'):
                 return pattern[1:-1]
             else:
-                return binascii.unhexlify(pattern.replace(' ', ''))
-
+                try:
+                    return binascii.unhexlify(pattern.replace(' ', ''))
+                except TypeError:
+                    # Assume this is a string to search for
+                    # TODO: Throw the error and color a text box in the UI
+                    return pattern
         # find the pattern in the current haystack
         def needleInHaystack(needle, haystack, baseAddr, sectionGroup, results):
 
