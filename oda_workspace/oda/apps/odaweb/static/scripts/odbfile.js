@@ -50,45 +50,32 @@ var OdbFile = function(oda_master) {
     this.load = function () {
         this.shortName = this.oda_master.short_name;
 
-        var fq = $.get('/odaweb/api/functions/', {
-            short_name: this.shortName,
-            revision: this.revision
-        }).success(function (data) {
-            for (var i = 0; i < data.length; i++) {
-                this.functions[data[i].offset] = data[i];
-            }
-        }.bind(this));
-
-        var lq = $.get('/odaweb/api/labels/', {
-            short_name: this.shortName,
-            revision: this.revision
-        }).success(function (data) {
-            for (var i = 0; i < data.length; i++) {
-                this.labels[data[i].offset] = data[i];
-            }
-        }.bind(this));
-
-        var sq = $.get('/odaweb/api/sections/', {
-            short_name: this.shortName,
-            revision: this.revision
-        }).success(function (data) {
-            this.sections = data;
-        }.bind(this));
-
-        var pq = $.get('/odaweb/api/parcels/', {
-            short_name: this.shortName,
-            revision: this.revision
-        }).success(function (data) {
-                this.parcels = data;
-        }.bind(this));
-
-        var cmq = $.get('/odaweb/api/comments/', {
+        var loadq = $.get('/odaweb/api/load', {
             short_name: this.shortName,
             revision: this.revision
         }).success(function(data){
-            for (var i=0; i<data.length; i++) {
-                this.comments[data[i].offset] = data[i];
+            for (var i = 0; i < data.functions.length; i++) {
+                this.functions[data.functions[i].offset] = data.functions[i];
             }
+
+            for (var i = 0; i < data.labels.length; i++) {
+                this.labels[data.labels[i].offset] = data.labels[i];
+            }
+
+            for (var i=0; i<data.comments.length; i++) {
+                this.comments[data.comments[i].offset] = data.comments[i];
+            }
+
+            this.sections = data.sections;
+
+            this.parcels = data.parcels;
+
+            this.symbols = data.symbols;
+
+            this.strings = data.strings;
+
+            this.structTypes = data.structTypes;
+
         }.bind(this));
 
         var dulenq = $.get('/odaweb/api/displayunits/1/size', {
@@ -98,26 +85,6 @@ var OdbFile = function(oda_master) {
             this.displayUnitsLength = data;
         }.bind(this));
 
-        var symq = $.get('/odaweb/api/symbols/', {
-            short_name: this.shortName,
-            revision: this.revision
-        }).success(function(data) {
-            this.symbols = data;
-        }.bind(this));
-
-        var stringsq = $.get('/odaweb/api/strings/', {
-            short_name: this.shortName,
-            revision: this.revision
-        }).success(function(data) {
-            this.strings = data;
-        }.bind(this));
-
-        var structtypesq = $.get('/odaweb/api/cstructs/', {
-            short_name: this.shortName,
-            revision: this.revision
-        }).success(function(data) {
-            this.structTypes = data;
-        }.bind(this));
 
         var runtimeReportQ = $.get('/odaweb/api/sandbox/1/report/', {
             short_name: this.shortName,
@@ -133,7 +100,7 @@ var OdbFile = function(oda_master) {
             this.structFieldTypes = data;
         }.bind(this));
 
-        $.when(fq, lq, sq, pq, symq, stringsq, dulenq, structtypesq, structfieldtypesq, runtimeReportQ, cmq).done(function (data) {
+        $.when(loadq, dulenq, structfieldtypesq, runtimeReportQ).done(function (data) {
             this._signal(ODB_EVENTS.LOADED, this);
         }.bind(this));
     };

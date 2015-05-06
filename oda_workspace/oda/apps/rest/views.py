@@ -565,6 +565,36 @@ class SandboxViewSet(viewsets.GenericViewSet):
 
         return response
 
+@api_view(['GET'])
+def load_odb(request):
+    short_name = request.QUERY_PARAMS.get('short_name')
+    revision = request.QUERY_PARAMS.get('revision', 0)
+    oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
+    odb_file = oda.odb_file
+
+    sym_dict = {
+        sym.offset: sym
+            for sym in odb_file.get_structure_list(Symbol)
+                if (sym.type == 't' or sym.type=='T')
+    }
+
+    symbols = sym_dict.values()
+
+    return Response({
+        'functions': [FunctionSerializer(x).data for x in odb_file.get_structure_list(Function)],
+        'labels': [LabelSerializer(x).data for x in odb_file.get_structure_list(Label)],
+        'sections': [SectionSerializer(x).data for x in odb_file.get_structure_list(Section)],
+        'parcels': [ParcelSerializer(x).data for x in odb_file.get_structure_list(Parcel)],
+        'comments': [CommentSerializer(x).data for x in odb_file.get_structure_list(Comment)],
+        'symbols': [SymbolSerializer(x).data for x in symbols],
+        'strings': [DataStringSerializer({
+            'string': x.value,
+            'addr': x.addr
+        }).data for x in odb_file.get_structure_list(DataString)],
+        "structTypes": [CStructSerializer(x).data for x in odb_file.get_structure_list(CStruct)]
+    })
+
+
 class ShareView(APIView):
     def post(self, request):
         short_name = request.DATA.get('short_name')
