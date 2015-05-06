@@ -4,6 +4,7 @@
 {% load tags %}
 
 {% block body %}
+
 <div ng-include="'/static2/templates/navbar.html'"></div>
 
 <div>
@@ -20,8 +21,6 @@
     <div class="ui-layout-west" style="padding:10px;"
             ng-controller="DockController">
 
-        <!--<div class="sidebar-hex"
-             style="display: none">{% include 'sidebar-hex.djhtml' %}</div> -->
         <div ng-repeat="dock in Docker.docks"
              ng-show="isActive(dock)"
              ng-include="dock.template">

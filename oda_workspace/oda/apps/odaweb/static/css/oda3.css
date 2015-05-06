@@ -424,3 +424,83 @@
 .slick-row.odd {
     background: white;
 }
+
+
+
+
+/* Grid */
+
+.slick-row.active .slick-cell {
+    background-color: #FFB;
+}
+
+.cell-story {
+    white-space: normal !important;
+    line-height: 19px !important;
+}
+
+.loading-indicator {
+    display: inline-block;
+    padding: 12px;
+    background: white;
+    -opacity: 0.5;
+    color: black;
+    font-weight: bold;
+    z-index: 9999;
+    border: 1px solid red;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-box-shadow: 0 0 5px red;
+    -webkit-box-shadow: 0px 0px 5px red;
+    -text-shadow: 1px 1px 1px white;
+}
+
+.slick-row {
+    position: absolute;
+    background: white;
+    border: 0px;
+    line-height: 15px;
+}
+
+.loading-indicator label {
+    padding-left: 20px;
+    background: url('../images/ajax-loader-small.gif') no-repeat center left;
+}
+
+.cell-section {
+    text-align: right;
+    padding-right: 0px;
+}
+
+.cell-offset {
+    padding-left: 0px;
+}
+
+.cell-rawbytes {
+    color: gray;
+}
+
+.xref-location {
+    /* http://stackoverflow.com/questions/20376008/how-to-underline-text-and-change-mouse-cursor-to-pointer-in-ace-editor */
+    /* border-bottom: 1px solid black; */
+    font-weight: bold;
+    cursor: pointer;
+    padding-left: 8px;
+    color: #08c;
+}
+.xref-location:hover {
+    /* http://stackoverflow.com/questions/20376008/how-to-underline-text-and-change-mouse-cursor-to-pointer-in-ace-editor */
+    /* border-bottom: 1px solid black; */
+    color:#005580;
+    text-decoration: underline;
+}
+
+.live-input {
+    border: none;
+    font-family: "Monaco", "Menlo", "Ubuntu Mono", "Consolas", "source-code-pro", monospace;
+    font-size: 14px;
+}
+
+.insn {
+    color: #093c83;
+}

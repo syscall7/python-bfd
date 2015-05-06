@@ -36,45 +36,6 @@ def render_to_json(context):
     return HttpResponse(simplejson.dumps(context), mimetype='application/json')
 
 
-def index(request, disassembly_id, version=0):
-    logger.info('create session, user=' + str(request.user))
-
-    context = {}
-
-    saved = request.session.get('saved', False)
-
-    #try:
-    oda_master = create_session(request, disassembly_id, version)
-    #except Exception as e:
-    #    logger.exception("Failed to create_session [%s] [%s]", e.args, disassembly_id)
-    #    return redirect('/odaweb/')
-
-    if oda_master:
-        #d = Disassembler(oda_master.binary)
-        section_info = Ofd(oda_master.odb_file.get_binary()).get_loadable_sections()
-        context['master'] = oda_master
-        context['section_info'] = section_info
-        context['binary'] = oda_master.odb_file.get_binary()
-        context['project_name'] = oda_master.project_name
-        context['disassembly_id'] = oda_master.short_name
-        context['share_url'] = request.build_absolute_uri()
-        context['examples'] = Examples
-        context['supported_archs'] = get_supported_archs()
-        context['arch'] = oda_master.odb_file.get_binary().options.architecture #oda_master.binary.options.architecture
-        context['saved'] = saved
-
-        context['supported_endians'] = get_supported_endians()
-        context['options'] = get_platform_options(oda_master.odb_file.get_binary().options.architecture )
-        context['defaults'] = []
-        context['user'] = request.user
-        context['form_type'] = 'live'
-
-    request.session['saved'] = False
-    #from pprint import pprint
-    #print(pprint(context))
-    return render(request, 'index.djhtml', context)
-
-
 def save(request):
     class SaveForm(forms.Form):
         short_name = forms.CharField(required=True)

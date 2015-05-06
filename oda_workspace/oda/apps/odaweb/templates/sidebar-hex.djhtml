@@ -1,6 +1,0 @@
-<div id="hex-display" style="padding:5px; background-color:white;" class="active item">
-
-    <div ng-include="'/static2/templates/live_entry.html'">
-    </div>
-
-</div>
