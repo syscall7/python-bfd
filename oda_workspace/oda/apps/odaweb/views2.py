@@ -708,6 +708,12 @@ def ace(request, disassembly_id, version=0):
     if not disassembly_id:
         disassembly_id = 'strcpy_x86'
 
+    # Sanity check version to avoid web crawler problems
+    try:
+        int(version)
+    except ValueError:
+        return HttpResponse("Session Not Initialized", status=400)
+
     try:
         to_copy_oda_master = OdaMaster.objects.get(short_name=disassembly_id, revision=version)
     except OdaMaster.DoesNotExist:
