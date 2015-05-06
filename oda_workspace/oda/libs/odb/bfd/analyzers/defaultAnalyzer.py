@@ -454,10 +454,11 @@ class defaultAnalyzer(object):
             return ret
 
         self.ofd = Ofd(odb_file.get_binary())
+        options = self.processOptions(odb_file.get_binary().options.get_extra_options())
         listing = ''
         for p in parcels:
             if p.is_code:
-                (output, _, _) = self.ofd.disassemble(p.sec_name, start=p.vma_start, stop=p.vma_end, funcFmtLine=funcFmtCode, funcFmtLineArgs={ 'sec_name': p.sec_name})
+                (output, _, _) = self.ofd.disassemble(p.sec_name, options=options, start=p.vma_start, stop=p.vma_end, funcFmtLine=funcFmtCode, funcFmtLineArgs={ 'sec_name': p.sec_name})
             else:
                 output = fmtDataParcel(p)
 
