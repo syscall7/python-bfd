@@ -584,6 +584,10 @@ def load_odb(request):
 
     sections = filter(lambda s: s.is_loadable(), odb_file.get_structure_list(Section))
 
+
+    dasm = Disassembler(odb_file)
+    size = dasm.total_lines()
+
     return Response({
         'functions': [FunctionSerializer(x).data for x in odb_file.get_structure_list(Function)],
         'labels': [LabelSerializer(x).data for x in odb_file.get_structure_list(Label)],
@@ -595,7 +599,10 @@ def load_odb(request):
             'string': x.value,
             'addr': x.addr
         }).data for x in odb_file.get_structure_list(DataString)],
-        "structTypes": [CStructSerializer(x).data for x in odb_file.get_structure_list(CStruct)]
+        "structTypes": [CStructSerializer(x).data for x in odb_file.get_structure_list(CStruct)],
+        "displayUnits": {
+            "size": size
+        }
     })
 
 
