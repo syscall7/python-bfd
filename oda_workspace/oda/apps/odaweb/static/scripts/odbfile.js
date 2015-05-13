@@ -5,6 +5,7 @@ var ODB_EVENTS = {
     LOADED : 'odb.loaded',
     PARCELS_RELOADED: 'odb.parcelReload',
     LIVE_ENTRY_UPDATE: 'odb.liveentryupdate',
+    DISPLAY_UNITS_LOADING: 'odb.displayUnits.loading',
     DISPLAY_UNITS_LOADED: 'odb.displayUnitsLoaded',
     ERROR : 'odb.error'
 };
@@ -129,6 +130,12 @@ var OdbFile = function(oda_master) {
         if (logical) {
             args.logical = true;
         }
+
+        this._signal(ODB_EVENTS.DISPLAY_UNITS_LOADING, {
+            duNum: addr,
+            numUnits: numUnits
+        });
+
         return $.get('/odaweb/api/displayunits/', args).done(function(data){
             if (data.length == 0) {
                 throw "NO DATA RETURNED";

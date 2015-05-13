@@ -51,6 +51,13 @@ function InstallFunctionHandlers(odbFile) {
         var comment = $(this).text();
         odbFile.addComment(offset, comment);
     });
+
+    odbFile.on(ODB_EVENTS.DISPLAY_UNITS_LOADING, function(event) {
+        $('#disassembly-loading').slideDown();
+    });
+    odbFile.on(ODB_EVENTS.DISPLAY_UNITS_LOADED, function(event) {
+        $('#disassembly-loading').slideUp();
+    });
 };
 
 function InstructionTable(odbFile) {
