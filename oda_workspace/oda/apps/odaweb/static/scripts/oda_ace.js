@@ -553,11 +553,15 @@ function startOda() {
         });
 
         start(odbFile);
+
     });
+
 
     handleSaveButton({saved: window.saved});
 
 }
+
+
 
 odaApplication.filter('hex', function () {
     return function (num, len) {

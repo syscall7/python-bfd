@@ -33,6 +33,10 @@
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/slickgrid/slick-default-theme.css' %}"/>
     <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/slickgrid/examples.css' %}"/>
 
+    <link rel="stylesheet" type="text/css" href="{% static 'scripts/lib/bootstrap-tour/css/bootstrap-tour.min.css' %}"/>
+
+
+
     <link rel="stylesheet" type="text/css" href="{% static 'css/oda3.css' %}" />
 
     {% endcompress %}
@@ -51,6 +55,7 @@
     <script type="text/javascript" src="{% static 'scripts/lib/ui-utils-0.1.1/ui-utils.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/ui-bootstrap-tpls-0.11.0.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/socket.io-1.0.6.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/bootstrap-tour/js/bootstrap-tour.js' %}"></script>
 
     <script type="text/javascript" src="{% static 'scripts/lib/toastr/toastr.js' %}"></script>
 
@@ -60,6 +65,7 @@
 
     <script type="text/javascript" src="{% static 'scripts/lib/nprogress/nprogress.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/lib/underscore-1.3.3.js' %}"></script>
+
 
 
     {%  endcompress %}
@@ -98,6 +104,7 @@
 
     <script type="text/javascript" src="{% static 'scripts/addrbar.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda_ace.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'scripts/oda.tour.js' %}" ></script>
 
     <script type="text/javascript" src="{% static 'scripts/lib/slickgrid/jquery.event.drag-2.2.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/slickgrid/slick.core.js' %}"></script>
