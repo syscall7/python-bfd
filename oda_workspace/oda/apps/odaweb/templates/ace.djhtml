@@ -5,7 +5,7 @@
 
 {% block body %}
 
-<div ng-include="'/static2/templates/navbar.html'"></div>
+<div ng-include="'navbar.html'"></div>
 
 <div>
     <div id="slider" style="margin-top:50px; margin-bottom: 0px; margin-left: 10px; margin-right: 10px; border: 0px; clear:both;">
@@ -48,7 +48,7 @@
               <div id="editor"></div>
           </div>
           <div class="tab-pane" id="sections">
-              <div ng-include src="'/static2/templates/sections.html'"></div>
+              <div ng-include src="'sections.html'"></div>
           </div>
           <div class="tab-pane" id="tab-fileinfo">
             {% include "tab_fileinfo.djhtml" %}
@@ -98,6 +98,13 @@
         <div class="oda-error-messages"></div>
     </div>
 </div>
+
+{% include 'ng/navbar.html' %}
+{% include 'ng/sections.html' %}
+{% include 'ng/symbols.html' %}
+{% include 'ng/strings.html' %}
+{% include 'ng/find_results.html' %}
+
 
 {% verbatim %}
 <script type="text/ng-template" id="commentModal.html">

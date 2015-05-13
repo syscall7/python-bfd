@@ -76,25 +76,15 @@ var OdbFile = function(oda_master) {
 
             this.structTypes = data.structTypes;
 
+            this.structFieldTypes = data.structFields;
+
             this.displayUnitsLength = data.displayUnits.size;
 
+            //this.runtimeReport = data;
+
         }.bind(this));
 
-        var runtimeReportQ = $.get('/odaweb/api/sandbox/1/report/', {
-            short_name: this.shortName,
-            revision: this.revision
-        }).success(function(data) {
-            this.runtimeReport = data;
-        }.bind(this));
-
-        var structfieldtypesq = $.get('/odaweb/api/cstructfields/', {
-            short_name: this.shortName,
-            revision: this.revision
-        }).success(function(data) {
-            this.structFieldTypes = data;
-        }.bind(this));
-
-        $.when(loadq, structfieldtypesq, runtimeReportQ).done(function (data) {
+        $.when(loadq).done(function (data) {
             this._signal(ODB_EVENTS.LOADED, this);
         }.bind(this));
     };

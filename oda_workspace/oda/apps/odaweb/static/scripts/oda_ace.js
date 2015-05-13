@@ -606,13 +606,13 @@ odaApplication.service('Docker', function(odbFile) {
     } else {
         this.docks.push({
             icon: 'fa-list',
-            template: '/static2/templates/symbols.html'
+            template: 'symbols.html'
         }, {
             icon: 'fa-font',
-            template: '/static2/templates/strings.html'
+            template: 'strings.html'
         }, {
             icon: 'fa-search',
-            template: '/static2/templates/find_results.html'
+            template: 'find_results.html'
         }, {
             icon: 'fa-text-width',
             template: 'structform.html'
