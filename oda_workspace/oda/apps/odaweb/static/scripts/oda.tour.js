@@ -1,9 +1,7 @@
-odaApplication.run(function (odbFile) {
-
+function doTour(odbFile) {
     var master = odbFile.oda_master;
     if (master.binary.liveMode) {
         // Instance the tour
-        debugger;
         var tour = new Tour({
             name: 'live-mode-tour-v1',
             steps: [
@@ -23,11 +21,11 @@ odaApplication.run(function (odbFile) {
                     content: "The bytes will be disassembled into readable instructions for the target architecture."
                 },
                 {
-                    element: "#open-btn",
+                    element: "#menu-item-file",
                     title: "Step 4: Upload a File",
                     content: "You can also upload a file to disassemble, including raw binaries and many common object formats (ELF, PE, COFF, Mach-O, etc.)."
                 }],
-            storage: false
+            storage: true
         });
 
         // Initialize the tour
@@ -39,17 +37,27 @@ odaApplication.run(function (odbFile) {
         // Instance the tour
         var tour = new Tour({
             name: 'file-mode-tour-v1',
-            steps: [{
-                element: "#oda-tabs li:first",
-                title: "Title of my FILE step2",
-                content: "Content of my step2"
-            },
+            steps: [
                 {
-                    element: "#hex-sidebar-scroll",
-                    title: "Title of my FILE step2",
-                    content: "Content of my step2"
-                }],
-            storage: false
+                    element: "#addr-bar-canvas",
+                    placement: "bottom",
+                    title: "Address Bar Navigation",
+                    content: "The address bar lets you easily navigate around large files."
+                },
+                {
+                    element: "#editor",
+                    placement: "top",
+                    title: "Interactive Disassembly",
+                    content: "Right-click on the disassembly listing to convert bytes to instructions or vice verse."
+                },
+                {
+                    element: "#sidebar-label-symbols",
+                    placement: "bottom",
+                    title: "Symbols, Strings, Structs, and Search",
+                    content: "Use the sidebar tabs to view a listing of symbols, strings, user-defined structures.  You can also search for strings or binary sequences."
+                }
+            ],
+            storage: true
         });
 
         // Initialize the tour
@@ -58,5 +66,9 @@ odaApplication.run(function (odbFile) {
         // Start the tour
         tour.start();
     }
+}
 
+odaApplication.run(function (odbFile) {
+    /* need to wait until angular finishes rendering...here's a kludge */
+    setTimeout(function(){ doTour(odbFile) }, 1000);
 });
