@@ -25,7 +25,7 @@ function doTour(odbFile) {
                     title: "Step 4: Upload a File",
                     content: "You can also upload a file to disassemble, including raw binaries and many common object formats (ELF, PE, COFF, Mach-O, etc.)."
                 }],
-            storage: true
+            storage: window.localStorage
         });
 
         // Initialize the tour
@@ -57,7 +57,7 @@ function doTour(odbFile) {
                     content: "Use the sidebar tabs to view a listing of symbols, strings, user-defined structures.  You can also search for strings or binary sequences."
                 }
             ],
-            storage: true
+            storage: window.localStorage
         });
 
         // Initialize the tour
