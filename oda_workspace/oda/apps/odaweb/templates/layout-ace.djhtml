@@ -107,11 +107,14 @@
     <script type="text/javascript" src="{% static 'scripts/oda.tour.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda.statusbar.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda.commands.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'scripts/oda.renderer.js' %}" ></script>
+
+    <script type="text/javascript" src="{% static 'scripts/models/oda.localmodel.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'scripts/models/oda.remotemodel.js' %}" ></script>
 
     <script type="text/javascript" src="{% static 'scripts/lib/slickgrid/jquery.event.drag-2.2.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/slickgrid/slick.core.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/slickgrid/slick.grid.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/oda.remotemodel.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/oda_grid.js' %}" ></script>
 
 

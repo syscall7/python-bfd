@@ -1,3 +1,4 @@
+from bfd import BfdFileFormatException
 import json
 import os.path
 import commands
@@ -277,8 +278,10 @@ class OdaMaster(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(OdaMaster, self).__init__(*args, **kwargs)
-
-        self._odb_file = odb_file_system.load_odb_file(self)
+        try:
+            self._odb_file = odb_file_system.load_odb_file(self)
+        except BfdFileFormatException as e:
+            logger.warn("Failed to load odb_file", e)
 
     @property
     def object_id(self):
