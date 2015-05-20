@@ -105,6 +105,8 @@
     <script type="text/javascript" src="{% static 'scripts/addrbar.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda_ace.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda.tour.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'scripts/oda.statusbar.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'scripts/oda.commands.js' %}" ></script>
 
     <script type="text/javascript" src="{% static 'scripts/lib/slickgrid/jquery.event.drag-2.2.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/slickgrid/slick.core.js' %}"></script>
@@ -129,6 +131,8 @@
     <script type="text/javascript" src="{% static 'scripts/controllers/AboutController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/RuntimeDumpController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/HexController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/NavbarController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/ConfigureFileController.js' %}"></script>
 
     {%  endcompress %}
 
