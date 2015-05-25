@@ -14,7 +14,7 @@ import logging
 import string
 from oda.libs.odb.bfd.ofd import Ofd
 from oda.libs.odb.structures import symbol
-from oda.libs.odb.structures import branch as branch2
+from oda.libs.odb.structures import branch as branch_struct
 from oda.libs.odb.structures import function as function2
 from oda.libs.odb.structures.c_struct import BuiltinField
 from oda.libs.odb.structures import c_struct
@@ -126,9 +126,6 @@ def parseDataParcel(section_name, start_addr, end_addr, self, displayUnits, is_d
 
     return numLines
 
-def create_branch(instr):
-    return branch2.Branch(0, instr.offset, instr.targetAddr, instr)
-
 def parseInstruction(addr, rawData, instr, abfd, self, displayUnits, section_name):
 
     du = DisplayUnit()
@@ -158,10 +155,6 @@ def parseInstruction(addr, rawData, instr, abfd, self, displayUnits, section_nam
             du.instType = self.getInstructionType(du.opcode)
             du.operands = matchObj.group(2)
             self.computeTargetAddr(du)
-
-            # save all branches
-            if du.instType == InstructionType.branch:
-                self.branches.append(create_branch(du))
 
             # Check if we need to create a label or function
             if du.isTargetAddrValid:
@@ -259,7 +252,6 @@ class defaultAnalyzer(object):
         self.largestInstSize = 0
         self.opcodeTypes = {}
         self.labels = []
-        self.branches = []
         self.instSampleInterval = 50
 
         # {funcAddrA: [crossRef0, crossRef1], funcAddrB: [crossRef0, crossRef1]}
@@ -380,7 +372,7 @@ class defaultAnalyzer(object):
                 if maxUnits == 0:
                     break
 
-        logger.debug("Analyze: INSTRUCTIONS POPULATED. BRANCH COUNT: %d" % (len(self.branches)))
+        logger.debug("Analyze: INSTRUCTIONS POPULATED.")
 
         # # verify target address is at a valid instruction boundary (someday maybe we'll handle the odd case where it's not)
         # for b in self.branches:
@@ -398,13 +390,19 @@ class defaultAnalyzer(object):
         # sort displayUnits
         dunits = sorted(self.displayUnits.values(), key=lambda du: du.offset)
 
+        # For now, we will ignore branching from/to other chunks of display units
+        localBranches = filter(
+            lambda b: (b.srcAddr > dunits[0].offset and b.srcAddr < dunits[-1].offset) and
+                      (b.targetAddr > dunits[0].offset and b.targetAddr < dunits[-1].offset),
+            odb_file.get_structure_list(branch_struct.Branch))
+
         # Get the branch lines
         if len(self.functions) > 0 and len(dunits) > 0:
             # Ignore functions outside of the display units we retrieved
             functions = filter(lambda f: f.offset > dunits[0].offset and f.offset < dunits[-1].offset, self.functions.values())
             for function in sorted(functions, key=lambda f: f.offset):
                 # get all the branches between prev func and this func
-                branches = [b for b in self.branches if b.targetAddr > prevFuncAddr and b.targetAddr < function.offset]
+                branches = [b for b in localBranches if b.targetAddr > prevFuncAddr and b.targetAddr < function.offset]
 
                 dus = [du for du in dunits if du.offset >= prevFuncAddr and du.offset < function.offset]
 
@@ -412,12 +410,12 @@ class defaultAnalyzer(object):
                 prevFuncAddr = function.offset
 
             # now process between the last func and the end
-            branches = [b for b in self.branches if b.targetAddr >= prevFuncAddr]
+            branches = [b for b in localBranches if b.targetAddr >= prevFuncAddr]
             dus = [du for du in dunits if du.offset >= prevFuncAddr]
             self.addBranchLinesAndLabels(dus, branches)
 
         else:
-            self.addBranchLinesAndLabels(dunits, self.branches)
+            self.addBranchLinesAndLabels(dunits, localBranches)
 
         logger.debug("Analyze: SECOND PASS COMPLETE")
 
