@@ -47,3 +47,4 @@ class DisplayUnit(object):
         self.targetAddr = 0
         self.labelName = 'abc'
         self.isCode = True
+        self.size = 0

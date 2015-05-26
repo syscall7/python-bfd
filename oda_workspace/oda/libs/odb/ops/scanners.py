@@ -10,12 +10,13 @@ from abc import ABCMeta, abstractmethod
 
 logger = logging.getLogger(__name__)
 
-def create_display_unit(analyzer, match_obj, addr):
+def create_display_unit(analyzer, match_obj, addr, rawData):
     du = DisplayUnit()
     du.offset = addr
     du.opcode = match_obj.group(1)
     du.instType = analyzer.getInstructionType(du.opcode)
     du.operands = match_obj.group(2)
+    du.size = len(rawData)
 
     analyzer.computeTargetAddr(du)
 
@@ -51,7 +52,7 @@ class BranchScanner(Scanner):
         match_obj = self.opcode_regex.match(instr)
         if match_obj:
 
-            du = create_display_unit(self.analyzer, match_obj, addr)
+            du = create_display_unit(self.analyzer, match_obj, addr, rawData)
             if du.instType == InstructionType.branch:
                     self.branches.append({
                         'srcAddr': addr,
@@ -93,7 +94,7 @@ class FunctionScanner(Scanner):
         # Get the Opcode
         match_obj = self.opcode_regex.match(instr)
         if match_obj:
-            du = create_display_unit(self.analyzer, match_obj, addr)
+            du = create_display_unit(self.analyzer, match_obj, addr, rawData)
 
             # If we need to create a function
             if du.isTargetAddrValid and du.instType == InstructionType.call:

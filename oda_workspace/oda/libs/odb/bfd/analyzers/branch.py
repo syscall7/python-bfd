@@ -1,7 +1,10 @@
+from oda.libs.odb.structures.branch import Branch
+from oda.libs.odb.structures.function import Function
+from oda.libs.odb.structures.parcel import ParcelList, Parcel
 
 MAX_COLUMNS = 32
 
-def BranchComparator(a, b):        
+def BranchComparator(a, b):
     if (a.span < b.span):
         return -1
     elif (a.span > b.span):
@@ -276,3 +279,90 @@ class BranchLineHtmlFormatter:
 
         return html
 
+
+class BranchGraphNode:
+    def __init__(self, startAddr, endAddr, yesAddr, noAddr):
+        self.startAddr = startAddr   # starting address of this block
+        self.endAddr = endAddr       # location of the branch (i.e., the last instruction of this block)
+        self.yesAddr = yesAddr       # location to branch to if branch is taken
+        self.noAddr = noAddr         # location to branch to if branch is not taken (i.e., next instruction)
+
+    def split(self, vma, parcels):
+        if (vma not in self) or (vma == self.startAddr):
+            raise Exception("Invalid attempt to split a node")
+
+        newNode = BranchGraphNode(vma, self.endAddr, self.yesAddr, self.noAddr)
+        self.endAddr = parcels.lda_to_vma(parcels.vma_to_lda(vma-1))
+        self.yesAddr = vma
+        self.noAddr = None
+
+        return newNode
+
+    def __contains__(self, vma):
+        return (vma >= self.startAddr) and (vma <= self.endAddr)
+
+    def __repr__(self):
+        no = '0x%08x' % self.noAddr if self.noAddr else 'None'
+        yes = '0x%08x' % self.yesAddr if self.yesAddr else 'None'
+        return "%s  0x%08x--0x%08x Yes:%s, No:%s" % (self.__class__, self.startAddr, self.endAddr, yes, no)
+
+    def __eq__(self, other):
+        return (isinstance(other, self.__class__)
+            and self.__dict__ == other.__dict__)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
+class BranchGraphView(list):
+
+    def graphNodes(self, odb_file, vma):
+
+        start = None
+        end = None
+        funcName = None
+
+        parcels = ParcelList(odb_file.get_structure_list(Parcel))
+        functions = sorted(odb_file.get_structure_list(Function), key=lambda f: f.offset)
+        for f in functions:
+            if vma >= f.offset:
+                start = f.offset
+                funcName = f.name
+            elif vma < f.offset:
+                end = f.offset
+                break
+
+        # get all the branches within this function
+        branches = filter(lambda b: b.srcAddr >= start and b.srcAddr < end,
+                            odb_file.get_structure_list(Branch))
+        nodes = []
+        thisBlock = start
+
+        for b in sorted(branches, key=lambda b: b.srcAddr):
+            yes = b.targetAddr
+            no = b.srcAddr + b.instr.size
+
+            # first node
+            nodes.append(BranchGraphNode(thisBlock, b.srcAddr, yes, no))
+
+            # advance to next block
+            thisBlock = b.srcAddr + b.instr.size
+
+        # make last block
+        if thisBlock != end:
+            end_line = parcels.vma_to_lda(end)
+            last_addr = parcels.lda_to_vma(end_line - 1)
+            nodes.append(BranchGraphNode(thisBlock, last_addr, None, None))
+
+        # now break out any new blocks that are the targets of branches
+        #newNodes = []
+        #for node in nodes:
+        #    if node.yesAddr not in nodes:
+        #        newNodeStart = node.yesAddr
+        #    elif node.noAddr not in nodes:
+        #        newNodeStart = node.noAddr
+        #
+        #    newNodes.append(BranchGraphNode(node.sp))
+
+
+        return nodes
