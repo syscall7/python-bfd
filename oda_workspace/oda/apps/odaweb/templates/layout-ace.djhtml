@@ -103,7 +103,7 @@
     {% compress js %}
 
     <script type="text/javascript" src="{% static 'scripts/addrbar.js' %}" ></script>
-    <script type="text/javascript" src="{% static 'scripts/oda_ace.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'scripts/oda.main.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda.handlebars.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda.tour.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda.statusbar.js' %}" ></script>
@@ -117,7 +117,7 @@
     <script type="text/javascript" src="{% static 'scripts/lib/slickgrid/jquery.event.drag-2.2.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/slickgrid/slick.core.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/slickgrid/slick.grid.js' %}"></script>
-    <script type="text/javascript" src="{% static 'scripts/oda_grid.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'scripts/oda.grid.js' %}" ></script>
 
 
     <script type="text/javascript" src="{% static 'scripts/odbfile.js' %}"></script>
