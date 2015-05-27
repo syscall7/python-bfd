@@ -139,6 +139,7 @@
     <script type="text/javascript" src="{% static 'scripts/controllers/HexController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/NavbarController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/UploadFileController.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/controllers/MonitorSandboxController.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/controllers/ConfigureFileController.js' %}"></script>
 
     {%  endcompress %}
