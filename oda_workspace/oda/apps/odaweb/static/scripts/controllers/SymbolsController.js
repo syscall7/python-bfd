@@ -1,3 +1,5 @@
+"use strict";
+
 odaApplication.controller('SymbolsController', function SymbolsController($scope, $http, $window, odbFile, editor) {
 
     $scope.symbols = odbFile.symbols;

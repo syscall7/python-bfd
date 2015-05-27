@@ -1,3 +1,5 @@
+"use strict";
+
 odaApplication.controller('StructTypesController', function StructTypesController($scope, $rootScope, $http, $modal, odbFile, odaSession) {
 
     $scope.structTypes = odbFile.structTypes;
@@ -6,7 +8,7 @@ odaApplication.controller('StructTypesController', function StructTypesControlle
 
     $scope.createStruct = function() {
         $rootScope.$broadcast('command.makeStructType');
-    }
+    };
 
     $scope.openStructEditor = function(struct,index) {
 
@@ -48,7 +50,7 @@ odaApplication.controller('StructTypesController', function StructTypesControlle
     };
 });
 
-var StructEditorController = function($scope, $modalInstance, structure, fieldTypes, obdFile, structIndex){
+odaApplication.controller('StructEditorController', function($scope, $modalInstance, structure, fieldTypes, obdFile, structIndex){
 
     //http://stackoverflow.com/questions/18716113/scope-issue-in-angularjs-using-angularui-bootstrap-modal
     $scope.data = {
@@ -79,11 +81,11 @@ var StructEditorController = function($scope, $modalInstance, structure, fieldTy
     };
 
     $scope.addField = function(name,type) {
-        field = { name: name, type: type};
+        var field = { name: name, type: type};
         $scope.data.fields.push(field);
     };
 
     $scope.deleteField = function(index) {
         $scope.data.fields.splice(index,1);
     };
-};
+});

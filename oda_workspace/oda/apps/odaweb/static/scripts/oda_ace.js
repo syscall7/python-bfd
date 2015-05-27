@@ -1,51 +1,6 @@
 "use strict";
 
-var Section = function(sectionDescriptor) {
-    $.extend(this,sectionDescriptor);
 
-    this.isCode = function() {
-        for (var i=0; i<this.flags.length; i++) {
-            if (this.flags[i].name == 'SEC_CODE') {
-                return true;
-            }
-        }
-        return false;
-    };
-
-    this.isData = function() {
-        return !this.isCode();
-    };
-
-    return this;
-
-
-};
-
-var intToHex = function(value){
-    var stringValue = value.toString(16);
-    var s = "000000000" + stringValue;
-    return s.substr(s.length-8);
-
-};
-
-Handlebars.registerHelper("hex", intToHex);
-
-Handlebars.registerHelper("pad", function(value, length) {
-    var counter = length - value.length;
-    for(var i=0; i<counter; i++) {
-        value = value.concat("&nbsp;");
-    }
-    return value;
-});
-
-Handlebars.registerHelper("formatSectionOffset", function(section, offset, length) {
-    var value = section + ":" + intToHex(offset);
-    var counter = length - value.length;
-    for(var i=0; i<counter; i++) {
-        value = "&nbsp;".concat(value);
-    }
-    return value;
-});
 
 var odaApplication = angular
     .module('odaApp',['ngSanitize', 'ui.bootstrap', 'ui.keypress'])
@@ -382,49 +337,6 @@ var ShareLiveController = function($scope, $modalInstance, $location, shareInfo)
 
     $scope.ok = function () {
         $modalInstance.close();
-    };
-
-};
-
-var UploadFileController = function($scope, $modalInstance, fileUpload){
-
-    //http://stackoverflow.com/questions/18716113/scope-issue-in-angularjs-using-angularui-bootstrap-modal
-    $scope.data = {
-        projectName: null
-    };
-
-    $scope.$watch('uploadFile', function() {
-        if ($scope.uploadFile && $scope.data.projectName == null) {
-            $scope.data.projectName = $scope.uploadFile.name;
-        }
-    });
-
-
-
-    $scope.ok = function () {
-        $scope.loading = true;
-
-        fileUpload.uploadFileToUrl( $scope.uploadFile, $scope.data.projectName, '/odaweb/_upload')
-            .success(function(data){
-            $modalInstance.close(data);
-        }).error(function(data){
-            // default error message
-            var err_msg = 'There was a problem with the upload.  Maximum upload size is 256KB.';
-            if (data.error) {
-                err_msg = data.error;
-            }
-            $scope.loading = false;
-            $scope.error = err_msg;
-        });
-
-        /* $modalInstance.close({
-            projectName: $scope.data.projectName,
-            uploadFile: $scope.uploadFile
-        }); */
-    };
-
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
     };
 
 };

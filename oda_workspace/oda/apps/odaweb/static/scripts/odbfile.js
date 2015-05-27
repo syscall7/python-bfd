@@ -15,6 +15,27 @@ var ODB_ERRORS = {
     LIVE_ENTRY_FAILED: 'odb.errorcode.liveentry'
 };
 
+var Section = function(sectionDescriptor) {
+    $.extend(this,sectionDescriptor);
+
+    this.isCode = function() {
+        for (var i=0; i<this.flags.length; i++) {
+            if (this.flags[i].name == 'SEC_CODE') {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    this.isData = function() {
+        return !this.isCode();
+    };
+
+    return this;
+
+
+};
+
 var OdbFile = function(oda_master) {
 
     this.oda_master = oda_master;
