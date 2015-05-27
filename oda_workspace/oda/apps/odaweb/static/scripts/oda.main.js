@@ -125,32 +125,17 @@ odaApplication.run(function($rootScope, Docker, odbFile, editor) {
     });
 });
 
-
-function handleSaveButton(options) {
-
+odaApplication.run(function(){
+    var options = { saved: window.saved };
     if (options.saved) {
         toastr.options = { positionClass: 'toast-top-full-width', closeButton: true, timeOut: 15000 }
         toastr.success('You can share this url:</p><a href="' + window.location + '">' +
             window.location + "</a><p><p>If you make more changes, hit <strong>share</strong> again to get a new link.");
     }
-   /* if (options.saved) {
 
-        // show the popover, but don't close it when clicked
-        $('#menu-item-share').popover('show').click(function(evt) {
-            evt.stopPropagation();
-            $(this).popover('show');
-        });
+});
 
-        // close the popover when clicked anywhere outside the popover
-        setTimeout(function(){
-            $('html').click(function() {
-                $('#menu-item-share').popover('hide');
-            });
-        }, 500);
-    } */
-}
-
-function startOda() {
+function oda_main() {
 
     function csrfSafeMethod(method) {
         // these HTTP methods do not require CSRF protection
@@ -175,8 +160,6 @@ function startOda() {
 
 
     var odbFile = new OdbFile(window.oda_master);
-
-    odbFile.load();
 
     odbFile.on(ODB_EVENTS.LOADED, function (odbFile) {
         $('loading-spinner').hide();
@@ -206,8 +189,8 @@ function startOda() {
 
     });
 
+    odbFile.load();
 
-    handleSaveButton({saved: window.saved});
 
 }
 

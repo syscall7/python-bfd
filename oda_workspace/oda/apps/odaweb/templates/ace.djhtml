@@ -724,7 +724,7 @@
 
 
     $(document).ready(function() {
-        startOda();
+        oda_main();
     });
 </script>
 
