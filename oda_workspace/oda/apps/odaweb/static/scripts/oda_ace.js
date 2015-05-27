@@ -15,14 +15,12 @@ function start(odbFile) {
 
     var addrBar = new AddressNavBar('#addr-bar-canvas', odbFile.sections, odbFile.parcels);
 
+    var statusBar = new StatusBar(odbFile);
+
     addrBar.onChange(function(address) {
         editor.gotoAddress(address);
         console.log('My change handler: ' + address.toString(16));
     });
-
-
-
-    var statusBar = new StatusBar(odbFile);
 
     editor.onViewportChanged.subscribe(function (e, args) {
         //console.log("ODA_ACE VIEWPORT CHANGED", e, args);
@@ -34,21 +32,10 @@ function start(odbFile) {
         statusBar.setAddress(args.offset);
     });
 
-    /*odaSession.on('cursor.change', function(e) {
-        var offset = e.offset;
-        console.log("CURSOR CHANGE", offset);
-        addrBar.setAddress(offset);
-        statusBar.setAddress(offset);
-    })*/
-
-
-
     odbFile.on(ODB_EVENTS.CHANGED, function(e){
         console.log("odbFile.on('ODB_EVENTS.CHANGED')", e);
         editor.reload();
     });
-
-
 
     odaApplication.value('odbFile', odbFile);
     odaApplication.value('editor', editor);
@@ -241,16 +228,16 @@ odaApplication.filter('hex', function () {
     };
 });
 
-var WhatsOdaController = function($scope, $modalInstance) {
+odaApplication.controller('WhatsOdaController', function($scope, $modalInstance) {
     $scope.data = {
         architectures: window.system.architectures
     };
     $scope.close = function () {
         $modalInstance.close();
     };
-};
+});
 
-var ShareLiveController = function($scope, $modalInstance, $location, shareInfo) {
+odaApplication.controller('ShareLiveController', function($scope, $modalInstance, $location, shareInfo) {
     console.log("share info ", shareInfo);
 
     $scope.shareInfo = shareInfo;
@@ -263,9 +250,9 @@ var ShareLiveController = function($scope, $modalInstance, $location, shareInfo)
         $modalInstance.close();
     };
 
-};
+});
 
-var MonitorSandboxController = function($scope, $interval, $http, fileInfo) {
+odaApplication.controller('MonitorSandboxController', function($scope, $interval, $http, fileInfo) {
     var checking;
     var UPDATE_INTERVAL = 3000;
     $scope.elapsedSeconds = 0;
@@ -306,28 +293,8 @@ var MonitorSandboxController = function($scope, $interval, $http, fileInfo) {
         window.location = "/odaweb/" + fileInfo.shortName;
     };
 
-};
+});
 
-
-
-var GotoAddressController = function($scope, $modalInstance, editor) {
-
-    $scope.data = {
-        address: null
-    };
-
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-
-    $scope.ok = function () {
-        var position = parseInt($scope.data.address.substring(2),16);
-        console.log('set position', position);
-        editor.gotoAddress(position);
-        $modalInstance.close({address: $scope.data.address});
-    };
-
-};
 
 odaApplication.service('Session', function(){
     this.create = function(userId) {
