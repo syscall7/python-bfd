@@ -100,11 +100,16 @@ function InstructionTable(odbFile) {
 
     var loader;
 
+    this.activeAddressChanged = new Slick.Event();
+
+    var activeAddress = null;
+
     function gotoAddressRemote(address) {
 
         if (activeAddress == address) {
             return;
         }
+
 
         activeAddress = address;
 
@@ -244,14 +249,11 @@ function InstructionTable(odbFile) {
         return odbFile;
     };
 
-    this.activeAddressChanged = new Slick.Event();
-
-    var activeAddress = null;
-
     grid.onActiveCellChanged.subscribe(function(e, args) {
         var activeRowData = grid.getDataItem(args.row);
         //console.log("ACTIVE CELL CHANGED", activeRowData, e, args);
         if (activeRowData != null) {
+            activeAddress = activeRowData.offset;
             this.activeAddressChanged.notify({offset:activeRowData.offset});
         }
     }.bind(this));
