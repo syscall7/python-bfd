@@ -1,3 +1,5 @@
+"use strict";
+
 var branchFormatter = function (row, cell, value, columnDef, dataContext) {
     return value;
 };

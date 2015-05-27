@@ -109,6 +109,7 @@
     <script type="text/javascript" src="{% static 'scripts/oda.statusbar.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda.commands.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda.renderer.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'scripts/oda.dock.js' %}" ></script>
 
     <script type="text/javascript" src="{% static 'scripts/models/oda.localmodel.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/models/oda.remotemodel.js' %}" ></script>

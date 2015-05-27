@@ -1,3 +1,5 @@
+"use strict";
+
 odaApplication.run(function($rootScope, editor, odbFile){
     //http://lab.jakiestfu.com/contextjs/
     context.init({preventDoubleContext: false});
