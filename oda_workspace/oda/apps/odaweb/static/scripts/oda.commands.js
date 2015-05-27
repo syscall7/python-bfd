@@ -22,6 +22,13 @@ odaApplication.run(function($rootScope, $modal, odbFile, editor){
         odbFile.makeData(data.offset);
     });
 
+    /*$rootScope.$on('command.undefine', function(event,data){
+        if (data.isCode) {
+            return;
+        }
+
+        odbFile.undefineOp(data.offset);
+    });*/
 
     $rootScope.$on("command.makeFunction", function(event, data) {
         if (!data.isCode) {
@@ -101,13 +108,10 @@ odaApplication.run(function($rootScope, $modal, odbFile, editor){
     });
 
     $rootScope.$on("command.makeStructVariable", function(event, data) {
-        var line= data.line;
 
         var scope = $rootScope.$new(true);
 
-        var offset = line.data.offset;
-
-        scope.line = line;
+        var offset = data.offset;
 
         scope.odbFile = odbFile;
         scope.structTypes = odbFile.structTypes;

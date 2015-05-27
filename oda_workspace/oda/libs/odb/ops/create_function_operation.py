@@ -76,3 +76,20 @@ class EditFunctionOperation(Operation):
                 f.retval = self.retval
         else:
             raise Exception("Cannot edit a function that does not already exist!")
+
+class DeleteFunctionOperation(Operation):
+
+    def __init__(self, vma):
+        super(DeleteFunctionOperation, self).__init__()
+        self.object_id = -1
+        self.vma = vma
+
+    def operate(self, odb_file):
+        functions = {f.offset: f for f in odb_file.get_structure_list(Function)}
+        symbols = {sym.offset: sym for sym in odb_file.get_structure_list(Symbol)}
+
+        if (self.vma in functions.keys()):
+            odb_file.remove_item(functions[self.vma])
+            odb_file.remove_item(symbols[self.vma])
+        else:
+            raise Exception("Cannot delete a function that does not already exist!")

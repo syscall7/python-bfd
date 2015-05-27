@@ -98,6 +98,18 @@ class CommentViewSet(OdaStructureViewSet):
         serializer = self.get_serializer(item, many=False)
         return Response(serializer.data)
 
+    def destroy(self, request, pk=None):
+        oda = OdaMaster.objects.get(short_name=request.DATA['short_name'], revision=request.DATA['revision'])
+        odb_file = oda.odb_file
+        if request.DATA.get('vma'):
+            offset = request.DATA.get('vma')
+            comments = {c.offset: c for c in odb_file.get_structure_list(Comment)}
+            if offset in comments:
+                odb_file.remove_item(comments[offset])
+                oda.save()
+                return Response({}, status=status.HTTP_200_OK)
+
+        return Response({'error': ''}, status=status.HTTP_400_BAD_REQUEST)
 
 class FunctionViewSet(OdaStructureViewSet):
     serializer_class = FunctionSerializer

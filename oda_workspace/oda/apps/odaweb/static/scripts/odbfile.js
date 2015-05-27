@@ -240,6 +240,48 @@ var OdbFile = function(oda_master) {
 
     };
 
+    /*
+    this.undefineOp = function (vma, remote) {
+        if(typeof(remote)==='undefined') remote = false;
+
+        console.log('undefine', vma);
+
+        var delCommentApply = function() {
+            delete this.comments[vma];
+            this._signal(ODB_EVENTS.CHANGED, {
+                addr: vma,
+                action: 'undefine',
+                remote: remote,
+                data: {
+                    offset: vma
+                }
+            });
+
+            this.reloadParcels();
+
+        }.bind(this);
+
+        if (!remote) {
+
+            if ( this.comments[vma] )
+            {
+                $.ajax({
+                    type : "DELETE",
+                    url : '/odaweb/api/comments/1/',
+                    data : {
+                        short_name: this.shortName,
+                        revision: this.revision,
+                        vma: vma
+                    },
+                    success : delCommentApply});
+            }
+        } else {
+            delCommentApply();
+        }
+
+    };
+    */
+
     this.addComment = function (offset, comment, remote) {
         if(typeof(remote)==='undefined') remote = false;
 

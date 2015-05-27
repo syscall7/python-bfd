@@ -42,22 +42,20 @@ odaApplication.run(function($rootScope, Docker, odbFile, editor){
         $rootScope.$broadcast('command.open');
     });
 
+    /*listener.simple_combo("u", function(){
+        var activeRowData = editor.getActiveRowData();
+        $rootScope.$broadcast('command.undefine',activeRowData );
+    });*/
+
     listener.simple_combo("t", function(){
         $rootScope.$broadcast('command.makeStructType');
     });
 
-    listener.simple_combo({
-        keys: 'v',
-        is_exclusive: true
-    }, function(){
-        var session = editor.getSession();
-
-        var cursor = session.getSelection().getCursor();
-        var line = session.getDocument().getLineData(cursor.row);
-
-        $rootScope.$broadcast('command.makeStructVariable', {
-            line: line
-        });
+    listener.simple_combo("v", function(){
+        var activeRowData = editor.getActiveRowData();
+        if (activeRowData != null) {
+            $rootScope.$broadcast('command.makeStructVariable', activeRowData);
+        }
     });
 
     listener.simple_combo("ctrl f", function(){

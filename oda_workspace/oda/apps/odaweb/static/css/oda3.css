@@ -49,6 +49,7 @@
 
     .comment {
         color: #009933;
+        white-space: nowrap;
     }
 
     .function-return {
@@ -362,7 +363,7 @@
     padding:2px 8px 2px 8px;
     background: -moz-linear-gradient(-90deg, white 0%, #e3e3e3 100%) repeat scroll 0 0 white;
     border: 1px solid #aaa;
-    border-radius: 3px;"
+    border-radius: 3px;
 }
 
 /** Hex units **/

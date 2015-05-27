@@ -87,9 +87,19 @@ odaApplication.run(function($rootScope, editor, odbFile){
             action: createAction(function (data) { $rootScope.$broadcast('command.dataToCode', data); })
         },
         {
-            text: '<span class="shortcut-text code-only">Create/Edit Function</span>',
+            text: '<span class="shortcut-text code-only">Create/Edit Function</span><span class="shortcut-key">t</span>',
             action: createAction(function (data) { $rootScope.$broadcast('command.makeFunction', data); })
+        },
+        {
+            text: '<span class="shortcut-text data-only">Create/Edit Variable</span><span class="shortcut-key">v</span>',
+            action: createAction(function (data) { $rootScope.$broadcast('command.makeStructVariable', data); })
         }
+        /*,
+        {
+            text: '<span class="shortcut-text">Undefine</span><span class="shortcut-key">u</span>',
+            action: createAction(function (data) { $rootScope.$broadcast('command.undefine', data ); })
+        }*/
+
         /*,
         {divider: true}
 

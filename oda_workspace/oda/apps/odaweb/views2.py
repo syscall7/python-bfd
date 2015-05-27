@@ -51,6 +51,8 @@ def save(request):
 
         return HttpResponse(data, mimetype='application/json')
 
+    return HttpResponse("Session Not Initialized", status=400)
+
 
 def create_session(request, to_copy_id, to_copy_version):
     request.session['files'] = []
