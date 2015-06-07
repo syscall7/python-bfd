@@ -1,0 +1,41 @@
+# These are rough notes, and you must not mindlessly follow them.
+
+# upgrade Ubuntu
+sudo apt-get update
+sudo apt-get upgrade -y
+
+# install java for PyCharm
+sudo apt-get install openjdk-7-jre
+
+# download PyCharm from https://www.jetbrains.com/pycharm/download/ and install it, then create a new project for ODA in PyCharm via svn checkout svn://svn.onlinedisassembler.com/oda/ODA/trunk
+
+# after checking out ODA in PyCharm, return to a terminal and install some dependencies
+# NOTE: Use 'password' when prompted for a root password during mysql setup
+sudo apt-get install subversion texinfo patch bzip2 gcc make autoconf python-pip libpython-dev libssl-dev libffi-dev cython mysql-server libmysqlclient-dev libxml2-dev libxslt1-dev python-dev -y
+
+# install ODA's python dependencies
+cd oda_workspace
+sudo pip install -r requirements.txt
+
+# build bfd lib and bfd module
+cd ../bfd
+sudo ./build_bfd.sh
+sudo python ./setup.py install
+
+# create the cache dir
+mkdir /tmp/cache
+
+# create the database
+echo "create database odapython3;" | mysql --user=root --password='password'
+
+# setup ODA
+cd oda_workspace
+./manage.py syncdb --settings=oda.settings.development
+./manage.py setup_oda --settings=oda.settings.development
+./manage.py setup_openid --settings=oda.settings.development -m dev
+
+# run the unit tests
+./manage.py test
+
+# start the server on http://localhost:8000
+./manage.py runserver
