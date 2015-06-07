@@ -86,6 +86,6 @@ class TestLoadOperation(OdaLibTestCase):
         odb_file.execute(LoadOperation())
         odb_file.execute(PassiveScanOperation())
 
-        self.assertEqual(0, len(odb_file.get_structure_list(Branch)))
+        self.assertEqual(1, len(odb_file.get_structure_list(Branch)))
 
 
