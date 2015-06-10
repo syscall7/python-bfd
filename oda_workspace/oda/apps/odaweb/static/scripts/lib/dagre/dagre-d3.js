@@ -681,7 +681,7 @@ function addLabel(root, node, location) {
   // a DOM element itself.
   if (node.labelType === "svg") {
     addSVGLabel(labelSvg, node);
-  } else if (typeof label !== "string" || node.labelType === "html") {
+    } else if (typeof label !== "string" || node.labelType === "html") {
     addHtmlLabel(labelSvg, node);
   } else {
     addTextLabel(labelSvg, node);

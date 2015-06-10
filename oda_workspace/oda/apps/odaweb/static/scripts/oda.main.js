@@ -180,7 +180,7 @@ function oda_main() {
                 west__size: 400
             },
             east__initClosed: false,
-            east__minSize: 150,
+            east__minSize: 450,
             east__resizable: true,
 
             spacing_open: 4,

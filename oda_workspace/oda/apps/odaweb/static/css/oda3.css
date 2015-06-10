@@ -505,3 +505,13 @@
 .insn {
     color: #093c83;
 }
+
+.graph-node {
+    color: black;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+}
+
+.graph-node td {
+    padding-left: 5px;
+    text-align: left;
+}

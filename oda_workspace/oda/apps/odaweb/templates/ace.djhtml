@@ -68,9 +68,8 @@
 </div>
 
 <div class="ui-layout-east">
-    Outer East
 
-    <svg width=480 height=600><g/></svg>
+    <svg><g/></svg>
 
 </div>
 
