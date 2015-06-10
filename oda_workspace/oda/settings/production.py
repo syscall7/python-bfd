@@ -24,6 +24,9 @@ ALLOWED_HOSTS = (
     '.onlinedisassembler.com',
     '23.236.58.138',
 )
+# Absolute filesystem path to the directory that will hold user-uploaded files.
+# Example: "/home/media/media.lawrence.com/media/"
+MEDIA_ROOT = '/var/oda'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
