@@ -29,7 +29,8 @@ SENDER = 'admin@onlinedisassembler.com'
 RECEIVERS = [
     'anthony@onlinedisassembler.com',
     'tom@onlinedisassembler.com',
-    'davis@onlinedisassembler.com'
+    'davis@onlinedisassembler.com',
+    'aaron@onlinedisassembler.com',
 ]
 
 # our template (could just as easily be stored in a separate file)
