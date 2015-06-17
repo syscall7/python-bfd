@@ -482,7 +482,7 @@ class defaultAnalyzer(object):
                 #unit.function = self.functions[inst.offset]
                 du.isFunction = True
                 du.branchRef = RefUnit(du.offset)
-                for xref in self.functions[du.offset].xrefs:
+                for xref in sorted(self.functions[du.offset].xrefs):
                     du.crossRef.append(RefUnit( xref))
 
             elif du.offset in self.labels:

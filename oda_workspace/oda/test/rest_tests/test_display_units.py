@@ -229,3 +229,29 @@ class DisplayUnitTest(OdaApiTestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             actual_vma = response.data
             self.assertEquals(expected_vma, actual_vma)
+
+    def test_display_units_sorted_xrefs(self):
+
+            # get the list of functions for the mkdir program
+            response = self.client.get('/odaweb/api/functions/',
+                               {'revision': 0, 'short_name': 'mkdir'},
+                               format='json')
+
+            functions = response.data
+
+            # for each function in the list
+            for f in functions:
+                print f
+                # request the display unit at the function address
+                response = self.client.get('/odaweb/api/displayunits/', {
+                                'revision': 0,
+                                'short_name': 'mkdir',
+                                'addr' : f['offset'],
+                                'units' : 1,
+                            }, format='json')
+                du = response.data[0]
+
+                # verify that the cross references for this du are sorted
+                self.assertEqual(du['crossRef'], sorted(du['crossRef']))
+
+
