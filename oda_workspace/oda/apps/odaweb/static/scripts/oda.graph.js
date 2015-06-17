@@ -7,12 +7,6 @@ function partition(items, size) {
     return _.values(result);
 }
 
-
-/* Green Red Blue */
-// Blue Unconditional Branch
-// Green Taken
-// Red Not Taken
-
 function createData(duList) {
     var duGroups = partition(duList, 5);
 
@@ -28,13 +22,13 @@ function createData(duList) {
         links.push({
             from: i,
             to: i+1,
-            type: 'notTaken'
+            type: (i%2==0) ? 'unconditional' : 'notTaken'
         });
     }
     links.push({
         from: 0,
         to: duGroups.length - 1,
-        type: 'notTaken'
+        type: 'taken'
     });
 
     return {
@@ -42,6 +36,12 @@ function createData(duList) {
         links: links
     }
 }
+
+var LINK_STYLE = {
+    notTaken: "stroke: #f00; stroke-width: 2px; fill: none;",
+    taken: "stroke: #0f0; stroke-width: 2px; fill: none;",
+    unconditional: "stroke: #00f; stroke-width: 2px; fill: none;"
+};
 
 odaApplication.run(function (odbFile, editor) {
 
@@ -74,7 +74,10 @@ odaApplication.run(function (odbFile, editor) {
         });
 
         graph.links.forEach(function(link){
-            g.setEdge(link.from, link.to, {label: link.from + ' ' + link.to});
+            g.setEdge(link.from, link.to, {
+                //label: link.from + ' ' + link.to,
+                style: LINK_STYLE[link.type],
+            });
         });
 
         var svg = d3.select("svg");
