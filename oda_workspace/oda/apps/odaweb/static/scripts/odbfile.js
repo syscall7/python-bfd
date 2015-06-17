@@ -320,6 +320,43 @@ var OdbFile = function(oda_master) {
 
     };
 
+    this.deleteStructType = function (structindex, remote) {
+        if(typeof(remote)==='undefined') remote = false;
+
+        console.log("DeleteStruct", structindex);
+
+        var apply = function() {
+            this.structTypes.splice(structindex, 1);
+
+            this.reloadStructFieldTypes();
+
+            this._signal(ODB_EVENTS.CHANGED, {
+                action: 'deleteStruct',
+                remote: remote,
+                data: {
+                    structindex: structindex
+                }
+            });
+
+
+        }.bind(this);
+
+        if (!remote) {
+
+            $.ajax({
+                type : "DELETE",
+                url : '/odaweb/api/cstructs/' + structindex + '/',
+                data : {
+                    short_name: this.shortName,
+                    revision: this.revision
+                },
+                success : apply});
+        } else {
+            apply();
+        }
+
+    };
+
     this.addStructType = function (name, remote) {
         if(typeof(remote)==='undefined') remote = false;
 
@@ -332,6 +369,7 @@ var OdbFile = function(oda_master) {
                 fields : []
             };
 
+            this.reloadStructFieldTypes();
 
             this._signal(ODB_EVENTS.CHANGED, {
                 action: 'addStruct',
@@ -342,9 +380,6 @@ var OdbFile = function(oda_master) {
                     fields : []
                 }
             });
-
-            this.reloadStructFieldTypes();
-
 
         }.bind(this);
 

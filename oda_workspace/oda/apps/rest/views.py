@@ -28,11 +28,11 @@ from oda.libs.odb.structures.function import Function
 from oda.libs.odb.structures.label import Label
 from oda.libs.odb.structures.section import Section
 from oda.libs.odb.structures.symbol import Symbol
-from oda.libs.odb.structures.parcel import Parcel
+from oda.libs.odb.structures.parcel import Parcel, ParcelList
 from oda.libs.odb.structures.types import BuiltInTypeFactory, BuiltInTypeNames, BuiltInTypes
 from oda.libs.odb import structures
 from oda.libs.odb.ops.add_operation import AddOperation
-from oda.libs.odb.structures.c_struct import CStruct, BuiltinField, CStructField
+from oda.libs.odb.structures.c_struct import CStruct, BuiltinField, CStructField, CStructObject
 
 
 logger = logging.getLogger(__name__)
@@ -503,6 +503,37 @@ class CStructsViewSet(OdaStructureViewSet):
 
         serializer = self.get_serializer(item, many=False)
         return Response(serializer.data)
+
+    def destroy(self, request, pk=None):
+        oda = OdaMaster.objects.get(short_name=request.DATA['short_name'], revision=request.DATA['revision'])
+
+
+        struct_list = oda.odb_file.get_structure_list(CStruct)
+
+        if pk:
+            item = struct_list[int(pk)]
+
+            # Remove references to the struct in other structs
+            for struct in struct_list:
+                for field in struct.fields[:]:
+                    if field.type == item.name:
+                        item.delete_field(field.name)
+
+            # Remove associated struct variables from parcels
+            parcels = ParcelList(oda.odb_file.get_structure_list(Parcel))
+            dataparcels = [p for p in parcels if not p.is_code]
+            for dp in dataparcels:
+                for struct in dp.structs:
+                    if struct.struct_type == item.name:
+                        dp.delete_struct_variable(struct.addr)
+
+            # Delete the struct type
+            oda.odb_file.remove_item(item)
+            oda.save()
+
+            return Response({}, status=status.HTTP_200_OK)
+
+        return Response({'error': ''}, status=status.HTTP_400_BAD_REQUEST)
 
     @link()
     def append_field(self, request, pk):

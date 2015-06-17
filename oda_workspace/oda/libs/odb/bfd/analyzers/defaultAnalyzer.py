@@ -50,14 +50,15 @@ def parseStruct(section_name, start_addr, self, displayUnits, maxLines, struct, 
     addr = start_addr
     numLines = len(displayUnits)
     for field in struct.fields:
-        if isinstance(field ,BuiltinField):
-            parseField(section_name, addr, self, displayUnits, field, prefix, byteList)
-        else:
-            parseStruct(section_name, addr, self, displayUnits, maxLines, field.cstruct, prefix + '.' + field.name, byteList)
-        addr += field.size
-        numLines += 1
-        if numLines == maxLines:
-            break
+        if field.size > 0:
+            if isinstance(field ,BuiltinField):
+                parseField(section_name, addr, self, displayUnits, field, prefix, byteList)
+            else:
+                parseStruct(section_name, addr, self, displayUnits, maxLines, field.cstruct, prefix + '.' + field.name, byteList)
+            addr += field.size
+            numLines += 1
+            if numLines == maxLines:
+                break
 
 
 def parseDataParcel(section_name, start_addr, end_addr, self, displayUnits, is_data, maxLines, structs=None):
@@ -97,7 +98,7 @@ def parseDataParcel(section_name, start_addr, end_addr, self, displayUnits, is_d
                 struct_type = next(tmpStructType for tmpStructType in self.struct_types if tmpStructType.name == struct.struct_type)
                 break
 
-        if struct_type != None and len(byteList) >= struct_type.size:
+        if struct_type != None and len(byteList) >= struct_type.size and struct_type.size > 0:
             parseStruct(section_name, addr, self, displayUnits, maxLines, struct_type, curStruct.name, byteList)
             addr += struct_type.size
             numLines += len(struct_type.fields)

@@ -10,6 +10,10 @@ odaApplication.controller('StructTypesController', function StructTypesControlle
         $rootScope.$broadcast('command.makeStructType');
     };
 
+    $scope.deleteStructType = function (index) {
+        $rootScope.$broadcast('command.deleteStructType',index);
+    };
+
     $scope.openStructEditor = function(struct,index) {
 
         var modalInstance = $modal.open({
