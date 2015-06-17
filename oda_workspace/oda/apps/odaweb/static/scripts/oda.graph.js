@@ -1,3 +1,5 @@
+"use strict";
+
 function partition(items, size) {
     var result = _.groupBy(items, function (item, i) {
         return Math.floor(i / size);
@@ -11,41 +13,67 @@ function partition(items, size) {
 // Green Taken
 // Red Not Taken
 
-odaApplication.run(function (odbFile) {
+function createData(duList) {
+    var duGroups = partition(duList, 5);
+
+    var nodes = $.map(duGroups, function(group, key) {
+        return {
+            id: key,
+            instructions: group
+        };
+    });
+
+    var links = [];
+    for (var i = 0; i < duGroups.length - 1; i++) {
+        links.push({
+            from: i,
+            to: i+1,
+            type: 'notTaken'
+        });
+    }
+    links.push({
+        from: 0,
+        to: duGroups.length - 1,
+        type: 'notTaken'
+    });
+
+    return {
+        nodes: nodes,
+        links: links
+    }
+}
+
+odaApplication.run(function (odbFile, editor) {
 
     odbFile.on(ODB_EVENTS.DISPLAY_UNITS_LOADED, function (e) {
 
         // Create a new directed graph
         var g = new dagreD3.graphlib.Graph().setGraph({});
 
-        var duGroups = partition(e.displayUnits, 5);
-
         var renderer = new Oda.Renderer(odbFile);
 
-        var num = 0;
-        duGroups.forEach(function (group) {
+        var graph = createData(e.displayUnits);
 
+        graph.nodes.forEach(function(node){
             var label = '<table class="graph-node">';
-            var template = Handlebars.compile("<tr><td>{{section_name}}:{{hex offset}}</td><td class='insn'>{{{instStr}}}</td><td class='comment'>{{comment.comment}}</td></tr>");
-            for (var i = 0; i < group.length; i++) {
+            var template = Handlebars.compile("<tr data-addr='{{offset}}'><td>{{section_name}}:{{hex offset}}</td><td class='insn'>{{{instStr}}}</td><td class='comment'>{{comment.comment}}</td></tr>");
+            for (var i = 0; i < node.instructions.length; i++) {
                 var instruction = $.extend({
-                    comment: odbFile.comments[group[i].offset]
-                }, group[i]);
+                    comment: odbFile.comments[node.instructions[i].offset]
+                }, node.instructions[i]);
                 label += template(instruction);
             }
             label += "</table>";
 
-            g.setNode(num, {
+            g.setNode(node.id, {
                 label: label,
                 labelType: 'html'
             });
-            num += 1;
         });
 
-        for (var i = 0; i < duGroups.length - 1; i++) {
-            g.setEdge(i, i + 1, {label: i + "," + (i + 1)})
-        }
-        g.setEdge(0, duGroups.length-1, {label:'HERE'});
+        graph.links.forEach(function(link){
+            g.setEdge(link.from, link.to, {label: link.from + ' ' + link.to});
+        });
 
         var svg = d3.select("svg"),
             inner = svg.select("g");
@@ -69,8 +97,16 @@ odaApplication.run(function (odbFile) {
             .translate([(svg.attr("width") - g.graph().width * initialScale) / 2, 20])
             .scale(initialScale)
             .event(svg);
+
         svg.attr('width', '100%');
-        svg.attr('height', "800");
+        svg.attr('height', $(window).height()-150);
+
+
+
+        editor.activeAddressChanged.subscribe(function(e, args) {
+            $('.graph-active').removeClass('graph-active');
+            $("tr[data-addr='" + args.offset + "']").addClass('graph-active');
+        });
 
     });
 

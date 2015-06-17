@@ -506,6 +506,7 @@
     color: #093c83;
 }
 
+/** Graph **/
 .graph-node {
     color: black;
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
@@ -514,4 +515,9 @@
 .graph-node td {
     padding-left: 5px;
     text-align: left;
+}
+
+.graph-active {
+    background-color: #FFB;
+}
 }
