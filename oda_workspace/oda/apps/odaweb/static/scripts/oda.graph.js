@@ -47,7 +47,7 @@ odaApplication.run(function (odbFile, editor) {
 
     odbFile.on(ODB_EVENTS.DISPLAY_UNITS_LOADED, function (e) {
         $('.ui-layout-east svg').remove();
-        $('.ui-layout-east').append('<svg><g/></svg>')
+        $('.ui-layout-east').append('<svg><g/></svg>');
 
         // Create a new directed graph
         var g = new dagreD3.graphlib.Graph().setGraph({});
