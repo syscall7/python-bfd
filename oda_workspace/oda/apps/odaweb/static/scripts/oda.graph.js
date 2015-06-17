@@ -46,6 +46,8 @@ function createData(duList) {
 odaApplication.run(function (odbFile, editor) {
 
     odbFile.on(ODB_EVENTS.DISPLAY_UNITS_LOADED, function (e) {
+        $('.ui-layout-east svg').remove();
+        $('.ui-layout-east').append('<svg><g/></svg>')
 
         // Create a new directed graph
         var g = new dagreD3.graphlib.Graph().setGraph({});
@@ -75,8 +77,9 @@ odaApplication.run(function (odbFile, editor) {
             g.setEdge(link.from, link.to, {label: link.from + ' ' + link.to});
         });
 
-        var svg = d3.select("svg"),
-            inner = svg.select("g");
+        var svg = d3.select("svg");
+
+        var inner = svg.select("g");
 
         // Set up zoom support
         var zoom = d3.behavior.zoom().on("zoom", function () {

@@ -69,8 +69,6 @@
 
 <div class="ui-layout-east">
 
-    <svg><g/></svg>
-
 </div>
 
 {%  if not binary.is_live_mode %}
