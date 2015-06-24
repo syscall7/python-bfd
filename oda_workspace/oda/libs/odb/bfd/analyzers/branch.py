@@ -316,8 +316,7 @@ class BranchGraphNode:
 
 class BranchGraphView(list):
 
-    def graphNodes(self, odb_file, vma):
-
+    def __init__(self, odb_file, vma):
         start = None
         end = None
         funcName = None
@@ -335,7 +334,9 @@ class BranchGraphView(list):
         # get all the branches within this function
         branches = filter(lambda b: b.srcAddr >= start and b.srcAddr < end,
                             odb_file.get_structure_list(Branch))
-        nodes = []
+
+        # dict of nodes, keyed by starting address of the block
+        self._nodes = {}
         thisBlock = start
 
         for b in sorted(branches, key=lambda b: b.srcAddr):
@@ -343,7 +344,7 @@ class BranchGraphView(list):
             no = b.srcAddr + b.instr.size
 
             # first node
-            nodes.append(BranchGraphNode(thisBlock, b.srcAddr, yes, no))
+            self._nodes[thisBlock] = BranchGraphNode(thisBlock, b.srcAddr, yes, no)
 
             # advance to next block
             thisBlock = b.srcAddr + b.instr.size
@@ -352,17 +353,46 @@ class BranchGraphView(list):
         if thisBlock != end:
             end_line = parcels.vma_to_lda(end)
             last_addr = parcels.lda_to_vma(end_line - 1)
-            nodes.append(BranchGraphNode(thisBlock, last_addr, None, None))
+            self._nodes[thisBlock] = BranchGraphNode(thisBlock, last_addr, None, None)
 
         # now break out any new blocks that are the targets of branches
-        #newNodes = []
-        #for node in nodes:
-        #    if node.yesAddr not in nodes:
-        #        newNodeStart = node.yesAddr
-        #    elif node.noAddr not in nodes:
-        #        newNodeStart = node.noAddr
-        #
-        #    newNodes.append(BranchGraphNode(node.sp))
+        newNodes = {}
+        for key, node in self._nodes.iteritems():
+            if node.yesAddr not in self._nodes and node.yesAddr not in newNodes:
+                for key2, parent in self._nodes.iteritems():
+                    if node.yesAddr in parent:
+                        newNodes[node.yesAddr] = parent.split(node.yesAddr, parcels)
+            elif node.noAddr not in self._nodes and node.noAddr not in newNodes:
+                for key2, parent in self._nodes.iteritems():
+                    if node.noAddr in parent:
+                        newNodes[node.noAddr] = parent.split(node.noAddr, parcels)
+
+        self._nodes.update(newNodes)
+
+    '''
+    {
+        nodes:
+        [
+            {id:X, instructions: [du1, du2, du3, du4 ... }
+            {id:Y, instructions: [du9, du10, du11 .... }
+            ....
+        ]
+        links: [
+            { from:x, to:y, type: 'taken' }
+            { from:y, to: z, type: 'notTaken'}
+            { from:o, to: q, type: 'unconditional'}
+        ]
+    }
+    '''
+    def getNodes(self):
+        # convert _nodes to representation needed by front end
+        return []
+
+    def getLinks(self):
+        # convert _nodes to representation needed by front end
+        return []
+
+    nodes = property(getNodes)
+    links = property(getLinks)
 
 
-        return nodes

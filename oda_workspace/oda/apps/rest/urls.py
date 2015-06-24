@@ -29,6 +29,6 @@ urlpatterns = patterns('',
     url(r'^', include(router.urls)),
     url(r'^load', views.load_odb),
     url(r'^share$', views.ShareView.as_view(), name='share_api'),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
-
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^graph$', views.graph),
 )

@@ -33,7 +33,7 @@ from oda.libs.odb.structures.types import BuiltInTypeFactory, BuiltInTypeNames, 
 from oda.libs.odb import structures
 from oda.libs.odb.ops.add_operation import AddOperation
 from oda.libs.odb.structures.c_struct import CStruct, BuiltinField, CStructField, CStructObject
-
+from oda.libs.odb.bfd.analyzers.branch import BranchGraphView
 
 logger = logging.getLogger(__name__)
 
@@ -655,6 +655,20 @@ def load_odb(request):
         "displayUnits": {
             "size": size
         }
+    })
+
+@api_view(['GET'])
+def graph(request):
+    short_name = request.QUERY_PARAMS.get('short_name')
+    revision = request.QUERY_PARAMS.get('revision', 0)
+    oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
+    odb_file = oda.odb_file
+    vma = request.QUERY_PARAMS.get('addr')
+    bgv = BranchGraphView(odb_file, vma)
+
+    return Response({
+        'nodes': bgv.nodes,
+        'links': bgv.links,
     })
 
 
