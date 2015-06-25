@@ -22,12 +22,12 @@ class TestGraphNodes(OdaLibTestCase):
         bgv = BranchGraphView(odb_file, 0x401980)
 
         expectedNodes = [
-            BranchGraphNode(0x401980, 0x401990, 0x4019dd, 0x401992),
-            BranchGraphNode(0x401992, 0x4019b0, 0x4019d6, 0x4019b2),
-            BranchGraphNode(0x4019b2, 0x4019b2, 0x4019b8, None),
-            BranchGraphNode(0x4019b8, 0x4019d4, 0x4019b8, 0x4019d6),
-            BranchGraphNode(0x4019d6, 0x4019d6, 0x4019dd, None),
-            BranchGraphNode(0x4019dd, 0x4019e4, None, None),
+            BranchGraphNode(0x401980, 0x401990, 0x12, 0x4019dd, 0x401992),
+            BranchGraphNode(0x401992, 0x4019b0, 0x20, 0x4019d6, 0x4019b2),
+            BranchGraphNode(0x4019b2, 0x4019b2, 0x06, 0x4019b8, None),
+            BranchGraphNode(0x4019b8, 0x4019d4, 0x1e, 0x4019b8, 0x4019d6),
+            BranchGraphNode(0x4019d6, 0x4019d6, 0x07, 0x4019dd, None),
+            BranchGraphNode(0x4019dd, 0x4019e4, 0x13, None, None),
         ]
 
         self.assertItemsEqual(expectedNodes, bgv._nodes.values())

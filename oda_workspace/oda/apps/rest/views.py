@@ -666,8 +666,13 @@ def graph(request):
     vma = request.QUERY_PARAMS.get('addr')
     bgv = BranchGraphView(odb_file, vma)
 
+    serialized_nodes = []
+    for n in bgv.nodes:
+        sn = n
+        sn['instructions'] = DisplayUnitSerializer(n['instructions']).data
+        serialized_nodes.append(sn)
     return Response({
-        'nodes': bgv.nodes,
+        'nodes': serialized_nodes,
         'links': bgv.links,
     })
 

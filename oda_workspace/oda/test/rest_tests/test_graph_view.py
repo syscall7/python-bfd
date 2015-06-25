@@ -25,4 +25,8 @@ class GraphViewTest(OdaApiTestCase):
         # verify links are as expected
         links = graphInfo['nodes']
 
+        print 'done'
+
+    def test_graph_view_binary_string_nonzero_base_address(self):
+        pass
 
