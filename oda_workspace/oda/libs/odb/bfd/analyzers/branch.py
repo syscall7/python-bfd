@@ -304,7 +304,7 @@ class BranchGraphNode:
         return newNode
 
     def getId(self):
-        return '0x%16x' % self.startAddr
+        return '0x%x' % self.startAddr
     id = property(getId)
 
     def __contains__(self, vma):
