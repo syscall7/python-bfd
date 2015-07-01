@@ -82,6 +82,11 @@ odaApplication.run(function($rootScope, $modal, odbFile, editor){
         });
     });
 
+    $rootScope.$on('command.deleteStructType', function(event, index){
+
+        odbFile.deleteStructType(index);
+    });
+
     $rootScope.$on("command.makeStructType", function(event, data) {
         var scope = $rootScope.$new(true);
 

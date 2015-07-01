@@ -93,7 +93,7 @@
 
                 retval = odbFile.loadDu(offset, numRows, false).success(onSuccessAppend)
                     .error(function () {
-                        onError(fromPage)
+                        onError(from)
                     }).then(function(){isProcessing=false;});
 
             }/* else if (inLoadedRange(startRow + numRows)) {
@@ -121,7 +121,7 @@
                     clear();
                     onSuccess(data, startRow, pivot);
                 }).error(function () {
-                        onError(fromPage)
+                        onError(from)
                     }).then(function(){isProcessing=false;});
             }
 

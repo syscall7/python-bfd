@@ -572,6 +572,7 @@
                 <tbody class="scrollContent">
                         <tr ng-repeat="struct in structTypes | filter:search">
                             <td class="clickable" style="text-align: left; width:100%" ng-click="openStructEditor(struct,$index)">{{ struct.name }}</td>
+                            <td><button type="button" class="btn btn-default btn-xs" ng-click="deleteStructType($index)">X</button></td>
                         </tr>
                 </tbody>
             </table>

@@ -135,7 +135,7 @@ class BinaryString(Binary):
 
     @property
     def size(self):
-        return len(self.binary_string)
+        return len(self.byte_array)
 
     @property
     def options(self):
