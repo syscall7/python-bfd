@@ -353,8 +353,17 @@ class BranchGraphView(list):
         thisBlock = start
 
         for b in sorted(branches, key=lambda b: b.srcAddr):
+            # Older versions of ODB files did not store the 'size' attribute of a DisplayUnit in the
+            # branch structure list, so we hack around that here instead of upgrading all the old ODB files.
+            if not hasattr(b.instr, 'size'):
+                line = self.parcels.vma_to_lda(b.srcAddr)
+                no = self.parcels.lda_to_vma(line+1)
+            else:
+                # address if the branch is not taken (i.e., the addr of the next instruction)
+                no = b.srcAddr + b.instr.size
+
+            # address if the branch is taken
             yes = b.targetAddr
-            no = b.srcAddr + b.instr.size
 
             # first node
             self._nodes[thisBlock] = BranchGraphNode(thisBlock, b.srcAddr, no - thisBlock, yes, no)
