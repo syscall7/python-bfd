@@ -663,7 +663,7 @@ def graph(request):
     revision = request.QUERY_PARAMS.get('revision', 0)
     oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
     odb_file = oda.odb_file
-    vma = request.QUERY_PARAMS.get('addr')
+    vma = int(request.QUERY_PARAMS.get('addr'))
     bgv = BranchGraphView(odb_file, vma)
 
     serialized_nodes = []
