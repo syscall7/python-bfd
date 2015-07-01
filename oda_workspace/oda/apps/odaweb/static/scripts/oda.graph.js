@@ -1,45 +1,10 @@
 "use strict";
 
-function partition(items, size) {
-    var result = _.groupBy(items, function (item, i) {
-        return Math.floor(i / size);
-    });
-    return _.values(result);
-}
-
-function createData(duList) {
-    var duGroups = partition(duList, 5);
-
-    var nodes = $.map(duGroups, function(group, key) {
-        return {
-            id: key,
-            instructions: group
-        };
-    });
-
-    var links = [];
-    for (var i = 0; i < duGroups.length - 1; i++) {
-        links.push({
-            from: i,
-            to: i+1,
-            type: (i%2==0) ? 'unconditional' : 'notTaken'
-        });
-    }
-    links.push({
-        from: 0,
-        to: duGroups.length - 1,
-        type: 'taken'
-    });
-
-    return {
-        nodes: nodes,
-        links: links
-    }
-}
-
 function DrawGraph(odbFile, graph) {
+    var template = Handlebars.compile("<tr data-addr='{{offset}}'><td>{{section_name}}:{{hex offset}}</td><td class='insn'>{{{instStr}}}</td><td class='comment'>{{comment.comment}}</td></tr>");
 
     $('.ui-layout-east svg').remove();
+    $('.ui-layout-east div').remove();
     $('.ui-layout-east').append('<svg><g/></svg>');
 
     // Create a new directed graph
@@ -49,7 +14,6 @@ function DrawGraph(odbFile, graph) {
 
     graph.nodes.forEach(function(node){
         var label = '<table class="graph-node">';
-        var template = Handlebars.compile("<tr data-addr='{{offset}}'><td>{{section_name}}:{{hex offset}}</td><td class='insn'>{{{instStr}}}</td><td class='comment'>{{comment.comment}}</td></tr>");
         for (var i = 0; i < node.instructions.length; i++) {
             var instruction = $.extend({
                 comment: odbFile.comments[node.instructions[i].offset]
@@ -116,7 +80,7 @@ odaApplication.run(function (odbFile, editor) {
     /* List of loaded offsets, check this list to see if we need to reload */
     var loadedOffsets = [];
 
-    editor.activeAddressChanged.subscribe(function(e, args) {
+    editor.activeAddressChanged.subscribe(_.debounce(function(e, args) {
         $('.graph-active').removeClass('graph-active');
         $("tr[data-addr='" + args.offset + "']").addClass('graph-active');
 
@@ -125,17 +89,16 @@ odaApplication.run(function (odbFile, editor) {
                 return;
             }
         }
+
+        loadedOffsets = [];
+        $('.ui-layout-east svg').remove();
+        $('.ui-layout-east div').remove();
+
         odbFile.graph(args.offset).success(function(graph){
             loadedOffsets = DrawGraph(odbFile, graph);
+        }).error(function(data){
+            $('.ui-layout-east').append('<div class="alert alert-warning">Instruction graph not available for address 0x' + args.offset.toString(16) + '</div>');
         });
-    });
-
-   /* odbFile.on(ODB_EVENTS.DISPLAY_UNITS_LOADED, function (e) {
-
-        odbFile.graph(0).success(function(graph){
-            DrawGraph(odbFile, graph);
-        });
-
-    });*/
+    }));
 
 });
