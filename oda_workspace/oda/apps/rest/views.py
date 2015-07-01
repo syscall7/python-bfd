@@ -664,18 +664,20 @@ def graph(request):
     oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
     odb_file = oda.odb_file
     vma = int(request.QUERY_PARAMS.get('addr'))
-    bgv = BranchGraphView(odb_file, vma)
+    try:
+        bgv = BranchGraphView(odb_file, vma)
 
-    serialized_nodes = []
-    for n in bgv.nodes:
-        sn = n
-        sn['instructions'] = DisplayUnitSerializer(n['instructions']).data
-        serialized_nodes.append(sn)
-    return Response({
-        'nodes': serialized_nodes,
-        'links': bgv.links,
-    })
-
+        serialized_nodes = []
+        for n in bgv.nodes:
+            sn = n
+            sn['instructions'] = DisplayUnitSerializer(n['instructions']).data
+            serialized_nodes.append(sn)
+        return Response({
+            'nodes': serialized_nodes,
+            'links': bgv.links,
+        })
+    except Exception, e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class ShareView(APIView):
     def post(self, request):

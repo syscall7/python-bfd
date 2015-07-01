@@ -10,7 +10,7 @@ class GraphViewTest(OdaApiTestCase):
         response = self.client.get('/odaweb/api/graph',
                                    { 'short_name': 'strcpy_x86',
                                      'revision': 0,
-                                     'vma': 0 },
+                                     'addr': 0 },
                                    format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

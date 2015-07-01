@@ -58,6 +58,15 @@ echo mysql-server mysql-server/root_password password '***REMOVED***' | sudo deb
 echo mysql-server mysql-server/root_password_again password '***REMOVED***' | sudo debconf-set-selections
 
 sudo apt-get install mysql-server libmysqlclient-dev -y
+
+# edit /etc/mysql/my.cnf and set InnoDB to use a separate file per table as follows:
+#   innodb_file_per_table
+#   innodb_flush_method=O_DIRECT
+#   innodb_log_file_size=1G
+#   innodb_buffer_pool_size=4G
+# also, you should point the mysqld data dir to a location with enough storage
+echo "ERROR: You need to edit /etc/mysql/my.cnf manually!"
+
 }
 
 configure_database()
