@@ -67,7 +67,9 @@
 
 </div>
 
-<div class="ui-layout-east">Outer East</div>
+<div class="ui-layout-east">
+
+</div>
 
 {%  if not binary.is_live_mode %}
 <div class="ui-layout-west oda-paneselector blue" ng-controller="DockMenuController">

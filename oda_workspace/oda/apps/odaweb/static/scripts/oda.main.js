@@ -167,6 +167,7 @@ function oda_main() {
 
 
         $('.theeditor').layout({
+            resizable: true,
             west__size: 41,
             west__closable: false,
             west__resizable: false,
@@ -178,11 +179,12 @@ function oda_main() {
                 //closable: false,
                 west__size: 400
             },
-            east__initClosed: true,
-            east__minSize: 150,
+            east__initClosed: false,
+            east__minSize: 350,
+            east__resizable: true,
 
-            spacing_open: 2,
-            spacing_closed: 2
+            spacing_open: 4,
+            spacing_closed: 4
         });
 
         start(odbFile);

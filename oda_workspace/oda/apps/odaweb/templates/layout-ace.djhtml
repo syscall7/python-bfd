@@ -46,6 +46,7 @@
     {% compress js %}
     <script type="text/javascript" src="{% static 'scripts/lib/keypress-2.0.3.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/jquery/jquery-1.11.1.min.js' %}" ></script>
+    <script type="text/javascript" src="http://layout.jquery-dev.com/lib/js/jquery-ui-latest.js" ></script>
     <script type="text/javascript" src="{% static 'scripts/lib/jquery.cookie.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/lib/context/context.js' %}"></script>
     <script type="text/javascript" src="{% static 'scripts/lib/bootstrap-3.2/js/bootstrap.js' %}"></script>
@@ -77,6 +78,21 @@
         };
     </script>
 
+<style id="css">
+
+    .node rect {
+  stroke: #333;
+  fill: #fff;
+}
+
+.edgePath path {
+  stroke: #333;
+  fill: #333;
+  stroke-width: 1.5px;
+}
+</style>
+
+
     {% block head %}
     {% endblock %}
 
@@ -102,6 +118,9 @@
 
     {% compress js %}
 
+    <script type="text/javascript" src="{% static 'scripts/lib/dagre/d3.v3.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scripts/lib/dagre/dagre-d3.js' %}"></script>
+
     <script type="text/javascript" src="{% static 'scripts/addrbar.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda.main.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda.handlebars.js' %}" ></script>
@@ -110,6 +129,7 @@
     <script type="text/javascript" src="{% static 'scripts/oda.commands.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda.renderer.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda.dock.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'scripts/oda.graph.js' %}" ></script>
 
     <script type="text/javascript" src="{% static 'scripts/models/oda.localmodel.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/models/oda.remotemodel.js' %}" ></script>

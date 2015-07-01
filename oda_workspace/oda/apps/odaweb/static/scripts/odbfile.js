@@ -169,6 +169,14 @@ var OdbFile = function(oda_master) {
         }.bind(this));
     };
 
+    this.graph = function(addr) {
+        return $.get('/odaweb/api/graph', {
+            short_name: this.shortName,
+            revision: this.revision,
+            addr: addr
+        });
+    };
+
     this.vmaToLda = function (vma, callback) {
         $.get('/odaweb/api/displayunits/1/vmaToLda', {
             short_name: this.shortName,
