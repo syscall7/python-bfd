@@ -390,17 +390,24 @@ class BranchGraphView(list):
         #
         # now break out any new blocks that are the targets of branches
         #
-        newNodes = {}
-        # for each node we've identified so far
-        for key, node in self._nodes.iteritems():
+        def check_subdivide(node, nodes):
             # we only have to check the 'yes' addresses
             addr = node.yesAddr
-            if addr not in self._nodes and addr not in newNodes:
-                for key2, parent in self._nodes.iteritems():
+            # if this is a new node
+            if addr not in nodes:
+                # find the node that contains this address (the parent) and split it
+                for parent in nodes.values():
                     if addr in parent:
-                        newNodes[addr] = parent.split(addr, self.parcels)
+                        newNode = parent.split(addr, self.parcels)
+                        nodes[addr] = newNode
+                        # ensure that this node resolves to a valid node
+                        check_subdivide(newNode, nodes)
+                        break
 
-        self._nodes.update(newNodes)
+        # for each node we've identified so far
+        # NOTE: Do not use iteritems() here, because we need to modify the dictionary while iterating
+        for node in self._nodes.values():
+            check_subdivide(node, self._nodes)
 
     '''
     {
