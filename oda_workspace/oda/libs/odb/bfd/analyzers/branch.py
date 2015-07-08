@@ -379,7 +379,7 @@ class BranchGraphView(list):
             self._nodes[thisBlock] = BranchGraphNode(thisBlock, b.srcAddr, no - thisBlock, yes, no)
 
             # advance to next block
-            thisBlock = b.srcAddr + b.instr.size
+            thisBlock = no
 
         # make last block
         if thisBlock != end:
