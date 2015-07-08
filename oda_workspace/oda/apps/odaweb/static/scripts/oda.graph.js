@@ -1,7 +1,34 @@
 "use strict";
 
+var GRAPH_TEMPLATE = Handlebars.compile("<tr data-addr='{{offset}}'><td>{{section_name}}:{{hex offset}}</td><td class='insn'>{{{instStr}}}{{targetRefName}}</td><td class='comment'>{{comment.comment}}</td></tr>");
+
+function RenderDu(odbFile, du) {
+    var label = "";
+
+    var instruction = $.extend({
+        comment: odbFile.comments[du.offset],
+    }, du);
+
+    if (odbFile.labels[instruction.offset]) {
+        label += "<tr><td></td><td>"+ odbFile.labels[instruction.offset].label + ":</td></tr>";
+    }
+
+    if (instruction.targetRef) {
+        if (odbFile.labels[instruction.targetRef.offset]) {
+            instruction.targetRefName = odbFile.labels[instruction.targetRef.offset].label;
+        } else if (odbFile.functions[instruction.targetRef.offset]){
+            instruction.targetRefName = odbFile.functions[instruction.targetRef.offset].name;
+        } else {
+            instruction.targetRefName = Handlebars.compile("loc_{{hex offset}}")(instruction.targetRef);
+        }
+    }
+
+    label += GRAPH_TEMPLATE(instruction);
+
+    return label;
+}
+
 function DrawGraph(odbFile, graph) {
-    var template = Handlebars.compile("<tr data-addr='{{offset}}'><td>{{section_name}}:{{hex offset}}</td><td class='insn'>{{{instStr}}}</td><td class='comment'>{{comment.comment}}</td></tr>");
 
     $('.ui-layout-east svg').remove();
     $('.ui-layout-east div').remove();
@@ -15,12 +42,12 @@ function DrawGraph(odbFile, graph) {
     graph.nodes.forEach(function(node){
         var label = '<table class="graph-node">';
         for (var i = 0; i < node.instructions.length; i++) {
-            var instruction = $.extend({
-                comment: odbFile.comments[node.instructions[i].offset]
-            }, node.instructions[i]);
-            label += template(instruction);
 
-            offsets.push(instruction.offset);
+            var du = node.instructions[i];
+
+            label += RenderDu(odbFile, du);
+
+            offsets.push(du.offset);
         }
         label += "</table>";
 
