@@ -1,4 +1,4 @@
-Cython==0.20.1
+Cython==0.22.1
 Django==1.6.2
 MySQL-python==1.2.5
 argparse==1.2.1

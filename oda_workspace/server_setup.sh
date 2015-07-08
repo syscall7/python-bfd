@@ -3,6 +3,8 @@ set -x
 set -e
 # These are rough notes, and you must not mindlessly follow them.
 
+#BFD !! CFLAGS="-Wno-format-security" python setup.py install
+
 ODA_INSTALL_DIR=/var/www/oda
 
 # Upgrade the server
