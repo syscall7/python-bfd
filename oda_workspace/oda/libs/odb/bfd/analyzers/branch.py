@@ -355,7 +355,9 @@ class BranchGraphView(list):
                 break
 
         # get all the branches within this function
-        branches = filter(lambda b: b.srcAddr >= start and b.srcAddr < end,
+        # TODO: Deal with indirect branches (i.e., jmp rax)
+        branches = filter(lambda b: b.srcAddr >= start and b.srcAddr < end and
+                                    b.targetAddr >= start and b.targetAddr < end,
                             odb_file.get_structure_list(Branch))
 
         # dict of nodes, keyed by starting address of the block
@@ -387,27 +389,17 @@ class BranchGraphView(list):
             last_addr = self.parcels.lda_to_vma(end_line)
             self._nodes[thisBlock] = BranchGraphNode(thisBlock, last_addr, end - thisBlock, None, None)
 
-        #
-        # now break out any new blocks that are the targets of branches
-        #
-        def check_subdivide(node, nodes):
-            # we only have to check the 'yes' addresses
-            addr = node.yesAddr
+        # for each target 'yes' branch address
+        # NOTE: The 'no' branch addresses are guaranateed to be nodes by this point
+        # NOTE: We can't iterate over the nodes with iteritems() since we modify the dictionary in the loop
+        for addr in [n.yesAddr for n in self._nodes.values()]:
             # if this is a new node
-            if addr not in nodes:
+            if addr not in self._nodes:
                 # find the node that contains this address (the parent) and split it
-                for parent in nodes.values():
+                for parent in self._nodes.values():
                     if addr in parent:
                         newNode = parent.split(addr, self.parcels)
-                        nodes[addr] = newNode
-                        # ensure that this node resolves to a valid node
-                        check_subdivide(newNode, nodes)
-                        break
-
-        # for each node we've identified so far
-        # NOTE: Do not use iteritems() here, because we need to modify the dictionary while iterating
-        for node in self._nodes.values():
-            check_subdivide(node, self._nodes)
+                        self._nodes[addr] = newNode
 
     '''
     {
