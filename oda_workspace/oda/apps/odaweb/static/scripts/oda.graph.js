@@ -97,9 +97,9 @@ function DrawGraph(odbFile, graph) {
 }
 
 var LINK_STYLE = {
-    notTaken: "stroke: #f00; stroke-width: 2px; fill: none;",
-    taken: "stroke: #0f0; stroke-width: 2px; fill: none;",
-    unconditional: "stroke: #00f; stroke-width: 2px; fill: none;"
+    notTaken: "stroke: #D9534F; stroke-width: 2px; fill: none;",
+    taken: "stroke: #5CB85C; stroke-width: 2px; fill: none;",
+    unconditional: "stroke: #006eff; stroke-width: 2px; fill: none;"
 };
 
 odaApplication.run(function (odbFile, editor) {
