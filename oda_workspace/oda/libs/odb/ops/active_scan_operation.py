@@ -35,7 +35,7 @@ class ActiveScanOperation(Operation):
 
         self.object_id = odb_file.get_object_id()
 
-        analyzer = analyzer_factory(odb_file.get_arch())
+        analyzer = analyzer_factory(odb_file.get_arch(), odb_file)
         the_ofd = ofd.Ofd(odb_file.get_binary())
 
         def convert_to_code(vma, odb_file, analyzer, the_ofd):

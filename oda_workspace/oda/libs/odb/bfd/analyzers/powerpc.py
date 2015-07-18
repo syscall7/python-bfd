@@ -14,8 +14,8 @@ class powerpc(defaultAnalyzer):
     classdocs
     '''
 
-    def __init__(self):
-        defaultAnalyzer.__init__(self)
+    def __init__(self, odb_file):
+        defaultAnalyzer.__init__(self, odb_file)
 
         self.options = [
             ('Mode', 'Processor mode', 'CHOICE', ('DEFAULT', '32', '64'), ''),

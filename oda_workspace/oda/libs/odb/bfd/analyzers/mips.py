@@ -24,8 +24,8 @@ class mips(defaultAnalyzer):
                  'loongson2e', 'loongson2f', 'loongson3a', 'octeon',
                  'octeon+', 'octeon2', 'xlr', 'xlp')
 
-    def __init__(self):
-        defaultAnalyzer.__init__(self)
+    def __init__(self, odb_file):
+        defaultAnalyzer.__init__(self, odb_file)
 
         self.options = [
             ('ABI', 'Naming style used for gpr and fpr registers', 'CHOICE', self.ABI_OPTS + ('DEFAULT',),  ''),

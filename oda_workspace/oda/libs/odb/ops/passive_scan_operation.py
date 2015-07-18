@@ -19,7 +19,7 @@ class PassiveScanOperation(Operation):
         assert (len(odb_file.get_structure_list(Parcel)) > 0)
 
         self.object_id = odb_file.get_object_id()
-        analyzer = analyzer_factory(odb_file.get_arch())
+        analyzer = analyzer_factory(odb_file.get_arch(), odb_file)
 
         function_scanner = FunctionScanner(analyzer, odb_file.get_structure_list(Symbol))
         branch_scanner = BranchScanner(analyzer)

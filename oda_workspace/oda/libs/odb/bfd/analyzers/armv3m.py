@@ -6,5 +6,5 @@ Created on November 7, 2012
 from oda.libs.odb.bfd.analyzers.arm import arm
 
 class armv3m(arm):
-    def __init__(self):
-        arm.__init__(self)
+    def __init__(self, odb_file):
+        arm.__init__(self, odb_file)

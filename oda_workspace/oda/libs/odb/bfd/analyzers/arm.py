@@ -14,8 +14,8 @@ class arm(defaultAnalyzer):
     classdocs
     '''
 
-    def __init__(self):
-        defaultAnalyzer.__init__(self)
+    def __init__(self, odb_file):
+        defaultAnalyzer.__init__(self, odb_file)
 
         self.options = [
             ('Force Thumb Mode', 'Assume all insns are Thumb insns', 'CHOICE', ('DEFAULT','force-thumb', 'no-force-thumb'), False),
