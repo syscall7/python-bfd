@@ -266,7 +266,10 @@ class defaultAnalyzer(object):
         self.opcodeRegExStr = "^(\w+)\s+([^<]+)"
 
         self.odb_file = odb_file
-        self.ofd = Ofd(odb_file.get_binary())
+
+        # in this case, the analyzer is severely crippled and only useful for getting platform options
+        if odb_file:
+            self.ofd = Ofd(odb_file.get_binary())
 
     # override this in the subclass if you need to (i.e., mips)
     def processOptions(self, options):
