@@ -30,14 +30,17 @@ function RenderDu(odbFile, du) {
 
 function DrawGraph(odbFile, graph) {
 
-    $('.ui-layout-east svg').remove();
-    $('.ui-layout-east div').remove();
-    $('.ui-layout-east').append('<svg><g/></svg>');
+    $('.graph-viewt svg').remove();
+    $('.graph-view div').remove();
+    $('.graph-view').append('<svg><g/></svg>');
 
     // Create a new directed graph
     var g = new dagreD3.graphlib.Graph().setGraph({});
 
     var offsets = [];
+
+    console.log("nodes: " + graph.nodes.length + " edges: " + graph.links.length);
+
 
     graph.nodes.forEach(function(node){
         var label = '<table class="graph-node">';
@@ -75,6 +78,9 @@ function DrawGraph(odbFile, graph) {
     });
     svg.call(zoom);
 
+    svg.attr('width', '100%');
+    svg.attr('height', $(window).height()-150);
+
     // Create the renderer
     var render = new dagreD3.render();
 
@@ -83,13 +89,12 @@ function DrawGraph(odbFile, graph) {
 
     // Center the graph
     var initialScale = 1.0;
-    zoom
+    /*zoom
         .translate([(svg.attr("width") + 0) / 2, 20])
         .scale(initialScale)
-        .event(svg);
+        .event(svg);*/
 
-    svg.attr('width', '100%');
-    svg.attr('height', $(window).height()-150);
+
 
 
     return offsets;
@@ -104,15 +109,55 @@ var LINK_STYLE = {
 
 odaApplication.run(function (odbFile, editor) {
 
-    /* List of loaded offsets, check this list to see if we need to reload */
+    var showing = false;
     var loadedOffsets = [];
 
-    editor.activeAddressChanged.subscribe(_.debounce(function(e, args) {
+    $('#oda-tabs').on('shown.bs.tab', function(e) {
+        if ($(e.target).attr('href') == '#tab-graph') {
+            showing = true;
+            var activeRow = editor.getActiveRowData();
+
+            for (var i=0; i<loadedOffsets.length; i++) {
+                if (loadedOffsets[i] == activeRow.offset) {
+                    return;
+                }
+            }
+
+            //Loading...
+             $('.graph-viewt svg').remove();
+             $('.graph-view div').remove();
+
+            $('.disassembly-loading').slideDown();
+            odbFile.graph(activeRow.offset).success(function(graph){
+                if (showing) {
+                    loadedOffsets = DrawGraph(odbFile, graph);
+                }
+            }).error(function(data){
+                $('.graph-view').append('<div class="alert alert-warning">Instruction graph not available for address 0x' + args.offset.toString(16) + '</div>');
+            }).always(function(){
+                 $('.disassembly-loading').slideUp();
+            });
+
+        } else {
+            showing= false;
+        }
+    });
+
+
+    /* List of loaded offsets, check this list to see if we need to reload */
+   /* var loadedOffsets = [];
+
+    var processing = false;
+
+    editor.activeAddressChanged.subscribe(function(e, args) {
+        if (processing) { return; }
+        processing = true;
         $('.graph-active').removeClass('graph-active');
         $("tr[data-addr='" + args.offset + "']").addClass('graph-active');
 
         for (var i=0; i<loadedOffsets.length; i++) {
             if (loadedOffsets[i] == args.offset) {
+                processing = false;
                 return;
             }
         }
@@ -125,7 +170,9 @@ odaApplication.run(function (odbFile, editor) {
             loadedOffsets = DrawGraph(odbFile, graph);
         }).error(function(data){
             $('.ui-layout-east').append('<div class="alert alert-warning">Instruction graph not available for address 0x' + args.offset.toString(16) + '</div>');
+        }).always(function(){
+            processing = false;
         });
-    }));
+    });*/
 
 });

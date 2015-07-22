@@ -179,7 +179,7 @@ function oda_main() {
                 //closable: false,
                 west__size: 400
             },
-            east__initClosed: false,
+            east__initClosed: true,
             east__minSize: 350,
             east__resizable: true,
 
