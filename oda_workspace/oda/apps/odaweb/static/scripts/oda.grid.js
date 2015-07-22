@@ -239,7 +239,6 @@ function InstructionTable(odbFile) {
         var activeCell = grid.getActiveCell();
         if (activeCell != null && grid.getDataItem(activeCell.row) != null) {
             var activeRowData = grid.getDataItem(activeCell.row);
-            console.log("activeRowData", activeRowData);
             return activeRowData;
         }
         return null;

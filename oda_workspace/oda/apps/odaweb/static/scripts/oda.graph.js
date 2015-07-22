@@ -117,6 +117,13 @@ odaApplication.run(function (odbFile, editor) {
             showing = true;
             var activeRow = editor.getActiveRowData();
 
+            if (!activeRow.isCode) {
+                $('.graph-viewt svg').remove();
+                $('.graph-view div').remove();
+                $('.graph-view').append('<div class="alert alert-info" role="alert">Call graph only available for code sections.</div>');
+                return;
+            }
+
             for (var i=0; i<loadedOffsets.length; i++) {
                 if (loadedOffsets[i] == activeRow.offset) {
                     return;
