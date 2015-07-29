@@ -17,9 +17,14 @@ function start(odbFile) {
 
     var statusBar = new StatusBar(odbFile);
 
+    var activeTab = '#tab-disassembly';
+    $('#oda-tabs').on('shown.bs.tab', function(e) {
+        activeTab = $(e.target).attr('href');
+    });
     addrBar.onChange(function(address) {
-        editor.gotoAddress(address);
-        console.log('My change handler: ' + address.toString(16));
+        if (activeTab == '#tab-disassembly') {
+            editor.gotoAddress(address);
+        }
     });
 
     editor.onViewportChanged.subscribe(function (e, args) {

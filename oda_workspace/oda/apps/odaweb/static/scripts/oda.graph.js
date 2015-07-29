@@ -88,11 +88,12 @@ function DrawGraph(odbFile, graph) {
     render(inner, g);
 
     // Center the graph
-    var initialScale = 1.0;
-    /*zoom
-        .translate([(svg.attr("width") + 0) / 2, 20])
+    var initialScale = 900 / g.graph().height;
+    console.log("width/height", g.graph().width, g.graph().height);
+    zoom
+        .translate([($('#tab-graph').width() - g.graph().width * initialScale) / 2, 20])
         .scale(initialScale)
-        .event(svg);*/
+        .event(svg);
 
 
 
@@ -107,15 +108,15 @@ var LINK_STYLE = {
     unconditional: "stroke: #006eff; stroke-width: 2px; fill: none;"
 };
 
-odaApplication.run(function (odbFile, editor) {
+odaApplication.run(function (odbFile, editor, addrBar) {
 
     var showing = false;
     var loadedOffsets = [];
+    var activeTab = null;
 
-    $('#oda-tabs').on('shown.bs.tab', function(e) {
-        if ($(e.target).attr('href') == '#tab-graph') {
+    var reloadGraph = function(activeRow) {
+        if (activeTab== '#tab-graph') {
             showing = true;
-            var activeRow = editor.getActiveRowData();
 
             if (!activeRow.isCode) {
                 $('.graph-viewt svg').remove();
@@ -124,30 +125,42 @@ odaApplication.run(function (odbFile, editor) {
                 return;
             }
 
-            for (var i=0; i<loadedOffsets.length; i++) {
+            for (var i = 0; i < loadedOffsets.length; i++) {
                 if (loadedOffsets[i] == activeRow.offset) {
                     return;
                 }
             }
 
             //Loading...
-             $('.graph-viewt svg').remove();
-             $('.graph-view div').remove();
+            $('.graph-viewt svg').remove();
+            $('.graph-view div').remove();
 
             $('.disassembly-loading').slideDown();
-            odbFile.graph(activeRow.offset).success(function(graph){
+            odbFile.graph(activeRow.offset).success(function (graph) {
                 if (showing) {
                     loadedOffsets = DrawGraph(odbFile, graph);
                 }
-            }).error(function(data){
+            }).error(function (data) {
                 $('.graph-view').append('<div class="alert alert-warning">Instruction graph not available for address 0x' + args.offset.toString(16) + '</div>');
-            }).always(function(){
-                 $('.disassembly-loading').slideUp();
+            }).always(function () {
+                $('.disassembly-loading').slideUp();
             });
-
         } else {
-            showing= false;
+            showing = false;
         }
+
+
+    };
+
+    $('#oda-tabs').on('shown.bs.tab', function(e) {
+        activeTab = $(e.target).attr('href');
+        reloadGraph(editor.getActiveRowData());
+    });
+
+    addrBar.onChange(function(address) {
+        odbFile.loadDu(address, 1, false).success(function(data){
+            reloadGraph(data[0]);
+        });
     });
 
 
