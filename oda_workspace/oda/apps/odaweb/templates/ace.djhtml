@@ -117,6 +117,8 @@
 {% include 'ng/strings.html' %}
 {% include 'ng/find_results.html' %}
 {% include 'ng/live_entry.html' %}
+{% include 'handlebars.djhtml' %}
+
 
 
 {% verbatim %}

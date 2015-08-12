@@ -1,6 +1,6 @@
 "use strict";
 
-var GRAPH_TEMPLATE = Handlebars.compile("<tr data-addr='{{offset}}'><td>{{section_name}}:{{hex offset}}</td><td class='insn'>{{{instStr}}}{{targetRefName}}</td><td class='comment'>{{comment.comment}}</td></tr>");
+var GRAPH_TEMPLATE = Handlebars.compile($('#graph-node-template').html());
 
 function RenderDu(odbFile, du) {
     var label = "";
@@ -30,7 +30,7 @@ function RenderDu(odbFile, du) {
 
 function DrawGraph(odbFile, graph) {
 
-    $('.graph-viewt svg').remove();
+    $('.graph-view svg').remove();
     $('.graph-view div').remove();
     $('.graph-view').append('<svg><g/></svg>');
 
@@ -88,7 +88,7 @@ function DrawGraph(odbFile, graph) {
     render(inner, g);
 
     // Center the graph
-    var initialScale = 900 / g.graph().height;
+    var initialScale = Math.max(0.2, 400 / g.graph().height);
     console.log("width/height", g.graph().width, g.graph().height);
     zoom
         .translate([($('#tab-graph').width() - g.graph().width * initialScale) / 2, 20])
@@ -108,6 +108,12 @@ var LINK_STYLE = {
     unconditional: "stroke: #006eff; stroke-width: 2px; fill: none;"
 };
 
+function odaTemplate(id, context) {
+    var source = $('#' + id).html();
+    var template = Handlebars.compile(source);
+    return template(context);
+}
+
 odaApplication.run(function (odbFile, editor, addrBar) {
 
     var showing = false;
@@ -119,9 +125,9 @@ odaApplication.run(function (odbFile, editor, addrBar) {
             showing = true;
 
             if (!activeRow.isCode) {
-                $('.graph-viewt svg').remove();
+                $('.graph-view svg').remove();
                 $('.graph-view div').remove();
-                $('.graph-view').append('<div class="alert alert-info" role="alert">Call graph only available for code sections.</div>');
+                $('.graph-view').append(odaTemplate('instruction-graph-data-section', activeRow));
                 return;
             }
 
@@ -132,19 +138,24 @@ odaApplication.run(function (odbFile, editor, addrBar) {
             }
 
             //Loading...
-            $('.graph-viewt svg').remove();
+            $('.graph-view svg').remove();
             $('.graph-view div').remove();
 
-            $('.disassembly-loading').slideDown();
             odbFile.graph(activeRow.offset).success(function (graph) {
-                if (showing) {
+                if (graph.links.length > 500) {
+                    $('.graph-viewt svg').remove();
+                    $('.graph-view div').remove();
+                    $('.graph-view').append(odaTemplate('instruction-graph-too-complicated', $.extend(activeRow, {
+                        numNodes: graph.nodes.length,
+                        numLinks: graph.links.length
+
+                    })));
+                } else if (showing) {
                     loadedOffsets = DrawGraph(odbFile, graph);
                 }
             }).error(function (data) {
-                $('.graph-view').append('<div class="alert alert-warning">Instruction graph not available for address 0x' + args.offset.toString(16) + '</div>');
-            }).always(function () {
-                $('.disassembly-loading').slideUp();
-            });
+                $('.graph-view').append(odaTemplate('instruction-graph-error', activeRow));
+            })
         } else {
             showing = false;
         }
