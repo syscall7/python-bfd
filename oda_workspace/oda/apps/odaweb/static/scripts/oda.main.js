@@ -101,13 +101,13 @@ odaApplication.run(function(odbFile, editor){
 
 
         this.codeRefsToAddr = function(addr, onSuccess) {
-            this.getData(addr, function(data) {
+            this.getData(addr, 1, function(data) {
                 onSuccess(data[0].crossRef);
             });
         };
 
         this.codeRefsFromAddr = function(addr, onSuccess) {
-            this.getData(addr, function(data) {
+            this.getData(addr, 1, function(data) {
                 onSuccess(data[0].targetRef);
             });
         };
