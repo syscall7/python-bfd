@@ -12,27 +12,6 @@ var odaApplication = angular
 
 var OdaScriptApi = new Object;
 
-
-function Container(param) {
-
-    function dec() {
-        if (secret > 0) {
-            secret -= 1;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    this.member = param;
-    var secret = 3;
-    var that = this;
-
-    this.service = function () {
-        return dec() ? that.member : null;
-    };
-}
-
 function start(odbFile) {
 
     var editor = CreateInstructionTable(odbFile);
