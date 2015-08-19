@@ -89,6 +89,7 @@ function DrawGraph(odbFile, graph) {
 
     // Center the graph
     var initialScale = Math.max(0.2, 400 / g.graph().height);
+    initialScale = Math.min(1.2, initialScale);
     console.log("width/height", g.graph().width, g.graph().height);
     zoom
         .translate([($('#tab-graph').width() - g.graph().width * initialScale) / 2, 20])
