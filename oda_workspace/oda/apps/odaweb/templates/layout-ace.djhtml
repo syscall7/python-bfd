@@ -124,6 +124,7 @@
     <script type="text/javascript" src="{% static 'scripts/addrbar.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda.main.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda.handlebars.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'scripts/oda.scriptapi.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda.tour.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda.statusbar.js' %}" ></script>
     <script type="text/javascript" src="{% static 'scripts/oda.commands.js' %}" ></script>

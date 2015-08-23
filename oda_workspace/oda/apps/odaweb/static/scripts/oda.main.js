@@ -10,8 +10,6 @@ var odaApplication = angular
 });
 
 
-var OdaScriptApi = new Object;
-
 function start(odbFile) {
 
     var editor = CreateInstructionTable(odbFile);
@@ -61,64 +59,6 @@ odaApplication.run(function(odbFile, editor, addrBar){
     odbFile.on(ODB_EVENTS.PARCELS_RELOADED, function(){
         addrBar.setParcels(odbFile.parcels);
     });
-});
-
-
-odaApplication.run(function(odbFile, editor){
-    function OdaScriptApiContainer(odbFile, editor) {
-        this.find = function(bytes, onSuccess)  {
-            odbFile.find(bytes).success(onSuccess).error(function(data, status){
-                console.log("Find failed: " + status);
-            });
-        };
-
-        this.getData = function(address, numUnits, onSuccess) {
-            odbFile.loadDu(address, numUnits, false).success(onSuccess).error(function(data, status){
-                console.log("loadDu failed: " + status);
-            });
-        };
-
-
-        this.codeRefsToAddr = function(addr, onSuccess) {
-            this.getData(addr, 1, function(data) {
-                onSuccess(data[0].crossRef);
-            });
-        };
-
-        this.codeRefsFromAddr = function(addr, onSuccess) {
-            this.getData(addr, 1, function(data) {
-                onSuccess(data[0].targetRef);
-            });
-        };
-
-        //this.findUndefinedFunctions = function(resultObject) {
-        //    odbFile.find("554889e5").success(function(findResults) {
-        //        var len = findResults.length;
-        //        var potentials = [];
-        //        for (var i = 0; i < len; i++)
-        //        {
-        //            //odbFile.loadDu(findResults[i].addr, 1, false).success(function(data) {
-        //                if (null == odbFile.functions[findResults[i].addr])
-        //                {
-        //                    console.log("potential function at: " + findResults[i].addr);
-        //                    potentials.push(findResults[i]);
-        //                }
-        //                else
-        //                {
-        //                    console.log("already a function at: " + findResults[i].addr);
-        //                }
-        //            //});
-        //        }
-        //        resultObject.potentials = potentials;
-        //    });
-        //};
-
-        this.gotoAddress = function(address) {
-          editor.gotoAddress(address);
-        };
-    }
-
-    OdaScriptApi =  new OdaScriptApiContainer(odbFile, editor);
 });
 
 
