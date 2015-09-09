@@ -13,8 +13,8 @@ class i386(defaultAnalyzer):
     classdocs
     '''
 
-    def __init__(self):
-        defaultAnalyzer.__init__(self)
+    def __init__(self, odb_file):
+        defaultAnalyzer.__init__(self, odb_file)
         
         self.errorInstRegExStr = "\(bad\)"
         self.branchTargetRegEx = re.compile("\w+\s+(0x[0-9a-f]+)")

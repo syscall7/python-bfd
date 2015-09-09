@@ -46,9 +46,9 @@ def get_supported_endians():
 
 def get_platform_options(platform):
     djhtmlOpts = []
-    analyzer = analyzer_factory(platform)
+    analyzer = analyzer_factory(platform, None)
     if analyzer == None:
-        analyzer = analyzer_factory('defaultAnalyzer')
+        analyzer = analyzer_factory('defaultAnalyzer', None)
 
     #print "Checking if"
     if analyzer.options:
@@ -67,9 +67,9 @@ def get_platform_options(platform):
     return djhtmlOpts
 
 def get_platform_options2(platform):
-    analyzer = analyzer_factory(platform)
+    analyzer = analyzer_factory(platform, None)
     if analyzer == None:
-        analyzer = analyzer_factory('defaultAnalyzer')
+        analyzer = analyzer_factory('defaultAnalyzer', None)
 
     return [{
         'name': x[0],
@@ -78,13 +78,11 @@ def get_platform_options2(platform):
         'values': x[3]
     } for x in analyzer.options]
 
-
-
-
-
 class Disassembler(object):
     def __init__(self, odb_file):
         self.odb_file = odb_file
+        architecture = self.odb_file.get_binary().options.architecture
+        self.analyzer = analyzer_factory(architecture, odb_file)
 
     def total_lines(self):
         parcels = ParcelList(self.odb_file.get_structure_list(Parcel))
@@ -123,9 +121,6 @@ class Disassembler(object):
 
     def analyze(self, start, lines, logical):
 
-        architecture = self.odb_file.get_binary().options.architecture
-        analyzer = analyzer_factory(architecture)
-
         parcels = ParcelList(self.odb_file.get_structure_list(Parcel))
 
         # if we are analyzing based on lda, first convert to vma
@@ -144,8 +139,8 @@ class Disassembler(object):
             lines = abs(lines)
 
         parcels = [p for p in parcels if p.vma_end > start]
-        analyzer.analyze(self.odb_file, parcels, start=start, maxUnits=lines)
-        sorted_du = analyzer.displayUnits.values()
+        dus = self.analyzer.analyze(parcels, start=start, maxUnits=lines)
+        sorted_du = dus.values()
         sorted_du.sort(key=lambda x: x.offset, reverse=False)
         return sorted_du
 
@@ -179,9 +174,7 @@ class Disassembler(object):
 
     def get_text_listing(self):
         parcels = ParcelList(self.odb_file.get_structure_list(Parcel))
-        architecture = self.odb_file.get_binary().options.architecture
-        analyzer = analyzer_factory(architecture)
-        return analyzer.get_text_listing(self.odb_file, parcels)
+        return self.analyzer.get_text_listing(parcels)
 
 
     @staticmethod
@@ -213,7 +206,5 @@ class Disassembler(object):
         return arch, target
 
     def find(self, pattern):
-        architecture = self.odb_file.get_binary().options.architecture
-        analyzer = analyzer_factory(architecture)
-        return analyzer.find(self.odb_file, pattern)
+        return self.analyzer.find(pattern)
 

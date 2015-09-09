@@ -242,14 +242,13 @@ class defaultAnalyzer(object):
     classdocs
     '''
 
-    def __init__(self):
+    def __init__(self, odb_file):
 
         self.rawBytes = []
         self.offset = ""
         self.offsetStr = []
         self.listing = ""
         self.branchLineHtml = ""
-        self.displayUnits = {}
         self.largestInstSize = 0
         self.opcodeTypes = {}
         self.labels = []
@@ -265,6 +264,12 @@ class defaultAnalyzer(object):
 
         # don't include "<symbol_name>" as part of operands
         self.opcodeRegExStr = "^(\w+)\s+([^<]+)"
+
+        self.odb_file = odb_file
+
+        # in this case, the analyzer is severely crippled and only useful for getting platform options
+        if odb_file:
+            self.ofd = Ofd(odb_file.get_binary())
 
     # override this in the subclass if you need to (i.e., mips)
     def processOptions(self, options):
@@ -299,13 +304,13 @@ class defaultAnalyzer(object):
 
         return displayUnits
 
-    def analyze(self, odb_file, parcels=None, start=0, maxUnits=None):
+    def analyze(self, parcels=None, start=0, maxUnits=None):
+
+        displayUnits = {}
 
         # make sure parcels are in order
         parcels.sort(key=lambda p: p.vma_start, reverse=False)
 
-        self.odb_file = odb_file
-        self.ofd = Ofd(odb_file.get_binary())
         self.instParserRegEx = re.compile(
                     # beginning of the line plus white space
                     "^\s*" +               
@@ -361,7 +366,7 @@ class defaultAnalyzer(object):
         # Disassemble the parcel
         for parcel in filter(filterFunc,parcelList):
             dus = self.displayUnitsFromParcel( options, parcel, disStart, disEnd, maxUnits)
-            self.displayUnits = dict(self.displayUnits.items() + dus.items())
+            displayUnits = dict(displayUnits.items() + dus.items())
 
             # Breakout early if we parse enough units
             if maxUnits is not None:
@@ -383,19 +388,19 @@ class defaultAnalyzer(object):
         #         break
 
         # Second Pass
-        logger.debug("Analyze: START SECOND INSTRUCTION PASS. UNITS COUNT: %d" % (len(self.displayUnits)))
+        logger.debug("Analyze: START SECOND INSTRUCTION PASS. UNITS COUNT: %d" % (len(displayUnits)))
 
         # break up branches into sets based on function boundary
         prevFuncAddr = -1
 
         # sort displayUnits
-        dunits = sorted(self.displayUnits.values(), key=lambda du: du.offset)
+        dunits = sorted(displayUnits.values(), key=lambda du: du.offset)
 
         # For now, we will ignore branching from/to other chunks of display units
         localBranches = filter(
             lambda b: (b.srcAddr > dunits[0].offset and b.srcAddr < dunits[-1].offset) and
                       (b.targetAddr > dunits[0].offset and b.targetAddr < dunits[-1].offset),
-            odb_file.get_structure_list(branch_struct.Branch))
+            self.odb_file.get_structure_list(branch_struct.Branch))
 
         # Get the branch lines
         if len(self.functions) > 0 and len(dunits) > 0:
@@ -420,7 +425,9 @@ class defaultAnalyzer(object):
 
         logger.debug("Analyze: SECOND PASS COMPLETE")
 
-    def get_text_listing(self, odb_file, parcels):
+        return displayUnits
+
+    def get_text_listing(self, parcels):
 
         parcels.sort()
         MAX_SEC_NAME_WIDTH = 32
@@ -452,8 +459,7 @@ class defaultAnalyzer(object):
                 i += 1
             return ret
 
-        self.ofd = Ofd(odb_file.get_binary())
-        options = self.processOptions(odb_file.get_binary().options.get_extra_options())
+        options = self.processOptions(self.odb_file.get_binary().options.get_extra_options())
         listing = ''
         for p in parcels:
             if p.is_code:
@@ -516,9 +522,7 @@ class defaultAnalyzer(object):
         return dataStr
 
     # TODO: Find a better place for this function
-    def find(self, odb_file, pattern):
-
-        ofd = Ofd(odb_file.get_binary())
+    def find(self, pattern):
 
         # NOTE: This function is obnoxiously complex because we want to find sequences of bytes that span contiguous
         #       sections
@@ -565,11 +569,11 @@ class defaultAnalyzer(object):
         pattern = parsePattern(pattern)
 
         # we only search within loadable sections
-        for s in ofd.get_loadable_sections().sections:
+        for s in self.ofd.get_loadable_sections().sections:
 
             # if this section is contiguous with the previous section
             if s.vma == lastAddr:
-                haystack += ofd.bfd.raw_data(s, s.vma, s.size)
+                haystack += self.ofd.bfd.raw_data(s, s.vma, s.size)
                 sectionGroup.append(s)
                 lastAddr = s.vma+s.size
 
@@ -579,7 +583,7 @@ class defaultAnalyzer(object):
                     needleInHaystack(pattern, haystack, baseAddr, sectionGroup, results)
 
                 # start fresh
-                haystack = ofd.bfd.raw_data(s, s.vma, s.size)
+                haystack = self.ofd.bfd.raw_data(s, s.vma, s.size)
                 baseAddr = s.vma
                 lastAddr = s.vma+s.size
                 sectionGroup = [s]

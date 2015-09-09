@@ -1631,8 +1631,9 @@ var _ = require("./lodash"),
 
 module.exports = layout;
 
-function layout(g, opts) {
-  var time = opts && opts.debugTiming ? util.time : util.notime;
+function layout(g, opts) {    
+  //var time = opts && opts.debugTiming ? util.time : util.notime;
+  var time = util.time;
   time("layout", function() {
     var layoutGraph = time("  buildLayoutGraph",
                                function() { return buildLayoutGraph(g); });
@@ -2354,12 +2355,13 @@ module.exports = buildLayerGraph;
  *    5. The weights for copied edges are aggregated as need, since the output
  *       graph is not a multi-graph.
  */
-function buildLayerGraph(g, rank, relationship) {
+//WDAVIS added nodes and edges parameter
+function buildLayerGraph(g, nodes, edges, rank, relationship) {
   var root = createRootNode(g),
       result = new Graph({ compound: true }).setGraph({ root: root })
                   .setDefaultNodeLabel(function(v) { return g.node(v); });
 
-  _.each(g.nodes(), function(v) {
+  _.each(nodes, function(v) {
     var node = g.node(v),
         parent = g.parent(v);
 
@@ -2368,7 +2370,7 @@ function buildLayerGraph(g, rank, relationship) {
       result.setParent(v, parent || root);
 
       // This assumes we have only short edges!
-      _.each(g[relationship](v), function(e) {
+      _.each(edges[v], function(e) {
         var u = e.v === v ? e.w : e.v,
             edge = result.edge(u, v),
             weight = !_.isUndefined(edge) ? edge.weight : 0;
@@ -2521,8 +2523,14 @@ function order(g) {
 }
 
 function buildLayerGraphs(g, ranks, relationship) {
+  var nodes = g.nodes();
+  var edges = {};
+  for (var i=0; i<nodes.length; i++) { 
+    edges[nodes[i]] = g[relationship](nodes[i]);
+  }
+  
   return _.map(ranks, function(rank) {
-    return buildLayerGraph(g, rank, relationship);
+    return buildLayerGraph(g, nodes, edges, rank, relationship);
   });
 }
 

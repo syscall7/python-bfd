@@ -9,7 +9,6 @@ var odaApplication = angular
 
 });
 
-
 function start(odbFile) {
 
     var editor = CreateInstructionTable(odbFile);
@@ -18,9 +17,14 @@ function start(odbFile) {
 
     var statusBar = new StatusBar(odbFile);
 
+    var activeTab = '#tab-disassembly';
+    $('#oda-tabs').on('shown.bs.tab', function(e) {
+        activeTab = $(e.target).attr('href');
+    });
     addrBar.onChange(function(address) {
-        editor.gotoAddress(address);
-        console.log('My change handler: ' + address.toString(16));
+        if (activeTab == '#tab-disassembly') {
+            editor.gotoAddress(address);
+        }
     });
 
     editor.onViewportChanged.subscribe(function (e, args) {
@@ -55,10 +59,11 @@ odaApplication.run(function($rootScope, statusBar){
     });
 });
 
-odaApplication.run(function(odbFile, editor, addrBar){
+odaApplication.run(function(odbFile, addrBar){
     odbFile.on(ODB_EVENTS.PARCELS_RELOADED, function(){
         addrBar.setParcels(odbFile.parcels);
     });
+
 });
 
 
@@ -179,7 +184,7 @@ function oda_main() {
                 //closable: false,
                 west__size: 400
             },
-            east__initClosed: false,
+            east__initClosed: true,
             east__minSize: 350,
             east__resizable: true,
 

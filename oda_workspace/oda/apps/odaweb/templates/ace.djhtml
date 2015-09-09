@@ -34,6 +34,7 @@
         <!-- Nav tabs -->
         <ul class="nav nav-pills oda-nav" id="oda-tabs" role="tablist">
           <li class="active"><a href="#tab-disassembly" role="tab" data-toggle="tab">Disassembly</a></li>
+          <li><a href="#tab-graph" role="tab" data-toggle="tab">Graph</a></li>
           <li><a href="#tab-hex" role="tab" data-toggle="tab">Hex</a></li>
           <li><a href="#sections" role="tab" data-toggle="tab">Sections</a></li>
           <li><a href="#tab-fileinfo" role="tab" data-toggle="tab">File Info</a></li>
@@ -45,7 +46,7 @@
         <!-- Tab panes -->
         <div class="tab-content">
           <div class="tab-pane active" id="tab-disassembly">
-              <div id="disassembly-loading" style="position:absolute; z-index: 9; text-align:center; width:100%; color:#f5f5f5; background-color:#0088cc; font-family: Monaco, Menlo, Consolas, 'Courier New', monospace;">
+              <div class="disassembly-loading" style="position:absolute; z-index: 9; text-align:center; width:100%; color:#f5f5f5; background-color:#0088cc; font-family: Monaco, Menlo, Consolas, 'Courier New', monospace;">
                   <h4>LOADING...</h4>
               </div>
               <div id="editor"></div>
@@ -61,6 +62,12 @@
           </div>
           <div class="tab-pane" id="tab-runtime">
               <div ng-include src="'runtime.html'"></div>
+          </div>
+          <div class="tab-pane" id="tab-graph">
+              <div class="disassembly-loading" style="position:absolute; z-index: 9; text-align:center; width:100%; color:#f5f5f5; background-color:#0088cc; font-family: Monaco, Menlo, Consolas, 'Courier New', monospace;">
+                  <h4>LOADING...</h4>
+              </div>
+              <div class="graph-view"></div>
           </div>
         </div>
     </div>
@@ -110,6 +117,8 @@
 {% include 'ng/strings.html' %}
 {% include 'ng/find_results.html' %}
 {% include 'ng/live_entry.html' %}
+{% include 'handlebars.djhtml' %}
+
 
 
 {% verbatim %}

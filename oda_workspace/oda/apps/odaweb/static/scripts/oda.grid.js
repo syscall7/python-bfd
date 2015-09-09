@@ -55,10 +55,10 @@ function InstallFunctionHandlers(odbFile) {
     });
 
     odbFile.on(ODB_EVENTS.DISPLAY_UNITS_LOADING, function(event) {
-        $('#disassembly-loading').slideDown();
+        $('.disassembly-loading').slideDown();
     });
     odbFile.on(ODB_EVENTS.DISPLAY_UNITS_LOADED, function(event) {
-        $('#disassembly-loading').slideUp();
+        $('.disassembly-loading').slideUp();
     });
 };
 
@@ -239,7 +239,6 @@ function InstructionTable(odbFile) {
         var activeCell = grid.getActiveCell();
         if (activeCell != null && grid.getDataItem(activeCell.row) != null) {
             var activeRowData = grid.getDataItem(activeCell.row);
-            console.log("activeRowData", activeRowData);
             return activeRowData;
         }
         return null;
