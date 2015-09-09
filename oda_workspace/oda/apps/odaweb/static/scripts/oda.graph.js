@@ -169,12 +169,11 @@ odaApplication.run(function (odbFile, editor, addrBar) {
         reloadGraph(editor.getActiveRowData());
     });
 
-    addrBar.onChange(function(address) {
-        odbFile.loadDu(address, 1, false).success(function(data){
+    odbFile.on(ODB_EVENTS.ACTIVE_ADDR_CHANGED, function(e) {
+         odbFile.loadDu(e.addr, 1, false).success(function(data){
             reloadGraph(data[0]);
         });
     });
-
 
     /* List of loaded offsets, check this list to see if we need to reload */
    /* var loadedOffsets = [];

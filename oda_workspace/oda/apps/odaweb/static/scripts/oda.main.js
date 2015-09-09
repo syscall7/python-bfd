@@ -21,10 +21,17 @@ function start(odbFile) {
     $('#oda-tabs').on('shown.bs.tab', function(e) {
         activeTab = $(e.target).attr('href');
     });
+
     addrBar.onChange(function(address) {
+        odbFile.setActiveAddr(address);
+    });
+
+    odbFile.on(ODB_EVENTS.ACTIVE_ADDR_CHANGED, function(e) {
         if (activeTab == '#tab-disassembly') {
-            editor.gotoAddress(address);
+            editor.gotoAddress(e.addr);
         }
+        addrBar.setAddress(e.addr);
+        statusBar.setAddress(e.addr);
     });
 
     editor.onViewportChanged.subscribe(function (e, args) {
@@ -33,8 +40,8 @@ function start(odbFile) {
 
     editor.activeAddressChanged.subscribe(function(e, args) {
         //console.log("activeAddressChanged", e, args);
-        addrBar.setAddress(args.offset);
-        statusBar.setAddress(args.offset);
+         odbFile.setActiveAddr(args.offset);
+
     });
 
     odbFile.on(ODB_EVENTS.CHANGED, function(e){

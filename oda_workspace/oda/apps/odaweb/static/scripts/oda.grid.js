@@ -147,7 +147,6 @@ function InstructionTable(odbFile) {
                 break;
             }
         }
-
     }
 
     if (odbFile.displayUnitsLength < 500) {

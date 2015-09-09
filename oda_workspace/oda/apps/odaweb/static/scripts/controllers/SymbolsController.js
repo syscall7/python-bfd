@@ -1,6 +1,6 @@
 "use strict";
 
-odaApplication.controller('SymbolsController', function SymbolsController($scope, $http, $window, odbFile, editor) {
+odaApplication.controller('SymbolsController', function SymbolsController($scope, $http, $window, odbFile) {
 
     $scope.symbols = odbFile.symbols;
 
@@ -18,6 +18,6 @@ odaApplication.controller('SymbolsController', function SymbolsController($scope
 
     $scope.setPosition = function(position) {
         console.log('set position', position);
-        editor.gotoAddress(position);
+        odbFile.setActiveAddr(position);
     };
 });

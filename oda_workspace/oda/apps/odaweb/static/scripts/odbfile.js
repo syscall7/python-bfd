@@ -7,6 +7,7 @@ var ODB_EVENTS = {
     LIVE_ENTRY_UPDATE: 'odb.liveentryupdate',
     DISPLAY_UNITS_LOADING: 'odb.displayUnits.loading',
     DISPLAY_UNITS_LOADED: 'odb.displayUnitsLoaded',
+    ACTIVE_ADDR_CHANGED: 'odb.active_addr_changed',
     ERROR : 'odb.error'
 };
 
@@ -67,6 +68,8 @@ var OdbFile = function(oda_master) {
     this.structFieldTypes = [];
     
     this.runtimeReport = null;
+
+    this.activeAddr = 0;
 
 
     this.load = function () {
@@ -130,6 +133,22 @@ var OdbFile = function(oda_master) {
             this.structFieldTypes = data;
         }.bind(this));
     };
+
+    this.setActiveAddr = function(addr) {
+        if (addr == this.activeAddr) {
+            return;
+        }
+
+        this.activeAddr = addr;
+
+        this._signal(ODB_EVENTS.ACTIVE_ADDR_CHANGED, {
+            addr: addr
+        });
+    };
+
+    this.getActiveAddr = function() {
+        return this.activeAddr;
+    }
 
     this.duLength = function(callback) {
         $.get('/odaweb/api/displayunits/1/size/', {
