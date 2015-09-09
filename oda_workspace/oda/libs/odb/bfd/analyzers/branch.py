@@ -436,14 +436,23 @@ class BranchGraphView(list):
         links = []
         # convert _nodes to representation needed by front end
         for startAddr, node in self._nodes.iteritems():
-            if node.noAddr:
-                links.append({'from': node.id, 'to': self._nodes[node.noAddr].id, 'type': 'notTaken'})
-                links.append({'from': node.id, 'to': self._nodes[node.yesAddr].id, 'type': 'taken'})
-            elif node.yesAddr:
-                links.append({'from': node.id, 'to': self._nodes[node.yesAddr].id, 'type': 'unconditional'})
-            else:
-                # else, this is the last node in the function, which has no links
-                pass
+            try:
+                if node.noAddr:
+                    links.append({'from': node.id, 'to': self._nodes[node.noAddr].id, 'type': 'notTaken'})
+                    links.append({'from': node.id, 'to': self._nodes[node.yesAddr].id, 'type': 'taken'})
+                elif node.yesAddr:
+                    links.append({'from': node.id, 'to': self._nodes[node.yesAddr].id, 'type': 'unconditional'})
+                else:
+                    # else, this is the last node in the function, which has no links
+                    pass
+            except Exception as e:
+                # for now, keep going if something goes wrong
+                # AVD@9/8/15: An exception can happen right now if the last instruction in the function is a
+                #             branch to somewhere in the middle of the function.  The problem is that the "no"
+                #             address is not within the function, since it is actually the first instruction of
+                #             the next function.  Need to revisit this and see if we can do better than just
+                #             skipping this link.
+                continue
 
         return links
 
