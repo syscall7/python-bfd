@@ -55,10 +55,10 @@ function InstallFunctionHandlers(odbFile) {
     });
 
     odbFile.on(ODB_EVENTS.DISPLAY_UNITS_LOADING, function(event) {
-        $('.disassembly-loading').slideDown();
+        $('.disassembly-loading').fadeIn(100);
     });
     odbFile.on(ODB_EVENTS.DISPLAY_UNITS_LOADED, function(event) {
-        $('.disassembly-loading').slideUp();
+        $('.disassembly-loading').fadeOut();
     });
 };
 

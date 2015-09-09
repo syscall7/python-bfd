@@ -139,6 +139,8 @@ odaApplication.run(function (odbFile, editor, addrBar) {
             }
 
             //Loading...
+            $('.disassembly-loading').fadeIn(100);
+
             $('.graph-view svg').remove();
             $('.graph-view div').remove();
 
@@ -156,7 +158,9 @@ odaApplication.run(function (odbFile, editor, addrBar) {
                 }
             }).error(function (data) {
                 $('.graph-view').append(odaTemplate('instruction-graph-error', activeRow));
-            })
+            }).always(function(){
+               $('.disassembly-loading').fadeOut(100);
+            });
         } else {
             showing = false;
         }
