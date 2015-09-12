@@ -4,6 +4,7 @@ ADMINS = (
     ('Anthony', 'anthony@onlinedisassembler.com'),
     ('Davis', 'davis@onlinedisassembler.com'),
     ('Tom', 'tom@onlinedisassembler.com'),
+    ('Aaron', 'aaron@onlinedisassembler.com'),
 )
 
 MANAGERS = ADMINS

@@ -32,8 +32,8 @@
 
     <div class="ui-layout-center">
         <div class="disassembly-loading"
-             style="position:absolute; z-index: 9; right:30px; top:4px; font-family: Monaco, Menlo, Consolas, 'Courier New', monospace;">
-            <img src="{% static 'images/713.gif' %}" style="width:42px; height:42px;"/>
+             style="position:absolute; z-index: 9; right:30px; top:10px; font-family: Monaco, Menlo, Consolas, 'Courier New', monospace;">
+            <img src="{% static 'images/712.gif' %}" style="width:32; height:32px;"/>
         </div>
         <!-- Nav tabs -->
         <ul class="nav nav-pills oda-nav" id="oda-tabs" role="tablist">
