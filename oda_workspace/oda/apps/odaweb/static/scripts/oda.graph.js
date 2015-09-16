@@ -144,7 +144,7 @@ odaApplication.run(function (odbFile, editor, addrBar) {
             $('.graph-view svg').remove();
             $('.graph-view div').remove();
 
-            odbFile.graph(activeRow.offset).success(function (graph) {
+            return odbFile.graph(activeRow.offset).success(function (graph) {
                 if (graph.links.length > 500) {
                     $('.graph-viewt svg').remove();
                     $('.graph-view div').remove();
@@ -156,6 +156,10 @@ odaApplication.run(function (odbFile, editor, addrBar) {
                 } else if (showing) {
                     loadedOffsets = DrawGraph(odbFile, graph);
                 }
+
+                $('.graph-active').removeClass('graph-active');
+                $("tr[data-addr='" + activeRow.offset + "']").addClass('graph-active');
+
             }).error(function (data) {
                 $('.graph-view').append(odaTemplate('instruction-graph-error', activeRow));
             }).always(function(){
