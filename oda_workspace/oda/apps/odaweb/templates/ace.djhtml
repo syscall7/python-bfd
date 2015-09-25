@@ -208,15 +208,15 @@
 <script type="text/ng-template" id="binaryFileModal.html">
     <div class="modal-header">
         <button type="button" class="close" ng-click="cancel()">&times;</button>
-        <h3>Open File</h3>
+        <h3>Entry Point Not Found</h3>
     </div>
     <div class="modal-body">
-        <h3>Target is unknown</h3>
-        <p>Start disassembling at address 0?</p>
+        <p>We cannot identify the entry point of the executable image you have uploaded.  Would you like to start disassembling at the beginning of the file?</p>
+        <div class="alert alert-info" role="alert">NOTE: If you choose "No", you can still interactively convert the data to code later by right-clicking on the desired offset and selecting "Data->Code"</div>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" ng-disabled="uploadForm.$invalid || loading" ng-click="ok()">OK</button>
-        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+        <button class="btn btn-primary" ng-disabled="uploadForm.$invalid || loading" ng-click="ok()">Yes</button>
+        <button class="btn btn-warning" ng-click="cancel()">No</button>
     </div>
 </script>
 
