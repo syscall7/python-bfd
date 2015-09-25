@@ -71,7 +71,11 @@ odaApplication.run(function(odbFile, addrBar, $modal){
         addrBar.setParcels(odbFile.parcels);
     });
 
-    if (odbFile.oda_master.binary.target == 'binary' && ! odbFile.oda_master.binary.liveMode) {
+    if (odbFile.oda_master.binary.target == 'binary' && !
+        odbFile.oda_master.binary.liveMode &&
+        odbFile.parcels.length == 1 &&
+        odbFile.parcels[0].is_code == false
+    ) {
         var modalInstance = $modal.open({
             templateUrl: 'binaryFileModal.html',
             size: 'lg',
