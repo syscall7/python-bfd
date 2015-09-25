@@ -66,12 +66,36 @@ odaApplication.run(function($rootScope, statusBar){
     });
 });
 
-odaApplication.run(function(odbFile, addrBar){
+odaApplication.run(function(odbFile, addrBar, $modal){
     odbFile.on(ODB_EVENTS.PARCELS_RELOADED, function(){
         addrBar.setParcels(odbFile.parcels);
     });
 
+    if (odbFile.oda_master.binary.target == 'binary' && ! odbFile.oda_master.binary.liveMode) {
+        var modalInstance = $modal.open({
+            templateUrl: 'binaryFileModal.html',
+            size: 'lg',
+            controller: 'OpenBinaryFileModal'
+        });
+    }
+
 });
+
+var OpenBinaryFileModal = function($scope, $modalInstance) {
+    $scope.ok = function() {
+        //TODO grab the first du!
+        $scope.$emit('command.dataToCode', {
+            isCode: false,
+            offset: 0
+        });
+        $modalInstance.close();
+    };
+
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+};
 
 
 var MakeFunctionController = function($scope, $modalInstance) {
@@ -113,7 +137,7 @@ var MakeStructVariableController = function($scope, $modalInstance) {
 var CommentController = function($scope, $modalInstance) {
     $scope.comment = {
         text: ""
-    }
+    };
 
     $scope.save = function () {
         $modalInstance.close({
