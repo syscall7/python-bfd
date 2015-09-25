@@ -136,55 +136,78 @@
 		<div class="container">
 			<div class="row text-center wow fadeInUp" data-wow-delay="0.4s">
 				<div class="col-md-8 col-md-offset-2">
-					<h3 class="heading"><span>Features</span>The featurers of meminz</h3>
+					<h3 class="heading"><span>Features</span>The features of ODA</h3>
 				</div>
 			</div>
 			<div class="row wow fadeInDown" data-wow-delay="0.4s">
 				<div class="col-md-4 feature-box">
 					<i class="pe-7s-phone pe-feature"></i>
-					<h5>Responsive design</h5>
+					<h5>Machine Architectures</h5>
 					<p>
-					Eu sit soluta antiopam, postea sanctus in an vis. Pro primis insolens recteque ne, nostrum molestie splendide sed et elitr.
+					ODA supports over 60 machine architectures, including x86, ARM, PowerPC, MIPS, and many more.
 					</p>
-					<a href="#">Learn more</a>
-				</div>
-				<div class="col-md-4 feature-box">
-					<i class="pe-7s-edit pe-feature"></i>
-					<h5>Easy to customize</h5>
-					<p>
-					Eu sit soluta antiopam, postea sanctus in an vis. Pro primis insolens recteque ne, nostrum molestie splendide sed et elitr.
-					</p>
-					<a href="#">Learn more</a>
-				</div>
+                    <div class="modal" id="supported-archs">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                    <h4 class="modal-title">Modal title</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- <ul style="height:200px; overflow: scroll;"> -->
+                                    <ul>
+                                        <li>i386</li>
+                                        <li>x86-64</li>
+                                        <li>mips</li>
+                                        <li>powerpc</li>
+                                    </ul>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal-dialog -->
+                    </div><!-- /.modal -->
+                    <a data-toggle="modal" data-target="#supported-archs">See the full list</a>
+                </div>
 				<div class="col-md-4 feature-box">
 					<i class="pe-7s-graph1 pe-feature"></i>
-					<h5>Modern design</h5>
+					<h5>Visualization</h5>
 					<p>
-					Eu sit soluta antiopam, postea sanctus in an vis. Pro primis insolens recteque ne, nostrum molestie splendide sed et elitr.
+                    Graph View visually shows the control flow of the currently selected function.
 					</p>
 					<a href="#">Learn more</a>
 				</div>
 				<div class="col-md-4 feature-box">
-					<i class="pe-7s-paper-plane pe-feature"></i>
-					<h5>Easy tools navigation</h5>
+					<i class="pe-7s-news-paper pe-feature"></i>
+					<h5>Object File Formats</h5>
 					<p>
-					Eu sit soluta antiopam, postea sanctus in an vis. Pro primis insolens recteque ne, nostrum molestie splendide sed et elitr.
+					All major file formats supported, including Windows PE, ELF, COFF, SREC, Mach-O, and more.
+					</p>
+					<a href="#">Learn more</a>
+				</div>
+				<div class="col-md-4 feature-box">
+					<i class="pe-7s-refresh-cloud pe-feature"></i>
+					<h5>Cloud Power</h5>
+					<p>
+					Use the power of the cloud to churn the bits.
 					</p>
 					<a href="#">Learn more</a>
 				</div>
 				<div class="col-md-4 feature-box">
 					<i class="pe-7s-share pe-feature"></i>
-					<h5>Popular of the year</h5>
+					<h5>Share</h5>
 					<p>
-					Eu sit soluta antiopam, postea sanctus in an vis. Pro primis insolens recteque ne, nostrum molestie splendide sed et elitr.
+					Send a link to some shell code or a fully disassembled file.
 					</p>
 					<a href="#">Learn more</a>
 				</div>
 				<div class="col-md-4 feature-box">
-					<i class="pe-7s-paperclip pe-feature"></i>
-					<h5>PSD file included</h5>
+					<i class="pe-7s-cloud-download pe-feature"></i>
+                    <h5>Download Listings</h5>
 					<p>
-					Eu sit soluta antiopam, postea sanctus in an vis. Pro primis insolens recteque ne, nostrum molestie splendide sed et elitr.
+					Download a disassembly listing to your local machine.
 					</p>
 					<a href="#">Learn more</a>
 				</div>
@@ -261,26 +284,26 @@
 			<div class="container">
 				<div class="row text-center appear stats wow fadeInUp" data-wow-delay="0.4s">
 					<div class="col-md-12">
-						<h3>More than 1000 user use meminz</h3>
-						<p>Minimum albucius detraxit qui veniam equidem eum in constituam</p>
+						<h3>More than 100,000 disassembled images</h3>
+						<p>Browse the repository of disassembled software.</p>
 					</div>
 				</div>
 				<div class="row text-center appear stats wow fadeInDown" data-wow-delay="0.4s">
 					<div class="col-md-2 col-md-offset-2">
 						<span id="counter-download" class="counter-number">1200</span>
-						<span class="counter-text">Downloader</span>
+						<span class="counter-text">x86</span>
 					</div>
 					<div class="col-md-2">
 						<span id="counter-view" class="counter-number">625</span>
-						<span class="counter-text">Windows user</span>
+						<span class="counter-text">MIPS</span>
 					</div>
 					<div class="col-md-2">
 						<span id="counter-android" class="counter-number">348</span>
-						<span class="counter-text">Android user</span>
+						<span class="counter-text">ARM</span>
 					</div>
 					<div class="col-md-2">
 						<span id="counter-ios" class="counter-number">227</span>
-						<span class="counter-text">IOS user</span>
+						<span class="counter-text">Power PC</span>
 					</div>					
 				</div>
 			</div>
