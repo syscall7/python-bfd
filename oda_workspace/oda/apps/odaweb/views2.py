@@ -569,7 +569,7 @@ def download_text_listing(request):
 
 
 def make_copy(oda_master, user):
-    user_owns = False;
+    user_owns = False
     if user.is_authenticated() and oda_master.owner is not None and oda_master.owner.id == user.id:
         user_owns = True
 
@@ -581,7 +581,7 @@ def make_copy(oda_master, user):
     oda_master.odb_file_storage.save()
 
     if user_owns:
-        #todo can't plus one here, need to get max revison and then plus 1, otherwise might overwrite
+        #TODO: can't plus one here, need to get max revison and then plus 1, otherwise might overwrite
         oda_master.revision += 1
     else:
         oda_master.short_name = id_generator()
