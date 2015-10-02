@@ -88,6 +88,10 @@ class Loader(object):
 
     def load_parcels(self):
         for sec in self.analyzer.get_loadable_sections().sections:
+            # don't make parcels for empty sections
+            if sec.size == 0:
+                continue
+
             is_code = self.analyzer.is_code_section(sec)
 
             if is_code or self.treatAllAsCode:

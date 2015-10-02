@@ -279,6 +279,11 @@ class defaultAnalyzer(object):
         assert(maxUnits >= 0)
         displayUnits = {}
         s = self.ofd.get_section_from_addr(parcel.vma_start)
+
+        # this can happen sometimes with zero-sized sections
+        if s is None:
+            return {}
+
         if start and parcel.vma_start < start:
             dis_start = start
         else:

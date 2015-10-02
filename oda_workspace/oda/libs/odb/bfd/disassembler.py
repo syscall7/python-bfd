@@ -138,7 +138,7 @@ class Disassembler(object):
             start = parcels.lda_to_vma(lda_start)
             lines = abs(lines)
 
-        parcels = [p for p in parcels if p.vma_end > start]
+        parcels = [p for p in parcels if p.vma_end > start and p.size > 0]
         dus = self.analyzer.analyze(parcels, start=start, maxUnits=lines)
         sorted_du = dus.values()
         sorted_du.sort(key=lambda x: x.offset, reverse=False)
