@@ -334,9 +334,14 @@ class BranchGraphView(list):
         # first, some validation
         p = self.parcels.find_parcel_by_vma(vma)
         if p:
+            # initialize to parcel boundaries
+            start = p.vma_start
+            end = p.vma_end
+
             # if this is not in a code section
             if not p.is_code:
                 raise Exception("Graph view is not available for data sections!")
+
         # else, invalid address
         else:
             raise Exception("Graph view is not available for invalid address 0x%x!" % vma)
