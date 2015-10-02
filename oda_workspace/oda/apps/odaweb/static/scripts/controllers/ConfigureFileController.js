@@ -56,6 +56,8 @@ odaApplication.controller('ConfigureFileController', function($scope, $modalInst
         return view;
     };
 
+    $scope.architectureLocked = (arch != 'UNKNOWN!');
+
     $scope.options = {
         architecture: fileData.arch,
         endian: 'DEFAULT'

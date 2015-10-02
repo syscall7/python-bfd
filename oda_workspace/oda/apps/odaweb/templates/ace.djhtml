@@ -182,7 +182,7 @@
             <span class="text-success" style="vertical-align:middle">Woot!  Please wait while we process this file...</span>
         </div>
         <div ng-hide="loading">
-            <button class="btn btn-primary" ng-disabled="loading" ng-click="ok()">OK</button>
+            <button class="btn btn-primary" ng-disabled="options.architecture == 'UNKNOWN!' || loading" ng-click="ok()">OK</button>
             <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
         </div>
     </div>
@@ -515,13 +515,17 @@
 
     <form class="form-horizontal" role="form">
             <div class="form-group">
-            <label class="col-sm-4 control-label upload-form-control" for="select-{{ form_type }}-architecture">Arch</label>
+            <label class="col-sm-4 control-label upload-form-control" for="select-{{ form_type }}-architecture">
+                Arch <span ng-show="options.architecture == 'UNKNOWN!'">*</span>
+            </label>
 
             <div class="col-sm-8">
                 <select class="input-small form-control"
                         ng-model="options.architecture"
                         ng-options="arch for arch in architectures"
-                        ng-change="optionsUpdated()">
+                        ng-change="optionsUpdated()"
+                        ng-disabled="architectureLocked"
+                        >
                 </select>
             </div>
         </div>
@@ -535,7 +539,9 @@
                 <input id="set-{{ form_type }}-base-address" name="base_address"
                        ng-model="options.base_address"
                        type="text" placeholder="0x00000000"
-                       class="input-small form-control">
+                       class="input-small form-control"
+                       ng-disabled="architectureLocked"
+                        >
                 <span class="input-group-addon"><a href="" ng-click="changeBaseAddress(options.base_address)">Apply</a></span>
                 </div>
             </div>
