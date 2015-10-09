@@ -201,7 +201,7 @@ LOGGING = {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
         'simple': {
-            'format': 'oda|%(process)5d|%(asctime)s|%(levelname)s|%(requestNum)s|%(remoteAddr)s|(%(module)14s@%(lineno)3d) %(message)s'
+            'format': 'oda|%(asctime)s|%(process)5d %(requestNum)s|%(levelname)s|%(remoteAddr)s|(%(module)14s@%(lineno)3d) %(message)s'
         },
     },
     'filters': {
