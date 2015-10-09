@@ -281,6 +281,7 @@ class OdaMaster(models.Model):
         try:
             self._odb_file = odb_file_system.load_odb_file(self)
         except BfdFileFormatException as e:
+            self._odb_file = None
             logger.warn("Failed to load odb_file", e)
 
     @property
@@ -315,7 +316,7 @@ class OdaMaster(models.Model):
         return self.odb_file.get_options().target + " " + self.odb_file.get_options().architecture
 
     def save(self, *args, **kwargs):
-        if hasattr(self, '_odb_file'):
+        if hasattr(self, '_odb_file') and self._odb_file:
             odb_file_system.store_odb_file(self, self._odb_file)
 
         super(OdaMaster, self).save(*args, **kwargs) # Call the "real" save() method.
