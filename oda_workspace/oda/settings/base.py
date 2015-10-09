@@ -103,7 +103,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'oda.apps.odaweb.middleware.LoggingMiddleware'
+    'oda.apps.odaweb.middleware.ThreadLocalMiddleware',
+    'oda.apps.odaweb.middleware.LoggingMiddleware',
 )
 
 ROOT_URLCONF = 'oda.urls'
@@ -200,7 +201,7 @@ LOGGING = {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
         'simple': {
-            'format': 'oda|%(process)5d|%(asctime)s|%(levelname)s|(%(module)14s@%(lineno)3d) %(message)s'
+            'format': 'oda|%(process)5d|%(asctime)s|%(levelname)s|%(requestNum)s|%(remoteAddr)s|(%(module)14s@%(lineno)3d) %(message)s'
         },
     },
     'filters': {
@@ -216,6 +217,9 @@ LOGGING = {
             '()': 'django.utils.log.CallbackFilter',
             'callback': skip_unreadable_post_errors,
         },
+        'request_context': {
+            '()': 'oda.apps.odaweb.utils.RequestUserFilter'
+        }
     },
     'handlers': {
         'null': {
@@ -230,7 +234,8 @@ LOGGING = {
         'console':{
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'simple',
+            'filters': ['request_context']
         },
         'file': {
             'class': 'logging.handlers.RotatingFileHandler',
@@ -240,6 +245,7 @@ LOGGING = {
             'mode': 'a',
             'maxBytes': 10485760,
             'backupCount': 5,
+            'filters': ['request_context']
         },
     },
     'loggers': {

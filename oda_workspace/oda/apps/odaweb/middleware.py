@@ -2,6 +2,7 @@ from time import time
 from logging import getLogger
 from itertools import count
 from django.db import connection
+from threading import local
 
 logger = getLogger(__name__)
 
@@ -14,7 +15,7 @@ class LoggingMiddleware(object):
     def process_request(self, request):
         request.timer = time()
         request.requestNum = int(self.requestNum.next())
-        self.logger.info("%5d|%s|%s|%s", request.requestNum, request.user.username, request.META.get('REMOTE_ADDR'), request.get_full_path())
+        self.logger.info("%s|%s", request.user.username , request.get_full_path())
         return None
 
     def process_response(self, request, response):
@@ -26,8 +27,7 @@ class LoggingMiddleware(object):
             requestTime = time() - request.timer
 
         self.logger.info(
-            '%5d|%s [%s] (%.1fs)',
-            requestNum,
+            '%s [%s] (%.1fs)',
             request.get_full_path(),
             response.status_code,
             requestTime
@@ -57,4 +57,30 @@ class QueryCountDebugMiddleware(object):
                 total_time += float(query_time)
 
             logger.debug('%s queries run, total %s seconds' % (len(connection.queries), total_time))
+        return response
+
+
+
+_thread_locals = local()
+
+def get_current_request():
+    """ returns the request object for this thread """
+    return getattr(_thread_locals, "request", None)
+
+
+def get_current_user():
+    """ returns the current user, if exist, otherwise returns None """
+    request = get_current_request()
+    if request:
+        return getattr(request, "user", None)
+
+
+class ThreadLocalMiddleware(object):
+    """ Simple middleware that adds the request object in thread local storage."""
+    def process_request(self, request):
+        _thread_locals.request = request
+
+    def process_response(self, request, response):
+        if hasattr(_thread_locals, 'request'):
+            del _thread_locals.request
         return response

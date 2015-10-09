@@ -1,5 +1,7 @@
 import collections
 from hashlib import sha1
+import logging
+from oda.apps.odaweb.middleware import get_current_request
 
 
 class LRUCache:
@@ -44,3 +46,15 @@ import string
 import random
 def id_generator(size=8, chars=string.ascii_lowercase + string.digits + string.ascii_uppercase):
     return ''.join(random.choice(chars) for x in range(size))
+
+
+class RequestUserFilter(logging.Filter):
+    def filter(self, record):
+        request = get_current_request()
+        if request:
+            record.requestNum = request.requestNum
+            record.remoteAddr = request.META.get('REMOTE_ADDR')
+        else:
+            record.requestNum = '?'
+            record.remoteAddr = '?'
+        return True
