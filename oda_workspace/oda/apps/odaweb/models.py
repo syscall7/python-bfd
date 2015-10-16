@@ -4,6 +4,7 @@ import os.path
 import commands
 import logging
 import types
+import magic
 
 from django.db import models
 from django.core.files import File
@@ -246,8 +247,8 @@ class BinaryFile(models.Model):
             line = ''
         else:
             f = self.file_handle()
-            #this is a security hazard? f.name = ;rm -rf *
-            line = commands.getoutput('file -b %s' % f.name)
+            with magic.Magic() as m:
+                line = m.id_filename(f.name)
             f.close()
             f.done()
         return line.split(', ')
