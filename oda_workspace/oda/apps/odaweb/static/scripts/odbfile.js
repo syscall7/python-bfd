@@ -652,6 +652,11 @@ var OdbFile = function(oda_master) {
     }
 
     this.setLiveEntryText = function(liveEntryText) {
+
+        if (!liveEntryText) {
+            return;
+        }
+
         $.ajax({
             url: '/odaweb/api/binarystrings/'+this.binary.id+"/",
             type: 'PATCH',
