@@ -1,6 +1,6 @@
 from django import template
 from django.core.serializers import serialize
-from django.utils import simplejson
+import json
 from django.db.models.query import QuerySet
 
 register = template.Library()
@@ -33,6 +33,6 @@ def sectioncolor(flags, level):
 def jsonify(object):
     if isinstance(object, QuerySet):
         return serialize('json', object)
-    return simplejson.dumps(object)
+    return json.dumps(object)
 
 register.filter('jsonify', jsonify)

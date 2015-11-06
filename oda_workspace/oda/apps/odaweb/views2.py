@@ -10,7 +10,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseServerError
-from django.utils import simplejson
+import json
 
 from oda.apps.odaweb.models import OdaMaster, InstDoc, BinaryFile, BinaryFileModel, Share, odb_file_system
 from oda.libs.odb.bfd.disassembler import  get_supported_archs, get_supported_endians, get_platform_options, \
@@ -33,7 +33,7 @@ from utils import id_generator
 
 
 def render_to_json(context):
-    return HttpResponse(simplejson.dumps(context), mimetype='application/json')
+    return HttpResponse(json.dumps(context), content_type='application/json')
 
 
 def save(request):
@@ -49,7 +49,7 @@ def save(request):
 
         data = json.dumps({'url': u})
 
-        return HttpResponse(data, mimetype='application/json')
+        return HttpResponse(data, content_type='application/json')
 
     return HttpResponse("Session Not Initialized", status=400)
 
@@ -242,9 +242,9 @@ def set(request):
         'form_type': formType
     })
 
-    return HttpResponse(simplejson.dumps({
+    return HttpResponse(json.dumps({
         'form_html': form_html,
-    }), mimetype='application/json')
+    }), content_type='application/json')
 
 
 class ShowOptionsForm(forms.Form):
@@ -325,10 +325,10 @@ def fileinfo(request):
     })
 
     # Return the new disassembly
-    return HttpResponse(simplejson.dumps({
+    return HttpResponse(json.dumps({
         'fileinfo_tab': fileinfo_tab,
         #'section_flags' : dasm.sectionFlagsInfo(),
-    }), mimetype='application/json')
+    }), content_type='application/json')
 
 
 def instdoc(request):
@@ -357,7 +357,7 @@ def instdoc(request):
 
         return HttpResponse(json.dumps({
             'instdoc': instdoc_html,
-        }), mimetype='application/json')
+        }), content_type='application/json')
 
 
 #def sections(request):
@@ -379,7 +379,7 @@ def instdoc(request):
 #        'sections_tab' : sections_tab,
 #        #'section_flags' : dasm.sectionFlagsInfo(),
 #        }),
-#        mimetype='application/json')
+#        content_type='application/json')
 
 #def symbols(request):
 #    oda_master = get_session(request)
@@ -403,7 +403,7 @@ def instdoc(request):
 #    })
 #
 #    # Return the new disassembly
-#    return HttpResponse(simplejson.dumps({'symbols_html' : syms })  , mimetype='application/json')
+#    return HttpResponse(simplejson.dumps({'symbols_html' : syms })  , content_type='application/json')
 
 #def strings(request):
 #    oda_master = get_session(request)
@@ -418,7 +418,7 @@ def instdoc(request):
 #        })
 #
 #    # Return the new disassembly
-#    return HttpResponse(simplejson.dumps({'strings' : strings })  , mimetype='application/json')
+#    return HttpResponse(simplejson.dumps({'strings' : strings })  , content_type='application/json')
 
 class UploadFileForm(forms.Form):
     MAX_UPLOAD_SIZE_KB = 256
@@ -488,7 +488,7 @@ def upload(request):
             'error': 'Invalid File "%s", maximum size is %d kb' % (filename, UploadFileForm.MAX_UPLOAD_SIZE_KB)
         }
 
-    return HttpResponse(json.dumps(data), mimetype='application/json', status=status)
+    return HttpResponse(json.dumps(data), content_type='application/json', status=status)
 
 def comment(request):
     class CommentForm(forms.Form):
@@ -549,7 +549,7 @@ def owned_files(request):
 
     file_list = render_to_string('open-existing-list.djhtml', {'files': owned_files})
 
-    return HttpResponse(simplejson.dumps({'file_list_html': file_list}), mimetype='application/json')
+    return HttpResponse(json.dumps({'file_list_html': file_list}), content_type='application/json')
 
 
 def download_text_listing(request):
