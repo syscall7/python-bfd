@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Disassembler.io</title>
+<title>disassembler.io</title>
 <link rel="apple-touch-icon-precomposed" sizes="57x57" href="assets/images/apple-touch-icon-57x57.png" />
 <link rel="apple-touch-icon-precomposed" sizes="114x114" href="assets/images/apple-touch-icon-114x114.png" />
 <link rel="apple-touch-icon-precomposed" sizes="72x72" href="assets/images/apple-touch-icon-72x72.png" />
@@ -77,8 +77,7 @@
 		}
 		
 		addTriangleTo(document.getElementById('intro'));
-		addTriangleTo(document.getElementById('pricing'));
-		
+
 		$('.banner').unslider();
 		
 		$('.counter').counterUp({
@@ -137,8 +136,7 @@
 		}
 		
 		addTriangleTo(document.getElementById('intro'));
-		addTriangleTo(document.getElementById('pricing'));
-		
+
 	});
 	
 	$(window).scroll(function(){
@@ -161,7 +159,7 @@
     		<div class="ip-main">
         		<header>
         			<div class="content clearfix">
-        				<h1>Try risk free for 30 days. <a href="#"><span>Sign Up</span></a></h1>
+        				<!-- <h1>Try risk free for 30 days. <a href="#"><span>Sign Up</span></a></h1> -->
         			</div>
         		</header>
         		<nav class="sticky responsive-nav">
@@ -192,34 +190,19 @@
             						</a>
             					</li>
             					<li>
-            						<a class="scroll" href="#pricing">
-            							<span>Pricing</span>
-            						</a>
-            					</li>
-            					<li>
-            						<a class="scroll" href="#trial">
+            						<a href="mailto:admin@onlinedisassembler.com">
             							<span>Contact</span>
             						</a>
             					</li>
             				</ul>
-            				<div class="social">
+            				<!--<div class="social">
                 				<a href="#">
                     				<i class="icon-github-alt"></i>
                 				</a>
                 				<a href="#">
                     				<i class="icon-bitbucket"></i>
                 				</a>
-            				</div>
-        				</div>
-        				<div id="slick">
-            				<div class="social">
-                				<a href="#">
-                    				<i class="icon-github-alt"></i>
-                				</a>
-                				<a href="#">
-                    				<i class="icon-bitbucket"></i>
-                				</a>
-            				</div>
+            				</div>-->
         				</div>
         			</div>
         		</nav>
@@ -263,12 +246,12 @@
                     					<div class="item">
                         					<i class="icon-cog animated growIn" data-id="1"></i>
                         					<h2>Machine Architecture</h2>
-                        					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sagittis urna a turpis pretium accumsan. Donec suscipit sapien placerat, placerat nisl auctor, ornare eros.</p>
+                        					<p>ODA supports over 60 machine architectures, including x86, ARM, PowerPC, MIPS, and many more.</p>
                     					</div>
                     					<div class="item">
                         					<i class="icon-layout animated growIn" data-id="2"></i>
                         					<h2>Visualization</h2>
-                        					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sagittis urna a turpis pretium accumsan. Donec suscipit sapien placerat, placerat nisl auctor, ornare eros.</p>
+                        					<p>Graph View visually shows the control flow of the currently selected function.</p>
                     					</div>
                 					</div>
             					</div>
@@ -277,12 +260,12 @@
                     					<div class="item">
                         					<i class="icon-content-right animated growIn" data-id="1"></i>
                         					<h2>Object File Formats</h2>
-                        					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sagittis urna a turpis pretium accumsan. Donec suscipit sapien placerat, placerat nisl auctor, ornare eros.</p>
+                        					<p>All major file formats supported, including Windows PE, ELF, COFF, SREC, Mach-O, and more.</p>
                     					</div>
                     					<div class="item">
                         					<i class="icon-cloud animated growIn" data-id="2"></i>
                         					<h2>Cloud Power</h2>
-                        					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sagittis urna a turpis pretium accumsan. Donec suscipit sapien placerat, placerat nisl auctor, ornare eros.</p>
+                        					<p>Use the power of the cloud to churn the bits.</p>
                     					</div>
                 					</div>
             					</div>
@@ -291,12 +274,12 @@
                     					<div class="item">
                         					<i class="icon-share animated growIn" data-id="1"></i>
                         					<h2>Collaborate and Share</h2>
-                        					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sagittis urna a turpis pretium accumsan. Donec suscipit sapien placerat, placerat nisl auctor, ornare eros.</p>
+                        					<p>Send a link to some shell code or a fully disassembled file.</p>
                     					</div>
                     					<div class="item">
                         					<i class="icon-inbox animated growIn" data-id="2"></i>
                         					<h2>Download Listings</h2>
-                        					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sagittis urna a turpis pretium accumsan. Donec suscipit sapien placerat, placerat nisl auctor, ornare eros.</p>
+                        					<p>Download a disassembly listing to your local machine.</p>
                     					</div>
                 					</div>
             					</div>
@@ -399,151 +382,6 @@
             					</div>
             					<div class="action-bar">
                 					<a class="pill" href="#">Learn More</a>
-            					</div>
-        					</div>
-        				</div>
-        			</section>
-        			<section id="pricing">
-        				<div class="content clearfix">
-        					<div class="header">
-            					<h1>Simple Pricing Plans to Match</h1>
-            					<span class="divider"></span>
-            					<p>Donec placerat gravida eros, ac finibus odio ornare nec. Maecenas sapien dolor, tempor sit amet elementum gravida,
-        malesuada scelerisque nunc. Vestibulum dignissim scelerisque mauris ac cursus.</p>
-        					</div>
-        					<div class="body clearfix">
-            					<div class="col">
-                					<div class="row clearfix">
-                    					<div class="item primary">
-                        					<div class="tile professional">
-                            					<div class="package">
-                                					<h2>Professional</h2>
-                                					<h3>Best For Personal Use</h3>
-                            					</div>
-                            					<div class="price">
-                                					<h4>$20</h4>
-                            					</div>
-                            					<div class="details">
-                                					<h2>What's Included</h2>
-                                					<ul class="clearfix">
-                                    					<li>
-                                    					    <p>Unlimited Use</p>
-                                    					</li>
-                                    					<li>
-                                    					    <p>10 GB Bandwidth</p>
-                                    					</li>
-                                    					<li>
-                                    					    <p>Free Support</p>
-                                    					</li>
-                                    					<li>
-                                    					    <p>Up to 10 Users</p>
-                                    					</li>
-                                    					<li>
-                                    					    <p>Free Updates</p>
-                                    					</li>
-                                    					<li>
-                                    					    <p>Security Suite</p>
-                                    					</li>
-                                					</ul>
-                            					</div>
-                        					</div>
-                    					</div>
-                    					<div class="item secondary">
-                        					<div class="tile trial">
-                            					<div class="package">
-                                					<h2>Trial</h2>
-                                					<h3>Free 30 Day Trial</h3>
-                            					</div>
-                            					<div class="price">
-                                					<h4>Free</h4>
-                            					</div>
-                            					<div class="details">
-                                					<h2>What's Included</h2>
-                                					<ul class="clearfix">
-                                    					<li>
-                                    					    <p>Unlimited Use</p>
-                                    					</li>
-                                    					<li>
-                                    					    <p>10 GB Bandwidth</p>
-                                    					</li>
-                                    					<li>
-                                    					    <p>Free Support</p>
-                                    					</li>
-                                    					<li>
-                                    					    <p>Up to 10 Users</p>
-                                    					</li>
-                                    					<li>
-                                    					    <p>Free Updates</p>
-                                    					</li>
-                                    					<li>
-                                    					    <p>Security Suite</p>
-                                    					</li>
-                                					</ul>
-                            					</div>
-                        					</div>
-                    					</div>
-                    					<div class="item secondary">
-                        					<div class="tile enterprise">
-                            					<div class="package">
-                                					<h2>Enterprise</h2>
-                                					<h3>Best For Corporate</h3>
-                            					</div>
-                            					<div class="price">
-                                					<h4>$35</h4>
-                            					</div>
-                            					<div class="details">
-                                					<h2>What's Included</h2>
-                                					<ul class="clearfix">
-                                    					<li>
-                                    					    <p>Unlimited Use</p>
-                                    					</li>
-                                    					<li>
-                                    					    <p>10 GB Bandwidth</p>
-                                    					</li>
-                                    					<li>
-                                    					    <p>Free Support</p>
-                                    					</li>
-                                    					<li>
-                                    					    <p>Up to 10 Users</p>
-                                    					</li>
-                                    					<li>
-                                    					    <p>Free Updates</p>
-                                    					</li>
-                                    					<li>
-                                    					    <p>Security Suite</p>
-                                    					</li>
-                                					</ul>
-                            					</div>
-                        					</div>
-                    					</div>
-                					</div>
-            					</div>
-        					</div>
-        				</div>
-        			</section>
-        			<section id="trial">
-        				<div class="content clearfix">
-        					<div class="body">
-            					<div class="sub">
-                					<h2>Get Started with disassembler.io Absolutely Free</h2>
-                					<h3>Try Free for 30 Days. Risk Free Money Back Guarantee.</h3>
-            					</div>
-            					<div class="newsletter animatedParent">
-                					<form name="newsletter">
-                    					<div class="input-container animated bounceInUp">
-                    					    <i class="icon-mail2"></i>
-                    					    <input name="email" type="text" placeholder="Enter Email" />
-                    					</div>
-                    					<div class="validation">
-                        					<div class="arrow"></div>
-                        					<div class="message">
-                            					<p>Please Enter a Valid Email Address</p>
-                        					</div>
-                    					</div>
-                					</form>
-            					</div>
-            					<div class="action-bar">
-                					<a class="pill" href="#">Signup for Free</a>
             					</div>
         					</div>
         				</div>
