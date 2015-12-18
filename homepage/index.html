@@ -1,0 +1,662 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Disassembler.io</title>
+<link rel="apple-touch-icon-precomposed" sizes="57x57" href="assets/images/apple-touch-icon-57x57.png" />
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="assets/images/apple-touch-icon-114x114.png" />
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="assets/images/apple-touch-icon-72x72.png" />
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/images/apple-touch-icon-144x144.png" />
+<link rel="apple-touch-icon-precomposed" sizes="60x60" href="assets/images/apple-touch-icon-60x60.png" />
+<link rel="apple-touch-icon-precomposed" sizes="120x120" href="assets/images/apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon-precomposed" sizes="76x76" href="assets/images/apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon-precomposed" sizes="152x152" href="assets/images/apple-touch-icon-152x152.png" />
+<link rel="icon" type="image/png" href="assets/images/favicon-196x196.png" sizes="196x196" />
+<link rel="icon" type="image/png" href="assets/images/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="image/png" href="assets/images/favicon-32x32.png" sizes="32x32" />
+<link rel="icon" type="image/png" href="assets/images/favicon-16x16.png" sizes="16x16" />
+<link rel="icon" type="image/png" href="assets/images/favicon-128.png" sizes="128x128" />
+<meta name="application-name" content="&nbsp;"/>
+<meta name="msapplication-TileColor" content="#FFFFFF" />
+<meta name="msapplication-TileImage" content="mstile-144x144.png" />
+<meta name="msapplication-square70x70logo" content="mstile-70x70.png" />
+<meta name="msapplication-square150x150logo" content="mstile-150x150.png" />
+<meta name="msapplication-wide310x150logo" content="mstile-310x150.png" />
+<meta name="msapplication-square310x310logo" content="mstile-310x310.png" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" type="text/css" media="all" href="assets/css/reset.css" /> <!-- CSS Reset -->
+<!-- <link rel="stylesheet" type="text/css" media="all" href="assets/css/normalize.css" /> <!-- CSS Reset Alternative -->
+<link rel="stylesheet" type="text/css" media="all" href="assets/css/base.css" /> <!-- Includes Box-Sizing and Clearfix -->
+<link rel="stylesheet" type="text/css" media="all" href="assets/css/media-queries.css" /> <!-- Responsive Media Queries -->
+<link rel="stylesheet" type="text/css" media="all" href="assets/css/custom-fonts.css" /> <!-- Custom Fonts -->
+<link rel="stylesheet" type="text/css" media="all" href="assets/fonts/icomoon/style.css" /> <!-- Custom Icons -->
+<link rel="stylesheet" type="text/css" media="all" href="assets/css/animations.css" /> <!-- Animate -->
+<link rel="stylesheet" type="text/css" media="all" href="assets/css/unslider.css" /> <!-- Slider -->
+<link rel="stylesheet" type="text/css" media="all" href="assets/css/slicknav.css" /> <!-- Slick Nav -->
+
+<link rel="stylesheet" type="text/css" media="all" href="assets/css/app.css" /> <!-- App Sass -->
+<link rel="stylesheet" type="text/css" media="all" href="assets/css/media-queries.css" /> <!-- Media Queries Sass -->
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+<script type="text/javascript" src="assets/js/trianglify.min.js"></script>
+<script type="text/javascript" src="assets/js/unslider.min.js"></script>
+<script type="text/javascript" src="assets/js/slicknav.min.js"></script>
+<script type="text/javascript" src="assets/js/smooth-scroll.min.js"></script>
+
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/waypoints/2.0.3/waypoints.min.js"></script>
+<script type="text/javascript" src="assets/js/counterup.min.js"></script>
+
+<script type="text/javascript" src="assets/js/typed.js"></script>
+<script type="text/javascript" src="assets/js/modernizr.custom.js"></script>
+
+<script type="text/javascript" src="assets/js/fittext.js"></script>
+
+<script type="text/javascript">
+    
+	$(document).ready(function () {
+		
+		$('.brand a').smoothScroll();
+		$('ul#menu a').smoothScroll();
+		$('ul.slicknav_nav a').smoothScroll();
+		
+		$('#menu').slicknav({
+    		prependTo:'#slick',
+    		closeOnClick: true
+        });
+		
+		function addTriangleTo(target) {
+		    var dimensions = target.getClientRects()[0];
+		    var pattern = Trianglify({
+		        width: dimensions.width, 
+		        height: dimensions.height,
+		        cell_size: 70,
+		        x_colors: 'GnBu'
+		    });
+		    target.appendChild(pattern.canvas());
+		}
+		
+		addTriangleTo(document.getElementById('intro'));
+		addTriangleTo(document.getElementById('pricing'));
+		
+		$('.banner').unslider();
+		
+		$('.counter').counterUp({
+            delay: 10,
+            time: 1000
+        });
+        
+        $("#typed").typed({
+            stringsElement: $('#typed-strings'),
+            startDelay: 500,
+            typeSpeed: 50,
+            backDelay: 100,
+            loop: false,
+            contentType: 'html',
+            loopCount: false,
+            resetCallback: function() { newTyped(); }
+        });
+
+        $(".reset").click(function(){
+            $("#typed").typed('reset');
+        });
+        
+        $(document).on('click', "#menu .scroll, .slicknav_menu .scroll", function(e) {
+        
+            e.preventDefault();
+            var h = $('#menu').outerHeight();
+            if (!$('#menu').is(":visible")) {
+                h = $('.slicknav_menu .slicknav_btn').outerHeight();
+            }
+            var link = this;
+            $.smoothScroll({
+                offset: -h,
+                scrollTarget: link.hash
+            });
+            
+        });
+        
+        $("#fittext1").fitText(1);
+		$("#fittext2").fitText(3.5);
+        
+	});
+	
+	$( window ).resize(function() {
+		
+		$('canvas').remove();
+		
+		function addTriangleTo(target) {
+		    var dimensions = target.getClientRects()[0];
+		    var pattern = Trianglify({
+		        width: dimensions.width, 
+		        height: dimensions.height,
+		        cell_size: 75,
+		        x_colors: 'GnBu'
+		    });
+		    target.appendChild(pattern.canvas());
+		}
+		
+		addTriangleTo(document.getElementById('intro'));
+		addTriangleTo(document.getElementById('pricing'));
+		
+	});
+	
+	$(window).scroll(function(){
+		
+		var sticky = $('.sticky'),
+			scroll = $(window).scrollTop();
+		
+		if (scroll >= 100) sticky.addClass('fixed');
+		else sticky.removeClass('fixed');
+		
+	});
+	
+</script>
+
+</head>
+
+<body>	
+	<div id="wrapper">
+    	<div id="ip-container" class="ip-container">
+    		<div class="ip-main">
+        		<header>
+        			<div class="content clearfix">
+        				<h1>Try risk free for 30 days. <a href="#"><span>Sign Up</span></a></h1>
+        			</div>
+        		</header>
+        		<nav class="sticky responsive-nav">
+        			<div class="content clearfix">
+        				<div class="brand clearfix">
+        					<a href="#intro">
+        						<img class="white" src="assets/images/logo-white.png" />
+        						<img class="color" src="assets/images/logo-color.png" />
+        						<h1>disassembler.io</h1>
+        						<h2>Online Disassembler</h2>
+        					</a>
+        				</div>
+        				<div class="menu-wrapper">
+            				<ul id="menu" class="clearfix">
+            					<li class="home">
+            						<a class="scroll" href="#intro">
+            							<span>Home</span>
+            						</a>
+            					</li>
+            					<li>
+            						<a class="scroll" href="#features">
+            							<span>Features</span>
+            						</a>
+            					</li>
+            					<li>
+            						<a class="scroll" href="#services">
+            							<span>Services</span>
+            						</a>
+            					</li>
+            					<li>
+            						<a class="scroll" href="#pricing">
+            							<span>Pricing</span>
+            						</a>
+            					</li>
+            					<li>
+            						<a class="scroll" href="#trial">
+            							<span>Contact</span>
+            						</a>
+            					</li>
+            				</ul>
+            				<div class="social">
+                				<a href="#">
+                    				<i class="icon-github-alt"></i>
+                				</a>
+                				<a href="#">
+                    				<i class="icon-bitbucket"></i>
+                				</a>
+            				</div>
+        				</div>
+        				<div id="slick">
+            				<div class="social">
+                				<a href="#">
+                    				<i class="icon-github-alt"></i>
+                				</a>
+                				<a href="#">
+                    				<i class="icon-bitbucket"></i>
+                				</a>
+            				</div>
+        				</div>
+        			</div>
+        		</nav>
+        		<div id="body">
+        			<section id="intro">
+        				<div class="content clearfix">
+        					<div class="header">
+            					<div class="default">
+                					<h3 id="fittext2">Disassembly in the cloud.</h3>
+                					<div id="fittext1" class="type-wrap">
+                                        <div id="typed-strings">
+                                            <p>Real-time collaboration, unlimited resources.</p>
+                                        </div>
+                                        <span id="typed" style="white-space: pre;"></span>
+                                    </div>
+            					</div>
+            					<div class="mobile">
+                					<h1>Disassembly in the Cloud.</h1>
+                					<h2>Real-time collaboration, unlimited resources.</h2>
+            					</div>
+            					<div class="action-bar">
+                					<a class="button pill primary" href="#">Learn More</a>
+            					</div>
+        					</div>
+        					<div class="body animatedParent">
+            					<img class="animated bounceInDown" src="assets/images/sample-imac.png" />
+        					</div>
+        				</div>
+        			</section>
+        			<section id="features">
+        				<div class="content clearfix">
+        					<div class="header">
+            					<h1>Disassemble On Demand</h1>
+            					<span class="divider"></span>
+            					<p>A lightweight, online service for when you don’t have the time, resources, or requirements to use a heavier-weight alternative.
+        Explore executables by dissecting its sections, strings, symbols, raw hex and machine level instructions.</p>
+        					</div>
+        					<div class="body clearfix">
+            					<div class="col">
+                					<div class="row clearfix animatedParent" data-sequence="250">
+                    					<div class="item">
+                        					<i class="icon-cog animated growIn" data-id="1"></i>
+                        					<h2>Machine Architecture</h2>
+                        					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sagittis urna a turpis pretium accumsan. Donec suscipit sapien placerat, placerat nisl auctor, ornare eros.</p>
+                    					</div>
+                    					<div class="item">
+                        					<i class="icon-layout animated growIn" data-id="2"></i>
+                        					<h2>Visualization</h2>
+                        					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sagittis urna a turpis pretium accumsan. Donec suscipit sapien placerat, placerat nisl auctor, ornare eros.</p>
+                    					</div>
+                					</div>
+            					</div>
+            					<div class="col">
+                					<div class="row clearfix animatedParent" data-sequence="350">
+                    					<div class="item">
+                        					<i class="icon-content-right animated growIn" data-id="1"></i>
+                        					<h2>Object File Formats</h2>
+                        					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sagittis urna a turpis pretium accumsan. Donec suscipit sapien placerat, placerat nisl auctor, ornare eros.</p>
+                    					</div>
+                    					<div class="item">
+                        					<i class="icon-cloud animated growIn" data-id="2"></i>
+                        					<h2>Cloud Power</h2>
+                        					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sagittis urna a turpis pretium accumsan. Donec suscipit sapien placerat, placerat nisl auctor, ornare eros.</p>
+                    					</div>
+                					</div>
+            					</div>
+            					<div class="col">
+                					<div class="row clearfix animatedParent" data-sequence="450">
+                    					<div class="item">
+                        					<i class="icon-share animated growIn" data-id="1"></i>
+                        					<h2>Collaborate and Share</h2>
+                        					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sagittis urna a turpis pretium accumsan. Donec suscipit sapien placerat, placerat nisl auctor, ornare eros.</p>
+                    					</div>
+                    					<div class="item">
+                        					<i class="icon-inbox animated growIn" data-id="2"></i>
+                        					<h2>Download Listings</h2>
+                        					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sagittis urna a turpis pretium accumsan. Donec suscipit sapien placerat, placerat nisl auctor, ornare eros.</p>
+                    					</div>
+                					</div>
+            					</div>
+            					<div class="action-bar">
+                					<a class="pill" href="#">Learn More</a>
+            					</div>
+            					<div class="sub">
+                					<h2>Nullam mattis dignissim dui pharetra et</h2>
+                					<h3>Curabitur Neque Ipsum, Rhoncus Ut Sollicitudin.</h3>
+            					</div>
+            					<div class="banner animatedParent">
+                                	<ul class="animated bounceInUp">
+                                		<li>
+                                		    <img src="assets/images/sample-imac.png" />
+                                		</li>
+                                		<li>
+                                		    <img src="assets/images/sample-imac.png" />
+                                		</li>
+                                		<li>
+                                		    <img src="assets/images/sample-imac.png" />
+                                		</li>
+                                	</ul>
+            					</div>
+        					</div>
+        				</div>
+        			</section>
+        			<section id="services">
+        				<div class="content clearfix">
+        					<div class="header">
+            					<h1>Nullam Lorem Euismod Libero</h1>
+            					<span class="divider"></span>
+            					<p>Donec placerat gravida eros, ac finibus odio ornare nec. Maecenas sapien dolor, tempor sit amet elementum gravida,
+        malesuada scelerisque nunc. Vestibulum dignissim scelerisque mauris ac cursus.</p>
+        					</div>
+        					<div class="body clearfix">
+            					<div class="col col-2 animatedParent" data-sequence="250">
+                					<div class="item">
+                    					<i class="icon-book animated growIn" data-id="1"></i>
+                    					<h2>Product Knowledge</h2>
+                    					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sagittis urna a turpis pretium accumsan. Donec suscipit sapien placerat, placerat nisl auctor, ornare eros.</p>
+                    					<div class="action-bar">
+                        					<a class="pill" href="#">Learn More</a>
+                    					</div>
+                					</div>
+                					<div class="item">
+                    					<i class="icon-location animated growIn" data-id="2"></i>
+                    					<h2>How to Get</h2>
+                    					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sagittis urna a turpis pretium accumsan. Donec suscipit sapien placerat, placerat nisl auctor, ornare eros.</p>
+                    					<div class="action-bar">
+                        					<a class="pill" href="#">Learn More</a>
+                    					</div>
+                					</div>
+                					<div class="item">
+                    					<i class="icon-help animated growIn" data-id="3"></i>
+                    					<h2>Product License</h2>
+                    					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sagittis urna a turpis pretium accumsan. Donec suscipit sapien placerat, placerat nisl auctor, ornare eros.</p>
+                    					<div class="action-bar">
+                        					<a class="pill" href="#">Learn More</a>
+                    					</div>
+                					</div>
+            					</div>
+            					<div class="col col-2 parallax animatedParent">
+                					<img class="animated animated bounceInRight" src="assets/images/sample-imac.png" />
+            					</div>
+        					</div>
+        				</div>
+        			</section>
+        			<section id="stats">
+        				<div class="content clearfix">
+        					<div class="header">
+            					<h1>More Than 100,000 Disassembled Images</h1>
+            					<span class="divider"></span>
+            					<p>Donec placerat gravida eros, ac finibus odio ornare nec. Maecenas sapien dolor, tempor sit amet elementum gravida,
+        malesuada scelerisque nunc. Vestibulum dignissim scelerisque mauris ac cursus.</p>
+        					</div>
+        					<div class="body clearfix">
+            					<div class="col col-4">
+                					<div class="item">
+                    					<span class="counter">1234</span>
+                    					<h2>x86</h2>
+                					</div>
+            					</div>
+            					<div class="col col-4">
+                					<div class="item">
+                    					<span class="counter">5678</span>
+                    					<h2>x86</h2>
+                					</div>
+            					</div>
+            					<div class="col col-4">
+                					<div class="item">
+                    					<span class="counter">9012</span>
+                    					<h2>x86</h2>
+                					</div>
+            					</div>
+            					<div class="col col-4">
+                					<div class="item">
+                    					<span class="counter">3456</span>
+                    					<h2>x86</h2>
+                					</div>
+            					</div>
+            					<div class="action-bar">
+                					<a class="pill" href="#">Learn More</a>
+            					</div>
+        					</div>
+        				</div>
+        			</section>
+        			<section id="pricing">
+        				<div class="content clearfix">
+        					<div class="header">
+            					<h1>Simple Pricing Plans to Match</h1>
+            					<span class="divider"></span>
+            					<p>Donec placerat gravida eros, ac finibus odio ornare nec. Maecenas sapien dolor, tempor sit amet elementum gravida,
+        malesuada scelerisque nunc. Vestibulum dignissim scelerisque mauris ac cursus.</p>
+        					</div>
+        					<div class="body clearfix">
+            					<div class="col">
+                					<div class="row clearfix">
+                    					<div class="item primary">
+                        					<div class="tile professional">
+                            					<div class="package">
+                                					<h2>Professional</h2>
+                                					<h3>Best For Personal Use</h3>
+                            					</div>
+                            					<div class="price">
+                                					<h4>$20</h4>
+                            					</div>
+                            					<div class="details">
+                                					<h2>What's Included</h2>
+                                					<ul class="clearfix">
+                                    					<li>
+                                    					    <p>Unlimited Use</p>
+                                    					</li>
+                                    					<li>
+                                    					    <p>10 GB Bandwidth</p>
+                                    					</li>
+                                    					<li>
+                                    					    <p>Free Support</p>
+                                    					</li>
+                                    					<li>
+                                    					    <p>Up to 10 Users</p>
+                                    					</li>
+                                    					<li>
+                                    					    <p>Free Updates</p>
+                                    					</li>
+                                    					<li>
+                                    					    <p>Security Suite</p>
+                                    					</li>
+                                					</ul>
+                            					</div>
+                        					</div>
+                    					</div>
+                    					<div class="item secondary">
+                        					<div class="tile trial">
+                            					<div class="package">
+                                					<h2>Trial</h2>
+                                					<h3>Free 30 Day Trial</h3>
+                            					</div>
+                            					<div class="price">
+                                					<h4>Free</h4>
+                            					</div>
+                            					<div class="details">
+                                					<h2>What's Included</h2>
+                                					<ul class="clearfix">
+                                    					<li>
+                                    					    <p>Unlimited Use</p>
+                                    					</li>
+                                    					<li>
+                                    					    <p>10 GB Bandwidth</p>
+                                    					</li>
+                                    					<li>
+                                    					    <p>Free Support</p>
+                                    					</li>
+                                    					<li>
+                                    					    <p>Up to 10 Users</p>
+                                    					</li>
+                                    					<li>
+                                    					    <p>Free Updates</p>
+                                    					</li>
+                                    					<li>
+                                    					    <p>Security Suite</p>
+                                    					</li>
+                                					</ul>
+                            					</div>
+                        					</div>
+                    					</div>
+                    					<div class="item secondary">
+                        					<div class="tile enterprise">
+                            					<div class="package">
+                                					<h2>Enterprise</h2>
+                                					<h3>Best For Corporate</h3>
+                            					</div>
+                            					<div class="price">
+                                					<h4>$35</h4>
+                            					</div>
+                            					<div class="details">
+                                					<h2>What's Included</h2>
+                                					<ul class="clearfix">
+                                    					<li>
+                                    					    <p>Unlimited Use</p>
+                                    					</li>
+                                    					<li>
+                                    					    <p>10 GB Bandwidth</p>
+                                    					</li>
+                                    					<li>
+                                    					    <p>Free Support</p>
+                                    					</li>
+                                    					<li>
+                                    					    <p>Up to 10 Users</p>
+                                    					</li>
+                                    					<li>
+                                    					    <p>Free Updates</p>
+                                    					</li>
+                                    					<li>
+                                    					    <p>Security Suite</p>
+                                    					</li>
+                                					</ul>
+                            					</div>
+                        					</div>
+                    					</div>
+                					</div>
+            					</div>
+        					</div>
+        				</div>
+        			</section>
+        			<section id="trial">
+        				<div class="content clearfix">
+        					<div class="body">
+            					<div class="sub">
+                					<h2>Get Started with disassembler.io Absolutely Free</h2>
+                					<h3>Try Free for 30 Days. Risk Free Money Back Guarantee.</h3>
+            					</div>
+            					<div class="newsletter animatedParent">
+                					<form name="newsletter">
+                    					<div class="input-container animated bounceInUp">
+                    					    <i class="icon-mail2"></i>
+                    					    <input name="email" type="text" placeholder="Enter Email" />
+                    					</div>
+                    					<div class="validation">
+                        					<div class="arrow"></div>
+                        					<div class="message">
+                            					<p>Please Enter a Valid Email Address</p>
+                        					</div>
+                    					</div>
+                					</form>
+            					</div>
+            					<div class="action-bar">
+                					<a class="pill" href="#">Signup for Free</a>
+            					</div>
+        					</div>
+        				</div>
+        			</section>
+        		</div>
+        		<footer>
+        			<div class="content clearfix">
+        				<div class="col links clearfix">
+        					<div class="col">
+        						<h2>About</h2>
+        						<ul>
+        							<li>
+        								<a href="#">
+        									<span>About Us</span>
+        								</a>
+        							</li>
+        							<li>
+        								<a href="#">
+        									<span>Careers</span>
+        								</a>
+        							</li>
+        							<li>
+        								<a href="#">
+        									<span>Press</span>
+        								</a>
+        							</li>
+        						</ul>
+        					</div>
+        					<div class="col">
+        						<h2>Products</h2>
+        						<ul>
+        							<li>
+        								<a href="#">
+        									<span>Pricing Plans</span>
+        								</a>
+        							</li>
+        							<li>
+        								<a href="#">
+        									<span>Free Trial</span>
+        								</a>
+        							</li>
+        							<li>
+        								<a href="#">
+        									<span>Academic Solutions</span>
+        								</a>
+        							</li>
+        							<li>
+        								<a href="#">
+        									<span>Business Solutions</span>
+        								</a>
+        							</li>
+        							<li>
+        								<a href="#">
+        									<span>Government Solutions</span>
+        								</a>
+        							</li>
+        						</ul>
+        					</div>
+        					<div class="col">
+        						<h2>Support</h2>
+        						<ul>
+        							<li>
+        								<a href="#">
+        									<span>Technical Support</span>
+        								</a>
+        							</li>
+        							<li>
+        								<a href="#">
+        									<span>Disassembler API</span>
+        								</a>
+        							</li>
+        							<li>
+        								<a href="#">
+        									<span>Registration Activity Key</span>
+        								</a>
+        							</li>
+        							<li>
+        								<a href="#">
+        									<span>System Requirements</span>
+        								</a>
+        							</li>
+        						</ul>
+        					</div>
+        				</div>
+        				<div class="col">
+        					<h1>What is disassembler.io</h1>
+        					<p>Morbi fringilla, orci eu elementum rutrum, diam enim vehicula neque, bibendum dignissim odio purus eget erat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus rhoncus elit sed sem sodales, aliquet elementum massa consectetur. Praesent sagittis lectus egestas ullamcorper.</p>
+        					<div class="action-bar">
+        						<a href="#" class="button pill secondary">Sign Up</a>
+        						<a href="#" class="button pill primary">Documentation</a>
+        					</div>
+        					<p>Copyright &copy; 2015. <a href="#">disassember.io</a>. All rights reserved.</p>
+        				</div>
+        			</div>
+        			<div class="brand">
+        				<div class="content">
+            				<a href="#intro">
+        					    <img src="assets/images/logo-color.png" />
+            				</a>
+        					<div class="col">
+        						<h3>disassembler.io</h3>
+        					</div>
+        					<div class="col">
+        						<h3>Online Disassembler</h3>
+        					</div>
+        				</div>
+        			</div>
+        		</footer>
+    		</div>
+    	</div>
+	</div>
+	
+	<script type="text/javascript" src="assets/js/css3-animate-it.js"></script>
+	
+</body>
+</html>
