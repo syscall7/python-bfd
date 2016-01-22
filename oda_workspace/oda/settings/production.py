@@ -23,6 +23,7 @@ ALLOWED_HOSTS = (
     'www.onlinedisassembler.com',
     '.onlinedisassembler.com',
     '23.236.58.138',
+    'disassembler.io',
 )
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
