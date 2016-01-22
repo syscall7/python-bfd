@@ -14,7 +14,7 @@ urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'oda_python.views.home', name='home'),
     # url(r'^oda_python/', include('oda_python.foo.urls')),
-    (r'^$', lambda x: HttpResponseRedirect('/odaweb')),
+    (r'^$', lambda x: HttpResponseRedirect('/odaweb/')),
     (r'^odaweb/run_hex.*$', lambda x: HttpResponseRedirect('/odaweb/')),
     (r'^odaweb/file_upload.*$', lambda x: HttpResponseRedirect('/odaweb/')),
 
