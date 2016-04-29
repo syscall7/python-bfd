@@ -116,7 +116,7 @@
    //             console.log("comment", comment);
                 renderedComment = this.commentTemplate2({offset: instr.offset, comment: comment.comment})
             }
-            return '<table><tr><td class="insn" style="width:300px;">' + instr.instStr + label + '</td><td>' + renderedComment + '</td></tr></table>';
+            return '<table><tr><td class="insn" style="width:400px;">' + instr.instStr + label + '</td><td>' + renderedComment + '</td></tr></table>';
         };
 
         this.render = function(dus) {
