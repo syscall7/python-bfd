@@ -1,0 +1,12 @@
+# OS-specific
+.DS_Store
+
+# Editor swapfiles
+.*.sw?
+*~
+
+# Vagrant
+.vagrant
+
+# Logs
+*.log
