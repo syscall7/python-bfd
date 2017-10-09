@@ -114,7 +114,7 @@ build()
 get_src()
 {
     echo "Downloading $BINUTILS_FULL"
-    wget $BINUTILS_URL/$BINUTILS_FULL
+    wget -N $BINUTILS_URL/$BINUTILS_FULL
 
     echo "Extracting $BINUTILS_FULL"
     tar -xjf $BINUTILS_FULL
@@ -127,12 +127,9 @@ get_src()
     patch_bfd_lime
 }
 
-# NOTE: Uncomment this if you do not want to re-download and patch
-# if the source directory doesn't exist, assume we need to download it
-#if [ ! -d "$BINUTILS_DIR" ]; then
-#    get_src
-#fi
-get_src
+if [ ! -d "$BINUTILS_DIR" ]; then
+   get_src
+fi
 
 # launch each build in background for a parallel build
 build
