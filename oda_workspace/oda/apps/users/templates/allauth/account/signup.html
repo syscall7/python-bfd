@@ -1,9 +1,9 @@
 {% extends "account/base.html" %}
 
-{% load url from future %}
 {% load i18n %}
 {% load widget_tweaks %}
 {% load static %}
+{% load account socialaccount %}
 
 {% block head_title %}{% trans "Signup" %}{% endblock %}
 
@@ -35,7 +35,10 @@
             {% blocktrans %}Already have an account? Then please <a href="{{ login_url }}">sign in</a>.{% endblocktrans %}
         </p>
 
-        {% if socialaccount.providers  %}
+        {% get_providers as socialaccount_providers %}
+
+        {% if socialaccount_providers %}
+
         <p>{% blocktrans with site.name as site_name %}Please sign in with one
         of your existing third party accounts. Or create an account by username.{% endblocktrans %}</p>
 

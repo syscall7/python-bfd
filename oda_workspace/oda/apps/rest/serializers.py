@@ -39,11 +39,11 @@ class FunctionSerializer(serializers.Serializer):
     offset = serializers.IntegerField()
     name = serializers.CharField()
 
-class StringListField(serializers.WritableField):
-    def to_native(self, obj):
-        return json.dumps(obj)
-    def from_native(self, obj):
-        return json.loads(obj)
+#class StringListField(serializers.WritableField):
+#    def to_native(self, obj):
+#        return json.dumps(obj)
+#    def from_native(self, obj):
+#        return json.loads(obj)
 
 class CStructFieldSerializer(serializers.Serializer):
     name = serializers.CharField()
@@ -99,7 +99,7 @@ class SectionSerializer(serializers.Serializer):
     name = serializers.CharField()
     size = serializers.IntegerField()
     vma = serializers.IntegerField()
-    flags = SectionFlagSerializer()
+    flags = SectionFlagSerializer(many=True)
     #alignment_base = serializers.IntegerField()
     #alignment_exp = serializers.IntegerField()
 

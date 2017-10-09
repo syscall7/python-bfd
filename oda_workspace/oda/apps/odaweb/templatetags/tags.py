@@ -1,5 +1,6 @@
 from django import template
 from django.core.serializers import serialize
+from django.utils.deprecation import CallableBool
 import json
 from django.db.models.query import QuerySet
 
@@ -33,6 +34,8 @@ def sectioncolor(flags, level):
 def jsonify(object):
     if isinstance(object, QuerySet):
         return serialize('json', object)
+    elif isinstance(object, CallableBool):
+        return json.dumps(object())
     return json.dumps(object)
 
 register.filter('jsonify', jsonify)

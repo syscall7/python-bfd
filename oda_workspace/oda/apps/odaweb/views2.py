@@ -610,7 +610,7 @@ def ace(request, disassembly_id, version=0):
         return HttpResponse("Session Not Initialized", status=400)
 
     try:
-        to_copy_oda_master = OdaMaster.objects.get(short_name=disassembly_id, revision=version)
+        to_copy_oda_master = OdaMaster.objects.filter(short_name=disassembly_id, revision=version).last()
     except OdaMaster.DoesNotExist:
         context = {
             'short_name': disassembly_id,

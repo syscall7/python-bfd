@@ -81,29 +81,29 @@ STATICFILES_FINDERS = (
 SECRET_KEY = os.environ.get('ODA_SECRET_KEY')
 
 # List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
+#TEMPLATE_LOADERS = (
+#    'django.template.loaders.filesystem.Loader',
+#    'django.template.loaders.app_directories.Loader',
 #     'django.template.loaders.eggs.Loader',
-)
+#)
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.core.context_processors.request',
-    'django.contrib.auth.context_processors.auth',
-    'django.contrib.messages.context_processors.messages',
-
-    "allauth.account.context_processors.account",
-    "allauth.socialaccount.context_processors.socialaccount",
-)
+# TEMPLATE_CONTEXT_PROCESSORS = (
+#     'django.core.context_processors.debug',
+#     'django.core.context_processors.i18n',
+#     'django.core.context_processors.media',
+#     'django.core.context_processors.static',
+#     'django.core.context_processors.request',
+#     'django.contrib.auth.context_processors.auth',
+#     'django.contrib.messages.context_processors.messages',
+#
+#     "allauth.account.context_processors.account",
+#     "allauth.socialaccount.context_processors.socialaccount",
+# )
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -122,14 +122,27 @@ ROOT_URLCONF = 'oda.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'oda.wsgi.application'
 
-TEMPLATE_DIRS = (
-    os.path.join(PROJECT_DIR, "../apps/odaweb/templates/"),
-    os.path.join(PROJECT_DIR, "../apps/odaweb/templates/allauth/"),
-    os.path.join(PROJECT_DIR, "../apps/users/templates/")
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(PROJECT_DIR, "../apps/odaweb/templates/"),
+            os.path.join(PROJECT_DIR, "../apps/users/templates/"),
+            os.path.join(PROJECT_DIR, "../apps/users/templates/allauth/")
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
 #ALLAUTH Settings
 ACCOUNT_ADAPTER = 'oda.apps.users.allauth.AccountAdapter'

@@ -1,7 +1,6 @@
 from base import *
 
 DEBUG = False
-TEMPLATE_DEBUG = DEBUG
 COMPRESS_ENABLED = True
 
 DATABASES = {
