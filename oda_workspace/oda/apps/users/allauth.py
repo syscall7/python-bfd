@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class AccountAdapter(DefaultAccountAdapter):
     def get_login_redirect_url(self, request):
-        return "/"
+        return "/odaweb/"
 
 class SignupForm(forms.Form):
     def signup(self, request, user):
