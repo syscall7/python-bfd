@@ -421,7 +421,7 @@ def instdoc(request):
 #    return HttpResponse(simplejson.dumps({'strings' : strings })  , content_type='application/json')
 
 class UploadFileForm(forms.Form):
-    MAX_UPLOAD_SIZE_KB = 256
+    MAX_UPLOAD_SIZE_KB = 2560
     filedata = forms.FileField()
     project_name = forms.CharField(max_length=64)
 

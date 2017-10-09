@@ -28,9 +28,8 @@ UPLOAD_DIR = '/tmp/odaweb2/uploads'
 SENDER = 'admin@onlinedisassembler.com'
 RECEIVERS = [
     'anthony@onlinedisassembler.com',
-    'tom@onlinedisassembler.com',
-    'davis@onlinedisassembler.com',
-    'aaron@onlinedisassembler.com',
+    #'tom@onlinedisassembler.com',
+    #'davis@onlinedisassembler.com',
 ]
 
 # our template (could just as easily be stored in a separate file)
@@ -112,10 +111,14 @@ def generate_report(start, end):
 
     for m in oda_masters:
 
+        # how can this happen?
+        if m.odb_file is None:
+            continue
+
         if type(m.odb_file.binary) == BinaryFileModel:
             filename = m.odb_file.binary.name
 
-            desc = ' '.join(m.odb_file.binary.desc())[0:48]
+            desc = 'fixme' # ' '.join(m.odb_file.binary.desc())[0:48]
             size = m.odb_file.binary.size()
             num_new_bytes += size
             md5 = m.odb_file.binary.md5()

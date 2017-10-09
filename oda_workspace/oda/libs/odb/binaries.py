@@ -5,7 +5,7 @@ import hashlib
 import tempfile
 import types
 from os import unlink
-
+import magic
 
 class Options(object):
     def __init__(self, target, architecture, base_address, selected_opts = []):
@@ -64,9 +64,11 @@ class Binary(object):
             line = ''
         else:
             f = self.file_handle()
-            line = commands.getoutput('file -b %s' % f.name)
+            with magic.Magic() as m:
+                line = m.id_filename(f.name)
             f.close()
             Binary.done(f)
+
         return line.split(', ')
 
     @staticmethod
