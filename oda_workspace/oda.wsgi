@@ -18,6 +18,5 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'oda.settings.production'
 activate_env=os.path.expanduser("/var/www/oda/env/bin/activate_this.py")
 execfile(activate_env, dict(__file__=activate_env))
 
-import django.core.handlers.wsgi
-application = django.core.handlers.wsgi.WSGIHandler()
-
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
