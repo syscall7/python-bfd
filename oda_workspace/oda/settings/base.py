@@ -1,5 +1,8 @@
 # Django settings for oda_python project.
 
+import os.path
+import sys
+
 ADMINS = (
     ('Anthony', 'anthony@onlinedisassembler.com'),
     ('Davis', 'davis@onlinedisassembler.com'),
@@ -37,17 +40,24 @@ USE_L10N = True
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
 
+# Absolute filesystem path to the directory that will hold user-uploaded files.
+# Example: "/home/media/media.lawrence.com/media/"
+MEDIA_ROOT = os.environ.get('ODA_MEDIA_ROOT', '/tmp')
+
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 MEDIA_URL = ''
 
+# Don't put anything in this directory yourself; store your static files
+# in apps' "static/" subdirectories and in STATICFILES_DIRS.
+# Example: "/home/media/media.lawrence.com/static/"
+STATIC_ROOT = ''
+
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static2/'
 
-import os.path
-import sys
 PROJECT_DIR = os.path.dirname(__file__) # this is not Django setting.
 
 # Additional locations of static files
@@ -68,7 +78,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '***REMOVED***'
+SECRET_KEY = os.environ.get('ODA_SECRET_KEY')
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -129,11 +139,11 @@ ACCOUNT_UNIQUE_EMAIL = True
 LOGIN_REDIRECT_URL = '/odaweb/'
 
 # Email Settings
-EMAIL_HOST='smtp.sendgrid.net'
-EMAIL_PORT=2525
-os.environ.get('ODA_EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD=os.environ.get('ODA_EMAIL_HOST_PASSWORD')
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST=os.environ.get('ODA_EMAIL_HOST', 'smtp.sendgrid.net')
+EMAIL_PORT=os.environ.get('ODA_EMAIL_PORT', 2525)
+EMAIL_HOST_USER=os.environ.get('ODA_EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD=os.environ.get('ODA_EMAIL_HOST_PASSWORD')
 
 INSTALLED_APPS = (
     'django.contrib.humanize',
@@ -167,6 +177,17 @@ INSTALLED_APPS = (
 
     'oda.apps.odaweb'
 )
+
+
+# File storage settings
+#
+# NOTE: In order for GoogleStorage to work, you have to add the IP address of
+# the server that will be accessing Google Storage to the Google access key
+# referenced below.  This is doen via the GoogleStorage console.
+DEFAULT_FILE_STORAGE = 'django-google-storage.storage.GoogleStorage'
+GS_ACCESS_KEY_ID=os.environ.get('ODA_GS_ACCESS_KEY_ID')
+GS_SECRET_ACCESS_KEY=os.environ.get('ODA_GS_SECRET_ACCESS_KEY')
+GS_STORAGE_BUCKET_NAME=os.environ.get('ODA_GS_STORAGE_BUCKET_NAME', 'oda')
 
 # The code below is from: http://www.tiwoc.de/blog/2013/03/django-prevent-email-notification-on-suspiciousoperation/
 # Purpose is to block the annoying emails we get when someone is scanning our site
@@ -242,7 +263,7 @@ LOGGING = {
             'class': 'logging.handlers.RotatingFileHandler',
             'level': 'INFO',
             'formatter': 'simple',
-            'filename': '/var/www/oda/oda.log',
+            'filename': os.path.join(MEDIA_ROOT, 'oda.log'),
             'mode': 'a',
             'maxBytes': 10485760,
             'backupCount': 5,
