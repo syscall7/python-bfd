@@ -1,0 +1,9 @@
+- name: Install web packages
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+    cache_valid_time: 3600
+  with_items:
+    - apache2
+    - libapache2-mod-wsgi
+  become: yes

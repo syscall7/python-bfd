@@ -138,7 +138,7 @@ cdef extern from "bfd.h":
     ctypedef struct bfd:
         asection* sections
         bfd_arch_info* arch_info
-        bfd_target* xvec
+        const bfd_target* xvec
 
     ctypedef unsigned char bfd_byte
 
@@ -183,7 +183,7 @@ cdef extern from "bfd.h":
     void bfd_map_over_sections(bfd *abfd, void* func, object obj)
     unsigned long bfd_get_mach(bfd *abfd)
     bfd_architecture bfd_get_arch(bfd *abfd)
-    char* bfd_printable_arch_mach(unsigned long arch, unsigned long machine)
+    const char* bfd_printable_arch_mach(unsigned long arch, unsigned long machine)
     unsigned int bfd_octets_per_byte (bfd *abfd)
     bfd_boolean bfd_get_section_contents(bfd* abfd, asection* section, void* location, file_ptr offset, bfd_size_type count)
     bfd_arch_info_type* bfd_scan_arch (char *string)
@@ -626,7 +626,7 @@ cdef class Bfd:
     def __cinit__(self, path, object target = None, object machine = None):
 
         cdef char **matching
-        cdef bfd_arch_info_type* inf
+        cdef const bfd_arch_info_type* inf
         cdef char* tgt
         global ctx
 
@@ -806,7 +806,7 @@ cdef class Bfd:
         cdef int i
         cdef FILE* stream
         cdef bfd_target* xvec_new
-        cdef bfd_target* xvec_orig
+        cdef const bfd_target* xvec_orig
 
         if setjmp(ctx) != 0:
             raise BfdSegFault('Something very bad happened while trying to disassemble!')
@@ -1010,9 +1010,10 @@ cdef add_sections_callback(bfd* abfd, asection* section, object bfd):
 
 cdef void print_address_func(bfd_vma addr, disassemble_info *dinfo):
     cdef Bfd bfd
+    cdef const_char_ptr fmtStr = "%s"
     bfd = <Bfd> dinfo.application_data
     addrStr = internalFuncFmtAddr(bfd, addr)
-    dinfo.fprintf_func(dinfo.stream, addrStr)
+    dinfo.fprintf_func(dinfo.stream, fmtStr, <char*> addrStr)
 
 cdef int symbol_at_address_func(bfd_vma addr, disassemble_info *dinfo):
     return 0
