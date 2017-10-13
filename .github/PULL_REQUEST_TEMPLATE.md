@@ -1,5 +1,4 @@
-Thanks for submitting a pull request! Please read
-[CONTRIBUTING.md](../CONTRIBUTING.md) prior to submitting.
+Thanks for submitting a pull request! Please read CONTRIBUTING.md prior to submitting.
 
 **Summary**
 
