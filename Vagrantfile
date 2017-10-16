@@ -16,12 +16,14 @@ Vagrant.configure("2") do |config|
   ODA_SOURCE_PATH  = "/home/#{VM_BOX_USER}/src/oda"
   ODA_INSTALL_PATH = "/home/#{VM_BOX_USER}/oda" 
 
-  # Disable default Vagrant shared folder, which we don't need
-  config.vm.synced_folder ".", "/vagrant", disabled: true
   # Keep ODA sources in sync
   config.vm.synced_folder ".", ODA_SOURCE_PATH
 
-  config.vm.provision "ansible" do |ansible|
+  config.vm.provision :ansible_local do |ansible|
+    ansible.install_mode = "pip"
+    ansible.version = "2.4.0.0"
+
+    ansible.provisioning_path = ODA_SOURCE_PATH
     ansible.playbook = "ansible/site.yml"
 
     # Load external role requirements
