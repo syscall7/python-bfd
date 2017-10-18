@@ -4,17 +4,6 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 COMPRESS_ENABLED = False
 
-DATABASES = {
-    'default': {
-        'ENGINE':   'django.db.backends.mysql',
-        'NAME':     os.environ.get('ODA_MYSQL_DATABASE'),
-        'USER':     os.environ.get('ODA_MYSQL_USER'),
-        'PASSWORD': os.environ.get('ODA_MYSQL_PASSWORD'),
-        'HOST':     'localhost',         # Set to empty string for localhost.
-        'PORT':     '',                  # Set to empty string for default.
-    }
-}
-
 import sys
 if 'test' in sys.argv:
     DATABASES['default'] = {
@@ -26,10 +15,8 @@ ALLOWED_HOSTS = (
     'localhost:8000'
 )
 
-# Hard-code secret key for development (DO NOT make the same key as production)
-SECRET_KEY = "%@z)i7!o9k7g(k2is&4dbayp6+!@4iwt+8!=(#3q5w@wwcypm&"
-
 # Use the local file system instead of GoogleStorage
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
+# Use console email backend instead of SMTP
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

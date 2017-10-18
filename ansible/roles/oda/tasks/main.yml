@@ -71,20 +71,12 @@
     dest: "~{{ oda_user }}/.profile"
     line: "source {{ oda_install_path }}/env/bin/activate"
 
-- name: Setup environment variables
-  set_fact:
-    oda_environment:
-      ODA_MEDIA_ROOT: "{{ oda_django_media_root }}"
-      ODA_MYSQL_DATABASE: "{{ oda_mysql_database }}"
-      ODA_MYSQL_USER: "{{ oda_mysql_user }}"
-      ODA_MYSQL_PASSWORD: "{{ oda_mysql_password }}"
-
-- name: Install environment variables into profile
-  lineinfile:
-    regexp: "^export {{ item.key }}=.*"
-    dest: "~{{ oda_user }}/.profile"
-    line: "export {{ item.key }}={{ item.value }}"
-  with_dict: "{{ oda_environment }}"
+- name: Install .env file
+  template:
+    src: env.j2
+    dest: "{{ oda_install_path }}/site/.env"
+    owner: "{{ oda_user }}"
+    group: "{{ oda_group }}"
 
 - name: Create media directories
   file:

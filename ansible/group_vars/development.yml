@@ -7,7 +7,9 @@ mysql_databases:
 
 oda_django_settings: oda.settings.development
 oda_django_media_root: "{{ oda_install_path }}/tmp"
+oda_django_static_root: ""
+oda_django_secret_key: "mysecret"
+
 oda_mysql_user: root
 oda_mysql_password: "{{ mysql_root_password }}"
 oda_mysql_database: "{{ mysql_databases[0].name }}"
-

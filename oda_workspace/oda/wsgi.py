@@ -8,6 +8,9 @@ https://docs.djangoproject.com/en/1.8/howto/deployment/wsgi/
 """
 
 import os
+import dotenv
+
+dotenv.load_dotenv(dotenv.find_dotenv())
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "oda.settings.development")
 

@@ -142,8 +142,8 @@ LOGIN_REDIRECT_URL = '/odaweb/'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST=os.environ.get('ODA_EMAIL_HOST', 'smtp.sendgrid.net')
 EMAIL_PORT=os.environ.get('ODA_EMAIL_PORT', 2525)
-EMAIL_HOST_USER=os.environ.get('ODA_EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD=os.environ.get('ODA_EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER=os.environ.get('ODA_EMAIL_USER')
+EMAIL_HOST_PASSWORD=os.environ.get('ODA_EMAIL_PASSWORD')
 
 INSTALLED_APPS = (
     'django.contrib.humanize',
@@ -171,19 +171,30 @@ INSTALLED_APPS = (
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    #'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.twitter',
 
     'oda.apps.odaweb'
 )
 
+# Database settings
+DATABASES = {
+    'default': {
+        'ENGINE':   'django.db.backends.mysql',
+        'NAME':     os.environ.get('ODA_MYSQL_DATABASE'),
+        'USER':     os.environ.get('ODA_MYSQL_USER'),
+        'PASSWORD': os.environ.get('ODA_MYSQL_PASSWORD'),
+        'HOST':     'localhost',         # Set to empty string for localhost.
+        'PORT':     '',                  # Set to empty string for default.
+    }
+}
 
 # File storage settings
 #
 # NOTE: In order for GoogleStorage to work, you have to add the IP address of
 # the server that will be accessing Google Storage to the Google access key
-# referenced below.  This is doen via the GoogleStorage console.
+# referenced below.  This is done via the GoogleStorage console.
 DEFAULT_FILE_STORAGE = 'django-google-storage.storage.GoogleStorage'
 GS_ACCESS_KEY_ID=os.environ.get('ODA_GS_ACCESS_KEY_ID')
 GS_SECRET_ACCESS_KEY=os.environ.get('ODA_GS_SECRET_ACCESS_KEY')
