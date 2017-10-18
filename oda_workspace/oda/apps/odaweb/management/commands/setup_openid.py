@@ -4,8 +4,6 @@ from optparse import make_option
 
 class Command(BaseCommand):
     help = 'Installs Social Account Credentials'
-    option_list = BaseCommand.option_list + ( make_option("-m", "--mode", action="store", type="string", dest="mode"), )
-
 
     def handle(self, *args, **options):
 
@@ -14,9 +12,7 @@ class Command(BaseCommand):
         site.name='onlinedisassembler'
         site.save()
 
-        if options['mode'] == 'prod':
-            self.stdout.write('Using Production Settings')
-            locations = [
+        locations = [
             {
                 'name': 'google',
                 'client_id': os.environ.get('ODA_OPENID_GOOGLE_CLIENT_ID'),
@@ -25,22 +21,6 @@ class Command(BaseCommand):
                 'name': 'facebook',
                 'client_id': os.environ.get('ODA_OPENID_FACEBOOK_CLIENT_ID'),
                 'secret': os.environ.get('ODA_OPENID_FACEBOOK_SECRET')
-            }, {
-                'name': 'twitter',
-                'client_id': os.environ.get('ODA_OPENID_TWITTER_CLIENT_ID'),
-                'secret': os.environ.get('ODA_OPENID_TWITTER_SECRET')
-            }
-            ]
-        elif options['mode'] == 'dev':
-            locations = [
-            {
-                  'name': 'google',
-                  'client_id': os.environ.get('ODA_OPENID_GOOGLE_CLIENT_ID'),
-                  'secret': os.environ.get('ODA_OPENID_GOOGLE_SECRET')
-            },{
-                  'name': 'facebook',
-                  'client_id': os.environ.get('ODA_OPENID_FACEBOOK_CLIENT_ID'),
-                  'secret': os.environ.get('ODA_OPENID_FACEBOOK_SECRET')
             },{
                 'name': 'twitter',
                 'client_id': os.environ.get('ODA_OPENID_TWITTER_CLIENT_ID'),
@@ -50,10 +30,7 @@ class Command(BaseCommand):
                 'client_id': os.environ.get('ODA_OPENID_GITHUB_CLIENT_ID'),
                 'secret': os.environ.get('ODA_OPENID_GITHUB_SECRET')
             }
-            ]
-        else:
-            raise Exception('need to set mode "-m [dev|prod]')
-
+        ]
 
         for location in locations:
             try:
