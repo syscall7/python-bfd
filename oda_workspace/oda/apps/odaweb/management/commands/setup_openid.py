@@ -1,3 +1,4 @@
+import os
 from django.core.management.base import BaseCommand, CommandError
 from allauth.socialaccount.models import *
 from optparse import make_option
