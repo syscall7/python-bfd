@@ -23,3 +23,6 @@ lxml==3.4.4
 django-widget-tweaks==1.3
 SQLAlchemy==0.9.8
 filemagic
+
+# Elasticsearch 5.x
+elasticsearch>=5.0.0,<6.0.0
