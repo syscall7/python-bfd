@@ -176,8 +176,8 @@
     <div class="modal-footer">
         <div ng-show="loading" style="text-align:left">
             <div style="width:106px; height:94px; display:inline-block">
-                <img src="/static2/images/oda.png" style="position:absolute; z-image:0;"/>
-                <img src="/static2/images/oda.gif" style="position:absolute; z-image:1;"/>
+                <img src="/static/images/oda.png" style="position:absolute; z-image:0;"/>
+                <img src="/static/images/oda.gif" style="position:absolute; z-image:1;"/>
             </div>
             <span class="text-success" style="vertical-align:middle">Woot!  Please wait while we process this file...</span>
         </div>
@@ -259,8 +259,8 @@
 
         <div ng-show="loading">
             <div style="width:106px; height:94px; display:inline-block">
-                <img src="/static2/images/oda.png" style="position:absolute; z-image:0;"/>
-                <img src="/static2/images/oda.gif" style="position:absolute; z-image:1;"/>
+                <img src="/static/images/oda.png" style="position:absolute; z-image:0;"/>
+                <img src="/static/images/oda.gif" style="position:absolute; z-image:1;"/>
             </div>
             <span class="text-info" style="vertical-align:middle">Loading ...</span>
         </div>

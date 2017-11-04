@@ -1,7 +1,9 @@
 # Django settings for oda_python project.
 
 import os.path
-import sys
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ADMINS = (
     ('Anthony', 'anthony@onlinedisassembler.com'),
@@ -52,11 +54,11 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = '/static2/'
+STATIC_URL = '/static/'
 
 PROJECT_DIR = os.path.dirname(__file__) # this is not Django setting.
 
@@ -171,6 +173,9 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
 
+    #django-storages
+    'storages',
+
     #django_compressor
     'compressor',
 
@@ -190,17 +195,6 @@ INSTALLED_APPS = (
 
     'oda.apps.odaweb'
 )
-
-
-# File storage settings
-#
-# NOTE: In order for GoogleStorage to work, you have to add the IP address of
-# the server that will be accessing Google Storage to the Google access key
-# referenced below.  This is doen via the GoogleStorage console.
-DEFAULT_FILE_STORAGE = 'django-google-storage.storage.GoogleStorage'
-GS_ACCESS_KEY_ID=os.environ.get('ODA_GS_ACCESS_KEY_ID')
-GS_SECRET_ACCESS_KEY=os.environ.get('ODA_GS_SECRET_ACCESS_KEY')
-GS_STORAGE_BUCKET_NAME=os.environ.get('ODA_GS_STORAGE_BUCKET_NAME', 'oda')
 
 # The code below is from: http://www.tiwoc.de/blog/2013/03/django-prevent-email-notification-on-suspiciousoperation/
 # Purpose is to block the annoying emails we get when someone is scanning our site
@@ -276,7 +270,7 @@ LOGGING = {
             'class': 'logging.handlers.RotatingFileHandler',
             'level': 'INFO',
             'formatter': 'simple',
-            'filename': os.path.join(MEDIA_ROOT, 'oda.log'),
+            'filename': os.path.join(BASE_DIR, 'logs', 'oda.log'),
             'mode': 'a',
             'maxBytes': 10485760,
             'backupCount': 5,
