@@ -122,7 +122,7 @@ class Migrator(object):
 
 class Command(BaseCommand):
     args = 'search1=term1 search2=term2 ...'
-    help = 'Example: ./migrate.py find architecture=mips target=pe'
+    help = 'Example: ./manage.py find architecture=mips target=pe'
 
     def handle(self, *args, **options):
         search_terms = []

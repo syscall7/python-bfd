@@ -180,13 +180,13 @@ def email(start, end, report):
 
 class Command(BaseCommand):
     args = 'format=<text|email>'
-    help = 'Example: ./migrate.py report_activity'
+    help = 'Example: ./manage.py report_activity'
 
     def handle(self, *args, **options):
         # run the report for yesterday's date
         end = datetime.utcnow()
         start = end - timedelta(hours=24)
-    
+
         # try to run the report
         try:
             report = generate_report(start, end)

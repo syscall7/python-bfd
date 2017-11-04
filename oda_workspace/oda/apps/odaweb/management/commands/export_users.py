@@ -1,8 +1,4 @@
-# -----------------------------------------------------------------------------
-# File: export_users
-# Description: Generate a CSV file of user email addresses for MailChimp
-# Date: 12 September 2015
-# -----------------------------------------------------------------------------
+# Generate a CSV file of user email addresses for MailChimp
 import csv
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
@@ -11,12 +7,12 @@ def export_users(path):
 
     with open(path, 'wb') as csvfile:
         # TODO: Deal with unicode in first/last names
-        #fieldnames = ['email', 'first_name', 'last_name']
+        # fieldnames = ['email', 'first_name', 'last_name']
         fieldnames = ['email']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
         writer.writeheader()
         for user in User.objects.values():
-            # catch unicode encoding errors
+            # Catch unicode encoding errors
             try:
                 writer.writerow(user)
             except Exception as e:
@@ -24,7 +20,7 @@ def export_users(path):
 
 class Command(BaseCommand):
     args = 'path=<file.csv>'
-    help = 'Example: ./migrate.py export_users'
+    help = 'Example: ./manage.py export_users'
 
     def handle(self, *args, **options):
         path = args[0]
