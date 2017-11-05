@@ -1,10 +1,10 @@
 import os
 from django.core.wsgi import get_wsgi_application
 
-execfile(os.path.join('/etc/oda/settings.py'))
+try:
+    execfile(os.path.join('/etc/oda/settings.py'))
+except:
+    print('Missing /etc/oda/settings.py, assuming environment variables are set ...')
 
-print('Starting Application ...')
-print(os.environ)
-
-os.environ['DJANGO_SETTINGS_MODULE'] = 'oda.settings.production'
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "oda.settings.production")
 application = get_wsgi_application()
