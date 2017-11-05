@@ -18,7 +18,7 @@ urlpatterns = [
     # Examples:
     # url(r'^$', 'oda_python.views.home', name='home'),
     # url(r'^oda_python/', include('oda_python.foo.urls')),
-    url(r'^$', RedirectView.as_view(url='/static/home')),
+    url(r'^$', RedirectView.as_view(url='/static/home/index.html')),
     url(r'^odaweb/run_hex.*$',  RedirectView.as_view(url='/odaweb/')),
     url(r'^odaweb/file_upload.*$', RedirectView.as_view(url='/odaweb/')),
 
