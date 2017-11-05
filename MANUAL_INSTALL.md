@@ -80,22 +80,21 @@ cd $ODA_SRC_DIR/bfd
 sudo ./build_bfd.sh
 ```
 
-Build the ODA BFD python module:
-```bash
-cd $ODA_SRC_DIR/bfd
-$ODA_INSTALL_DIR/env/bin/python setup.py install
-```
-
 Copy the ODA source code to the WWW directory and install the Python requirements:
 ```bash
 sudo mkdir $ODA_INSTALL_DIR/site
 cd $ODA_INSTALL_DIR/site/
-cp -R $ODA_SRC_DIR/oda_workspace/* .
+sudo cp -R $ODA_SRC_DIR/oda_workspace/* .
 sudo $ODA_INSTALL_DIR/env/bin/pip install -r requirements.txt
 sudo chown -R www-data $ODA_INSTALL_DIR
 sudo chgrp -R www-data $ODA_INSTALL_DIR
 ```
 
+Build the ODA BFD python module:
+```bash
+cd $ODA_SRC_DIR/bfd
+sudo $ODA_INSTALL_DIR/env/bin/python setup.py install
+```
 #### Installing NodeJS
 
 NodeJS is used for websocket-based notifications to users:
@@ -110,17 +109,21 @@ npm install
 
 Install MySQL packages and set a default `root` password:
 ```bash
-echo mysql-server mysql-server/root_password password 'password' | sudo debconf-set-selections
-echo mysql-server mysql-server/root_password_again password 'password' | sudo debconf-set-selections
+export ODA_MYSQL_PASSWORD=somepassword
+echo mysql-server mysql-server/root_password password "$ODA_MYSQL_PASSWORD" | sudo debconf-set-selections
+echo mysql-server mysql-server/root_password_again password "$ODA_MYSQL_PASSWORD" | sudo debconf-set-selections
 sudo apt-get install mysql-server libmysqlclient-dev -y
 ```
 
 #### Configure ODA database
 ```bash
-echo "create database odapython3;" | mysql --user=root --password='password'
-sudo $ODA_INSTALL_DIR/env/bin/python manage.py migrate --settings=oda.settings.production
-sudo $ODA_INSTALL_DIR/env/bin/python manage.py setup_oda --settings=oda.settings.production
-sudo $ODA_INSTALL_DIR/env/bin/python manage.py setup_openid --settings=oda.settings.production -m prod
+export ODA_MYSQL_DATABASE=odapython3
+export ODA_MYSQL_USER=root
+cd $ODA_SRC_DIR/oda_workspace
+echo "create database odapython3;" | mysql --user=root --password="$ODA_MYSQL_PASSWORD"
+sudo -E $ODA_INSTALL_DIR/env/bin/python manage.py migrate --settings=oda.settings.development
+sudo -E $ODA_INSTALL_DIR/env/bin/python manage.py setup_oda --settings=oda.settings.development
+sudo -E $ODA_INSTALL_DIR/env/bin/python manage.py setup_openid --settings=oda.settings.development
 ```
 
 #### Installing Apache VirtualHost Site
