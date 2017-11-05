@@ -29,7 +29,7 @@ odaApplication.service('Docker', function(odbFile) {
 
     /*this.docks.push({
         icon: 'fa-th-large',
-        template: '/static2/templates/sections.html'
+        template: '/static/templates/sections.html'
     });*/
 
     this.select = function(thing) { this.activeDock = thing; };

@@ -56,3 +56,33 @@ Please refer to [CONTRIBUTING.md](CONTRIBUTING.md).
   * Automatic import table reconstruction
   * Enhance dissection of Windows executables
   * Improve data types (i.e., strings)
+  
+ ## Deployment
+ For deployment under Apache add the following configuration
+ 
+ Add the following for an apache configuration
+ 
+ ```
+     Define oda_home REPLACE_WITH_PATH_TO_ODA                                                                                                         
+                                                                                                                                                        
+     Alias /static/ ${oda_home}/oda_workspace/oda/static/                                                                                               
+     Alias /static2/ ${oda_home}/oda_workspace/oda/static/                                                                                              
+                                                                                                                                                        
+     <Directory ${oda_home}/oda_workspace/oda/static>                                                                                                   
+         Require all granted                                                                                                                            
+     </Directory>                                                                                                                                       
+                                                                                                                                                        
+     <Directory ${oda_home}/oda_workspace/oda/logs>                                                                                                     
+         Require all granted                                                                                                                            
+     </Directory>                                                                                                                                       
+                                                                                                                                                        
+     <Directory ${oda_home}/oda_workspace>                                                                                                              
+         <Files wsgi.py>                                                                                                                                
+             Require all granted                                                                                                                        
+         </Files>                                                                                                                                       
+     </Directory>                                                                                                                                       
+                                                                                                                                                        
+     WSGIDaemonProcess oda python-home=${oda_home}/.env python-path=${oda_home}/oda_workspace                                                           
+     WSGIProcessGroup oda                                                                                                                               
+     WSGIScriptAlias / ${oda_home}/oda_workspace/wsgi.py  
+ ```

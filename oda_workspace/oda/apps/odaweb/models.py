@@ -314,6 +314,8 @@ class OdaMaster(models.Model):
         return max(revisions)
 
     def details(self):
+        if not self.odb_file:
+            return 'UNKNOWN'
         return self.odb_file.get_options().target + " " + self.odb_file.get_options().architecture
 
     def save(self, *args, **kwargs):

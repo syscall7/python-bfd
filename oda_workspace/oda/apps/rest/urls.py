@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url, include
+from django.conf.urls import url, include
 from rest_framework import routers
 from oda.apps.rest import views
 
@@ -25,10 +25,10 @@ router.register(r'disassembler', views.DisassemblerViewSet, base_name="disassemb
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browseable API.
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^load', views.load_odb),
     url(r'^share$', views.ShareView.as_view(), name='share_api'),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^graph$', views.graph),
-)
+]

@@ -1,7 +1,6 @@
 from base import *
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 COMPRESS_ENABLED = False
 
 DATABASES = {
@@ -22,9 +21,9 @@ if 'test' in sys.argv:
         'NAME':   'odatest'
     }
 
-ALLOWED_HOSTS = (
-    'localhost:8000'
-)
+ALLOWED_HOSTS = [
+    'localhost'
+]
 
 # Hard-code secret key for development (DO NOT make the same key as production)
 SECRET_KEY = "%@z)i7!o9k7g(k2is&4dbayp6+!@4iwt+8!=(#3q5w@wwcypm&"

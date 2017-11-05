@@ -1,7 +1,9 @@
 # Django settings for oda_python project.
 
 import os.path
-import sys
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ADMINS = (
     ('Anthony', 'anthony@onlinedisassembler.com'),
@@ -52,11 +54,11 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = '/static2/'
+STATIC_URL = '/static/'
 
 PROJECT_DIR = os.path.dirname(__file__) # this is not Django setting.
 
@@ -81,29 +83,29 @@ STATICFILES_FINDERS = (
 SECRET_KEY = os.environ.get('ODA_SECRET_KEY')
 
 # List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
+#TEMPLATE_LOADERS = (
+#    'django.template.loaders.filesystem.Loader',
+#    'django.template.loaders.app_directories.Loader',
 #     'django.template.loaders.eggs.Loader',
-)
+#)
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.core.context_processors.request',
-    'django.contrib.auth.context_processors.auth',
-    'django.contrib.messages.context_processors.messages',
-
-    "allauth.account.context_processors.account",
-    "allauth.socialaccount.context_processors.socialaccount",
-)
+# TEMPLATE_CONTEXT_PROCESSORS = (
+#     'django.core.context_processors.debug',
+#     'django.core.context_processors.i18n',
+#     'django.core.context_processors.media',
+#     'django.core.context_processors.static',
+#     'django.core.context_processors.request',
+#     'django.contrib.auth.context_processors.auth',
+#     'django.contrib.messages.context_processors.messages',
+#
+#     "allauth.account.context_processors.account",
+#     "allauth.socialaccount.context_processors.socialaccount",
+# )
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -122,14 +124,27 @@ ROOT_URLCONF = 'oda.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'oda.wsgi.application'
 
-TEMPLATE_DIRS = (
-    os.path.join(PROJECT_DIR, "../apps/odaweb/templates/"),
-    os.path.join(PROJECT_DIR, "../apps/odaweb/templates/allauth/"),
-    os.path.join(PROJECT_DIR, "../apps/users/templates/")
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(PROJECT_DIR, "../apps/odaweb/templates/"),
+            os.path.join(PROJECT_DIR, "../apps/users/templates/"),
+            os.path.join(PROJECT_DIR, "../apps/users/templates/allauth/")
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
 #ALLAUTH Settings
 ACCOUNT_ADAPTER = 'oda.apps.users.allauth.AccountAdapter'
@@ -158,6 +173,9 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
 
+    #django-storages
+    'storages',
+
     #django_compressor
     'compressor',
 
@@ -177,17 +195,6 @@ INSTALLED_APPS = (
 
     'oda.apps.odaweb'
 )
-
-
-# File storage settings
-#
-# NOTE: In order for GoogleStorage to work, you have to add the IP address of
-# the server that will be accessing Google Storage to the Google access key
-# referenced below.  This is doen via the GoogleStorage console.
-DEFAULT_FILE_STORAGE = 'django-google-storage.storage.GoogleStorage'
-GS_ACCESS_KEY_ID=os.environ.get('ODA_GS_ACCESS_KEY_ID')
-GS_SECRET_ACCESS_KEY=os.environ.get('ODA_GS_SECRET_ACCESS_KEY')
-GS_STORAGE_BUCKET_NAME=os.environ.get('ODA_GS_STORAGE_BUCKET_NAME', 'oda')
 
 # The code below is from: http://www.tiwoc.de/blog/2013/03/django-prevent-email-notification-on-suspiciousoperation/
 # Purpose is to block the annoying emails we get when someone is scanning our site
@@ -263,7 +270,7 @@ LOGGING = {
             'class': 'logging.handlers.RotatingFileHandler',
             'level': 'INFO',
             'formatter': 'simple',
-            'filename': os.path.join(MEDIA_ROOT, 'oda.log'),
+            'filename': os.path.join(BASE_DIR, 'logs', 'oda.log'),
             'mode': 'a',
             'maxBytes': 10485760,
             'backupCount': 5,

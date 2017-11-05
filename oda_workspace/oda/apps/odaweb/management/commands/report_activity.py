@@ -38,7 +38,7 @@ template = """
 <html>
 <head>
 <title>ODA Upload Report - {{ startdate }} to {{ enddate }}</title>
-<link rel="stylesheet" type="text/css" href="http://www.onlinedisassembler.com/static2/css/oda2.css" />
+<link rel="stylesheet" type="text/css" href="http://www.onlinedisassembler.com/static/css/oda2.css" />
 </head>
 <body>
 <h3>{{ date }}</h3>

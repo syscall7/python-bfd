@@ -1,5 +1,7 @@
-from django.conf.urls import include, patterns, url
+from django.conf.urls import include, url
 
-urlpatterns = patterns('',
-    url(r'files/$', 'oda.apps.users.views.files')
-)
+from  oda.apps.users import views
+
+urlpatterns = [
+    url(r'files/$', views.files)
+]

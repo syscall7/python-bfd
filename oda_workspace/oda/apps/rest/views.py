@@ -3,7 +3,8 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseNotAllowed
 
 from rest_framework import viewsets, status
-from rest_framework.decorators import action, link, api_view
+#from rest_framework.decorators import action, link, api_view
+from rest_framework.decorators import api_view, detail_route
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -59,8 +60,8 @@ class OdaStructureViewSet(viewsets.GenericViewSet):
         return item
 
     def list(self, request, format=None):
-        short_name = request.QUERY_PARAMS.get('short_name', None)
-        revision = request.QUERY_PARAMS.get('revision', None)
+        short_name = request.query_params.get('short_name', None)
+        revision = request.query_params.get('revision', None)
 
         oda = OdaMaster.objects.get(short_name=short_name, revision=revision)
         self.odb_file = oda.odb_file
@@ -79,10 +80,10 @@ class CommentViewSet(OdaStructureViewSet):
 
         logger.info("Creating comment " + str(request))
 
-        comment = request.DATA['comment']
-        offset = request.DATA['offset']
-        short_name = request.DATA['short_name']
-        revision = request.DATA['revision']
+        comment = request.data['comment']
+        offset = request.data['offset']
+        short_name = request.data['short_name']
+        revision = request.data['revision']
 
         oda = OdaMaster.objects.get(short_name=short_name, revision=revision)
         odb_file = oda.odb_file
@@ -99,10 +100,10 @@ class CommentViewSet(OdaStructureViewSet):
         return Response(serializer.data)
 
     def destroy(self, request, pk=None):
-        oda = OdaMaster.objects.get(short_name=request.DATA['short_name'], revision=request.DATA['revision'])
+        oda = OdaMaster.objects.get(short_name=request.data['short_name'], revision=request.data['revision'])
         odb_file = oda.odb_file
-        if request.DATA.get('vma'):
-            offset = request.DATA.get('vma')
+        if request.data.get('vma'):
+            offset = request.data.get('vma')
             comments = {c.offset: c for c in odb_file.get_structure_list(Comment)}
             if offset in comments:
                 odb_file.remove_item(comments[offset])
@@ -116,24 +117,24 @@ class FunctionViewSet(OdaStructureViewSet):
     structure = Function
 
     def partial_update(self,request,pk):
-        oda = OdaMaster.objects.get(short_name=request.DATA['short_name'], revision=request.DATA['revision'])
+        oda = OdaMaster.objects.get(short_name=request.data['short_name'], revision=request.data['revision'])
 
         error = None
         offset = None
-        if request.DATA.get('offset'):
-            offset = int(request.DATA.get('offset'), 0)
+        if request.data.get('offset'):
+            offset = int(request.data.get('offset'), 0)
 
         name = None
-        if request.DATA.get('name'):
-            name = request.DATA.get('name')
+        if request.data.get('name'):
+            name = request.data.get('name')
 
         args = None
-        if request.DATA.get('args'):
-            args = request.DATA.get('args')
+        if request.data.get('args'):
+            args = request.data.get('args')
 
         retval = None
-        if request.DATA.get('retval'):
-            retval = request.DATA.get('retval')
+        if request.data.get('retval'):
+            retval = request.data.get('retval')
 
         dasm = Disassembler(oda.odb_file)
         try:
@@ -198,12 +199,12 @@ class ParcelsViewSet(OdaStructureViewSet):
 
 class BinaryStringViewSet(viewsets.GenericViewSet):
     def partial_update(self, request, pk):
-        oda_master = OdaMaster.objects.get(short_name=request.DATA['short_name'], revision=request.DATA['revision'])
+        oda_master = OdaMaster.objects.get(short_name=request.data['short_name'], revision=request.data['revision'])
 
         previous_odb = oda_master.odb_file
 
         try:
-            odb_file = OdbFile(BinaryString(request.DATA['binary_string'], previous_odb.get_binary().options.architecture))
+            odb_file = OdbFile(BinaryString(request.data['binary_string'], previous_odb.get_binary().options.architecture))
             odb_file.execute(LoadOperation())
             odb_file.execute(PassiveScanOperation())
         except (TypeError, UnicodeDecodeError, UnicodeEncodeError):
@@ -214,17 +215,17 @@ class BinaryStringViewSet(viewsets.GenericViewSet):
 
         logger.info("updating...")
 
-        return Response({'binary_string': request.DATA['binary_string']})
+        return Response({'binary_string': request.data['binary_string']})
 
 
 class OptionsViewSet(viewsets.GenericViewSet):
     def partial_update(self,request,pk):
-        oda_master = OdaMaster.objects.get(short_name=request.DATA['short_name'], revision=request.DATA['revision'])
+        oda_master = OdaMaster.objects.get(short_name=request.data['short_name'], revision=request.data['revision'])
 
-        arch = request.DATA.get('options[architecture]')
-        base_address = request.DATA.get('options[base_address]')
-        endian = request.DATA.get('options[endian][name]')
-        selected_opts = request.DATA.getlist('options[selected_opts][]', [])
+        arch = request.data.get('options[architecture]')
+        base_address = request.data.get('options[base_address]')
+        endian = request.data.get('options[endian][name]')
+        selected_opts = request.data.getlist('options[selected_opts][]', [])
 
         logger.info("updating...")
 
@@ -252,21 +253,24 @@ class OptionsViewSet(viewsets.GenericViewSet):
 class DisplayUnitsViewSet(viewsets.GenericViewSet):
     serializer_class = DisplayUnitSerializer
 
+    def get_queryset(self):
+        pass
+
     def list(self, request):
 
         start = 0
         units = 100
         logical = False
 
-        if request.QUERY_PARAMS.get('addr'):
-            start = int(request.QUERY_PARAMS.get('addr'), 0)
-        if request.QUERY_PARAMS.get('units'):
-            units = int(request.QUERY_PARAMS.get('units'), 0)
-        if request.QUERY_PARAMS.get('logical'):
+        if request.query_params.get('addr'):
+            start = int(request.query_params.get('addr'), 0)
+        if request.query_params.get('units'):
+            units = int(request.query_params.get('units'), 0)
+        if request.query_params.get('logical'):
             logical = True # TODO: Check this value for realz
 
-        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-                                    revision=request.QUERY_PARAMS.get('revision'))
+        oda = OdaMaster.objects.get(short_name=request.query_params.get('short_name'),
+                                    revision=request.query_params.get('revision'))
 
         dasm = Disassembler(oda.odb_file)
         dunits = dasm.analyze(start, units, logical)
@@ -278,47 +282,47 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
         logger.debug("DisplayUnitsViewSet: Serial data complete")
         return serialData
 
-    @link()
+    @detail_route()
     def size(self, request, pk):
-        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-                                    revision=request.QUERY_PARAMS.get('revision'))
+        oda = OdaMaster.objects.get(short_name=request.query_params.get('short_name'),
+                                    revision=request.query_params.get('revision'))
 
         dasm = Disassembler(oda.odb_file)
         return Response(dasm.total_lines())
 
-    @link()
+    @detail_route()
     def vmaToLda(self, request, pk):
-        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-                                    revision=request.QUERY_PARAMS.get('revision'))
+        oda = OdaMaster.objects.get(short_name=request.query_params.get('short_name'),
+                                    revision=request.query_params.get('revision'))
 
         vma = 0
-        if request.QUERY_PARAMS.get('vma'):
-            vma = int(request.QUERY_PARAMS.get('vma'), 0)
+        if request.query_params.get('vma'):
+            vma = int(request.query_params.get('vma'), 0)
 
         dasm = Disassembler(oda.odb_file)
         return Response(dasm.vma_to_lda(vma))
 
-    @link()
+    @detail_route()
     def ldaToVma(self, request, pk):
-        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-                                    revision=request.QUERY_PARAMS.get('revision'))
+        oda = OdaMaster.objects.get(short_name=request.query_params.get('short_name'),
+                                    revision=request.query_params.get('revision'))
 
         lda = 0
-        if request.QUERY_PARAMS.get('lda'):
-            lda = int(request.QUERY_PARAMS.get('lda'), 0)
+        if request.query_params.get('lda'):
+            lda = int(request.query_params.get('lda'), 0)
 
         dasm = Disassembler(oda.odb_file)
         return Response(dasm.lda_to_vma(lda))
 
-    @link()
+    @detail_route()
     def makeData(self, request, pk):
-        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-                                    revision=request.QUERY_PARAMS.get('revision'))
+        oda = OdaMaster.objects.get(short_name=request.query_params.get('short_name'),
+                                    revision=request.query_params.get('revision'))
 
         error = None
         vma = 0
-        if request.QUERY_PARAMS.get('vma'):
-            vma = int(request.QUERY_PARAMS.get('vma'), 0)
+        if request.query_params.get('vma'):
+            vma = int(request.query_params.get('vma'), 0)
 
         dasm = Disassembler(oda.odb_file)
         try:
@@ -329,19 +333,19 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
 
         return Response({'error': error})
 
-    @link()
+    @detail_route()
     def makeStruct(self, request, pk):
-        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-                                    revision=request.QUERY_PARAMS.get('revision')
+        oda = OdaMaster.objects.get(short_name=request.query_params.get('short_name'),
+                                    revision=request.query_params.get('revision')
                                     )
 
         error = None
         vma = 0
-        if request.QUERY_PARAMS.get('vma'):
-            vma = int(request.QUERY_PARAMS.get('vma'), 0)
+        if request.query_params.get('vma'):
+            vma = int(request.query_params.get('vma'), 0)
 
-        struct_type = str(request.QUERY_PARAMS.get('struct_type'))
-        variable_name = str(request.QUERY_PARAMS.get('variable_name'))
+        struct_type = str(request.query_params.get('struct_type'))
+        variable_name = str(request.query_params.get('variable_name'))
 
         oda.odb_file.execute(AddStructOperation(vma,struct_type,variable_name))
 
@@ -349,15 +353,15 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
 
         return Response({'error': error})
 
-    @link()
+    @detail_route()
     def makeCode(self, request, pk):
-        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-                                    revision=request.QUERY_PARAMS.get('revision'))
+        oda = OdaMaster.objects.get(short_name=request.query_params.get('short_name'),
+                                    revision=request.query_params.get('revision'))
 
         error = None
         vma = 0
-        if request.QUERY_PARAMS.get('vma'):
-            vma = int(request.QUERY_PARAMS.get('vma'), 0)
+        if request.query_params.get('vma'):
+            vma = int(request.query_params.get('vma'), 0)
 
         dasm = Disassembler(oda.odb_file)
         try:
@@ -368,27 +372,27 @@ class DisplayUnitsViewSet(viewsets.GenericViewSet):
 
         return Response({'error': error})
 
-    @action()
+    #@action()
     def makeFunction(self, request, pk):
-        oda = OdaMaster.objects.get(short_name=request.DATA.get('short_name'),
-                                    revision=request.DATA.get('revision'))
+        oda = OdaMaster.objects.get(short_name=request.data.get('short_name'),
+                                    revision=request.data.get('revision'))
 
         error = None
         offset = 0
-        if request.DATA.get('offset'):
-            offset = int(request.DATA.get('offset'), 0)
+        if request.data.get('offset'):
+            offset = int(request.data.get('offset'), 0)
 
         name = 'func_%x' % offset
-        if request.DATA.get('name'):
-            name = request.DATA.get('name')
+        if request.data.get('name'):
+            name = request.data.get('name')
 
         args = 'unknown'
-        if request.DATA.get('args'):
-            args = request.DATA.get('args')
+        if request.data.get('args'):
+            args = request.data.get('args')
 
         retval = 'unknown'
-        if request.DATA.get('retval'):
-            retval = request.DATA.get('retval')
+        if request.data.get('retval'):
+            retval = request.data.get('retval')
 
         dasm = Disassembler(oda.odb_file)
         try:
@@ -409,9 +413,9 @@ class FindViewSet(viewsets.GenericViewSet):
     serializer_class = FindResultsSerializer
 
     def list(self, request):
-        bytes = self.request.QUERY_PARAMS.get('bytes', None)
-        oda = OdaMaster.objects.get(short_name=request.QUERY_PARAMS.get('short_name'),
-                                    revision=request.QUERY_PARAMS.get('revision'))
+        bytes = self.request.query_params.get('bytes', None)
+        oda = OdaMaster.objects.get(short_name=request.query_params.get('short_name'),
+                                    revision=request.query_params.get('revision'))
 
         dasm = Disassembler(oda.odb_file)
         results = [{'addr': key, 'section': value} for key, value in
@@ -448,10 +452,10 @@ class CStructsViewSet(OdaStructureViewSet):
 
         logger.info("Creating cstruct " + str(request))
 
-        name = request.DATA['name']
-        is_packed = request.DATA['is_packed']
-        short_name = request.DATA['short_name']
-        revision = request.DATA['revision']
+        name = request.data['name']
+        is_packed = request.data['is_packed']
+        short_name = request.data['short_name']
+        revision = request.data['revision']
 
         oda = OdaMaster.objects.get(short_name=short_name, revision=revision)
         odb_file = oda.odb_file
@@ -467,15 +471,15 @@ class CStructsViewSet(OdaStructureViewSet):
         serializer = self.get_serializer(item, many=False)
         return Response(serializer.data)
 
-    @link()
+    @detail_route()
     def modify(self, request, pk):
 
         logger.info("Modify cstruct " + str(request))
 
-        short_name = request.QUERY_PARAMS.get('short_name')
-        revision = request.QUERY_PARAMS.get('revision')
-        field_names = request.QUERY_PARAMS.getlist('field_names[]')
-        field_types = request.QUERY_PARAMS.getlist('field_types[]')
+        short_name = request.query_params.get('short_name')
+        revision = request.query_params.get('revision')
+        field_names = request.query_params.getlist('field_names[]')
+        field_types = request.query_params.getlist('field_types[]')
 
 
         oda = OdaMaster.objects.get(short_name=short_name, revision=revision)
@@ -505,7 +509,7 @@ class CStructsViewSet(OdaStructureViewSet):
         return Response(serializer.data)
 
     def destroy(self, request, pk=None):
-        oda = OdaMaster.objects.get(short_name=request.DATA['short_name'], revision=request.DATA['revision'])
+        oda = OdaMaster.objects.get(short_name=request.data['short_name'], revision=request.data['revision'])
 
 
         struct_list = oda.odb_file.get_structure_list(CStruct)
@@ -535,15 +539,15 @@ class CStructsViewSet(OdaStructureViewSet):
 
         return Response({'error': ''}, status=status.HTTP_400_BAD_REQUEST)
 
-    @link()
+    @detail_route()
     def append_field(self, request, pk):
 
         logger.info("Adding field to cstruct " + str(request))
 
-        short_name = request.QUERY_PARAMS.get('short_name')
-        revision = request.QUERY_PARAMS.get('revision')
-        field_name = request.QUERY_PARAMS.get('field_name')
-        field_type = request.QUERY_PARAMS.get('field_type')
+        short_name = request.query_params.get('short_name')
+        revision = request.query_params.get('revision')
+        field_name = request.query_params.get('field_name')
+        field_type = request.query_params.get('field_type')
 
         oda = OdaMaster.objects.get(short_name=short_name, revision=revision)
         struct_list = oda.odb_file.get_structure_list(CStruct)
@@ -566,39 +570,39 @@ class CStructsViewSet(OdaStructureViewSet):
 
 class SandboxViewSet(viewsets.GenericViewSet):
 
-    @action()
+    #@action()
     def submit(self, request, pk):
         # disable for now
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-        short_name = request.DATA.get('short_name')
-        revision = request.DATA.get('revision')
+        short_name = request.data.get('short_name')
+        revision = request.data.get('revision')
         oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
         job = cuckoo.submit_job(oda)
         return Response({
             "status": job.status()
         })
 
-    @link()
+    @detail_route()
     def status(self,request, pk):
         # disable for now
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-        short_name = request.QUERY_PARAMS.get('short_name')
-        revision = request.QUERY_PARAMS.get('revision')
+        short_name = request.query_params.get('short_name')
+        revision = request.query_params.get('revision')
         oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
         job = cuckoo.CuckooJob(oda)
         return Response({
             "status": job.status(),
         })
 
-    @link()
+    @detail_route()
     def report(self,request, pk):
         # disable for now
         return Response(None)
 
-        short_name = request.QUERY_PARAMS.get('short_name')
-        revision = request.QUERY_PARAMS.get('revision')
+        short_name = request.query_params.get('short_name')
+        revision = request.query_params.get('revision')
         oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
         try:
             job = cuckoo.CuckooJob(oda)
@@ -610,8 +614,8 @@ class SandboxViewSet(viewsets.GenericViewSet):
 
 @api_view(['GET'])
 def load_odb(request):
-    short_name = request.QUERY_PARAMS.get('short_name')
-    revision = request.QUERY_PARAMS.get('revision', 0)
+    short_name = request.query_params.get('short_name')
+    revision = request.query_params.get('revision', 0)
     oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
     odb_file = oda.odb_file
 
@@ -659,18 +663,18 @@ def load_odb(request):
 
 @api_view(['GET'])
 def graph(request):
-    short_name = request.QUERY_PARAMS.get('short_name')
-    revision = request.QUERY_PARAMS.get('revision', 0)
+    short_name = request.query_params.get('short_name')
+    revision = request.query_params.get('revision', 0)
     oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
     odb_file = oda.odb_file
-    vma = int(request.QUERY_PARAMS.get('addr'))
+    vma = int(request.query_params.get('addr'))
     try:
         bgv = BranchGraphView(odb_file, vma)
 
         serialized_nodes = []
         for n in bgv.nodes:
             sn = n
-            sn['instructions'] = DisplayUnitSerializer(n['instructions']).data
+            sn['instructions'] = DisplayUnitSerializer(n['instructions'], many=True).data
             serialized_nodes.append(sn)
         return Response({
             'nodes': serialized_nodes,
@@ -681,8 +685,8 @@ def graph(request):
 
 class ShareView(APIView):
     def post(self, request):
-        short_name = request.DATA.get('short_name')
-        revision = request.DATA.get('revision')
+        short_name = request.data.get('short_name')
+        revision = request.data.get('revision')
         oda = OdaMaster.objects.get(short_name= short_name, revision = revision)
         share = Share(odaMaster = oda, name = id_generator(16))
         share.save()
@@ -691,8 +695,9 @@ class ShareView(APIView):
             'shareUrl': reverse('connect', args=(share.name,))
         })
 
+
 class DisassemblerViewSet(viewsets.GenericViewSet):
-    @link()
+    @detail_route()
     def architectures(self, request, pk):
         return Response({
             'architectures': get_supported_archs(),
@@ -703,9 +708,9 @@ class DisassemblerViewSet(viewsets.GenericViewSet):
         })
 
 
-    @link()
+    @detail_route()
     def options(self, request, pk):
-        arch = request.QUERY_PARAMS.get('arch', 'i386:x86-64')
+        arch = request.query_params.get('arch', 'i386:x86-64')
         return Response({
             'arch': arch,
             'options': get_platform_options2(arch)
