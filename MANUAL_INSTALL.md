@@ -64,8 +64,8 @@ Create some ODA directories:
 ```bash
 sudo mkdir -p /var/oda/uploads
 sudo mkdir -p /var/oda/cache
-sudo chown -R www-data /var/oda
-sudo chgrp -R www-data /var/oda
+sudo mkdir -p /tmp/cache
+sudo chown -R www-data.www-data /var/oda /tmp/cache
 ```
 
 Setup the python virtual environment:
