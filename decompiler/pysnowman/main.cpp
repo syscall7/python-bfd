@@ -3,14 +3,15 @@
 #include <nc/core/Driver.h>
 #include <nc/core/likec/Tree.h>
 #include <nc/core/likec/Declaration.h>
-#include <nc/core/likec/PrintContext.h>
+#include <stdio.h>
 
-extern "C" int
+#define MAX_OUTPUT      2*1024*1024
+
+char output[MAX_OUTPUT] = { '\0' };
+
+extern "C" const char*
 snowman_decompile(char *filename, char *function)
 {
-    int found = -1;
-    QTextStream qout(stdout, QIODevice::WriteOnly);
-
     nc::core::Context context;
     nc::core::Driver::parse(context, filename);
     nc::core::Driver::disassemble(context);
@@ -20,14 +21,15 @@ snowman_decompile(char *filename, char *function)
     for ( auto &declaration: root->declarations()) {
         if ( !declaration->identifier().compare(function) &&
              (nc::core::likec::Declaration::FUNCTION_DEFINITION == declaration->declarationKind())) {
-            nc::core::likec::PrintContext pc(qout, NULL);
-            declaration->print(pc);
-            qout << endl;
-            found = 0;
+            QString out;
+            QTextStream qout(&out, QIODevice::ReadWrite);
+            declaration->print(qout);
+            qout.flush();
+            snprintf(output, sizeof(output), "%s", qout.readAll().toStdString().c_str());
         }
     }
 
-    return found;
+    return output;
 }
 
 /* vim:set et sts=4 sw=4: */

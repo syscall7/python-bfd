@@ -6,10 +6,10 @@
 
 # assumes Cython and pydev are already installed
 # install snowman dependencies
-sudo apt-get install cmake libboost-dev qt5-default qt-sdk 
+sudo apt-get install cmake libboost-dev qtbase5-dev
 
 # version of snowman we are using
-VERSION=0.0.8
+VERSION=0.1.0
 
 # download snowman source
 wget https://github.com/yegord/snowman/archive/v${VERSION}.zip
@@ -23,27 +23,27 @@ cp -R pysnowman ./snowman-$VERSION/src/
 # apply ODA patch (generated with diff -u)
 # NOTE: The patch turns on position independent code so we can build a shared
 #       library and adds our pysnowman module to the build.
-patch --verbose -u -d snowman-${VERSION}/src/ <<HERE_DOC
---- snowman-0.0.8/src/CMakeLists.txt	2015-09-15 12:50:58.000000000 -0400
-+++ snowman-0.0.8-patched/src/CMakeLists.txt	2015-10-13 22:29:32.821880122 -0400
-@@ -3,6 +3,9 @@
- 
- enable_testing()
- 
+patch --verbose -u -d snowman-${VERSION}/src/ <<'HERE_DOC'
+--- snowman-0.1.0/src/CMakeLists.txt	2016-09-23 20:05:20.000000000 -0400
++++ snowman-0.1.0-patched/src/CMakeLists.txt	2017-11-05 13:48:23.663272842 -0500
+@@ -1,6 +1,9 @@
+ cmake_minimum_required(VERSION 2.8)
+ project(Decompiler C CXX)
+
 +set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
++set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 +
+ enable_testing()
+
  # Show what's going on when running make.
- #set(CMAKE_VERBOSE_MAKEFILE ON)
- 
-@@ -169,6 +172,7 @@
- 
+@@ -170,6 +173,7 @@
  add_subdirectory(nc)
  add_subdirectory(nocode)
-+add_subdirectory(pysnowman)
  add_subdirectory(snowman)
++add_subdirectory(pysnowman)
  if(${IDA_PLUGIN_ENABLED})
      add_subdirectory(ida-plugin)
+ endif()
 HERE_DOC
 
 # create separate build directory for snowman
