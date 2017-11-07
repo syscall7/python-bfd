@@ -76,7 +76,7 @@ build()
     mkdir -p "./build-$BINUTILS_FULL"
     cd "./build-$BINUTILS_FULL"
 
-    export CPPFLAGS="-fPIC"
+    export CPPFLAGS="-Wimplicit-fallthrough=0 -Wformat-overflow=0 -Wformat-truncation=0 -Wno-shift-negative-value -Wno-pointer-compare -Wno-misleading-indentation -Wno-unused-const-variable -Wno-int-in-bool-context -fPIC"
 
     mkdir -p "./bfd"
     cd "./bfd"
