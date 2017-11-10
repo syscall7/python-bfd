@@ -7,6 +7,8 @@ set -e
 
 ODA_INSTALL_DIR=/var/www/oda
 
+compiler_work
+
 # Upgrade the server
 sudo apt-get update
 sudo apt-get upgrade -y
