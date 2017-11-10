@@ -58,7 +58,7 @@ Please refer to [CONTRIBUTING.md](CONTRIBUTING.md).
   * Improve data types (i.e., strings)
   
  ## Deployment
- For deployment under Apache add the following configuration
+ For deployment under Apache add the following configuration:
  
  Add the following for an apache configuration
  
