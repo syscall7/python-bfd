@@ -1,24 +1,31 @@
 # cython: profile=True
+# cython: c_string_type = unicode
+# cython: c_string_encoding = ascii
 import tempfile
 import sys
+import logging
 
+from libc.stdio cimport *
 from libc.setjmp cimport *
 from libc.signal cimport *
+from libc.string cimport memset
 
 if sys.version_info < (2, 7):
     from ordereddict import OrderedDict
 else:
     from collections import OrderedDict
-    
+
 # the global context we use to restore state after catching a signal
 # NOTE: We must save context with setjmp for each entry point into this module
 #       in order to recover and raise an exception.
 cdef jmp_buf ctx
 
+logger = logging.getLogger('bfd.pyx')
+
 # our signal handler
 cdef handler(int signum):
     global ctx
-    print "caught signal %d" % signum
+    logger.info("caught signal %d" % signum)
 
     # restore the last saved context
     longjmp(ctx, 1)
@@ -26,15 +33,10 @@ cdef handler(int signum):
 # Set our signal handler
 signal(SIGSEGV, <sighandler_t> handler)
 signal(SIGABRT, <sighandler_t> handler)
-    
+
 # ------------------------------------------------------------------------------
 # PROTOTYPES
 # ------------------------------------------------------------------------------
-
-# AVD: This is to get around compilation errors resulting from usage of const
-cdef extern from *:
-    ctypedef char** const_char_ptr2 "const char**"
-    ctypedef char* const_char_ptr "const char*"
 
 cdef extern from "stdlib.h":
     ctypedef int size_t
@@ -44,7 +46,7 @@ cdef extern from "stdlib.h":
 
 cdef extern from "stdio.h":
     void* stdout
-    int fprintf (void* filep, const_char_ptr fmt, ...)
+    #int fprintf  (FILE *stream, const char *template, ...)
 
 cdef extern from "string.h":
     void* memcpy (void *dest, void *src, size_t n)
@@ -52,16 +54,16 @@ cdef extern from "string.h":
 
 # Idiom for accessing Python files.
 # First, declare the Python macro to access files:
-cdef extern from "Python.h":
-    ctypedef struct FILE
-    FILE* PyFile_AsFile(object)
+#cdef extern from "Python.h":
+#    ctypedef struct FILE
+#    FILE* PyFile_AsFile(object)
 # Next, enter the builtin file class into the namespace:
-cdef extern from "fileobject.h":
-    ctypedef class __builtin__.file [object PyFileObject]:
-        pass
+#cdef extern from "fileobject.h":
+#    ctypedef class __builtin__.file [object PyFileObject]:
+#        pass
 
 cdef extern from "bfd.h":
-    
+
     # --------------------------------------------------------------------------
     # CONSTANTS
     # --------------------------------------------------------------------------
@@ -70,11 +72,11 @@ cdef extern from "bfd.h":
         DYNAMIC = 0x40
 
     ctypedef enum bfd_format:
-        bfd_unknown = 0,  # File format is unknown. 
-        bfd_object,       # Linker/assembler/compiler output.  
-        bfd_archive,      # Object archive file.  
-        bfd_core,         # Core dump.  
-        bfd_type_end      # Marks the end; don't use it!  
+        bfd_unknown = 0,  # File format is unknown.
+        bfd_object,       # Linker/assembler/compiler output.
+        bfd_archive,      # Object archive file.
+        bfd_core,         # Core dump.
+        bfd_type_end      # Marks the end; don't use it!
 
     ctypedef enum bfd_error_type:
         bfd_error_no_error = 0,
@@ -183,14 +185,14 @@ cdef extern from "bfd.h":
     void bfd_map_over_sections(bfd *abfd, void* func, object obj)
     unsigned long bfd_get_mach(bfd *abfd)
     bfd_architecture bfd_get_arch(bfd *abfd)
-    const char* bfd_printable_arch_mach(unsigned long arch, unsigned long machine)
+    const char* bfd_printable_arch_mach(bfd_architecture arch, unsigned long machine)
     unsigned int bfd_octets_per_byte (bfd *abfd)
     bfd_boolean bfd_get_section_contents(bfd* abfd, asection* section, void* location, file_ptr offset, bfd_size_type count)
-    bfd_arch_info_type* bfd_scan_arch (char *string)
+    const bfd_arch_info_type* bfd_scan_arch (char *string)
 
 cdef extern from "dis-asm.h":
 
-    ctypedef int (*fprintf_ftype) (void* filep, const_char_ptr fmt, ...)
+    ctypedef int (*fprintf_ftype) (void* filep, char* fmt, ...)
     ctypedef struct disassemble_info
     # pre-declare
     ctypedef struct disassemble_info
@@ -247,7 +249,7 @@ cdef extern from "dis-asm.h":
 # MODULE-LEVEL FUNCTONS
 # ------------------------------------------------------------------------------
 def list_architectures():
-    cdef const_char_ptr2 a
+    cdef char**  a
     archs = []
     a = bfd_arch_list()
     i = 0
@@ -258,7 +260,7 @@ def list_architectures():
     return archs
 
 def list_targets():
-    cdef const_char_ptr2 t
+    cdef char**  t
     targets = []
     t = bfd_target_list()
     i = 0
@@ -297,9 +299,9 @@ cdef class Symbol:
     cdef public:
         symvalue value
         bfd_vma base
-        const_char_ptr name
+        char* name
         object dynamic
-        bytes type
+        unicode type
 
     def __cinit__(self):
         pass
@@ -312,7 +314,7 @@ cdef class Symbol:
         #self.base = bfd_asymbol_base(asym)
         self.name = bfd_asymbol_name(asym)
         self.value = syminfo.value
-        self.type = <bytes>syminfo.type
+        self.type = chr(syminfo.type)
         self.dynamic = dynamic
 
 class SectionFlag:
@@ -322,7 +324,7 @@ class SectionFlag:
         self.abbrev = abbrev
         self.val = val
 
-        # the popover content field can't handle newlines in the django 
+        # the popover content field can't handle newlines in the django
         # template right now, so replace them with spaces for now.
         self.desc = desc.replace('\n', ' ')
 
@@ -331,176 +333,176 @@ class SectionFlag:
 
 # The following section flags are from bfd.h and MAY change in future versions of bfd
 FLAGS = (
-    SectionFlag('SEC_ALLOC', 'ALLOC', 0x001, 
-      'Tells the OS to allocate space for this section when loading.\n' \
-      'This is clear for a section containing debug information only.'),
+    SectionFlag('SEC_ALLOC', 'ALLOC', 0x001,
+                'Tells the OS to allocate space for this section when loading.\n' \
+                'This is clear for a section containing debug information only.'),
 
     SectionFlag('SEC_LOAD', 'LOAD', 0x002,
-        'Tells the OS to load the section from the file when loading.\n' \
-        'This is clear for a .bss section.'),
+                'Tells the OS to load the section from the file when loading.\n' \
+                'This is clear for a .bss section.'),
 
     SectionFlag('SEC_RELOC', 'RELOC', 0x004,
-        'The section contains data still to be relocated, so there is\n' \
-        'some relocation information too.'),
+                'The section contains data still to be relocated, so there is\n' \
+                'some relocation information too.'),
 
     SectionFlag('SEC_READONLY', 'READONLY', 0x008,
-        'A signal to the OS that the section contains read only data.'),
+                'A signal to the OS that the section contains read only data.'),
 
     SectionFlag('SEC_CODE', 'CODE', 0x010,
-        'The section contains code only.'),
+                'The section contains code only.'),
 
     SectionFlag('SEC_DATA', 'DATA', 0x020,
-        'The section contains data only.'),
+                'The section contains data only.'),
 
     SectionFlag('SEC_ROM', 'ROM', 0x040,
-        'The section will reside in ROM.'),
+                'The section will reside in ROM.'),
 
     SectionFlag('SEC_CONSTRUCTOR', 'CONSTRUCTOR', 0x080,
-         'The section contains constructor information. This section\n' \
-         'type is used by the linker to create lists of constructors and\n' \
-         'destructors used by <<g++>>. When a back end sees a symbol\n' \
-         'which should be used in a constructor list, it creates a new\n' \
-         'section for the type of name (e.g., <<__CTOR_LIST__>>), attaches\n' \
-         'the symbol to it, and builds a relocation. To build the lists\n' \
-         'of constructors, all the linker has to do is catenate all the\n' \
-         'sections called <<__CTOR_LIST__>> and relocate the data\n' \
-         'contained within - exactly the operations it would peform on\n' \
-         'standard data.'),
+                'The section contains constructor information. This section\n' \
+                'type is used by the linker to create lists of constructors and\n' \
+                'destructors used by <<g++>>. When a back end sees a symbol\n' \
+                'which should be used in a constructor list, it creates a new\n' \
+                'section for the type of name (e.g., <<__CTOR_LIST__>>), attaches\n' \
+                'the symbol to it, and builds a relocation. To build the lists\n' \
+                'of constructors, all the linker has to do is catenate all the\n' \
+                'sections called <<__CTOR_LIST__>> and relocate the data\n' \
+                'contained within - exactly the operations it would peform on\n' \
+                'standard data.'),
 
     SectionFlag('SEC_HAS_CONTENTS', 'CONTENTS', 0x100,
-        'The section has contents - a data section could be\n' \
-        '<<SEC_ALLOC>> | <<SEC_HAS_CONTENTS>>; a debug section could be\n' \
-        '<<SEC_HAS_CONTENTS>>.'),
+                'The section has contents - a data section could be\n' \
+                '<<SEC_ALLOC>> | <<SEC_HAS_CONTENTS>>; a debug section could be\n' \
+                '<<SEC_HAS_CONTENTS>>.'),
 
     SectionFlag('SEC_NEVER_LOAD', 'NEVER_LOAD', 0x200,
-        'An instruction to the linker to not output the section\n' \
-        'even if it has information which would normally be written.'),
+                'An instruction to the linker to not output the section\n' \
+                'even if it has information which would normally be written.'),
 
     SectionFlag('SEC_THREAD_LOCAL', 'THREAD_LOCAL', 0x400,
-        'The section contains thread local data.'),
+                'The section contains thread local data.'),
 
     SectionFlag('SEC_HAS_GOT_REF', 'GOT_REF', 0x800,
-        'The section has GOT references.  This flag is only for the\n' \
-        'linker, and is currently only used by the elf32-hppa back end.\n' \
-        'It will be set if global offset table references were detected\n' \
-        'in this section, which indicate to the linker that the section\n' \
-        'contains PIC code, and must be handled specially when doing a\n' \
-        'static link.'),
+                'The section has GOT references.  This flag is only for the\n' \
+                'linker, and is currently only used by the elf32-hppa back end.\n' \
+                'It will be set if global offset table references were detected\n' \
+                'in this section, which indicate to the linker that the section\n' \
+                'contains PIC code, and must be handled specially when doing a\n' \
+                'static link.'),
 
     SectionFlag('SEC_IS_COMMON', 'COMMON', 0x1000,
-        'The section contains common symbols (symbols may be defined\n' \
-        'multiple times, the value of a symbol is the amount of\n' \
-        'space it requires, and the largest symbol value is the one\n' \
-        'used).  Most targets have exactly one of these (which we\n' \
-        'translate to bfd_com_section_ptr), but ECOFF has two.'),
+                'The section contains common symbols (symbols may be defined\n' \
+                'multiple times, the value of a symbol is the amount of\n' \
+                'space it requires, and the largest symbol value is the one\n' \
+                'used).  Most targets have exactly one of these (which we\n' \
+                'translate to bfd_com_section_ptr), but ECOFF has two.'),
 
     SectionFlag('SEC_DEBUGGING', 'DEBUGGING', 0x2000,
-        'The section contains only debugging information.  For\n' \
-        'example, this is set for ELF .debug and .stab sections.\n' \
-        'strip tests this flag to see if a section can be\n' \
-        'discarded.'),
+                'The section contains only debugging information.  For\n' \
+                'example, this is set for ELF .debug and .stab sections.\n' \
+                'strip tests this flag to see if a section can be\n' \
+                'discarded.'),
 
     SectionFlag('SEC_IN_MEMORY', 'IN_MEMORY', 0x4000,
-        'The contents of this section are held in memory pointed to\n' \
-        'by the contents field.  This is checked by bfd_get_section_contents,\n' \
-        'and the data is retrieved from memory if appropriate.'), 
+                'The contents of this section are held in memory pointed to\n' \
+                'by the contents field.  This is checked by bfd_get_section_contents,\n' \
+                'and the data is retrieved from memory if appropriate.'),
 
     SectionFlag('SEC_EXCLUDE', 'EXCLUDE', 0x8000,
-        'The contents of this section are to be excluded by the\n' \
-        'linker for executable and shared objects unless those\n' \
-        'objects are to be further relocated.'), 
+                'The contents of this section are to be excluded by the\n' \
+                'linker for executable and shared objects unless those\n' \
+                'objects are to be further relocated.'),
 
     SectionFlag('SEC_SORT_ENTRIES', 'SORT_ENTRIES', 0x10000,
-        'The contents of this section are to be sorted based on the sum of\n' \
-        'the symbol and addend values specified by the associated relocation\n' \
-        'entries.  Entries without associated relocation entries will be\n' \
-        'appended to the end of the section in an unspecified order.'), 
+                'The contents of this section are to be sorted based on the sum of\n' \
+                'the symbol and addend values specified by the associated relocation\n' \
+                'entries.  Entries without associated relocation entries will be\n' \
+                'appended to the end of the section in an unspecified order.'),
 
     SectionFlag('SEC_LINK_ONCE', 'LINK_ONCE', 0x20000,
-        'When linking, duplicate sections of the same name should be\n' \
-        'discarded, rather than being combined into a single section as\n' \
-        'is usually done.  This is similar to how common symbols are\n' \
-        'handled.  See SEC_LINK_DUPLICATES below.'), 
+                'When linking, duplicate sections of the same name should be\n' \
+                'discarded, rather than being combined into a single section as\n' \
+                'is usually done.  This is similar to how common symbols are\n' \
+                'handled.  See SEC_LINK_DUPLICATES below.'),
 
     SectionFlag('SEC_LINK_DUPLICATES', 'LINK_DUPLICATES', 0xc0000,
-        'If SEC_LINK_ONCE is set, this bitfield describes how the linker\n' \
-        'should handle duplicate sections.'),
+                'If SEC_LINK_ONCE is set, this bitfield describes how the linker\n' \
+                'should handle duplicate sections.'),
 
     SectionFlag('SEC_LINK_DUPLICATES_DISCARD', 'LINK_DUPLICATES_DISCARD', 0x0,
-        'This value for SEC_LINK_DUPLICATES means that duplicate\n' \
-        'sections with the same name should simply be discarded.'),
+                'This value for SEC_LINK_DUPLICATES means that duplicate\n' \
+                'sections with the same name should simply be discarded.'),
 
     SectionFlag('SEC_LINK_DUPLICATES_ONE_ONLY', 'LINK_DUPLICATES_ONE_ONLY', 0x40000,
-        'This value for SEC_LINK_DUPLICATES means that the linker\n' \
-        'should warn if there are any duplicate sections, although\n' \
-        'it should still only link one copy.'), 
+                'This value for SEC_LINK_DUPLICATES means that the linker\n' \
+                'should warn if there are any duplicate sections, although\n' \
+                'it should still only link one copy.'),
 
     SectionFlag('SEC_LINK_DUPLICATES_SAME_SIZE', 'LINK_DUPLICATES_SAME_SIZE', 0x80000,
-        'This value for SEC_LINK_DUPLICATES means that the linker\n' \
-        'should warn if any duplicate sections are a different size.'),
+                'This value for SEC_LINK_DUPLICATES means that the linker\n' \
+                'should warn if any duplicate sections are a different size.'),
 
     SectionFlag('SEC_LINK_DUPLICATES_SAME_CONTENTS', 'LINK_DUPLICATES_SAME_CONTENTS', 0x40000|0x80000,
-        'This value for SEC_LINK_DUPLICATES means that the linker\n' \
-        'should warn if any duplicate sections contain different\n' \
-        'contents.'), 
+                'This value for SEC_LINK_DUPLICATES means that the linker\n' \
+                'should warn if any duplicate sections contain different\n' \
+                'contents.'),
 
     SectionFlag('SEC_LINKER_CREATED', 'LINKER_CREATED', 0x100000,
-        'This section was created by the linker as part of dynamic\n' \
-        'relocation or other arcane processing.  It is skipped when\n' \
-        'going through the first-pass output, trusting that someone\n' \
-        'else up the line will take care of it later.'), 
+                'This section was created by the linker as part of dynamic\n' \
+                'relocation or other arcane processing.  It is skipped when\n' \
+                'going through the first-pass output, trusting that someone\n' \
+                'else up the line will take care of it later.'),
 
     SectionFlag('SEC_KEEP', 'KEEP', 0x200000,
-        'This section should not be subject to garbage collection.\n' \
-        'Also set to inform the linker that this section should not be\n' \
-        'listed in the link map as discarded.'), 
+                'This section should not be subject to garbage collection.\n' \
+                'Also set to inform the linker that this section should not be\n' \
+                'listed in the link map as discarded.'),
 
     SectionFlag('SEC_SMALL_DATA', 'SMALL_DATA', 0x400000,
-        'This section contains "short" data, and should be placed\n' \
-        '"near" the GP.'),
+                'This section contains "short" data, and should be placed\n' \
+                '"near" the GP.'),
 
     SectionFlag('SEC_MERGE', 'MERGE', 0x800000,
-        'Attempt to merge identical entities in the section.\n' \
-        ' Entity size is given in the entsize field.\n'),
+                'Attempt to merge identical entities in the section.\n' \
+                ' Entity size is given in the entsize field.\n'),
 
     SectionFlag('SEC_STRINGS', 'STRINGS', 0x1000000,
-        'If given with SEC_MERGE, entities to merge are zero terminated\n' \
-        'strings where entsize specifies character size instead of fixed\n' \
-        'size entries.'), 
+                'If given with SEC_MERGE, entities to merge are zero terminated\n' \
+                'strings where entsize specifies character size instead of fixed\n' \
+                'size entries.'),
 
     SectionFlag('SEC_GROUP', 'GROUP', 0x2000000,
-        'This section contains data about section groups.'),
+                'This section contains data about section groups.'),
 
     SectionFlag('SEC_COFF_SHARED_LIBRARY', 'COFF_SHARED_LIBRARY', 0x4000000,
-        'The section is a COFF shared library section.  This flag is\n' \
-        'only for the linker.  If this type of section appears in\n' \
-        'the input file, the linker must copy it to the output file\n' \
-        'without changing the vma or size.  FIXME: Although this\n' \
-        'was originally intended to be general, it really is COFF\n' \
-        'specific (and the flag was renamed to indicate this).  It\n' \
-        'might be cleaner to have some more general mechanism to\n' \
-        'allow the back end to control what the linker does with\n' \
-        'sections.'), 
+                'The section is a COFF shared library section.  This flag is\n' \
+                'only for the linker.  If this type of section appears in\n' \
+                'the input file, the linker must copy it to the output file\n' \
+                'without changing the vma or size.  FIXME: Although this\n' \
+                'was originally intended to be general, it really is COFF\n' \
+                'specific (and the flag was renamed to indicate this).  It\n' \
+                'might be cleaner to have some more general mechanism to\n' \
+                'allow the back end to control what the linker does with\n' \
+                'sections.'),
 
     SectionFlag('SEC_COFF_SHARED', 'COFF_SHARED', 0x8000000,
-        'This section contains data which may be shared with other\n' \
-        'executables or shared objects. This is for COFF only.\n'),
+                'This section contains data which may be shared with other\n' \
+                'executables or shared objects. This is for COFF only.\n'),
 
     SectionFlag('SEC_TIC54X_BLOCK', 'TIC54X_BLOCK', 0x10000000,
-        'When a section with this flag is being linked, then if the size of\n' \
-        'the input section is less than a page, it should not cross a page\n' \
-        'boundary.  If the size of the input section is one page or more,\n' \
-        'it should be aligned on a page boundary.  This is for TI\n' \
-        'TMS320C54X only.'), 
+                'When a section with this flag is being linked, then if the size of\n' \
+                'the input section is less than a page, it should not cross a page\n' \
+                'boundary.  If the size of the input section is one page or more,\n' \
+                'it should be aligned on a page boundary.  This is for TI\n' \
+                'TMS320C54X only.'),
 
     SectionFlag('SEC_TIC54X_CLINK', 'TIC54X_CLINK', 0x20000000,
-        'Conditionally link this section; do not link if there are no\n' \
-        'references found to any symbol in the section.  This is for TI\n' \
-        'TMS320C54X only.'), 
+                'Conditionally link this section; do not link if there are no\n' \
+                'references found to any symbol in the section.  This is for TI\n' \
+                'TMS320C54X only.'),
 
     SectionFlag('SEC_COFF_NOREAD', 'COFF_NOREAD', 0x40000000,
-        'Indicate that section has the no read flag set. This happens\n' \
-        ' when memory read flag isn\'t set.'),
+                'Indicate that section has the no read flag set. This happens\n' \
+                ' when memory read flag isn\'t set.'),
 )
 
 # ------------------------------------------------------------------------------
@@ -512,13 +514,13 @@ cdef class Section:
         bfd_vma vma
         bfd_vma lma
         long alignment
-        const_char_ptr name
+        char* name
         bfd_size_type size
         object flags
 
         # this is a hack until I can figure out how to add weak references dynamically in upper layers
         object color
-         
+
     cdef:
         bfd* abfd
         asection* section
@@ -533,7 +535,7 @@ cdef class Section:
 
     def __repr__(self):
         return str(self)
-    
+
     cdef load(self, bfd* abfd, asection* section):
         self.abfd = abfd
         self.section = section
@@ -544,7 +546,7 @@ cdef class Section:
         self.size = bfd_section_size(abfd, section)
         self.alignment = bfd_section_alignment(abfd, section)
         flags = bfd_get_section_flags(abfd, section)
-        
+
         for f in FLAGS:
             if f.isset(flags):
                 self.flags.append(f)
@@ -561,7 +563,7 @@ ENDIAN_BIG=BFD_ENDIAN_BIG
 
 cdef internalFuncFmtAddr(bfd, addr):
     addrStr = '0x%08x' % addr
-    if bfd.syms_by_addr.has_key(addr):
+    if addr in bfd.syms_by_addr:
         addrStr += ' <%s>' % bfd.syms_by_addr[addr].name
     return addrStr
 
@@ -573,9 +575,9 @@ def guess_target_arch(path):
     matches = []
     targets = []
 
-    print 'guessing target'
+    logger.info('guessing target')
     # open BFD file
-    abfd = bfd_openr(path, NULL)
+    abfd = bfd_openr(path.encode('UTF-8'), NULL)
     if (NULL == abfd):
         raise BfdErr('Unable to open file %s' % path)
 
@@ -590,11 +592,11 @@ def guess_target_arch(path):
             while matching[i] != NULL:
                 matches.append(matching[i])
                 i = i+1
-                
-            free(matching)    
+
+            free(matching)
     else:
         matches.append(bfd_get_target(abfd))
-        print 'guessed target %s' % matches
+        logger.info('guessed target %s' % matches)
 
     # for each target, retrieve identified arch if known
     for match in matches:
@@ -603,7 +605,8 @@ def guess_target_arch(path):
             # NOTE the rest of our code depends on bfd returning the exact string 'UNKNOWN!' when arch is unknown
             arch = bfd_printable_arch_mach(bfd_get_arch(abfd), bfd_get_mach(abfd))
             targets.append((match, arch))
- 
+
+    logger.info('Targets: %s' % targets)
     return targets
 
 # ------------------------------------------------------------------------------
@@ -618,8 +621,8 @@ cdef class Bfd:
     cdef public object target
     cdef public object funcFmtAddr
     cdef public unsigned long mach
-    cdef public unsigned long archId
-    cdef public const_char_ptr arch
+    cdef public bfd_architecture archId
+    cdef public char* arch
     cdef public object bpc
     cdef public object endian
 
@@ -627,36 +630,35 @@ cdef class Bfd:
 
         cdef char **matching
         cdef const bfd_arch_info_type* inf
-        cdef char* tgt
         global ctx
 
         if setjmp(ctx) != 0:
             raise BfdSegFault('Something very bad happened in the Bfd constructor!')
-    
+
         # a dictionary of Symbols indexed by name
         self.syms_by_name = {}
         self.syms_by_addr = {}
         self.sections = OrderedDict()
 
         if target:
-            tgt = target
-            print 'PyBfd: target is %s' % tgt
+            self.abfd = bfd_openr(path.encode('UTF-8'), target.encode('UTF-8'))
+            #logger.info('PyBfd: target is %s' % target.encode('UTF-8'))
         else:
-            tgt = NULL
+            self.abfd = bfd_openr(path.encode('UTF-8'), NULL)
 
         # open BFD file
-        self.abfd = bfd_openr(path, tgt)
+
         if (NULL == self.abfd):
             raise BfdErr('Unable to open file %s' % path)
 
         # set machine
         if machine:
-            inf = bfd_scan_arch(machine)
-            self.abfd.arch_info = inf 
+            inf = bfd_scan_arch(machine.encode('UTF-8'))
+            self.abfd.arch_info = inf
 
-        # if we failed to match
+            # if we failed to match
         if bfd_check_format(self.abfd, bfd_object) == 0:
-            print "Failed to get match"
+            logger.info("Failed to get match")
             raise BfdFileFormatException('Unable to identify target format')
 
         if bfd_get_flavour(self.abfd) == bfd_target_unknown_flavour:
@@ -680,14 +682,14 @@ cdef class Bfd:
         # do not let these errors stop us
         try:
 
-          # load the static symbols
-          self._load_static_syms()
+            # load the static symbols
+            self._load_static_syms()
 
-          # load the dynamic symbols
-          self._load_dynamic_syms()
+            # load the dynamic symbols
+            self._load_dynamic_syms()
 
         except BfdErr, e:
-          print 'Caught exception: %s, but continuing anyway' % e
+            logger.info('Caught exception: %s, but continuing anyway' % e)
 
         # load sections
         self._load_sections()
@@ -695,10 +697,10 @@ cdef class Bfd:
     def __dealloc__(self):
         # do free()s on anything we've allocated
         pass
-    
+
     def close(self):
         bfd_close(self.abfd)
-        
+
     cdef _add_syms(self, asymbol** asym, long num, object dynamic):
         # must declare C type first
         cdef Symbol s
@@ -769,7 +771,7 @@ cdef class Bfd:
         bufSize = size
         buf = <char*> malloc(bufSize)
         if buf == NULL:
-            print 'Failed to allocate disassembly buffer'
+            logger.info('Failed to allocate disassembly buffer')
             return
 
         sec.get_section_contents(<bfd_byte*>buf, addr - sec.vma, size)
@@ -781,7 +783,7 @@ cdef class Bfd:
 
         return raw
 
-    def disassemble(self, section, startAddr=None, endAddr=None, numLines=None, funcFmtAddr=None, funcFmtLine=None, funcFmtLineArgs=None, endian=ENDIAN_DEFAULT, options='', baseAddr=None):
+    def disassemble(self, section, startAddr=None, endAddr=None, numLines=None, funcFmtAddr=None, funcFmtLine=None, funcFmtLineArgs=None, endian=ENDIAN_DEFAULT, options=b'', baseAddr=None):
         '''Disassemble the given section
 
            section - String specifying the name of the section to disassemble
@@ -793,7 +795,7 @@ cdef class Bfd:
            endian - Endian to use when disassembling
            options - Machine specific disassembly options
            baseAddr - Amount to adjust VMA (startAddr is always given without taking baseAddr into affect)
-    
+
            returns a tuple containing (1. the disassembly text, 2. the next address at which disassembly should continue, 3. number of lines returned)
         '''
 
@@ -805,8 +807,10 @@ cdef class Bfd:
         cdef Section sec
         cdef int i
         cdef FILE* stream
+        cdef char* tmpBuffer
         cdef bfd_target* xvec_new
-        cdef const bfd_target* xvec_orig
+        cdef bfd_target* xvec_orig
+        #cdef char* coptions = <bytes>(options.encode('UTF-8'))
 
         if setjmp(ctx) != 0:
             raise BfdSegFault('Something very bad happened while trying to disassemble!')
@@ -821,26 +825,28 @@ cdef class Bfd:
             baseAddr = 0
 
         # uncomment this to test our segmentation fault handler
-        #cdef bfd_byte* test = NULL 
+        #cdef bfd_byte* test = NULL
         #test[0] = 2
 
         # make sure right away that we can disassemble this bfd
         disassemble_fn = <disassembler_ftype> disassembler(self.abfd)
-        if NULL == disassemble_fn:  
-            raise BfdErr('Cannot disassemble for arch %s' % self.arch) 
+        if NULL == disassemble_fn:
+            raise BfdErr('Cannot disassemble for arch %s' % self.arch)
 
         xvec_new = NULL
         xvec_orig = self.abfd.xvec
 
-        iostream = tempfile.TemporaryFile()
-        if hasattr(iostream, 'file'):
-            stream = PyFile_AsFile(iostream.file)
-        else:
-            stream = PyFile_AsFile(iostream)
-        
+        stream = tmpfile()
+        #iostream = tempfile.TemporaryFile()
+        #stream = <FILE*>iostream
+        #if hasattr(iostream, 'file'):
+        #    stream = PyFile_AsFile(iostream.file)
+        #else:
+        #    stream = PyFile_AsFile(iostream)
+
 
         self.funcFmtAddr = funcFmtAddr
-        
+
         init_disassemble_info (&disasm_info, stream, <fprintf_ftype> fprintf)
 
         disasm_info.application_data = <void *> self
@@ -878,10 +884,10 @@ cdef class Bfd:
 
         # get disassemble function again, since we modified xvec
         disassemble_fn = <disassembler_ftype> disassembler(self.abfd)
-        if NULL == disassemble_fn:  
-            raise BfdErr('Cannot disassemble for arch %s' % self.arch) 
+        if NULL == disassemble_fn:
+            raise BfdErr('Cannot disassemble for arch %s' % self.arch)
 
-        # TODO: set symbols?
+            # TODO: set symbols?
         disasm_info.symtab = NULL
         disasm_info.symtab_size = 0
         disasm_info.symbols = NULL
@@ -890,10 +896,10 @@ cdef class Bfd:
         bufSize = sec.size
         buf = <bfd_byte*> malloc(bufSize)
         if buf == NULL:
-            print 'Failed to allocate disassembly buffer'
+            logger.info('Failed to allocate disassembly buffer')
             if xvec_new != NULL:
                 free(xvec_new)
-            self.abfd.xvec = xvec_orig    
+            self.abfd.xvec = xvec_orig
             return
 
         sec.get_section_contents(buf)
@@ -912,7 +918,7 @@ cdef class Bfd:
 
         # numLines of None means all available in the section
         if numLines is None:
-            numLines = sys.maxint
+            numLines = 2147483648
 
         #print 'Section: %s' % section.name
         #print 'Start Address: 0x%08x' % startAddr
@@ -923,12 +929,12 @@ cdef class Bfd:
         #print 'Endian: %s' % endian
         #print 'Options: %s' % options
         #print 'Base Address: 0x%016x' % baseAddr
- 
+
         addr = startAddr
 
         lineCnt = 0
         output = []
-        
+
         # bytes per instruction, set by some architectures
         self.bpc = None
         self.endian = endian
@@ -937,18 +943,30 @@ cdef class Bfd:
 
         # Allow the target to customize the info structure
         disassemble_init_for_target(&disasm_info)
-        
+
         while addr < endAddr and lineCnt < numLines:
             instrSize = disassemble_fn(addr, &disasm_info)
-            
+
             if funcFmtLine != None:
-                iostream.flush()
-                iostream.seek(foffs)
-                line = iostream.read()
-                foffs = iostream.tell()
-                if hasattr(iostream, 'file'):
-                    # Keep Windows happy
-                    iostream.seek(foffs) 
+                #iostream.flush()
+                fflush(stream)
+
+                #iostream.seek(foffs)
+                fseek(stream, foffs, 0)
+
+                #line = iostream.read()
+                tmpBuffer = <char*>malloc(2048)
+                memset(tmpBuffer, 0, 2048)
+                fread(tmpBuffer, 2048, 1, stream)
+                line = <bytes> tmpBuffer
+                free(tmpBuffer)
+
+                #foffs = iostream.tell()
+                foffs = ftell(stream)
+
+                #if hasattr(iostream, 'file'):
+                # Keep Windows happy
+                #    iostream.seek(foffs)
                 rawData = []
                 offset = addr - sec_vma
 
@@ -964,7 +982,7 @@ cdef class Bfd:
                         self.bpc = 1
 
                 try:
-                    line = funcFmtLine(addr, rawData, line, self, **funcFmtLineArgs)
+                    line = funcFmtLine(addr, rawData, line.decode('ascii'), self, **funcFmtLineArgs)
                 except BfdHaltDisassembly:
                     break
 
@@ -976,7 +994,8 @@ cdef class Bfd:
             if instrSize < 1:
                 break
 
-        iostream.close()
+        #iostream.close()
+        fclose(stream)
         free(buf)
         if xvec_new != NULL:
             free(xvec_new)
@@ -988,32 +1007,31 @@ cdef class Bfd:
     def print_dis_options(self):
         cdef FILE* stream
 
-        iostream = tempfile.TemporaryFile()
-        if hasattr(iostream, 'file'):
-            stream = PyFile_AsFile(iostream.file)
-        else:
-            stream = PyFile_AsFile(iostream)
+        #iostream = tempfile.TemporaryFile()
+        #if hasattr(iostream, 'file'):
+        #    stream = PyFile_AsFile(iostream.file)
+        #else:
+        #    stream = PyFile_AsFile(iostream)
 
-        disassembler_usage(stream)
-        iostream.seek(0)
-        iostream.flush()
-        options = iostream.read()
-        print options
+        #disassembler_usage(stream)
+        #iostream.seek(0)
+        #iostream.flush()
+        #options = iostream.read()
+        #print options
 
 
- # helper callback function used to interate over each section
+        # helper callback function used to interate over each section
 cdef add_sections_callback(bfd* abfd, asection* section, object bfd):
-        cdef Section sec
-        sec = Section()
-        sec.load(abfd, section)
-        bfd.sections[sec.name] = sec
+    cdef Section sec
+    sec = Section()
+    sec.load(abfd, section)
+    bfd.sections[sec.name] = sec
 
 cdef void print_address_func(bfd_vma addr, disassemble_info *dinfo):
     cdef Bfd bfd
-    cdef const_char_ptr fmtStr = "%s"
     bfd = <Bfd> dinfo.application_data
     addrStr = internalFuncFmtAddr(bfd, addr)
-    dinfo.fprintf_func(dinfo.stream, fmtStr, <char*> addrStr)
+    dinfo.fprintf_func(dinfo.stream, addrStr, 0)
 
 cdef int symbol_at_address_func(bfd_vma addr, disassemble_info *dinfo):
     return 0
@@ -1023,7 +1041,7 @@ import bfd
 b = bfd.Bfd('/bin/ls')
 sec = b.sections['.text']
 start = sec.vma
-print 'about to disassemble'
+logger.info('about to disassemble')
 (dis,nextAddr, lineCnt) = b.disassemble(sec, sec.vma, None, 3000000000, funcFmtAddr, funcFmtLine, funcFmtLineArgs, endian=bfd.ENDIAN_LITTLE)
 with open('out', 'w') as f:
     f.write('Next Address: 0x%08x,\t' % nextAddr)
@@ -1033,7 +1051,6 @@ with open('out', 'w') as f:
 
 def profile(funcFmtAddr, funcFmtLine, funcFmtLineArgs):
     import cProfile
-    print 'starting profiler'
+    logger.info('starting profiler')
     cProfile.runctx(profile_code, globals(), locals())
-    print 'done profiling'
-
+    logger.info('done profiling')

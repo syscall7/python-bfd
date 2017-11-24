@@ -1,5 +1,6 @@
 # BFD-specific ignores
 bfd/bfd.c
+bfd/bfd.cpp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
