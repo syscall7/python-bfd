@@ -10,7 +10,7 @@ Python wrapper for binutils Binary File Descriptor (BFD) library
 
 ## Launching Vagrant
 
-Launching Vagrant will create a new Ubuntu 16.04 VM in VirtualBox, then
+Launching Vagrant will create a new Ubuntu 18.04 VM in VirtualBox, then
 provision using Ansible:
 ```
 vagrant up
