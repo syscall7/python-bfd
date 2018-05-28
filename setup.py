@@ -9,7 +9,7 @@ bfd = Extension('bfd',
                                  # get around automake
                                  ('PACKAGE', 1),
                                  ('PACKAGE_VERSION', 1)],
-                libraries = ['bfd-2.26.1-multiarch', 'opcodes-2.26.1-multiarch', 'z'],
+                libraries = ['bfd-2.30-multiarch', 'opcodes-2.30-multiarch', 'z'],
                 extra_compile_args=['-fpermissive'],
                 language="c++", # generate and compile C++ code
                 sources = ['bfd/bfd.pyx'])

@@ -241,7 +241,7 @@ cdef extern from "dis-asm.h":
     ctypedef int (*disassembler_ftype)(bfd_vma vma, disassemble_info* dinfo)
 
     void init_disassemble_info(disassemble_info* info, void* stream, fprintf_ftype fprintf_func)
-    void* disassembler(bfd* abfd)
+    void* disassembler(bfd_architecture arc, bfd_boolean big, unsigned long mach, bfd* abfd)
     void disassembler_usage (void* stream)
     void disassemble_init_for_target(disassemble_info * dinfo)
 
@@ -829,7 +829,7 @@ cdef class Bfd:
         #test[0] = 2
 
         # make sure right away that we can disassemble this bfd
-        disassemble_fn = <disassembler_ftype> disassembler(self.abfd)
+        disassemble_fn = <disassembler_ftype> disassembler(self.archId, False, self.mach, self.abfd)
         if NULL == disassemble_fn:
             raise BfdErr('Cannot disassemble for arch %s' % self.arch)
 
@@ -883,7 +883,7 @@ cdef class Bfd:
             self.abfd.xvec = xvec_new
 
         # get disassemble function again, since we modified xvec
-        disassemble_fn = <disassembler_ftype> disassembler(self.abfd)
+        disassemble_fn = <disassembler_ftype> disassembler(self.archId, True if disasm_info.endian == BFD_ENDIAN_BIG else False, self.mach, self.abfd)
         if NULL == disassemble_fn:
             raise BfdErr('Cannot disassemble for arch %s' % self.arch)
 
