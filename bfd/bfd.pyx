@@ -1,6 +1,7 @@
 # cython: profile=True
 # cython: c_string_type = unicode
 # cython: c_string_encoding = ascii
+# cython: language_level=3str
 import tempfile
 import sys
 import logging
@@ -174,15 +175,15 @@ cdef extern from "bfd.h":
     # --------------------------------------------------------------------------
     # Functions
     # --------------------------------------------------------------------------
-    char** bfd_arch_list()
-    char** bfd_target_list()
+    const char** bfd_arch_list()
+    const char** bfd_target_list()
     bfd* bfd_openr(char *filename, char *target)
     bfd_boolean bfd_close(bfd *abfd)
     bfd_boolean bfd_check_format(bfd *abfd, bfd_format fmt)
     bfd_boolean bfd_check_format_matches(bfd *abfd, bfd_format fmt, char ***matching)
     bfd_error_type bfd_get_error()
     char* bfd_errmsg(bfd_error_type error_tag)
-    void bfd_map_over_sections(bfd *abfd, void* func, object obj)
+    void bfd_map_over_sections(bfd *abfd, void (*func)(bfd*, asection*, void*), object obj)
     unsigned long bfd_get_mach(bfd *abfd)
     bfd_architecture bfd_get_arch(bfd *abfd)
     const char* bfd_printable_arch_mach(bfd_architecture arch, unsigned long machine)
@@ -249,7 +250,7 @@ cdef extern from "dis-asm.h":
 # MODULE-LEVEL FUNCTONS
 # ------------------------------------------------------------------------------
 def list_architectures():
-    cdef char**  a
+    cdef const char** a
     archs = []
     a = bfd_arch_list()
     i = 0
@@ -260,7 +261,7 @@ def list_architectures():
     return archs
 
 def list_targets():
-    cdef char**  t
+    cdef const char** t
     targets = []
     t = bfd_target_list()
     i = 0
@@ -622,7 +623,7 @@ cdef class Bfd:
     cdef public object funcFmtAddr
     cdef public unsigned long mach
     cdef public bfd_architecture archId
-    cdef public char* arch
+    cdef public const char* arch
     cdef public object bpc
     cdef public object endian
 
@@ -756,7 +757,7 @@ cdef class Bfd:
         free(syms)
 
     cdef _load_sections(self):
-        bfd_map_over_sections(self.abfd, <void*>add_sections_callback, self);
+        bfd_map_over_sections(self.abfd, add_sections_callback, self);
 
     def raw_data(self, section, addr, size):
 
@@ -809,7 +810,7 @@ cdef class Bfd:
         cdef FILE* stream
         cdef char* tmpBuffer
         cdef bfd_target* xvec_new
-        cdef bfd_target* xvec_orig
+        cdef const bfd_target* xvec_orig
         #cdef char* coptions = <bytes>(options.encode('UTF-8'))
 
         if setjmp(ctx) != 0:
@@ -1021,8 +1022,10 @@ cdef class Bfd:
 
 
         # helper callback function used to interate over each section
-cdef add_sections_callback(bfd* abfd, asection* section, object bfd):
+cdef void add_sections_callback(bfd* abfd, asection* section, void* _bfd):
     cdef Section sec
+    bfd = <object>_bfd
+
     sec = Section()
     sec.load(abfd, section)
     bfd.sections[sec.name] = sec
